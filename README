@@ -1,0 +1,537 @@
+================================================================================
+TurboParser -- Dependency Parser with Linear Programming Relaxations.
+Version 2.0
+
+Written and maintained by André Martins (afm [at] cs.cmu.edu).
+================================================================================
+
+This file is part of TurboParser, a project started at the computational
+linguistics research group, ARK (http://www.ark.cs.cmu.edu/), in Carnegie Mellon 
+University.
+
+This package contains a C++ implementation of the dependency parsers described 
+in:
+
+[1] André F. T. Martins, Noah A. Smith, and Eric P. Xing. 2009.
+Concise Integer Linear Programming Formulations for Dependency Parsing.
+In Annual Meeting of the Association for Computational Linguistics (ACL).
+
+[2] André F. T. Martins, Noah A. Smith, and Eric P. Xing. 2009.
+Polyhedral Outer Approximations with Application to Natural Language Parsing.
+In International Conference on Machine Learning (ICML).
+
+[3] André F. T. Martins, Noah A. Smith, Eric P. Xing, Pedro M. Q. Aguiar, and 
+Mário A. T. Figueiredo. 2010.
+TurboParsers: Dependency Parsing by Approximate Variational Inference.
+In Empirical Methods in Natural Language Processing (EMNLP).
+
+[4] André F. T. Martins, Noah A. Smith, Mário A. T. Figueiredo, 
+Pedro M. Q. Aguiar. 2011.
+Dual Decomposition With Many Overlapping Components.
+In Empirical Methods in Natural Language Processing (EMNLP).
+
+This package allows:
+- learning the parser from a treebank,
+- run the parser on new data,
+- evaluate the results against a gold-standard.
+
+This software has the following external dependencies: AD3, a library for
+approximate MAP inference (http://www.ark.cs.cmu.edu/AD3/); Eigen, a template
+library for linear algebra; glog, a library for logging; gflags, a library
+for commandline flag processing. All these libraries are free software and are 
+provided as tarballs in this package.
+
+This package has been tested in several Linux platforms.
+
+If there are any problems running the parser please email: afm [at] cs.cmu.edu
+I will only respond to questions not answered in this README.
+
+We would like to thank Ryan McDonald and Jason Baldridge by MSTParser 
+(available at http://sourceforge.net/projects/mstparser), in which the code in 
+this package was partly based. 
+
+================================================================================
+
+TurboParser is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+TurboParser is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation, Inc., 
+59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+================================================================================
+Contents
+================================================================================
+
+1. Compiling
+
+2. Example of usage
+   a. TurboParser
+   b. TurboTagger
+   c. Scripts
+
+3. Running the parser
+   a. Input data format
+   b. Training the parser
+   c. Training the tagger
+   d. Running the trained tagger/parser on new data
+   e. Additional options
+
+4. Memory/Disk space and performance issues
+
+5. Reproducing results in the ICML, ACL, and EMNLP papers
+
+
+================================================================================
+1. Compiling
+================================================================================
+
+To compile the code, first unzip/tar the downloaded file:
+
+> tar -zxvf TurboParser-2.0.tar.gz
+> cd TurboParser-2.0
+
+Next, run the following command
+
+> ./install_deps.sh
+
+This will install all the dependencies (libraries gflags, glog, Eigen, and AD3).
+Finally, type
+
+> ./configure && make && make install
+
+After these steps, a file named "TurboParser" and another named "TurboTagger" 
+should have been created under the working folder.
+
+Before starting to use TurboParser and TurboTagger, we need to add our local 
+dependencies to the library path. This can be done via:
+
+> export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd;`/deps/local/lib:"
+
+
+================================================================================
+2. Example Usage
+================================================================================
+
+The directory data/sample contains small samples of training and testing  data. 
+The data format is the one used in the CoNLL-X shared task, which we describe 
+in the next section. The following sample files are provided:
+
+sample_train.conll
+sample_test.conll
+
+
+================================================================================
+2a. TurboParser
+================================================================================
+
+Before starting, we need to add our local dependencies to the library path:
+
+> export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd;`/deps/local/lib:"
+
+These steps will train a parser on the training data, run it on the testing 
+data, and evaluate the output against the gold standard:
+
+> ./TurboParser --train \
+--file_train=data/sample/sample_train.conll \
+--file_model=models/sample_parser.model \
+--logtostderr
+
+> ./TurboParser --test \
+--evaluate \
+--file_model=models/sample_parser.model \
+--file_test=data/sample/sample_test.conll \
+--file_prediction=data/sample/sample_test.conll.predicted \
+--logtostderr
+
+The results from running the parser are in the file 
+data/samples/sample_test.conll.predicted and the trained model in 
+models/sample_parser.model.
+
+
+================================================================================
+2b. TurboTagger
+================================================================================
+
+If you have not done this yet, add your local dependencies to the library path:
+
+> export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd;`/deps/local/lib:"
+
+The input files in TurboTagger are not CoNLL files; they have the same tabular 
+form, but should only have two columns, the first one for the words and the 
+second one for the parts-of-speech. 
+ 
+To test TurboTagger, run first the following script to convert the sample files
+to this format:
+
+> ./scripts/create_tagging_corpus.sh data/sample/sample_train.conll
+> ./scripts/create_tagging_corpus.sh data/sample/sample_test.conll
+
+This will create files sample_train.conll.tagging and sample_test.conll.tagging.
+Then, run:
+
+> ./TurboTagger --train \
+--file_train=data/sample/sample_train.conll.tagging \
+--file_model=models/sample_tagger.model \
+--form_cutoff=1 \
+--logtostderr
+
+> ./TurboTagger --test \
+--evaluate \
+--file_model=models/sample_tagger.model \
+--file_test=data/sample/sample_test.conll.tagging \
+--file_prediction=data/sample/sample_test.conll.tagging.predicted \
+--logtostderr
+
+The results from running the tagger are in the file 
+data/sample/sample_test.conll.tagging.predicted and the trained model in 
+models/sample_tagger.model.
+
+
+================================================================================
+2c. Scripts
+================================================================================
+
+Shell scripts are provided in the folder ./scripts that allow you to train, 
+test, and evaluate the parser and the tagger with several options. 
+
+If you type:
+
+> cd scripts
+> ./train_test_parser.sh sample
+> ./train_test_tagger.sh sample
+
+You will perform all the operations described above (the results are not
+necessarily the same, since some parameter settings in the scripts may be
+different).
+ 
+We suggest you to look at these scripts and to edit them at your own needs.
+
+
+================================================================================
+3. Running the Parser
+================================================================================
+
+================================================================================
+3a. Input data format
+================================================================================
+
+The data format is the same as the CONLL-X shared task. 
+Here is a sample of two sentences from the Dutch dataset:
+
+1   Cathy             Cathy             N     N     eigen|ev|neut                    2   su      _  _
+2   zag               zie               V     V     trans|ovt|1of2of3|ev             0   ROOT    _  _
+3   hen               hen               Pron  Pron  per|3|mv|datofacc                2   obj1    _  _
+4   wild              wild              Adj   Adj   attr|stell|onverv                5   mod     _  _
+5   zwaaien           zwaai             N     N     soort|mv|neut                    2   vc      _  _
+6   .                 .                 Punc  Punc  punt                             5   punct   _  _
+
+1   Ze                ze                Pron  Pron  per|3|evofmv|nom                 2   su      _  _
+2   had               heb               V     V     trans|ovt|1of2of3|ev             0   ROOT    _  _
+3   met               met               Prep  Prep  voor                             8   mod     _  _
+4   haar              haar              Pron  Pron  bez|3|ev|neut|attr               5   det     _  _
+5   moeder            moeder            N     N     soort|ev|neut                    3   obj1    _  _
+6   kunnen            kan               V     V     hulp|ott|1of2of3|mv              2   vc      _  _
+7   gaan              ga                V     V     hulp|inf                         6   vc      _  _
+8   winkelen          winkel            V     V     intrans|inf                      11  cnj     _  _
+9   ,                 ,                 Punc  Punc  komma                            8   punct   _  _
+10  zwemmen           zwem              V     V     intrans|inf                      11  cnj     _  _
+11  of                of                Conj  Conj  neven                            7   vc      _  _
+12  terrassen         terras            N     N     soort|mv|neut                    11  cnj     _  _
+13  .                 .                 Punc  Punc  punt                             12  punct   _  _
+
+Please go to http://nextens.uvt.nl/~conll/#dataformat for more information 
+about the meaning of each column field. 
+The parser should still learn/run if some of the fields (like the FEATS field) 
+are filled with "_".
+
+Note: Some datasets are available at http://ilk.uvt.nl/conll/free_data.html.
+
+
+================================================================================
+3b. Training the parser
+================================================================================
+
+If you have a set of labeled data, first place it in the format described
+above. For example, if your training data is in a file 
+data/danish/danish.conll, and you want the model to be saved in a file called 
+models/danish/danish_parser.model, then the parser can be trained by running 
+the command:
+
+> ./TurboParser --train \
+--file_train=data/danish/danish_train.conll \
+--file_model=models/danish_parser.model \
+--logtostderr
+
+This will train a second-order non-projective parser with features for arcs,
+consecutive siblings and grandparents, using the AD3 algorithm as a decoder. 
+The default training algorithm is (cost-augmented) MIRA, but there are other 
+options (see section 3e below). It will also train a probabilistic model for 
+unlabeled arc-factored pruning, which is employed to reduce the number of 
+candidate arcs and speed up parsing.
+
+If speed is more important than accuracy, you might want to use a simple 
+arc-factored model, in which case a first order pruner is not necessary. 
+You can set the flag --prune_basic=false to disable the first order pruner, and
+--model_type=basic to use a simple arc-factored model. The command line is:
+
+> ./TurboParser --train \
+--file_train=data/danish/danish_train.conll \
+--file_model=models/danish_parser.model \
+--prune_basic=false \
+--model_type=basic \
+--logtostderr
+
+In general, the --model_type flag is a string formed by the one or several of 
+the following pieces: af enables arc-factored parts (required), +cs enables
+consecutive sibling parts, +gp enables grandparent parts, +as enables
+arbitrary sibling parts, +np enables non-projectivity parts, +dp enables
+directed path parts, +hb enables head bigram parts. The following alias are
+predefined: "basic" is af, "standard" is af+cs+gp, "full" is
+af+cs+gp+as+hb. Default is "standard".
+
+In any case, after training ends, a model file "models/danish_parser.model" will
+be created. To run the parser on new data (e.g. a file 
+"data/danish/danish_test.conll"), issue the following command:
+
+> ./TurboParser --test \
+--evaluate \
+--file_model=models/danish_parser.model \
+--file_test=data/danish/danish_test.conll \
+--file_prediction=data/danish/danish_test.conll.predicted \
+--logtostderr
+
+This will create a file "data/danish/danish_test.conll.predicted" with the 
+predictions made by the parser, and will output some accuracy and speed metrics.
+
+NOTE: the output is unlabeled accuracy (including all punctuation).
+
+To ignore punctuation, which is standard for English (Yamada and Matsumoto 03), 
+as well as the metric used in references [1] and [2] above, we provide 
+in this package the PERL script eval.pl, used for evaluation at CONLL-X. 
+Just run:
+
+> scripts/eval.pl -b -q -g data/danish/danish_test.conll \
+  -s data/danish/danish_test.conll.predicted | tail -5
+
+This script also allows performing significance tests (see 
+http://nextens.uvt.nl/~conll/software.html for details).
+
+================================================================================
+3c. Training the tagger
+================================================================================
+
+To train the tagger, one first needs to have input files with two columns, one
+with words and the other with POS tags. Here is an example for the English
+Penn Treebank corpus:
+
+Ms.     NNP
+Haag    NNP
+plays   VBZ
+Elianti NNP
+.       .
+
+Rolls-Royce     NNP
+Motor   NNP
+Cars    NNPS
+Inc.    NNP
+said    VBD
+it      PRP
+expects VBZ
+its     PRP$
+U.S.    NNP
+sales   NNS
+to      TO
+remain  VB
+steady  JJ
+at      IN
+about   IN
+1,200   CD
+cars    NNS
+in      IN
+1990    CD
+.       .
+
+Note: we include a script in this package (create_tagging_corpus.sh) to extract 
+this information from CoNLL files. See section 2b above. 
+
+Let english_ptb_train.tagging and english_ptb_test.tagging be the training and 
+test files in the format above. Run: 
+
+> ./TurboTagger --train \
+--file_train=data/english_ptb/english_ptb_train.tagging \
+--file_model=models/english_ptb_tagger.model \
+--form_cutoff=1 \
+--logtostderr
+
+This will train a sequential trigram model for POS tagging. The default training 
+algorithm is (cost-augmented) MIRA, but there are other options (see section 
+3e below). For the sections 02-21 of the Penn Treebank, training will take only
+about 15-20 minutes.
+
+Note the flag --form_cutoff=1, which defines a cut-off on word frequency. 
+Without setting this flag, performance will be substantially lower.
+
+After training ends, a model file "models/english_ptb_tagger.model" will
+be created. To run the tagger on new data (e.g. a file 
+"data/english_ptb/english_ptb_test.tagging"), issue the following command:
+
+> ./TurboTagger --test \
+--evaluate \
+--file_model=models/english_ptb_tagger.model \
+--file_test=data/english_ptb/english_ptb_test.tagging \
+--file_prediction=data/english_ptb/english_ptb_test.tagging.predicted \
+--logtostderr
+
+This will create a file "data/english_ptb/english_ptb_test.conll.predicted" with 
+the predictions made by the tagger, and will output some accuracy and speed 
+metrics. 
+
+When training on 02-21 of the Penn Treebank, TurboTagger achieves an accuracy
+of 96.9% in section 22 and 97.3% in section 23. Speed is about 60000 tokens
+per second, on a desktop PC with Intel Core i7 CPU and 8GB RAM.
+
+NOTE: A script is included in this package for creating CoNLL files with the 
+tags predicted by TurboTagger (rather than gold tags). This requires the 
+original CoNLL file (assumed here to be called 
+data/english_ptb/english_ptb_test.conll). To run this script, do
+the following:
+
+> cd scripts
+> ./create_conll_predicted_tags_corpus.sh \
+  ../data/english_ptb/english_ptb_test.conll \
+  ../data/english_ptb/english_ptb_test.tagging.predicted
+
+This will create the desired CoNLL file as 
+"../data/english_ptb/english_ptb_test.conll.predpos".
+
+
+================================================================================
+3d. Running the trained tagger/parser on new data
+================================================================================
+
+This section assumes you have trained a tagger/parser model and it is stored in 
+a file named models/my_parser.model (or models/my_tagger.model). 
+
+First, format your data properly (section 3a).
+
+It should be noted that the parser assumes words, lemmas, POS tags, etc. 
+To generate POS tags for your data you can use TurboTagger, as described above,
+or another tagger of your choice. If no lemmatizer is available, just let 
+the LEMMA columns filled with "_", and the same for the morpho-syntactic 
+features. However, remember that the training and test data should be generated 
+the same way.
+
+The parser also assumes that the arc label and parent index lines are
+in the input. However, these can just be artificially inserted (e.g. with lines
+of "LAB ... LAB" and "0 ... 0") since the parser will produce these lines
+as output. The same strategy can be used for the tagger.
+
+Hereafter, assume that the data is in a file called 
+"data/my_language/my_corpus.tagging" (for the tagger) or
+"data/my_language/my_corpus.conll" (for the parser). Assume also that you want 
+to store the tagged sentences in a file named 
+"data/my_language/my_corpus.tagging.predicted" and the parsed sentences in a 
+file named "data/my_language/my_corpus.conll.predicted".
+
+To tag, you need to run:
+
+./TurboTagger --test \
+--file_model=models/my_tagger.model \
+--file_test=data/my_language/my_corpus.tagging \
+--file_prediction=data/my_language/my_corpus.tagging.predicted \
+--logtostderr
+
+To parse, you need to run:
+
+./TurboParser --test \
+--file_model=models/my_parser.model \
+--file_test=data/my_language/my_corpus.conll \
+--file_prediction=data/my_language/my_corpus.conll.predicted \
+--logtostderr
+
+Pre-trained  models for English (both taggers and parsers) can be downloaded at 
+http://www.ark.cs.cmu.edu/TurboParser/. 
+
+A script "parse.sh" is provided in this package that allows you to tag and parse 
+free text (in English, one sentence per line) with these models:
+
+> ./scripts/parse.sh <filename>
+
+where filename is a text file with one sentence per line. If no filename is 
+specified, it parses stdin, so e.g.
+
+> echo "I solved the problem with statistics." | ./scripts/parse.sh
+
+yields
+
+1    I    _    PRP    PRP    _    2    SUB
+2    solved    _    VB    VBD    _    0    ROOT
+3    the    _    DT    DT    _    4    NMOD
+4    problem    _    NN    NN    _    2    OBJ
+5    with    _    IN    IN    _    2    VMOD
+6    statistics    _    NN    NNS    _    5    PMOD
+7    .    _    .    .    _    2    P
+
+
+================================================================================
+3e. Additional Options
+================================================================================
+
+For additional options, type:
+
+> TurboParser --help
+
+and
+
+> TurboTagger --help
+
+================================================================================
+4. Memory/Disk space and performance issues
+================================================================================
+
+This parser is memory and disk space intensive.
+
+MEMORY ISSUES
+
+To train a large dataset (like the Penn Treebank for English), a machine with 
+at least 4Gb RAM is recommended.
+
+DISK ISSUES
+
+For English, using the Penn Treebank, model files are typically ~1GB in size.
+Some cutoff options are available that can reduce the vocabulary size (type
+"TurboParser --help").
+
+PERFORMANCE ISSUES
+
+Once a model has been trained, running the model on new data is pretty quick.
+However, as with all discriminative trained parsers, it does take some time 
+to train a parser (e.g. training on the Penn Treebank 02-21 with the default 
+settings takes about 7-8 hours). This time is shortened to 1 hour using an 
+arc-factored model.
+
+Here is a quick comparison of parser models and rough speeds. This is when 
+trained on 02-21 of the Penn Treebank; accuracies are unlabeled  attachment 
+scores (without punctuation) in section 22. Speeds were measured in a desktop PC 
+with Intel Core i7 CPU 3.4 GHz and 8GB RAM.
+
+- basic (arc-factored): 4300 tokens per second, accuracy 90.2%.
+- standard (af+cs+gp): 1200 tokens per second, accuracy 91.9%.
+- full (af+cs+gp+hb+as): 900 tokens per second, accuracy 92.2%.
+
+================================================================================
+5. Reproducing results in the ICML, ACL, and EMNLP papers
+================================================================================
+
+This software won't allow to reproduce exactly the results in the references 
+[1,2,3,4] above, because a complete refactoring was made, and a different set 
+of features is used.
+
