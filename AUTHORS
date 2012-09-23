@@ -1,0 +1,10 @@
+Authors of TurboParser.
+=======================
+
+André Martins designed and implemented TurboParser and TurboTagger. Some of 
+the architecture is based on MSTParser, which was written by Jason Baldridge and
+Ryan McDonald. The file logval.h was written by Chris Dyer. The decoder of 
+TurboParser is based on the AD3 library, which was written by André Martins. 
+TurboParser and TurboTagger use the Eigen template library for linear algebra,
+a project started by Benoît Jacob and Gaël Guennebaud; and the Google libraries 
+glog and gflags, for logging and commandline flags processing. 

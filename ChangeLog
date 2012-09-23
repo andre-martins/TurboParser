@@ -1,0 +1,13 @@
+2009-11-26 TurboParser 0.1 afm@cs.cmu.edu
+  Initial implementation, based on a C++ implementation of MSTParser and 
+  using the commercial solver ILOG CPLEX.
+  
+2012-09-18 TurboParser 2.0 afm@cs.cmu.edu
+  Major refactoring:
+  * Implementation of TurboTagger, a sequence model for POS tagging.
+  * TurboParser now outputs labeled dependencies.
+  * Dictionary and distance pruning to achieve fast decoding.
+  * Replaced ILOG CPLEX by the free library AD3.
+  * Now use free libraries glog and gflags for easy logging and commandline 
+  flag processing.
+
