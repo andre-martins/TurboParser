@@ -395,7 +395,7 @@ the predictions made by the tagger, and will output some accuracy and speed
 metrics. 
 
 When training on 02-21 of the Penn Treebank, TurboTagger achieves an accuracy
-of 96.9% in section 22 and 97.3% in section 23. Speed is about 60000 tokens
+of 96.9% in section 22 and 97.3% in section 23. Speed is about 40,000 tokens
 per second, on a desktop PC with Intel Core i7 CPU and 8GB RAM.
 
 NOTE: A script is included in this package for creating CoNLL files with the 
@@ -520,12 +520,12 @@ arc-factored model.
 
 Here is a quick comparison of parser models and rough speeds. This is when 
 trained on 02-21 of the Penn Treebank; accuracies are unlabeled  attachment 
-scores (without punctuation) in section 22. Speeds were measured in a desktop PC 
+scores (without punctuation) in section 23. Speeds were measured in a desktop PC 
 with Intel Core i7 CPU 3.4 GHz and 8GB RAM.
 
-- basic (arc-factored): 4300 tokens per second, accuracy 90.2%.
-- standard (af+cs+gp): 1200 tokens per second, accuracy 91.9%.
-- full (af+cs+gp+hb+as): 900 tokens per second, accuracy 92.2%.
+- basic (arc-factored): 4,300 tokens per second, accuracy 90.72%.
+- standard (af+cs+gp): 1,200 tokens per second, accuracy 92.48%.
+- full (af+cs+gp+hb+as): 900 tokens per second, accuracy 92.62%.
 
 ================================================================================
 5. Reproducing results in the ICML, ACL, and EMNLP papers

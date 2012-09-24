@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>TurboParser</title>
+    <link type="text/css" rel="stylesheet" href="http://www.cs.cmu.edu/~nasmith/nasstyle.css">
+  </head>
+
+   <body>
+<h1>TurboParser (Dependency Parser with Linear Programming)</h1>
+
+<div class="mybox">
+<table>
+<tr><td rowspan=3 valign=top><img src=turbo-parser.png width=180></td>
+<td>This page provides a link to <b>TurboParser</b>, a free multilingual dependency parser developed by <a href="http://www.cs.cmu.edu/~afm">Andr&eacute; Martins</a>.<br></td></tr>
+<tr><td>It is based on joint work with 
+<a href="http://www.cs.cmu.edu/~nasmith">Noah Smith</a>, 
+<a href="http://www.lx.it.pt/~mtf">M&aacute;rio Figueiredo</a>, 
+<a href="http://www.cs.cmu.edu/~epxing">Eric Xing</a>, 
+<a href="http://www.isr.ist.utl.pt/~aguiar">Pedro Aguiar</a>. 
+</td></tr>
+<tr><td> </td>
+</tr>
+</table>
+</div>
+
+<h3>Background</h3>
+<p>
+Dependency parsing is a lightweight syntactic formalism that relies on lexical relationships between words. 
+<i>Nonprojective</i> dependency grammars may generate languages that are not context-free, offering a formalism 
+that is arguably more adequate for some natural languages.
+Statistical parsers, learned from treebanks, have achieved the best performance in this task. While only local 
+models (arc-factored) allow for exact inference, it has been shown that including non-local features and performing 
+approximate inference can greatly increase performance.
+</p>
+
+<p>
+This package contains a C++ implementation of a 
+dependency parser based on the papers [1,2,3,4] below.
+</p>
+<p>
+This package allows:
+<ul>
+<li>learning a parser/tagger from a treebank,</li>
+<li>running a parser/tagger on new data,</li>
+<li>evaluating the results against a gold-standard.</li>
+</ul>
+</p>
+
+<br/>
+
+<h3>News</h3>
+<p>
+<b>We released TurboParser v2.0 on September 20th, 2012!</b>
+This version introduces a number of new features:
+<ul>
+<li>
+The parser does not depend anymore on CPLEX (or any other non-free LP solver).
+Instead, the decoder is now based on <a href="http://www.ark.cs.cmu.edu/AD3">AD3</a>, our free library for
+approximate MAP inference.
+</li>
+<li>
+The parser now outputs <i>dependency labels</i> along with the backbone structure.
+</li>
+<li>
+As a bonus, we now provide a trainable part-of-speech tagger, called <i>TurboTagger</i>, which can be used in standalone mode, or to provide part-of-speech 
+tags as input for the parser. TurboTagger has state-of-the-art accuracy for English (97.3% on section 23 of the Penn Treebank) and is fast (~40,000 tokens per second).
+</li>
+<li>
+The parser is much faster than in previous versions. You may choose among a basic arc-factored parser (~4,300 tokens per second), a 
+standard second-order model with consecutive sibling and grandparent features (the default; ~1,200 tokens per second), and 
+a full model with head bigram and arbitrary sibling features (~900 tokens per second).
+</li>
+</ul>
+<b>Note:</b> The runtimes above are approximate, and based on experiments with a desktop machine with a Intel Core i7 CPU 3.4 GHz and 8GB RAM.
+</p>
+
+<!--p>
+This software has the following external dependencies: <a href="http://www.ark.cs.cmu.edu/AD3">AD3</a>, a library for
+approximate MAP inference; <a href="http://eigen.tuxfamily.org/">Eigen</a>, a template
+library for linear algebra; <a href="http://code.google.com/p/google-glog/">google-glog</a>, a library for logging; 
+<a href="http://code.google.com/p/gflags/">gflags</a>, a library
+for commandline flag processing. All these libraries are free software and are 
+provided as tarballs in this package.
+</p-->
+
+<p>
+To run this software, you need a standard C++ compiler. 
+This software has the following external dependencies: <a href="http://www.ark.cs.cmu.edu/AD3">AD3</a>, a library for
+approximate MAP inference; <a href="http://eigen.tuxfamily.org/">Eigen</a>, a template
+library for linear algebra; <a href="http://code.google.com/p/google-glog/">google-glog</a>, a library for logging; 
+<a href="http://code.google.com/p/gflags/">gflags</a>, a library
+for commandline flag processing. All these libraries are free software and are 
+provided as tarballs in this package.
+</p>
+<p>
+This software has been tested on Linux, but it should run in other platforms with minor adaptations.
+</p>
+
+<br/>
+
+
+<h3>Further Reading</h3>
+<p>
+The main technical ideas behind this software appear in the papers:
+<br /><br />
+<table>
+<tr valign="top"><td>[1]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins, Noah A. Smith, and Eric P. Xing.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/acl2009.pdf" title="http://www.cs.cmu.edu/~afm/Home_files/acl2009.pdf">Concise Integer Linear Programming Formulations for Dependency Parsing</a>.<br>
+Annual Meeting of the Association for Computational Linguistics (ACL'09), Singapore, August 2009.<br />
+</td></tr>
+<tr valign="top"><td>[2]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins, Noah A. Smith, and Eric P. Xing.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/icml2009.pdf">Polyhedral Outer Approximations with Application to Natural Language Parsing</a>.<br />
+International Conference on Machine Learning (ICML'09), Montreal, Canada, June 2009.<br />
+</td></tr>
+<tr valign="top"><td>[4]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins, Noah A. Smith, Eric P. Xing, M&aacute;rio A. T. Figueiredo, Pedro M. Q. Aguiar.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/emnlp2010.pdf">TurboParsers: Dependency Parsing by Approximate Variational Inference</a>.<br />
+Empirical Methods in Natural Language Processing (EMNLP'10), Boston, USA, October 2010.<br>
+</td></tr>
+<tr valign="top"><td>[4]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins, Noah A. Smith, M&aacute;rio A. T. Figueiredo, Pedro M. Q. Aguiar.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/emnlp2011b.pdf">Dual Decomposition With Many Overlapping Components</a>.<br />
+Empirical Methods in Natural Language Processing (EMNLP'11), Edinburgh, UK, July 2011.<br>
+</td></tr>
+</table>
+</p>
+
+<br/>
+
+<h3>Download</h3>
+<p>
+The latest version of TurboParser is <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.tar.gz">TurboParser v2.0 [~3.2MB,.tar.gz format]</a>. 
+See the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> file for instructions for compilation, running, and file formatting. 
+It does <i>not</i> include the data sets used in the papers; 
+for information about how to get these data sets, please go to <a href="http://nextens.uvt.nl/~conll">http://nextens.uvt.nl/~conll</a>. 
+Bear in mind that some data sets must be separately licensed through the <a href="http://www.ldc.upenn.edu/">LDC</a>.
+</p>
+<p>
+In addition, we provide separately the following pre-trained models (notice that these are very large files):
+<ul>
+<li>An English tagger trained on the sections 02-21 of the Penn Treebank. 
+Click <a href="sample_models/english_proj_tagger.tar.gz">here</a> to download this model [~2.1MB, .tar.gz format].
+Then, uncompress this model and save it in a local folder (e.g. as models/english_proj_tagger.model). 
+To tag a new file &lt;input-file&gt;, type:<br/>
+ <br/>
+ <div class="mybox" style="font-family:Courier">
+./TurboTagger --test \<br/>
+--file_model=models/english_proj_tagger.model \<br/>
+--file_test=&lt;input-file&gt; \<br/>
+--file_prediction=&lt;output-file&gt; \<br/>
+--logtostderr<br/>
+</div>
+<br/>
+Check the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> for file formatting instructions and additional options.
+<li>First and second-order English parsers trained on the sections 02-21 of the Penn Treebank, 
+with dependencies extracted using the head-rules of Yamada and Matsumoto, through <a href="http://w3.msi.vxu.se/~nivre/research/Penn2Malt.html">Penn2Malt</a>.
+Click <a href="sample_models/english_proj_parser.tar.gz">here</a> to download these models [~1.8GB, .tar.gz format].
+Uncompress this file and save the models in a local folder (e.g. as models/english_proj_parser_model-{basic,standard,full}.model). 
+To parse a new file &lt;input-file&gt; in CoNLL format, type:<br/>
+ <br/>
+ <div class="mybox" style="font-family:Courier">
+./TurboParser --test \<br/>
+--file_model=models/english_proj_parser_model-standard.model \<br/>
+--file_test=&lt;input-file&gt; \<br/>
+--file_prediction=&lt;output-file&gt; \<br/>
+--logtostderr<br/>
+</div>
+<br/>
+Check the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> for file formatting instructions and additional options.
+<!--li>Another English parser trained in the dataset provided in the CoNLL 2008 shared task (ignoring the semantic dependencies). 
+As described <a href="http://www.yr-bcn.es/conll2008">here</a>, 
+this dataset was obtained from the sections 02-21 of the Penn Treebank by 
+applying a different set of rules. Unlike the dataset used to train the previous model, 
+this one contains non-projective arcs.<br>
+Click <a href="sample_models/english.tar.gz">here</a> to download this model [~1.4 GB, .tar.gz format].
+<li>A model trained in the Arabic dataset provided in the CoNLL-X shared task. <br>
+Click <a href="sample_models/arabic.tar.gz">here</a> to download this model [~225 MB, .tar.gz format].
+<-->
+</ul>
+
+<p>
+Finally, a script "parse.sh" is provided in this package that allows you to tag and parse 
+free text (in English, one sentence per line) with the models above. Just type:
+<br/>
+<div class="mybox" style="font-family:Courier">
+./scripts/parse.sh &lt;filename&gt;
+</div>
+</br>
+where <i>&lt;filename&gt;</i> is a text file with one sentence per line. If no filename is 
+specified, it parses <i>stdin</i>, so e.g.
+<br/>
+<div class="mybox" style="font-family:Courier">
+echo "I solved the problem with statistics." | ./scripts/parse.sh
+</div>
+<br/>
+yields
+<br/>
+<div class="mybox" style="font-family:Courier">
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUB<br/>
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;solved&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VBD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROOT<br/>
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NMOD<br/>
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OBJ<br/>
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VMOD<br/>
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statistics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NNS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PMOD<br/>
+7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P<br/>
+<!--table>
+<tr>
+<td>1</td><td>I</td><td>_</td><td>PRP</td><td>PRP</td><td>_</td><td>2</td><td>SUB</td>
+</tr>
+<tr>
+<td>2</td><td>solved</td><td>_</td><td>VB</td><td>VBD</td><td>_</td><td>0</td><td>ROOT</td>
+<tr>
+</tr>
+<td>3</td><td>the</td><td>_</td><td>DT</td><td>DT</td><td>_</td><td>4</td><td>NMOD</td>
+<tr>
+</tr>
+<td>4</td><td>problem</td><td>_</td><td>NN</td><td>NN</td><td>_</td><td>2</td><td>OBJ</td>
+<tr>
+</tr>
+<td>5</td><td>with</td><td>_</td><td>IN</td><td>IN</td><td>_</td><td>2</td><td>VMOD</td>
+<tr>
+</tr>
+<td>6</td><td>statistics</td><td>_</td><td>NN</td><td>NNS</td><td>_</td><td>5</td><td>PMOD</td>
+<tr>
+</tr>
+<tr>
+<td>7</td><td>.</td><td>_</td><td>.</td><td>.</td><td>_</td><td>2</td><td>P</td>
+</tr>
+</table-->
+</div>
+</p>
+
+</p>
+<p> Older versions: 
+<ul>
+<li> 
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/turboparser-0.1.tar.gz">TurboParser v0.1 [~2.5Mb,.tar.gz format]</a>. 
+Along with this distribution, we released 
+an <a href="TurboParser-0.1/sample_models/english_proj.tar.gz">English parser</a> trained on the sections 02-21 of the Penn Treebank, 
+with dependencies extracted using the head-rules of Yamada and Matsumoto [~1.2 GB, .tar.gz format];
+<a href="TurboParser-0.1/sample_models/english.tar.gz">another English parser</a> trained in the dataset provided in the CoNLL 2008 shared task [~1.4 GB, .tar.gz format];
+an <a href="TurboParser-0.1/sample_models/arabic.tar.gz">Arabic parser</a> trained in the CoNLL-X dataset [~225 MB, .tar.gz format];
+a <a href="TurboParser-0.1/sample_models/run_pretrained.sh">script</a> to apply these models to parse new data.
+</ul>
+
+<br/>
+<h3>Contributing to TurboParser</h3>
+<p>For questions, bug fixes and comments, please e-mail <i>afm [at] cs.cmu.edu</i>.</p>
+<p>To contribute to TurboParser, you can fork the following github repository: <a href="http://github.com/andre-martins/TurboParser">http://github.com/andre-martins/TurboParser</a>.</p>
+<p>To receive announcements about updates to TurboParser, <a href="https://mailman.srv.cs.cmu.edu/mailman/listinfo/ark-tools">join the ARK-tools mailing list</a>.</p>
+<br/>
+
+<h3>Acknowledgments</h3>
+<p>A. M. was supported by a FCT/ICTI grant through
+the CMU-Portugal Program, and by Priberam. This
+work was partially supported by the FET programme
+(EU FP7), under the SIMBAD project (contract 213250), 
+and 
+by National Science Foundation grant  IIS-1054319.</p>
+
+</body>
+</html>
