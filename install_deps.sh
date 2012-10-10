@@ -1,6 +1,8 @@
 BASE_DIR=$(cd $(dirname "$0"); pwd)
 LOCAL_DEPS_DIR=${BASE_DIR}/deps/local
 
+rm -rf ${LOCAL_DEPS_DIR}
+
 cd deps
 mkdir -p ${LOCAL_DEPS_DIR}/lib
 mkdir -p ${LOCAL_DEPS_DIR}/include
@@ -31,11 +33,12 @@ echo "Done."
 # Install ad3.
 echo ""
 echo "Installing ad3..."
-tar -zxf ad3_v2.tar.gz
-cd ad3_v2
+rm -rf AD3-2.0.1
+tar -zxf AD3-2.0.1.tar.gz
+cd AD3-2.0.1
 make
 cp ad3/libad3.a ${LOCAL_DEPS_DIR}/lib
-mkdir ${LOCAL_DEPS_DIR}/include/ad3
+mkdir -p ${LOCAL_DEPS_DIR}/include/ad3
 cp -r ad3/*.h ${LOCAL_DEPS_DIR}/include/ad3
 cp -r Eigen ${LOCAL_DEPS_DIR}/include
 cd ..

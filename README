@@ -139,6 +139,8 @@ Before starting, we need to add our local dependencies to the library path:
 These steps will train a parser on the training data, run it on the testing 
 data, and evaluate the output against the gold standard:
 
+> mkdir models
+
 > ./TurboParser --train \
 --file_train=data/sample/sample_train.conll \
 --file_model=models/sample_parser.model \
@@ -176,6 +178,8 @@ to this format:
 
 This will create files sample_train.conll.tagging and sample_test.conll.tagging.
 Then, run:
+
+> mkdir models
 
 > ./TurboTagger --train \
 --file_train=data/sample/sample_train.conll.tagging \

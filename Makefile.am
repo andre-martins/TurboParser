@@ -14,7 +14,7 @@ scripts/train_test_tagger.sh \
 data/sample/sample_train.conll \
 data/sample/sample_test.conll \
 install_deps.sh \
-deps/ad3_v2.tar.gz \
+deps/AD3-2.0.1.tar.gz \
 deps/gflags-2.0-no-svn-files.tar.gz \
 deps/glog-0.3.2.tar.gz
 

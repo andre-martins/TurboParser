@@ -61,9 +61,10 @@ class SequenceFeatures: public Features {
   void Initialize(Instance *instance, Parts *parts) {
     Clear();
     int length = static_cast<SequenceInstanceNumeric*>(instance)->size();
-    input_features_unigrams_.resize(length, NULL);
-    input_features_bigrams_.resize(length + 1, NULL);
-    input_features_trigrams_.resize(length + 1, NULL); // Make this optional?
+    input_features_unigrams_.resize(length, static_cast<BinaryFeatures*>(NULL));
+    input_features_bigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
+    // Make this optional?
+    input_features_trigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
   }
 
   const BinaryFeatures &GetPartFeatures(int r) const {

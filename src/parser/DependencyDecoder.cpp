@@ -354,7 +354,7 @@ void DependencyDecoder::DecodeBasic(Instance *instance, Parts *parts,
   DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
   int offset_arcs, num_arcs;
   dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
-  vector<DependencyPartArc*> arcs(num_arcs, NULL);
+  vector<DependencyPartArc*> arcs(num_arcs);
   vector<double> scores_arcs(num_arcs);
   for (int r = 0; r < num_arcs; ++r) {
     arcs[r] = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
