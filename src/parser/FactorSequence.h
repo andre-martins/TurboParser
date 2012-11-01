@@ -25,6 +25,39 @@ namespace AD3 {
 
 class FactorSequence : public GenericFactor {
  public:
+  // Print as a string.
+  void Print(ostream& stream) {
+    stream << "SEQUENCE";
+    Factor::Print(stream);
+    int length = num_states_.size();
+    // Write the length of the sequence.
+    stream << " " << length;
+
+    // Write the number of states for each position in the sequence.
+    for (int i = 0; i < length; ++i) {
+      stream << " " << num_states_[i];
+    }
+
+    // Now write the additional log-potentials.
+    int index = 0;
+    for (int i = 0; i <= length; ++i) {
+      // If i == 0, the previous state is the start symbol.
+      int num_previous_states = (i > 0)? num_states_[i - 1] : 1;
+      // If i == length-1, the previous state is the final symbol.
+      int num_current_states = (i < length)? num_states_[i] : 1;
+      for (int j = 0; j < num_previous_states; ++j) {
+        for (int k = 0; k < num_current_states; ++k) {
+          // index_edges_[i][j][k] = index;
+          stream << " " << setprecision(9) 
+                 << additional_log_potentials_[index];
+          ++index;
+        }
+      }
+    }
+    stream << endl;
+    CHECK_EQ(additional_log_potentials_.size(), index); 
+  }
+
   // Compute the score of a given assignment.
   void Maximize(const vector<double> &variable_log_potentials,
                 const vector<double> &additional_log_potentials,
