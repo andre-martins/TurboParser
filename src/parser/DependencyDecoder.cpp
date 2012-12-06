@@ -254,6 +254,18 @@ void DependencyDecoder::Decode(Instance *instance, Parts *parts,
     DecodeFactorGraph(instance, parts, copied_scores, false, true,
                       predicted_output);
 #endif
+    // At test time, run Chu-Liu-Edmonds on top of the outcome of AD3
+    // as a rounding heuristic to make sure we get a valid tree.
+    // TODO: maybe change the interface to AD3 to let us implement
+    // a primal rounding heuristic - in this case just getting the output
+    // coming from the TREE factor should work well enough.
+    if (pipe_->GetDependencyOptions()->test()) {
+      for (int r = 0; r < num_arcs; ++r) {
+        copied_scores[offset_arcs + r] = (*predicted_output)[offset_arcs + r];
+      }
+      double value;
+      DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
+    }
   }
 
   // If labeled parsing, write the components of the predicted output that
