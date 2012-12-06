@@ -10,3 +10,8 @@
   * Replaced ILOG CPLEX by the free library AD3.
   * Now use free libraries glog and gflags for easy logging and commandline
   flag processing.
+
+2012-10-10 TurboParser 2.0.1 afm@cs.cmu.edu
+  Fixed initialization of STL vectors, which was causing problems in some
+  compilers. Replaced the AD3 package by a newer version that also addresses
+  this issue (thanks to Atro Voutilainen and Denis Maua for reporting this).

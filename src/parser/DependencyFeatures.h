@@ -60,7 +60,7 @@ class DependencyFeatures: public Features {
 
   void Initialize(Instance *instance, Parts *parts) {
     Clear();
-    input_features_.resize(parts->size(), NULL);
+    input_features_.resize(parts->size(), static_cast<BinaryFeatures*>(NULL));
   }
 
   int GetNumPartFeatures(int r) const {
