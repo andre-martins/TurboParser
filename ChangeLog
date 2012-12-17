@@ -15,3 +15,8 @@
   Fixed initialization of STL vectors, which was causing problems in some
   compilers. Replaced the AD3 package by a newer version that also addresses
   this issue (thanks to Atro Voutilainen and Denis Maua for reporting this).
+
+2012-12-04 TurboParser 2.0.2 afm@cs.cmu.edu
+  Fixed a bug that where causing some of the predicted parses not to be
+  valid trees. Now there is a final projection step that ensures that all
+  output parses are trees.
