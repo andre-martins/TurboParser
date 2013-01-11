@@ -33,7 +33,7 @@ const unsigned int kMaxFormAlphabetSize = 0xffff;
 const unsigned int kMaxLemmaAlphabetSize = 0xffff;
 const unsigned int kMaxPosAlphabetSize = 0xff;
 const unsigned int kMaxCoarsePosAlphabetSize = 0xff;
-const unsigned int kMaxFeatsAlphabetSize = 0xffff;
+const unsigned int kMaxFeatsAlphabetSize = 0xfff; // 0xffff;
 
 DEFINE_int32(form_cutoff, 0,
              "Ignore word forms whose frequency is less than this.");
