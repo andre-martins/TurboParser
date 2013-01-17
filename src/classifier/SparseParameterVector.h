@@ -19,7 +19,7 @@
 #ifndef SPARSEPARAMETERVECTOR_H_
 #define SPARSEPARAMETERVECTOR_H_
 
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include "SerializationUtils.h"
 
 using namespace std;

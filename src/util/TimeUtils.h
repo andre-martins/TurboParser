@@ -19,8 +19,11 @@
 #ifndef TIMEUTILS_H
 #define TIMEUTILS_H
 
+#ifndef _WIN32
 #include <sys/time.h>
-
+#else
+#include <gettimeofday.h>
+#endif
 using namespace std;
 
 extern int diff_ms(timeval t1, timeval t2);

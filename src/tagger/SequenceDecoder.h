@@ -18,7 +18,7 @@
 
 #ifndef SEQUENCEDECODER_H_
 #define SEQUENCEDECODER_H_
-
+#include <unordered_map>
 #include "Decoder.h"
 
 class SequencePipe;
@@ -54,8 +54,9 @@ class SequenceDecoder : public Decoder {
       const vector<vector<double> > &node_scores,
       const vector<vector<vector<double> > > &edge_scores,
       const vector<vector<vector<vector<double> > > > &triplet_scores,
-      vector<vector<double> > *transformed_node_scores,
-      vector<vector<vector<double> > > *transformed_edge_scores);
+	  const vector<vector<int> > &node_tags,
+      vector<vector<double> > *transformed_node_scores
+      );
 
   void RecoverBestPath(
       const vector<int> &best_path,
@@ -64,6 +65,10 @@ class SequenceDecoder : public Decoder {
 
   double RunViterbi(const vector<vector<double> > &node_scores,
                     const vector<vector<vector<double > > >
+                     &edge_scores,
+                    vector<int> *best_path);
+  double RunViterbi(const vector<vector<double> > &node_scores,
+                    const vector<vector<vector<std::pair<int, double>>>>
                      &edge_scores,
                     vector<int> *best_path);
 

@@ -20,7 +20,7 @@
 #include <iostream>
 #include <sstream>
 #include "Utils.h"
-
+#include <glog\logging.h>
 using namespace std;
 
 void Writer::Open(const string &filepath) {
