@@ -124,6 +124,12 @@ class DependencyPipe : public Pipe {
   void MakePartsGrandparents(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs);
+  void MakePartsGrandSiblings(Instance *instance,
+                              Parts *parts,
+                              vector<double> *gold_outputs);
+  void MakePartsTriSiblings(Instance *instance,
+                            Parts *parts,
+                            vector<double> *gold_outputs);
   void MakePartsNonprojectiveArcs(Instance *instance,
                                   Parts *parts,
                                   vector<double> *gold_outputs);

@@ -115,6 +115,20 @@ class DependencyFeatures: public Features {
                               int head,
                               int modifier);
 
+  void AddGrandSiblingFeatures(DependencyInstanceNumeric* sentence,
+                               int r,
+                               int grandparent,
+                               int head,
+                               int modifier,
+                               int sibling);
+
+  void AddTriSiblingFeatures(DependencyInstanceNumeric* sentence,
+                             int r,
+                             int head,
+                             int modifier,
+                             int sibling,
+                             int other_sibling);
+
   void AddNonprojectiveArcFeatures(DependencyInstanceNumeric* sentence,
                                    int r,
                                    int head,

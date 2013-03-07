@@ -44,7 +44,7 @@ class DependencyOptions : public Options {
   bool prune_labels() { return prune_labels_; }
   bool prune_distances() { return prune_distances_; }
   bool prune_basic() { return prune_basic_; }
-  bool use_pretrained_pruner() { return use_pretrained_pruner_; } 
+  bool use_pretrained_pruner() { return use_pretrained_pruner_; }
   const string &GetPrunerModelFilePath() { return file_pruner_model_; }
   double GetPrunerPosteriorThreshold() { return pruner_posterior_threshold_; }
   double GetPrunerMaxHeads() { return pruner_max_heads_; }
@@ -52,6 +52,8 @@ class DependencyOptions : public Options {
   bool use_arbitrary_siblings() { return use_arbitrary_siblings_; }
   bool use_consecutive_siblings() { return use_consecutive_siblings_; }
   bool use_grandparents() { return use_grandparents_; }
+  bool use_grandsiblings() { return use_grandsiblings_; }
+  bool use_trisiblings() { return use_trisiblings_; }
   bool use_nonprojective_arcs() { return use_nonprojective_arcs_; }
   bool use_directed_paths() { return use_directed_paths_; }
   bool use_head_bigrams() { return use_head_bigrams_; }
@@ -71,6 +73,8 @@ class DependencyOptions : public Options {
   bool use_arbitrary_siblings_;
   bool use_consecutive_siblings_;
   bool use_grandparents_;
+  bool use_grandsiblings_;
+  bool use_trisiblings_;
   bool use_nonprojective_arcs_;
   bool use_directed_paths_;
   bool use_head_bigrams_;
