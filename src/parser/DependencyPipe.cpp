@@ -536,7 +536,7 @@ void DependencyPipe::MakePartsArbitrarySiblings(Instance *instance,
 void DependencyPipe::MakePartsConsecutiveSiblings(Instance *instance,
                                                   Parts *parts,
                                                   vector<double> *gold_outputs) {
-  DependencyInstanceNumeric *sentence = 
+  DependencyInstanceNumeric *sentence =
     static_cast<DependencyInstanceNumeric*>(instance);
   DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
   int sentence_length = sentence->size();
@@ -677,6 +677,291 @@ void DependencyPipe::MakePartsGrandparents(Instance *instance,
   }
 }
 
+void DependencyPipe::MakePartsGrandSiblings(Instance *instance,
+                                            Parts *parts,
+                                            vector<double> *gold_outputs) {
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+
+  // Grandparents with consecutive siblings: (g,h,m) and (g,h,s).
+  for (int g = 0; g < sentence_length; ++g) {
+    for (int h = 0; h < sentence_length; ++h) {
+      if (g == h) continue;
+      int r = dependency_parts->FindArc(g, h);
+      if (r < 0) continue;
+
+      bool grandpar_arc_active = false;
+      if (NEARLY_EQ_TOL((*gold_outputs)[r], 1.0, 1e-9)) {
+        grandpar_arc_active = true;
+      }
+
+      bool first_arc_active;
+      bool second_arc_active = false;
+      bool arc_between;
+
+      // Right side.
+      for (int m = h; m < sentence_length; ++m) {
+        int r1 = -1;
+        if (m != h) {
+          r1 = dependency_parts->FindArc(h, m);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (m == h || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int s = m+1; s <= sentence_length; ++s) {
+          int r2 = -1;
+          if (s < sentence_length) {
+            r2 = dependency_parts->FindArc(h, s);
+            if (r2 < 0) continue;
+          }
+          if (make_gold) {
+            // Check if the second arc is active.
+            if (s == sentence_length ||
+                NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+              second_arc_active = true;
+            } else {
+              second_arc_active = false;
+            }
+          }
+
+          Part *part = dependency_parts->CreatePartGrandSibl(g, h, m, s);
+          dependency_parts->push_back(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (first_arc_active && second_arc_active && !arc_between) {
+              if (grandpar_arc_active) value = 1.0;
+              arc_between = true;
+            }
+            gold_outputs->push_back(value);
+          }
+        }
+      }
+
+      // Left side.
+      for (int m = h; m >= 0; --m) {
+        int r1 = -1;
+        if (m != h) {
+          r1 = dependency_parts->FindArc(h, m);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (m == h || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int s = m-1; s >= -1; --s) {
+          int r2 = -1;
+          if (s > -1) {
+            r2 = dependency_parts->FindArc(h, s);
+            if (r2 < 0) continue;
+          }
+          if (make_gold) {
+            // Check if the second arc is active.
+            if (s == -1 ||
+                NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+              second_arc_active = true;
+            } else {
+              second_arc_active = false;
+            }
+          }
+
+          Part *part = dependency_parts->CreatePartGrandSibl(g, h, m, s);
+          dependency_parts->push_back(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (first_arc_active && second_arc_active && !arc_between) {
+              if (grandpar_arc_active) value = 1.0;
+              arc_between = true;
+            }
+            gold_outputs->push_back(value);
+          }
+        }
+      }
+    }
+  }
+}
+
+void DependencyPipe::MakePartsTriSiblings(Instance *instance,
+                                          Parts *parts,
+                                          vector<double> *gold_outputs) {
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+
+  // Three consecutive siblings: (h,m), (h,s), and (h,t).
+  for (int h = 0; h < sentence_length; ++h) {
+    bool first_arc_active;
+    bool second_arc_active = false;
+    bool third_arc_active = false;
+    bool arc_between_first;
+    bool arc_between_second;
+
+    // Right side.
+    for (int m = h; m < sentence_length; ++m) {
+      int r1 = -1;
+      if (m != h) {
+        r1 = dependency_parts->FindArc(h, m);
+        if (r1 < 0) continue;
+      }
+
+      if (make_gold) {
+        // Check if the first arc is active.
+        if (m == h || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+          first_arc_active = true;
+        } else {
+          first_arc_active = false;
+        }
+        arc_between_first = false;
+      }
+
+      // Assume s cannot be the stop symbol.
+      for (int s = m+1; s < sentence_length; ++s) {
+        int r2 = -1;
+        if (s < sentence_length) {
+          r2 = dependency_parts->FindArc(h, s);
+          if (r2 < 0) continue;
+        }
+        if (make_gold) {
+          // Check if the second arc is active.
+          if (s == sentence_length ||
+              NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+            second_arc_active = true;
+          } else {
+            second_arc_active = false;
+          }
+          if (first_arc_active && second_arc_active && !arc_between_first) {
+            arc_between_first = true;
+          }
+          arc_between_second = false;
+        }
+
+        // Assume t can be the stop symbol.
+        for (int t = s+1; t <= sentence_length; ++t) {
+          int r3 = -1;
+          if (t < sentence_length) {
+            r3 = dependency_parts->FindArc(h, t);
+            if (r3 < 0) continue;
+          }
+          if (make_gold) {
+            // Check if the third arc is active.
+            if (t == sentence_length ||
+                NEARLY_EQ_TOL((*gold_outputs)[r3], 1.0, 1e-9)) {
+              third_arc_active = true;
+            } else {
+              third_arc_active = false;
+            }
+          }
+
+          Part *part = dependency_parts->CreatePartTriSibl(h, m, s, t);
+          dependency_parts->push_back(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (second_arc_active && third_arc_active && !arc_between_second) {
+              if (first_arc_active && !arc_between_first) value = 1.0;
+              arc_between_second = true;
+            }
+            gold_outputs->push_back(value);
+          }
+        }
+      }
+    }
+
+    // Left side.
+    for (int m = h; m >= 0; --m) {
+      int r1 = -1;
+      if (m != h) {
+        r1 = dependency_parts->FindArc(h, m);
+        if (r1 < 0) continue;
+      }
+
+      if (make_gold) {
+        // Check if the first arc is active.
+        if (m == h || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+          first_arc_active = true;
+        } else {
+          first_arc_active = false;
+        }
+        arc_between_first = false;
+      }
+
+      // Assume s cannot be the stop symbol.
+      for (int s = m-1; s > -1; --s) {
+        int r2 = -1;
+        if (s > -1) {
+          r2 = dependency_parts->FindArc(h, s);
+          if (r2 < 0) continue;
+        }
+        if (make_gold) {
+          // Check if the second arc is active.
+          if (s == -1 ||
+              NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+            second_arc_active = true;
+          } else {
+            second_arc_active = false;
+          }
+          if (first_arc_active && second_arc_active && !arc_between_first) {
+            arc_between_first = true;
+          }
+          arc_between_second = false;
+        }
+
+        // Assume t can be the stop symbol.
+        for (int t = s-1; t >= -1; --t) {
+          int r3 = -1;
+          if (t > -1) {
+            r3 = dependency_parts->FindArc(h, t);
+            if (r3 < 0) continue;
+          }
+          if (make_gold) {
+            // Check if the third arc is active.
+            if (t == -1 ||
+                NEARLY_EQ_TOL((*gold_outputs)[r3], 1.0, 1e-9)) {
+              third_arc_active = true;
+            } else {
+              third_arc_active = false;
+            }
+          }
+
+          Part *part = dependency_parts->CreatePartTriSibl(h, m, s, t);
+          dependency_parts->push_back(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (second_arc_active && third_arc_active && !arc_between_second) {
+              if (first_arc_active && !arc_between_first) value = 1.0;
+              arc_between_second = true;
+            }
+            gold_outputs->push_back(value);
+          }
+        }
+      }
+    }
+  }
+}
+
 void DependencyPipe::MakePartsNonprojectiveArcs(Instance *instance,
                                                 Parts *parts,
                                                 vector<double> *gold_outputs) {
@@ -802,6 +1087,20 @@ void DependencyPipe::MakePartsGlobal(Instance *instance,
       dependency_parts->size() - num_parts_initial);
 
   num_parts_initial = dependency_parts->size();
+  if (dependency_options->use_grandsiblings()) {
+    MakePartsGrandSiblings(instance, parts, gold_outputs);
+  }
+  dependency_parts->SetOffsetGrandSibl(num_parts_initial,
+      dependency_parts->size() - num_parts_initial);
+
+  num_parts_initial = dependency_parts->size();
+  if (dependency_options->use_trisiblings()) {
+    MakePartsTriSiblings(instance, parts, gold_outputs);
+  }
+  dependency_parts->SetOffsetTriSibl(num_parts_initial,
+      dependency_parts->size() - num_parts_initial);
+
+  num_parts_initial = dependency_parts->size();
   if (dependency_options->use_nonprojective_arcs()) {
     MakePartsNonprojectiveArcs(instance, parts, gold_outputs);
   }
@@ -918,7 +1217,7 @@ void DependencyPipe::MakeSelectedFeatures(Instance *instance,
       part->head(), part->modifier(), part->next_sibling());
   }
 
-  // Build features for grandparent siblings.
+  // Build features for grandparents.
   dependency_parts->GetOffsetGrandpar(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
   for (int r = offset; r < offset + size; ++r) {
@@ -929,6 +1228,50 @@ void DependencyPipe::MakeSelectedFeatures(Instance *instance,
     CHECK_LE(part->modifier(), sentence_length);
     dependency_features->AddGrandparentFeatures(sentence, r,
       part->grandparent(), part->head(), part->modifier());
+  }
+
+  // Build features for grand-siblings.
+  dependency_parts->GetOffsetGrandSibl(&offset, &size);
+  if (pruner) CHECK_EQ(size, 0);
+  for (int r = offset; r < offset + size; ++r) {
+    if (!selected_parts[r]) continue;
+    DependencyPartGrandSibl *part =
+      static_cast<DependencyPartGrandSibl*>((*dependency_parts)[r]);
+    CHECK_EQ(part->type(), DEPENDENCYPART_GRANDSIBL);
+    CHECK_LE(part->modifier(), sentence_length);
+    CHECK_LE(part->sibling(), sentence_length);
+    /*
+    LOG(INFO) << "AddGrandSiblingFeatures: " << part->grandparent() << " "
+              << part->head() << " "
+              << part->modifier() << " "
+              << part->sibling();
+    */
+    dependency_features->AddGrandSiblingFeatures(sentence, r,
+                                                 part->grandparent(),
+                                                 part->head(),
+                                                 part->modifier(),
+                                                 part->sibling());
+  }
+
+  // Build features for tri-siblings.
+  dependency_parts->GetOffsetTriSibl(&offset, &size);
+  if (pruner) CHECK_EQ(size, 0);
+  for (int r = offset; r < offset + size; ++r) {
+    if (!selected_parts[r]) continue;
+    DependencyPartTriSibl *part =
+      static_cast<DependencyPartTriSibl*>((*dependency_parts)[r]);
+    CHECK_EQ(part->type(), DEPENDENCYPART_TRISIBL);
+    /*
+    LOG(INFO) << "AddTriSiblingFeatures: " << part->head() << " "
+              << part->modifier() << " "
+              << part->sibling() << " "
+              << part->other_sibling();
+    */
+    dependency_features->AddTriSiblingFeatures(sentence, r,
+                                               part->head(),
+                                               part->modifier(),
+                                               part->sibling(),
+                                               part->other_sibling());
   }
 
   // Build features for nonprojective arcs.

@@ -31,6 +31,8 @@ enum {
   DEPENDENCYPART_SIBL,
   DEPENDENCYPART_NEXTSIBL,
   DEPENDENCYPART_GRANDPAR,
+  DEPENDENCYPART_GRANDSIBL,
+  DEPENDENCYPART_TRISIBL,
   DEPENDENCYPART_NONPROJ,
   DEPENDENCYPART_PATH,
   DEPENDENCYPART_HEADBIGRAM,
@@ -214,6 +216,89 @@ class DependencyPartGrandpar : public Part {
   int m_; // Index of the modifier.
 };
 
+class DependencyPartGrandSibl : public Part {
+ public:
+  DependencyPartGrandSibl() { g_ = h_ = m_ = s_ = -1; };
+  DependencyPartGrandSibl(int grandparent, int head, int modifier, int sibling) {
+    g_ = grandparent;
+    h_ = head;
+    m_ = modifier;
+    s_ = sibling;
+  }
+  virtual ~DependencyPartGrandSibl() {};
+
+ public:
+  int type() { return DEPENDENCYPART_GRANDSIBL; };
+
+ public:
+  int grandparent() { return g_; };
+  int head() { return h_; };
+  int modifier() { return m_; };
+  int sibling() { return s_; };
+
+ public:
+  void Save(FILE *fs) {
+    if (1 != fwrite(&g_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&s_, sizeof(int), 1, fs)) CHECK(false);
+  };
+
+  void Load(FILE *fs) {
+    if (1 != fread(&g_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&h_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
+  };
+
+ private:
+  int g_; // Index of the grandparent.
+  int h_; // Index of the head.
+  int m_; // Index of the modifier.
+  int s_; // Index of the sibling.
+};
+
+class DependencyPartTriSibl : public Part {
+ public:
+  DependencyPartTriSibl() { h_ = m_ = s_ = t_ = -1; };
+  DependencyPartTriSibl(int head, int modifier, int sibling, int other_sibling) {
+    h_ = head;
+    m_ = modifier;
+    s_ = sibling;
+    t_ = other_sibling;
+  }
+  virtual ~DependencyPartTriSibl() {};
+
+ public:
+  int type() { return DEPENDENCYPART_TRISIBL; };
+
+ public:
+  int head() { return h_; };
+  int modifier() { return m_; };
+  int sibling() { return s_; };
+  int other_sibling() { return t_; };
+
+ public:
+  void Save(FILE *fs) {
+    if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&s_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fwrite(&t_, sizeof(int), 1, fs)) CHECK(false);
+  };
+
+  void Load(FILE *fs) {
+    if (1 != fread(&h_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
+    if (1 != fread(&t_, sizeof(int), 1, fs)) CHECK(false);
+  };
+
+ private:
+  int h_; // Index of the head.
+  int m_; // Index of the modifier.
+  int s_; // Index of the sibling.
+  int t_; // Index of the other sibling.
+};
 
 class DependencyPartNonproj : public Part {
  public:
@@ -345,6 +430,12 @@ class DependencyParts : public Parts {
   Part *CreatePartGrandpar(int grandparent, int head, int modifier) {
     return new DependencyPartGrandpar(grandparent, head, modifier);
   }
+  Part *CreatePartGrandSibl(int grandparent, int head, int modifier, int sibling) {
+    return new DependencyPartGrandSibl(grandparent, head, modifier, sibling);
+  }
+  Part *CreatePartTriSibl(int head, int modifier, int sibling, int other_sibling) {
+    return new DependencyPartTriSibl(head, modifier, sibling, other_sibling);
+  }
   Part *CreatePartNonproj(int head, int modifier) {
     return new DependencyPartNonproj(head, modifier);
   }
@@ -413,6 +504,12 @@ class DependencyParts : public Parts {
   void SetOffsetGrandpar(int offset, int size) {
     SetOffset(DEPENDENCYPART_GRANDPAR, offset, size);
   };
+  void SetOffsetGrandSibl(int offset, int size) {
+    SetOffset(DEPENDENCYPART_GRANDSIBL, offset, size);
+  };
+  void SetOffsetTriSibl(int offset, int size) {
+    SetOffset(DEPENDENCYPART_TRISIBL, offset, size);
+  };
   void SetOffsetNonproj(int offset, int size) {
     SetOffset(DEPENDENCYPART_NONPROJ, offset, size);
   };
@@ -437,6 +534,12 @@ class DependencyParts : public Parts {
   };
   void GetOffsetGrandpar(int *offset, int *size) const {
     GetOffset(DEPENDENCYPART_GRANDPAR, offset, size);
+  };
+  void GetOffsetGrandSibl(int *offset, int *size) const {
+    GetOffset(DEPENDENCYPART_GRANDSIBL, offset, size);
+  };
+  void GetOffsetTriSibl(int *offset, int *size) const {
+    GetOffset(DEPENDENCYPART_TRISIBL, offset, size);
   };
   void GetOffsetNonproj(int *offset, int *size) const {
     GetOffset(DEPENDENCYPART_NONPROJ, offset, size);

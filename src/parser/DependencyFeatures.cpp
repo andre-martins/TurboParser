@@ -37,6 +37,8 @@ DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/
             "True for using pair features for arbitrary sibling parts.");
 DEFINE_bool(use_pair_features_second_order, true, /*false,*/
             "True for using pair features for second order parts.");
+DEFINE_bool(use_pair_features_grandsibling_conjunctions, true, /*false,*/
+            "True for using pair features for grandsiblings that are conjunctions.");
 // TODO: try setting this true.
 DEFINE_bool(use_trilexical_features, false,
             "True for using trilexical features.");
@@ -283,7 +285,7 @@ void DependencyFeatures::AddGrandparentFeatures(
     }
     AddWordPairFeatures(sentence, DependencyFeatureTemplateParts::GRANDPAR_G_M,
                         grandparent, modifier, true, true, features);
-	}
+  }
 
   // Relative position of the grandparent, head and modifier.
   uint8_t direction_code_gh; // 0x1 if right attachment, 0x0 otherwise.
@@ -422,6 +424,123 @@ void DependencyFeatures::AddGrandparentFeatures(
   AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_WW(DependencyFeatureTemplateGrandparent::HW_MW, flags, HWID, MWID);
   AddFeature(fkey, features);
+}
+
+// Add features for grand-siblings.
+void DependencyFeatures::AddGrandSiblingFeatures(DependencyInstanceNumeric* sentence,
+                                                 int r,
+                                                 int grandparent,
+                                                 int head,
+                                                 int modifier,
+                                                 int sibling) {
+  CHECK(!input_features_[r]);
+  BinaryFeatures *features = new BinaryFeatures;
+  input_features_[r] = features;
+
+  // TODO(afm).
+
+  // Relative position of the grandparent, head and modifier.
+  uint8_t direction_code_gh; // 0x1 if right attachment, 0x0 otherwise.
+  uint8_t direction_code_hs; // 0x1 if right attachment, 0x0 otherwise.
+  uint8_t direction_code_gs; // 0x1 if right attachment, 0x0 otherwise.
+  uint8_t direction_code; // 0x0, 0x1, or 0x2 (see three cases below).
+
+  if (head < grandparent) {
+    direction_code_gh = 0x0;
+  } else {
+    direction_code_gh = 0x1;
+  }
+
+  if (sibling < head) {
+    direction_code_hs = 0x0;
+  } else {
+    direction_code_hs = 0x1;
+  }
+
+  if (sibling < grandparent) {
+    direction_code_gs = 0x0;
+  } else {
+    direction_code_gs = 0x1;
+  }
+
+  if (direction_code_gh == direction_code_hs) {
+    direction_code = 0x0; // Pointing in the same direction: g - h - m - s.
+  } else if (direction_code_hs != direction_code_gs) {
+    direction_code = 0x1; // Zig-zag inwards: g - s - m - h.
+  } else {
+    direction_code = 0x2; // Non-projective: s - m - g - h or s - g - m - h.
+  }
+
+  // Codewords for accommodating word/POS information.
+  uint16_t HWID, MWID, GWID, SWID;
+  uint8_t HPID, MPID, GPID, SPID;
+
+  // Array of form/lemma IDs.
+  const vector<int>* word_ids = &sentence->GetFormIds();
+
+  // Array of POS/CPOS IDs.
+  const vector<int>* pos_ids = &sentence->GetCoarsePosIds();
+
+  uint64_t fkey;
+  uint8_t flags = 0;
+
+  // Words/POS.
+  GWID = (*word_ids)[grandparent];
+  HWID = (*word_ids)[head];
+  MWID = (*word_ids)[modifier];
+  SWID = (*word_ids)[sibling];
+  GPID = (*pos_ids)[grandparent];
+  HPID = (*pos_ids)[head];
+  MPID = (*pos_ids)[modifier];
+  SPID = (*pos_ids)[sibling];
+
+  flags = DependencyFeatureTemplateParts::GRANDSIBL;
+
+  // Maximum is 255 feature templates.
+  CHECK_LT(DependencyFeatureTemplateGrandSibl::COUNT, 256);
+
+  // Add direction information.
+  flags |= (direction_code << 6); // 2 more bits.
+
+  // Bias feature.
+  fkey = encoder_.CreateFKey_NONE(DependencyFeatureTemplateGrandSibl::BIAS, flags);
+  AddFeature(fkey, features);
+
+  // Quadruplet POS feature.
+  fkey = encoder_.CreateFKey_PPPP(DependencyFeatureTemplateGrandSibl::GP_HP_MP_SP, flags, GPID, HPID, MPID, SPID);
+  AddFeature(fkey, features);
+
+  // Quadruplet unilexical features.
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateGrandSibl::GW_HP_MP_SP, flags, GWID, HPID, MPID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateGrandSibl::GP_HW_MP_SP, flags, HWID, GPID, MPID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateGrandSibl::GP_HP_MW_SP, flags, MWID, GPID, HPID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateGrandSibl::GP_HP_MP_SW, flags, SWID, GPID, HPID, MPID);
+  AddFeature(fkey, features);
+
+  if (FLAGS_use_pair_features_grandsibling_conjunctions) {
+    if (modifier != head && sentence->IsCoordination(modifier) &&
+        sibling > 0 && sibling < sentence->size()) {
+      AddWordPairFeatures(sentence, DependencyFeatureTemplateParts::GRANDSIBL_G_S,
+                          grandparent, sibling, true, true, features);
+    }
+  }
+}
+
+// Add features for tri-siblings.
+void DependencyFeatures::AddTriSiblingFeatures(DependencyInstanceNumeric* sentence,
+                                               int r,
+                                               int head,
+                                               int modifier,
+                                               int sibling,
+                                               int other_sibling) {
+  CHECK(!input_features_[r]);
+  BinaryFeatures *features = new BinaryFeatures;
+  input_features_[r] = features;
+
+  // TODO(afm).
 }
 
 // Add features for non-projective arcs.

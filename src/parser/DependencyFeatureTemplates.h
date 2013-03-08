@@ -32,7 +32,10 @@ struct DependencyFeatureTemplateParts {
     ALLSIBL_M_S,
     GRANDPAR_G_H, /* Not used. TODO: remove. */
     GRANDPAR_G_M,
-    GRANDPAR_NONPROJ_H_M /* Not used. TODO: remove. */
+    GRANDPAR_NONPROJ_H_M, /* Not used. TODO: remove. */
+    GRANDSIBL,
+    TRISIBL,
+    GRANDSIBL_G_S,
   };
 };
 
@@ -379,6 +382,23 @@ struct DependencyFeatureTemplateGrandparent {
     GP_HP_MW_pMP, 				/* grandpar POS, head POS, mod word, mod left-POS */
     GP_HP_MW_nMP, 				/* grandpar POS, head POS, mod word, mod right-POS */
 
+    COUNT
+  };
+};
+
+struct DependencyFeatureTemplateGrandSibl {
+  enum types {
+    // There is a cross-product between these and direction, pos, cpos
+    BIAS = 0,				/* bias */
+
+    // Quadruplet features.
+    GP_HP_MP_SP,			/* grandpar POS, head POS, mod POS, sib POS */
+    GW_HP_MP_SP,			/* grandpar word, head POS, mod POS, sib POS */
+    GP_HW_MP_SP,			/* grandpar POS, head word, mod POS, sib POS */
+    GP_HP_MW_SP,			/* grandpar POS, head POS, mod word, sib POS */
+    GP_HP_MP_SW,			/* grandpar POS, head POS, mod POS, sib word */
+
+    // TODO: features to deal with conjunctions.
     COUNT
   };
 };

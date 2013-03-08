@@ -22,6 +22,7 @@
 #include "FactorTree.h"
 #include "FactorHeadAutomaton.h"
 #include "FactorGrandparentHeadAutomaton.h"
+#include "FactorTrigramHeadAutomaton.h"
 #include "FactorSequence.h"
 #include "AlgUtils.h"
 #include <iostream>
@@ -714,6 +715,10 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                       &num_next_siblings);
   int offset_grandparents, num_grandparents;
   dependency_parts->GetOffsetGrandpar(&offset_grandparents, &num_grandparents);
+  int offset_grandsiblings, num_grandsiblings;
+  dependency_parts->GetOffsetGrandSibl(&offset_grandsiblings, &num_grandsiblings);
+  int offset_trisiblings, num_trisiblings;
+  dependency_parts->GetOffsetTriSibl(&offset_trisiblings, &num_trisiblings);
   int offset_nonprojective, num_nonprojective;
   dependency_parts->GetOffsetNonproj(&offset_nonprojective, &num_nonprojective);
   int offset_path, num_path;
@@ -725,6 +730,8 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   bool use_arbitrary_sibling_parts = (num_siblings > 0);
   bool use_next_sibling_parts = (num_next_siblings > 0);
   bool use_grandparent_parts = (num_grandparents > 0);
+  bool use_grandsibling_parts = (num_grandsiblings > 0);
+  bool use_trisibling_parts = (num_trisiblings > 0);
   bool use_nonprojective_arc_parts = (num_nonprojective > 0);
   bool use_path_parts = (num_path > 0);
   bool use_head_bigram_parts = (num_bigrams > 0);
@@ -732,6 +739,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   // Define optional configurations of the factor graph.
   bool use_tree_factor = true;
   bool use_head_automata = true;
+  bool use_trigram_head_automata = true;
   bool use_grandparent_head_automata = true;
   bool use_head_bigram_sequence_factor = true;
   // Evidence vector that allows to assign evidence to each variable.
@@ -745,6 +753,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   if (use_nonprojective_arc_parts || use_path_parts) {
     use_tree_factor = false;
     use_head_automata = false;
+    use_trigram_head_automata = false;
     use_grandparent_head_automata = false;
     use_head_bigram_sequence_factor = false;
     add_evidence = true;
@@ -841,7 +850,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         int r = dependency_parts->FindArc(h, m);
         if (r < 0) continue;
         local_variables.push_back(variables[r]);
-      }      
+      }
       factor_graph->CreateFactorXOR(local_variables);
       factor_part_indices_.push_back(-1);
     }
@@ -901,7 +910,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       }
     }
 
-    // Create a "path builder" factor. The following constraints will be 
+    // Create a "path builder" factor. The following constraints will be
     // imposed:
     // sum_{i=0}^{n} f_{ijk} = p_{jk} for each j,k with j \ne 0.
     // The case j=k is already addressed in the "single parent" factors.
@@ -926,7 +935,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       }
     }
 
-    // Create the "flow delta" factor. The following constraints will be 
+    // Create the "flow delta" factor. The following constraints will be
     // imposed:
     // sum_{j=0}^{n} f_{ijk} = p_{ik} for each i,k s.t. i \ne k.
     // TODO: remove the comment below, because that's not really done?
@@ -957,7 +966,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
             variables[index]->SetLogPotential(log_potential_zero);
             // TODO: keep track of the original log-potential.
           }
-          continue; 
+          continue;
         }
         local_variables_flow_delta[a][d].push_back(variables[index]);
         factor_graph->CreateFactorXOROUT(local_variables_flow_delta[a][d]);
@@ -1033,6 +1042,103 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   }
 
   //////////////////////////////////////////////////////////////////////
+  // Build grandsibling and tri-sibling factors without automata.
+  //////////////////////////////////////////////////////////////////////
+  if (!use_grandparent_head_automata) {
+    // TODO(afm): Implement grand-siblings without automata.
+    CHECK_EQ(num_grandsiblings, 0);
+  }
+  if (!use_trigram_head_automata) {
+    // TODO(afm): Implement tri-siblings without automata.
+    CHECK_EQ(num_trisiblings, 0);
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+  // Build trisibling factors with automata.
+  //////////////////////////////////////////////////////////////////////
+  if (use_trigram_head_automata && num_trisiblings > 0) {
+    // Get all the trisiblings, indices, etc.
+    vector<vector<DependencyPartTriSibl*> > left_trisiblings(sentence->size());
+    vector<vector<DependencyPartTriSibl*> > right_trisiblings(sentence->size());
+    vector<vector<double> > left_scores(sentence->size());
+    vector<vector<double> > right_scores(sentence->size());
+    vector<vector<int> > left_indices(sentence->size());
+    vector<vector<int> > right_indices(sentence->size());
+    for (int r = 0; r < num_trisiblings; ++r) {
+      DependencyPartTriSibl *trisibling =
+          static_cast<DependencyPartTriSibl*>(
+              (*parts)[offset_trisiblings + r]);
+      if (trisibling->head() > trisibling->other_sibling()) {
+        // Left trisibling.
+        left_trisiblings[trisibling->head()].push_back(trisibling);
+        left_scores[trisibling->head()].push_back(
+            scores[offset_trisiblings + r]);
+        // Save the part index to get the posterior later.
+        left_indices[trisibling->head()].push_back(offset_trisiblings + r);
+      } else {
+        // Right trisibling.
+        right_trisiblings[trisibling->head()].push_back(trisibling);
+        right_scores[trisibling->head()].push_back(
+            scores[offset_trisiblings + r]);
+        // Save the part index to get the posterior later.
+        right_indices[trisibling->head()].push_back(offset_trisiblings + r);
+      }
+    }
+
+    // Now, go through each head and create left and right automata.
+    for (int h = 0; h < sentence->size(); ++h) {
+      // Build left head automaton.
+      vector<AD3::BinaryVariable*> local_variables;
+      vector<DependencyPartArc*> arcs;
+      for (int m = h-1; m >= 1; --m) {
+        int r = dependency_parts->FindArc(h, m);
+        if (r < 0) continue;
+        int index = r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        DependencyPartArc *arc =
+            static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
+        arcs.push_back(arc);
+      }
+      //if (arcs.size() == 0) continue; // Do not create an empty factor.
+
+      AD3::FactorTrigramHeadAutomaton *left_factor =
+        new AD3::FactorTrigramHeadAutomaton;
+      left_factor->Initialize(arcs, left_trisiblings[h]);
+      left_factor->SetAdditionalLogPotentials(left_scores[h]);
+      factor_graph->DeclareFactor(left_factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     left_indices[h].begin(),
+                                     left_indices[h].end());
+
+      // Build right head automaton.
+      local_variables.clear();
+      arcs.clear();
+      for (int m = h+1; m < sentence->size(); ++m) {
+        int r = dependency_parts->FindArc(h, m);
+        if (r < 0) continue;
+        int index = r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        DependencyPartArc *arc =
+            static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
+        arcs.push_back(arc);
+      }
+      //if (arcs.size() == 0) continue; // Do not create an empty factor.
+
+      AD3::FactorTrigramHeadAutomaton *right_factor =
+        new AD3::FactorTrigramHeadAutomaton;
+      right_factor->Initialize(arcs, right_trisiblings[h]);
+      right_factor->SetAdditionalLogPotentials(right_scores[h]);
+      factor_graph->DeclareFactor(right_factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     right_indices[h].begin(),
+                                     right_indices[h].end());
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
   // Build next sibling factors.
   //////////////////////////////////////////////////////////////////////
   if (use_head_automata || use_grandparent_head_automata) {
@@ -1043,7 +1149,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     vector<vector<double> > right_grandparent_scores(sentence->size());
     vector<vector<int> > left_grandparent_indices(sentence->size());
     vector<vector<int> > right_grandparent_indices(sentence->size());
-    if (use_grandparent_head_automata && 
+    if (use_grandparent_head_automata &&
         use_grandparent_parts &&
         use_next_sibling_parts) {
       for (int r = 0; r < num_grandparents; ++r) {
@@ -1069,6 +1175,38 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       }
     }
 
+    // Get all the grandsiblings, indices, etc.
+    vector<vector<DependencyPartGrandSibl*> > left_grandsiblings(sentence->size());
+    vector<vector<DependencyPartGrandSibl*> > right_grandsiblings(sentence->size());
+    vector<vector<double> > left_grandsibling_scores(sentence->size());
+    vector<vector<double> > right_grandsibling_scores(sentence->size());
+    vector<vector<int> > left_grandsibling_indices(sentence->size());
+    vector<vector<int> > right_grandsibling_indices(sentence->size());
+    if (use_grandparent_head_automata &&
+        use_grandsibling_parts) {
+      for (int r = 0; r < num_grandsiblings; ++r) {
+        DependencyPartGrandSibl *part = static_cast<DependencyPartGrandSibl*>(
+            (*dependency_parts)[offset_grandsiblings + r]);
+        if (part->head() > part->sibling()) {
+          // Left sibling.
+          left_grandsiblings[part->head()].push_back(part);
+          left_grandsibling_scores[part->head()].push_back(
+              scores[offset_grandsiblings + r]);
+          // Save the part index to get the posterior later.
+          left_grandsibling_indices[part->head()].push_back(
+              offset_grandsiblings + r);
+        } else {
+          // Right sibling.
+          right_grandsiblings[part->head()].push_back(part);
+          right_grandsibling_scores[part->head()].push_back(
+              scores[offset_grandsiblings + r]);
+          // Save the part index to get the posterior later.
+          right_grandsibling_indices[part->head()].push_back(
+              offset_grandsiblings + r);
+        }
+      }
+    }
+
     // Get all the next siblings, indices, etc.
     vector<vector<DependencyPartNextSibl*> > left_siblings(sentence->size());
     vector<vector<DependencyPartNextSibl*> > right_siblings(sentence->size());
@@ -1077,7 +1215,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     vector<vector<int> > left_indices(sentence->size());
     vector<vector<int> > right_indices(sentence->size());
     for (int r = 0; r < num_next_siblings; ++r) {
-      DependencyPartNextSibl *sibling = 
+      DependencyPartNextSibl *sibling =
           static_cast<DependencyPartNextSibl*>(
               (*parts)[offset_next_siblings + r]);
       if (sibling->head() > sibling->next_sibling()) {
@@ -1087,8 +1225,8 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
             scores[offset_next_siblings + r]);
         // Save the part index to get the posterior later.
         left_indices[sibling->head()].push_back(offset_next_siblings + r);
-      } else { 
-        // Right sibling. 
+      } else {
+        // Right sibling.
         right_siblings[sibling->head()].push_back(sibling);
         right_scores[sibling->head()].push_back(
             scores[offset_next_siblings + r]);
@@ -1099,21 +1237,22 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
     // Now, go through each head and create left and right automata.
     for (int h = 0; h < sentence->size(); ++h) {
-      // Get the incoming arcs, in case we are using grandparents.
+      // Get the incoming arcs, in case we are using grandparents
+      // or grandsiblings.
       vector<AD3::BinaryVariable*> local_variables_grandparents;
       vector<DependencyPartArc*> incoming_arcs;
       if (use_grandparent_head_automata &&
-          use_grandparent_parts &&
-          use_next_sibling_parts) {
+          ((use_grandparent_parts && use_next_sibling_parts) ||
+           (use_grandsibling_parts))) {
         for (int g = 0; g < sentence->size(); ++g) {
           int r = dependency_parts->FindArc(g, h);
           if (r < 0) continue;
           int index = r - offset_arcs;
           local_variables_grandparents.push_back(variables[index]);
-          DependencyPartArc *arc = 
+          DependencyPartArc *arc =
             static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
           incoming_arcs.push_back(arc);
-        } 
+        }
       }
 
       // Build left head automaton.
@@ -1124,25 +1263,37 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         if (r < 0) continue;
         int index = r - offset_arcs;
         local_variables.push_back(variables[index]);
-        DependencyPartArc *arc = 
+        DependencyPartArc *arc =
             static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
         arcs.push_back(arc);
-      } 
+      }
       //if (arcs.size() == 0) continue; // Do not create an empty factor.
 
       if (use_grandparent_head_automata &&
-          use_grandparent_parts &&
-          use_next_sibling_parts && 
+          ((use_grandparent_parts && use_next_sibling_parts) ||
+           (use_grandsibling_parts)) &&
           incoming_arcs.size() > 0) {
         AD3::FactorGrandparentHeadAutomaton *factor =
           new AD3::FactorGrandparentHeadAutomaton;
-        factor->Initialize(incoming_arcs, arcs, 
-                           left_grandparents[h], 
-                           left_siblings[h]);
+        if (use_grandsibling_parts) {
+          factor->Initialize(incoming_arcs, arcs,
+                             left_grandparents[h],
+                             left_siblings[h],
+                             left_grandsiblings[h]);
+        } else {
+          factor->Initialize(incoming_arcs, arcs,
+                             left_grandparents[h],
+                             left_siblings[h]);
+        }
         vector<double> additional_log_potentials = left_grandparent_scores[h];
         additional_log_potentials.insert(additional_log_potentials.end(),
                                          left_scores[h].begin(),
                                          left_scores[h].end());
+        if (use_grandsibling_parts) {
+          additional_log_potentials.insert(additional_log_potentials.end(),
+                                           left_grandsibling_scores[h].begin(),
+                                           left_grandsibling_scores[h].end());
+        }
         factor->SetAdditionalLogPotentials(additional_log_potentials);
         factor_graph->DeclareFactor(factor, local_variables, true);
         factor_part_indices_.push_back(-1);
@@ -1152,6 +1303,11 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         additional_part_indices.insert(additional_part_indices.end(),
                                        left_indices[h].begin(),
                                        left_indices[h].end());
+        if (use_grandsibling_parts) {
+          additional_part_indices.insert(additional_part_indices.end(),
+                                         left_grandsibling_indices[h].begin(),
+                                         left_grandsibling_indices[h].end());
+        }
       } else {
         AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
         factor->Initialize(arcs, left_siblings[h]);
@@ -1162,6 +1318,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                        left_indices[h].begin(),
                                        left_indices[h].end());
       }
+
       // Build right head automaton.
       local_variables.clear();
       local_variables = local_variables_grandparents;
@@ -1171,25 +1328,37 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         if (r < 0) continue;
         int index = r - offset_arcs;
         local_variables.push_back(variables[index]);
-        DependencyPartArc *arc = 
+        DependencyPartArc *arc =
             static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
         arcs.push_back(arc);
-      } 
+      }
       //if (arcs.size() == 0) continue; // Do not create an empty factor.
 
       if (use_grandparent_head_automata &&
-          use_grandparent_parts &&
-          use_next_sibling_parts &&
+          ((use_grandparent_parts && use_next_sibling_parts) ||
+           (use_grandsibling_parts)) &&
           incoming_arcs.size() > 0) {
         AD3::FactorGrandparentHeadAutomaton *factor =
           new AD3::FactorGrandparentHeadAutomaton;
-        factor->Initialize(incoming_arcs, arcs, 
-                           right_grandparents[h], 
-                           right_siblings[h]);
+        if (use_grandsibling_parts) {
+          factor->Initialize(incoming_arcs, arcs,
+                             right_grandparents[h],
+                             right_siblings[h],
+                             right_grandsiblings[h]);
+        } else {
+          factor->Initialize(incoming_arcs, arcs,
+                             right_grandparents[h],
+                             right_siblings[h]);
+        }
         vector<double> additional_log_potentials = right_grandparent_scores[h];
         additional_log_potentials.insert(additional_log_potentials.end(),
                                          right_scores[h].begin(),
                                          right_scores[h].end());
+        if (use_grandsibling_parts) {
+          additional_log_potentials.insert(additional_log_potentials.end(),
+                                           right_grandsibling_scores[h].begin(),
+                                           right_grandsibling_scores[h].end());
+        }
         factor->SetAdditionalLogPotentials(additional_log_potentials);
         factor_graph->DeclareFactor(factor, local_variables, true);
         factor_part_indices_.push_back(-1);
@@ -1199,6 +1368,11 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         additional_part_indices.insert(additional_part_indices.end(),
                                        right_indices[h].begin(),
                                        right_indices[h].end());
+        if (use_grandsibling_parts) {
+          additional_part_indices.insert(additional_part_indices.end(),
+                                         right_grandsibling_indices[h].begin(),
+                                         right_grandsibling_indices[h].end());
+        }
       } else {
         AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
         factor->Initialize(arcs, right_siblings[h]);
@@ -1899,7 +2073,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     }
     *value += (*predicted_output)[r] * scores[r];
   }
-  
+
   VLOG(2) << "Solution value (AD3) = " << *value;
 }
 

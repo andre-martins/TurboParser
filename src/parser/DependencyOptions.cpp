@@ -34,6 +34,8 @@ DEFINE_string(model_type, "standard",
               "af enables arc-factored parts (required), "
               "+cs enables consecutive sibling parts, "
               "+gp enables grandparent parts,"
+              "+gs enables grandsibling parts,"
+              "+ts enables trisibling parts,"
               "+as enables arbitrary sibling parts,"
               "+np enables non-projectivity parts,"
               "+dp enables directed path parts,"
@@ -205,6 +207,8 @@ void DependencyOptions::Initialize() {
   use_arbitrary_siblings_ = false;
   use_consecutive_siblings_ = false;
   use_grandparents_ = false;
+  use_grandsiblings_ = false;
+  use_trisiblings_ = false;
   use_nonprojective_arcs_ = false;
   use_directed_paths_ = false;
   use_head_bigrams_ = false;
@@ -231,6 +235,12 @@ void DependencyOptions::Initialize() {
     } else if (enabled_parts[i] == "gp") {
       use_grandparents_ = true;
       LOG(INFO) << "Grandparent parts enabled.";
+    } else if (enabled_parts[i] == "gs") {
+      use_grandsiblings_ = true;
+      LOG(INFO) << "Grandsibling parts enabled.";
+    } else if (enabled_parts[i] == "ts") {
+      use_trisiblings_ = true;
+      LOG(INFO) << "Trisibling parts enabled.";
     } else if (enabled_parts[i] == "as") {
       use_arbitrary_siblings_ = true;
       LOG(INFO) << "Arbitrary sibling parts enabled.";
@@ -250,5 +260,3 @@ void DependencyOptions::Initialize() {
 
   CHECK(use_arc_factored) << "Arc-factored parts are mandatory in model type";
 }
-
-
