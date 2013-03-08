@@ -30,7 +30,6 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
   virtual ~FactorGrandparentHeadAutomaton() {}
 
   // Print as a string.
-  // HERE.
   void Print(ostream& stream) {
     stream << "GRANDPARENT_HEAD_AUTOMATON";
     Factor::Print(stream);

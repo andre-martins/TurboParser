@@ -22,6 +22,7 @@
 #include "FactorTree.h"
 #include "FactorHeadAutomaton.h"
 #include "FactorGrandparentHeadAutomaton.h"
+#include "FactorTrigramHeadAutomaton.h"
 #include "FactorSequence.h"
 #include "AlgUtils.h"
 #include <iostream>
@@ -1050,6 +1051,91 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   if (!use_trigram_head_automata) {
     // TODO(afm): Implement tri-siblings without automata.
     CHECK_EQ(num_trisiblings, 0);
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+  // Build trisibling factors with automata.
+  //////////////////////////////////////////////////////////////////////
+  if (use_trigram_head_automata && num_trisiblings > 0) {
+    // Get all the trisiblings, indices, etc.
+    vector<vector<DependencyPartTriSibl*> > left_trisiblings(sentence->size());
+    vector<vector<DependencyPartTriSibl*> > right_trisiblings(sentence->size());
+    vector<vector<double> > left_scores(sentence->size());
+    vector<vector<double> > right_scores(sentence->size());
+    vector<vector<int> > left_indices(sentence->size());
+    vector<vector<int> > right_indices(sentence->size());
+    for (int r = 0; r < num_trisiblings; ++r) {
+      DependencyPartTriSibl *trisibling =
+          static_cast<DependencyPartTriSibl*>(
+              (*parts)[offset_trisiblings + r]);
+      if (trisibling->head() > trisibling->other_sibling()) {
+        // Left trisibling.
+        left_trisiblings[trisibling->head()].push_back(trisibling);
+        left_scores[trisibling->head()].push_back(
+            scores[offset_trisiblings + r]);
+        // Save the part index to get the posterior later.
+        left_indices[trisibling->head()].push_back(offset_trisiblings + r);
+      } else {
+        // Right trisibling.
+        right_trisiblings[trisibling->head()].push_back(trisibling);
+        right_scores[trisibling->head()].push_back(
+            scores[offset_trisiblings + r]);
+        // Save the part index to get the posterior later.
+        right_indices[trisibling->head()].push_back(offset_trisiblings + r);
+      }
+    }
+
+    // Now, go through each head and create left and right automata.
+    for (int h = 0; h < sentence->size(); ++h) {
+      // Build left head automaton.
+      vector<AD3::BinaryVariable*> local_variables;
+      vector<DependencyPartArc*> arcs;
+      for (int m = h-1; m >= 1; --m) {
+        int r = dependency_parts->FindArc(h, m);
+        if (r < 0) continue;
+        int index = r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        DependencyPartArc *arc =
+            static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
+        arcs.push_back(arc);
+      }
+      //if (arcs.size() == 0) continue; // Do not create an empty factor.
+
+      AD3::FactorTrigramHeadAutomaton *left_factor =
+        new AD3::FactorTrigramHeadAutomaton;
+      left_factor->Initialize(arcs, left_trisiblings[h]);
+      left_factor->SetAdditionalLogPotentials(left_scores[h]);
+      factor_graph->DeclareFactor(left_factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     left_indices[h].begin(),
+                                     left_indices[h].end());
+
+      // Build right head automaton.
+      local_variables.clear();
+      arcs.clear();
+      for (int m = h+1; m < sentence->size(); ++m) {
+        int r = dependency_parts->FindArc(h, m);
+        if (r < 0) continue;
+        int index = r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        DependencyPartArc *arc =
+            static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
+        arcs.push_back(arc);
+      }
+      //if (arcs.size() == 0) continue; // Do not create an empty factor.
+
+      AD3::FactorTrigramHeadAutomaton *right_factor =
+        new AD3::FactorTrigramHeadAutomaton;
+      right_factor->Initialize(arcs, right_trisiblings[h]);
+      right_factor->SetAdditionalLogPotentials(right_scores[h]);
+      factor_graph->DeclareFactor(right_factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     right_indices[h].begin(),
+                                     right_indices[h].end());
+    }
   }
 
   //////////////////////////////////////////////////////////////////////
