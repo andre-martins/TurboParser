@@ -69,10 +69,11 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
     // however, we only need to store the older index j to backtrack.
     // The start state is (0,1).
 
+    assert(length > 0);
     values[0].resize(1);
     path[0].resize(1);
     //values[0][0].push_back(0.0);
-    //path[0][0].push_back(0); // This is state (0,1).
+    //path[0][0].push_back(-1); // This is state (-1,0).
     for (int m = 1; m < length; ++m) {
       // There are (m+1)-choose-2 possible states.
       // We can either keep the previous state (no arc added)
@@ -84,49 +85,61 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
         path[m][i].resize(i);
         for (int j = 0; j < i; ++j) {
           // In this case, the previous state must also be (j,i).
+          assert(i < values[m-1].size()); 
+          assert(j < values[m-1][i].size());
           values[m][i][j] = values[m-1][i][j];
           path[m][i][j] = j; // This is state (j,i).
+          /*
+          cout << "path[" << m << "][" << i << "][" << j << "] = "
+               << j << endl;
+          */
         }
       }
 
       // For the (i,m)-th state, the previous state can be (j,i),
-      // for some j < i <= m-1.
+      // for some -1 <= j < i <= m-1.
       values[m][m].resize(m);
       path[m][m].resize(m);
       for (int i = 0; i < m; ++i) {
         path[m][m][i] = -1;
         values[m][m][i] = 0.0;
         for (int j = 0; j < i; ++j) {
+          double score = values[m-1][i][j];
           int index = index_trisiblings_[j][i][m];
-          double score = values[m-1][i][j] + additional_log_potentials[index];
+          if (index >= 0) score += additional_log_potentials[index];
           if (path[m][m][i] < 0 || score > values[m][m][i]) {
             values[m][m][i] = score;
-            path[m][m][i] = j; // This is state (i,j).
+            path[m][m][i] = j; // This is state (j,i).
           }
         }
         int index = index_siblings_[i][m];
-        values[m][m][i] += additional_log_potentials[index];
+        if (index > 0) values[m][m][i] += additional_log_potentials[index];
         values[m][m][i] += variable_log_potentials[m-1];
+        /*
+        cout << "path[" << m << "][" << m << "][" << i << "] = "
+             << path[m][m][i] << endl;
+        */
       }
     }
 
-    // The end state is (i,length) with 0 < i < length.
+    // The end state is (i,length) with 0 <= i < length.
     vector<int> best_path(length);
     best_path[length-1] = -1;
     for (int i = 0; i < length; ++i) {
       int best = -1;
       double best_score = 0.0;
       for (int j = 0; j < i; ++j) {
+        double score = values[length-1][i][j];
         int index = index_trisiblings_[j][i][length];
-        assert(index >= 0 && index < additional_log_potentials.size());
-        double score = values[length-1][i][j] + additional_log_potentials[index];
+        if (index >= 0) score += additional_log_potentials[index];
         if (best < 0 || score > best_score) {
           best_score = score;
           best = j;
         }
       }
+      double score = best_score;
       int index = index_siblings_[i][length];
-      double score = best_score + additional_log_potentials[index];
+      if (index >= 0) score += additional_log_potentials[index];
       if (best_path[length-1] < 0 || score > (*value)) {
         *value = score;
         best_path[length-1] = i;
@@ -135,10 +148,43 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
         }
       }
     }
+    /*
+    cout << "best_path[" << length-1 << "] = " << best_path[length-1] << endl;
+    if (length > 1) {
+      cout << "best_path[" << length-2 << "] = " << best_path[length-2] << endl;
+    }
+    */
+    int i = best_path[length-1];
+    int j = (length>1)? best_path[length-2] : -1;
 
-    // Backtrack.
-    for (int m = length-1; m > 1; --m) {
-      best_path[m-2] = path[m][best_path[m-1]][best_path[m]];
+    for (int m = length-1; m > 0; --m) {
+      //CHECK_GE(best_path[m], -1); // can be -1...
+      //CHECK_LT(best_path[m], path[m].size());
+      //CHECK_GE(best_path[m-1], -1); // can be -1...
+      //CHECK_LT(best_path[m-1], path[m][best_path[m]].size()) << m
+      //                                                       << " " << best_path[m];
+
+      // Current state is j=best_path[m-1], i=best_path[m].
+      if (m == i) {
+        CHECK_GE(j, 0);
+        i = j;
+        j = path[m][m][i];
+      }
+      best_path[m-1] = i;
+      //cout << "best_path[" << m-1 << "] = " << best_path[m-1] << endl;
+        
+        
+      /*
+      // path[2][1][1] does not exist...
+      if (best_path[m-1] == -1) {
+        best_path[m-2] = -1;
+      } else {
+        //best_path[m-2] = path[m][best_path[m]][best_path[m-1]];
+        int j = path[m][best_path[m]][best_path[m-1]];
+        int i = (m != best_path[m])? best_path[m-1] : m;
+      }
+      cout << "best_path[" << m-2 << "] = " << best_path[m-2] << endl;
+      */
     }
 
     vector<int> *modifiers = static_cast<vector<int>*>(configuration);
@@ -147,6 +193,7 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
         modifiers->push_back(m);
       }
     }
+    //cout << "End Maximizing" << endl;
   }
 
   // Compute the score of a given assignment.
@@ -164,20 +211,20 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       int t = (*modifiers)[i];
       *value += variable_log_potentials[t-1];
       int index = index_siblings_[s][t];
-      *value += additional_log_potentials[index];
+      if (index >= 0) *value += additional_log_potentials[index];
       if (s != 0) {
         int index = index_trisiblings_[m][s][t];
-        *value += additional_log_potentials[index];
+        if (index >= 0) *value += additional_log_potentials[index];
       }
       m = s;
       s = t;
     }
     int t = index_siblings_.size();
     int index = index_siblings_[s][t];
-    *value += additional_log_potentials[index];
+    if (index >= 0) *value += additional_log_potentials[index];
     if (s != 0) {
       int index = index_trisiblings_[m][s][t];
-      *value += additional_log_potentials[index];
+      if (index >= 0) *value += additional_log_potentials[index];
     }
   }
 
@@ -195,20 +242,20 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       int t = (*modifiers)[i];
       (*variable_posteriors)[t-1] += weight;
       int index = index_siblings_[s][t];
-      (*additional_posteriors)[index] += weight;
+      if (index >= 0) (*additional_posteriors)[index] += weight;
       if (s != 0) {
         int index = index_trisiblings_[m][s][t];
-        (*additional_posteriors)[index] += weight;
+        if (index >= 0) (*additional_posteriors)[index] += weight;
       }
       m = s;
       s = t;
     }
     int t = index_siblings_.size();
     int index = index_siblings_[s][t];
-    (*additional_posteriors)[index] += weight;
+    if (index >= 0) (*additional_posteriors)[index] += weight;
     if (s != 0) {
       int index = index_trisiblings_[m][s][t];
-      (*additional_posteriors)[index] += weight;
+      if (index >= 0) (*additional_posteriors)[index] += weight;
     }
   }
 
