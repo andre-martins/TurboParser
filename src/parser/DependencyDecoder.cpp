@@ -1293,6 +1293,13 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
           additional_log_potentials.insert(additional_log_potentials.end(),
                                            left_grandsibling_scores[h].begin(),
                                            left_grandsibling_scores[h].end());
+          /*
+          cout << "Setting additional log-potentials in grandparent head automaton with grandsiblings: ";
+          for (int l = 0; l < additional_log_potentials.size(); ++l) {
+            cout << additional_log_potentials[l] << " ";
+          }
+          cout << endl;
+          */
         }
         factor->SetAdditionalLogPotentials(additional_log_potentials);
         factor_graph->DeclareFactor(factor, local_variables, true);
@@ -1358,6 +1365,13 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
           additional_log_potentials.insert(additional_log_potentials.end(),
                                            right_grandsibling_scores[h].begin(),
                                            right_grandsibling_scores[h].end());
+          /*
+          cout << "Setting additional log-potentials in grandparent head automaton with grandsiblings: ";
+          for (int l = 0; l < additional_log_potentials.size(); ++l) {
+            cout << additional_log_potentials[l] << " ";
+          }
+          cout << endl;
+          */
         }
         factor->SetAdditionalLogPotentials(additional_log_potentials);
         factor_graph->DeclareFactor(factor, local_variables, true);
@@ -2013,11 +2027,17 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     VLOG(2) << "Number of variables: " << factor_graph->GetNumVariables();
   }
 
+  //#define PRINT_GRAPH
 #ifdef PRINT_GRAPH
+    //static int num_inst = 0;
   ofstream stream;
-  stream.open("tmp.fg", ofstream::out);
+  stream.open("tmp.fg", ofstream::out | ofstream::app);
+  //stream.open("tmp.fg", ofstream::out);
   CHECK(stream.good());
   factor_graph->Print(stream);
+  stream << endl;
+  //++num_inst;
+  //if (num_inst == 14) CHECK(false);
   stream.flush();
   stream.clear();
   stream.close();

@@ -307,6 +307,35 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
                   const vector<DependencyPartGrandpar*> &grandparents,
                   const vector<DependencyPartNextSibl*> &siblings,
                   const vector<DependencyPartGrandSibl*> &grandsiblings) {
+    /*
+    cout << "New grandparent head automaton." << endl;
+    cout << "Grandparents: ";
+    for (int i = 0; i < grandparents.size(); ++i) {
+      cout << "(" << grandparents[i]->grandparent()
+           << ", " << grandparents[i]->head()
+           << ", " << grandparents[i]->modifier()
+           << ") ";
+    }
+    cout << endl;
+    cout << "Siblings: ";
+    for (int i = 0; i < siblings.size(); ++i) {
+      cout << "(" << siblings[i]->head()
+           << ", " << siblings[i]->modifier()
+           << ", " << siblings[i]->next_sibling()
+           << ") ";
+    }
+    cout << endl;
+    cout << "Grandsiblings: ";
+    for (int i = 0; i < grandsiblings.size(); ++i) {
+      cout << "(" << grandsiblings[i]->grandparent()
+           << ", " << grandsiblings[i]->head()
+           << ", " << grandsiblings[i]->modifier()
+           << ", " << grandsiblings[i]->sibling()
+           << ") ";
+    }
+    cout << endl;
+    */
+
     // length is relative to the head position.
     // E.g. for a right automaton with h=3 and instance_length=10,
     // length = 7. For a left automaton, it would be length = 3.

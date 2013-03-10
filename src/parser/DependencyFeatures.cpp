@@ -437,7 +437,11 @@ void DependencyFeatures::AddGrandSiblingFeatures(DependencyInstanceNumeric* sent
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-  // TODO(afm).
+  int sentence_length = sentence->size();
+  bool first_child = (head == modifier);
+  bool last_child = (sibling == sentence_length || sibling <= 0);
+
+  CHECK_NE(sibling, 0) << "Currently, last child is encoded as s = -1.";
 
   // Relative position of the grandparent, head and modifier.
   uint8_t direction_code_gh; // 0x1 if right attachment, 0x0 otherwise.
@@ -487,12 +491,12 @@ void DependencyFeatures::AddGrandSiblingFeatures(DependencyInstanceNumeric* sent
   // Words/POS.
   GWID = (*word_ids)[grandparent];
   HWID = (*word_ids)[head];
-  MWID = (*word_ids)[modifier];
-  SWID = (*word_ids)[sibling];
+  MWID = first_child? TOKEN_START : (*word_ids)[modifier];
+  SWID = last_child? TOKEN_STOP : (*word_ids)[sibling];
   GPID = (*pos_ids)[grandparent];
   HPID = (*pos_ids)[head];
-  MPID = (*pos_ids)[modifier];
-  SPID = (*pos_ids)[sibling];
+  MPID = first_child? TOKEN_START : (*pos_ids)[modifier];
+  SPID = last_child? TOKEN_STOP : (*pos_ids)[sibling];
 
   flags = DependencyFeatureTemplateParts::GRANDSIBL;
 
