@@ -86,6 +86,25 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
     instance = reader->GetNext();
   }
   reader->Close();
-
-  LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
+  if (pipe_->GetOptions()->GetOovTagsFilePath().size() == 0)
+  {
+	  for (int i=0; i < (int) tag_alphabet_.size(); i++)
+		  oov_tags_.push_back(i);
+	  return;
+  }
+  std::ifstream is;
+  is.open(pipe_->GetOptions()->GetOovTagsFilePath().c_str(), ifstream::in);
+  CHECK(is.good()) << "Could not open " << pipe_->GetOptions()->GetOovTagsFilePath() << ".";
+  vector<vector<string> > sentence_fields;
+  string line;
+  if (is.is_open()) {
+    while (!is.eof()) {
+      getline(is, line);
+	  if (line.size() == 0)
+		  break;
+	  oov_tags_.push_back(tag_alphabet_.Lookup (line));
+	  LOG(INFO) << "Number of tag: " << line << tag_alphabet_.Lookup (line);
+    }
+  }
+  LOG(INFO) << "Number of oov tags: " << oov_tags_.size();
 }

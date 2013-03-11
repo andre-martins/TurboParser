@@ -20,9 +20,9 @@
 #define ALPHABET_H_
 
 #include "Utils.h"
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <stdio.h>
-
+#include <glog\logging.h>
 using namespace std;
 
 // This class implements a dictionary of strings, stored as an hash table

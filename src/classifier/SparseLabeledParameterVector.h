@@ -19,7 +19,7 @@
 #ifndef SPARSELABELEDPARAMETERVECTOR_H_
 #define SPARSELABELEDPARAMETERVECTOR_H_
 
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include "SerializationUtils.h"
 
 using namespace std;
@@ -27,7 +27,7 @@ using namespace std;
 // Threshold for renormalizing the parameter vector.
 const double kLabeledScaleFactorThreshold = 1e-9;
 // After more than kNumMaxSparseLabels labels, use a dense representation.
-const int kNumMaxSparseLabels = 5;
+const int kNumMaxSparseLabels = 300;
 
 // This class contains the weights for every label conjoined with a single
 // feature. This is a pure virtual class, so that we can derive from it a
@@ -46,13 +46,13 @@ class LabelWeights {
   virtual int Size() const = 0;
 
   // Get/set/add weight to a labeled feature.
-  virtual double GetWeight(int label) const = 0;
+  virtual double GetWeight(int label)  = 0;
   virtual void SetWeight(int label, double weight) = 0;
   virtual void AddWeight(int label, double weight) = 0;
 
   // Get/set weight querying by position rather than the label.
   virtual void GetLabelWeightByPosition(int position, int *label,
-      double *weight) const = 0;
+      double *weight)  = 0;
   virtual void SetWeightByPosition(int position, double weight) = 0;
 };
 
@@ -63,48 +63,50 @@ class SparseLabelWeights : public LabelWeights {
   virtual ~SparseLabelWeights() {};
 
   bool IsSparse() const { return true; }
-  int Size() const { return labels_.size(); }
-  double GetWeight(int label) const {
-    for (int k = 0; k < labels_.size(); ++k) {
-      if (label == labels_[k]) return weights_[k];
-    }
+  int Size() const { return weights_.size(); }
+  double GetWeight(int label)  {
+    
+    if (weights_.find(label) != weights_.end()) return weights_[label];
+    
     return 0.0;
   }
   void SetWeight(int label, double weight) {
-    for (int k = 0; k < labels_.size(); ++k) {
-      if (label == labels_[k]) {
-        weights_[k] = weight;
-        return;
-      }
-    }
-    labels_.push_back(label);
-    weights_.push_back(weight);
+     weights_[label] = weight;
   }
   void AddWeight(int label, double weight) {
-    for (int k = 0; k < labels_.size(); ++k) {
-      if (label == labels_[k]) {
-        weights_[k] += weight;
-        return;
-      }
-    }
-    labels_.push_back(label);
-    weights_.push_back(weight);
+     weights_[label] = weight;
   }
 
   void GetLabelWeightByPosition(int position, int *label,
-                                double *weight) const {
-    *label = labels_[position];
-    *weight = weights_[position];
-    CHECK_GE(*label, 0);
+                                double *weight)  {
+    CHECK_GE(position, 0);
+    CHECK_LT(position, weights_.size());
+	unordered_map<int, double>::iterator it;
+	for ( it = weights_.begin(); it != weights_.end() ; it++)
+	{
+		if (position-- == 0)
+		{
+			*label = it->first;
+			*weight = it->second;
+		}
+	}
   }
 
   void SetWeightByPosition(int position, double weight) {
-    weights_[position] = weight;
+    CHECK_GE(position, 0);
+    CHECK_LT(position, weights_.size());
+	unordered_map<int, double>::iterator it;
+	for ( it = weights_.begin(); it != weights_.end() ; it++)
+	{
+		if (position-- == 0)
+		{
+			it->second = weight;
+		}
+	}
   }
 
  protected:
-  vector<int> labels_;
-  vector<double> weights_;
+  unordered_map<int, double> weights_;
 };
 
 // Dense implementation of LabelWeights.
@@ -125,7 +127,7 @@ class DenseLabelWeights : public LabelWeights {
 
   bool IsSparse() const { return false; }
   int Size() const { return weights_.size(); }
-  double GetWeight(int label) const {
+  double GetWeight(int label)  {
     if (label >= weights_.size()) return 0.0;
     return weights_[label];
   }
@@ -145,7 +147,7 @@ class DenseLabelWeights : public LabelWeights {
   }
 
   void GetLabelWeightByPosition(int position, int *label,
-                                double *weight) const {
+                                double *weight)  {
     CHECK_GE(position, 0);
     *label = position;
     *weight = weights_[position];

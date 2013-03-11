@@ -58,6 +58,7 @@ class Options {
   const string &GetTestFilePath() { return file_test_; };
   const string &GetModelFilePath() { return file_model_; };
   const string &GetOutputFilePath() { return file_prediction_; };
+  const string &GetOovTagsFilePath() { return file_oov_tags_; };
   int GetNumEpochs() { return train_epochs_; };
   double GetRegularizationConstant() { return train_regularization_constant_; }
   const string &GetTrainingAlgorithm() { return train_algorithm_; }
@@ -76,6 +77,7 @@ class Options {
   string file_test_;
   string file_model_;
   string file_prediction_;
+  string file_oov_tags_;
   bool train_;
   bool test_;
   bool evaluate_;

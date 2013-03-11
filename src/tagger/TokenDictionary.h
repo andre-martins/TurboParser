@@ -25,6 +25,7 @@
 #include "DependencyReader.h"
 
 DECLARE_int32(affix_length);
+DECLARE_int32(prefix_length);
 DECLARE_bool(form_case_sensitive);
 
 enum SpecialTokens {

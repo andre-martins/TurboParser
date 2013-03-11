@@ -30,6 +30,7 @@ int SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
   int id;
 
   int affix_length = FLAGS_affix_length;
+  int prefix_length = FLAGS_prefix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   Clear();
@@ -52,8 +53,8 @@ int SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     if (id < 0) id = TOKEN_UNKNOWN;
     form_ids_[i] = id;
 
-    prefix_ids_[i].resize(affix_length);
-    for (int l = 0; l < affix_length; ++l) {
+    prefix_ids_[i].resize(prefix_length);
+    for (int l = 0; l < prefix_length; ++l) {
       string prefix = form.substr(0, l+1);
       id = token_dictionary->GetPrefixId(prefix);
       CHECK_LT(id, 0xffff);
@@ -84,7 +85,7 @@ int SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     
     //id = token_dictionary->GetPosTagId(instance->GetTag(i));
     id = dictionary.GetTagAlphabet().Lookup(instance->GetTag(i));
-    CHECK_LT(id, 0xff);
+    //CHECK_LT(id, 0xff);
     //CHECK_GE(id, 0);
     if (id < 0) {
       id = TOKEN_UNKNOWN;

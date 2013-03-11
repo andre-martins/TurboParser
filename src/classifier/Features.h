@@ -21,6 +21,7 @@
 
 #include "Part.h"
 #include "Instance.h"
+#include <stdint.h>
 
 // A vector of binary features. Each feature is represented as a 64-bit key.
 typedef vector<uint64_t> BinaryFeatures;
