@@ -29,8 +29,6 @@ DEFINE_string(file_model, "",
               "Path to the file containing the model.");
 DEFINE_string(file_prediction, "",
               "Path to the file where the predictions are output.");
-DEFINE_string(file_oov_tags, "",
-              "Path to the file containing the training data.");
 DEFINE_bool(train, false,
             "True for training the parser.");
 DEFINE_bool(test, false,
@@ -59,7 +57,6 @@ void Options::Initialize() {
   file_test_ = FLAGS_file_test;
   file_model_ = FLAGS_file_model;
   file_prediction_ = FLAGS_file_prediction;
-  file_oov_tags_ = FLAGS_file_oov_tags;
   train_ = FLAGS_train;
   test_ = FLAGS_test;
   evaluate_ = FLAGS_evaluate;

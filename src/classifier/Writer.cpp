@@ -20,7 +20,9 @@
 #include <iostream>
 #include <sstream>
 #include "Utils.h"
+#ifdef _WIN32
 #include <glog\logging.h>
+#endif
 using namespace std;
 
 void Writer::Open(const string &filepath) {

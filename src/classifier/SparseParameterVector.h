@@ -19,7 +19,11 @@
 #ifndef SPARSEPARAMETERVECTOR_H_
 #define SPARSEPARAMETERVECTOR_H_
 
+#ifdef _WIN32
 #include <unordered_map>
+#else
+#include <tr1/unordered_map>
+#endif
 #include "SerializationUtils.h"
 
 using namespace std;

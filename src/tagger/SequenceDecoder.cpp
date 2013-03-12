@@ -134,47 +134,46 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   }
 
   // Compute triplet scores from trigrams.
-  vector<vector<vector<std::pair<int, double>>>> transformed_edge_scores;
   if (pipe_->GetSequenceOptions()->markov_order() == 2 &&
       sentence->size() > 1) {
-	transformed_edge_scores.clear();
-	transformed_edge_scores.resize(sentence->size() - 2);
-	triplet_scores.resize(sentence->size() - 2);
+    //transformed_edge_scores.clear();
+    //transformed_edge_scores.resize(sentence->size() - 2);
+    triplet_scores.resize(sentence->size() - 2);
     sequence_parts->GetOffsetTrigram(&offset, &size);
-	SequencePartTrigram *last_trigram = NULL;
-	int tag_id = -1;
-	int tag_left_id = -1;
-	int tag_left_left_id = -1;
-   for (int r = 0; r < size; ++r) {
-      //LOG(INFO) << r << " " << size;
+
+    SequencePartTrigram *last_trigram = NULL; // Cache the last trigram to save time.
+    int tag_id = -1;
+    int tag_left_id = -1;
+    int tag_left_left_id = -1;
+    for (int r = 0; r < size; ++r) {
       SequencePartTrigram *trigram =
           static_cast<SequencePartTrigram*>((*parts)[offset + r]);
       // Get indices corresponding to tag id, left tag id, and left-left tag id.
       // TODO: Make this more efficient.
-	  // don't kow if the tags are ordered, if they are the following loops can be further optimized
       int i = trigram->position();
-	  
 
       if (i < sentence->size()) {
-		if (last_trigram == NULL || last_trigram->position() != i || trigram->tag() != last_trigram->tag()) {
-			for (int k = 0; k < node_tags[i].size(); ++k) {
-			  if (node_tags[i][k] == trigram->tag()) {
-				tag_id = k;
-				break;
-			  }
-			}
+        if (last_trigram == NULL || last_trigram->position() != i ||
+            trigram->tag() != last_trigram->tag()) {
+          for (int k = 0; k < node_tags[i].size(); ++k) {
+            if (node_tags[i][k] == trigram->tag()) {
+              tag_id = k;
+              break;
+            }
+          }
         }
       }
       if (i > 0) {
-		if (last_trigram == NULL || last_trigram->position() != i || trigram->tag() != last_trigram->tag() || trigram->tag_left() != last_trigram->tag_left()) 
-		{
-			for (int k = 0; k < node_tags[i - 1].size(); ++k) {
-			  if (node_tags[i - 1][k] == trigram->tag_left()) {
-				tag_left_id = k;
-				break;
-			  }
-			}
-		}
+        if (last_trigram == NULL || last_trigram->position() != i ||
+            trigram->tag() != last_trigram->tag() ||
+            trigram->tag_left() != last_trigram->tag_left()) {
+          for (int k = 0; k < node_tags[i - 1].size(); ++k) {
+            if (node_tags[i - 1][k] == trigram->tag_left()) {
+              tag_left_id = k;
+              break;
+            }
+          }
+        }
       }
       if (i > 1) {
         for (int k = 0; k < node_tags[i - 2].size(); ++k) {
@@ -184,7 +183,9 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
           }
         }
       }
-	  last_trigram = trigram;
+
+      last_trigram = trigram;
+
       if (i == 0) {
         // I don't think this ever reaches this point.
         CHECK_EQ(trigram->tag_left(), -1);
@@ -202,17 +203,20 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
         CHECK_LT(tag_left_id, node_tags[i - 1].size());
         CHECK_GE(tag_id, 0);
         CHECK_LT(tag_id, node_tags[i].size());
-		int s = tag_left_left_id * node_tags[i - 1].size() + tag_left_id;
-		int t = tag_left_id * node_tags[i].size() + tag_id;
-		(transformed_edge_scores)[i-2].resize (node_tags[i-1].size() * node_tags[i].size());
-		//(transformed_edge_scores)[i-2][t].reserve (node_tags[i - 2].size());
-		(transformed_edge_scores)[i-2][t].push_back(std::pair<int, double> (s, scores[offset + r]));
-        /*triplet_scores[i - 2].resize(node_tags[i - 2].size());
+
+        /*
+        int s = tag_left_left_id * node_tags[i - 1].size() + tag_left_id;
+        int t = tag_left_id * node_tags[i].size() + tag_id;
+        (transformed_edge_scores)[i-2].resize (node_tags[i-1].size() * node_tags[i].size());
+        (transformed_edge_scores)[i-2][t].push_back(std::pair<int, double> (s, scores[offset + r]));
+        */
+
+        triplet_scores[i - 2].resize(node_tags[i - 2].size());
         triplet_scores[i - 2][tag_left_left_id].resize(node_tags[i - 1].size());
         triplet_scores[i - 2][tag_left_left_id][tag_left_id].resize(
             node_tags[i].size(), 0.0);
         triplet_scores[i - 2][tag_left_left_id][tag_left_id][tag_id] =
-            scores[offset + r];*/
+            scores[offset + r];
       }
     }
   }
@@ -222,13 +226,15 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   if (pipe_->GetSequenceOptions()->markov_order() == 2 &&
       sentence->size() > 1) {
     vector<vector<double> > transformed_node_scores;
+    //vector<vector<vector<double> > > transformed_edge_scores;
+    vector<vector<vector<std::pair<int, double> > > > transformed_edge_scores;
 
     // Convert to a first order sequence model.
     ConvertToFirstOrderModel(node_scores,
                              edge_scores,
-                             triplet_scores, node_tags,
-                             &transformed_node_scores
-                             );
+                             triplet_scores,
+                             &transformed_node_scores,
+                             &transformed_edge_scores);
     vector<int> transformed_best_path;
     value = RunViterbi(transformed_node_scores, transformed_edge_scores,
         &transformed_best_path);
@@ -333,9 +339,9 @@ void SequenceDecoder::ConvertToFirstOrderModel(
     const vector<vector<double> > &node_scores,
     const vector<vector<vector<double> > > &edge_scores,
     const vector<vector<vector<vector<double> > > > &triplet_scores,
-	const vector<vector<int> > &node_tags,
-    vector<vector<double> > *transformed_node_scores
-    ) {
+    vector<vector<double> > *transformed_node_scores,
+    //    vector<vector<vector<double> > > *transformed_edge_scores) {
+    vector<vector<vector<std::pair<int, double> > > > *transformed_edge_scores) {
 
   int length = node_scores.size();
 
@@ -360,10 +366,14 @@ void SequenceDecoder::ConvertToFirstOrderModel(
   }
 
   // The transformed edge scores will have one less element.
-  /*transformed_edge_scores->resize(length - 2);
+  transformed_edge_scores->resize(length - 2);
   for (int i = 0; i < length - 2; ++i) {
     // Position i.
-	 (*transformed_edge_scores)[i].clear();
+    (*transformed_edge_scores)[i].resize((*transformed_node_scores)[i+1].size());
+    for (int t = 0; t < (*transformed_edge_scores)[i].size(); ++t) {
+      (*transformed_edge_scores)[i][t].resize(edge_scores[i].size());
+    }
+
     int s = 0;
     for (int j = 0; j < edge_scores[i].size(); ++j) {
       // Tag j at position i.
@@ -372,14 +382,14 @@ void SequenceDecoder::ConvertToFirstOrderModel(
         // Tag k at position i+1.
         for (int l = 0; l < node_scores[i+2].size(); ++l, ++t) {
           // Tag l at position i+2.
-		
-          (*transformed_edge_scores)[i][(s << 16) | t] = triplet_scores[i][j][k][l];
-		
-			
+          CHECK_LT(t, (*transformed_edge_scores)[i].size());
+          CHECK_LT(j, (*transformed_edge_scores)[i][t].size());          
+          (*transformed_edge_scores)[i][t][j] = 
+            std::pair<int, double>(s, triplet_scores[i][j][k][l]);
         }
       }
     }
-  }*/
+  }
 }
 
 // Computes the Viterbi path of a sequence model.
@@ -419,11 +429,7 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
       double best_value = -1e-12;
       int best = -1;
       for (int l = 0; l < node_scores[i].size(); ++l) {
-        double value;
-		if (l < edge_scores[i].size() && k < edge_scores[i][l].size()  )
-			value = deltas[i][l] + edge_scores[i][l][k];
-		else
-			value = deltas[i][l] + LOG_ZERO;
+        double value = deltas[i][l] + edge_scores[i][l][k];
         if (best < 0 || value > best_value) {
           best_value = value;
           best = l;
@@ -459,9 +465,10 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
 
   return best_value;
 }
+
 double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
-                                    const vector<vector<vector<std::pair<int, double>>>>
-                                     &edge_scores,
+                                   const vector<vector<vector<std::pair<int, double> > > >
+                                   &edge_scores,
                                    vector<int> *best_path) {
   int length = node_scores.size(); // Length of the sequence.
   vector<vector<double> > deltas(length); // To accommodate the partial scores.
@@ -485,14 +492,17 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
 	for (int k = 0; k < num_current_labels; ++k) {
       double best_value = -1e-12;
       int best = -1;
-	  vector<std::pair<int, double>>::const_iterator it ;
-      for (it = edge_scores[i][k].begin(); it != edge_scores[i][k].end(); it++) {
-        
-		
-		double value = deltas[i][it->first] + it->second;
+      // Edges from the previous position.
+      for (vector<std::pair<int, double> >::const_iterator it =
+             edge_scores[i][k].begin();
+           it != edge_scores[i][k].end();
+           ++it) {
+        int l = it->first;
+        double edge_score = it->second;
+        double value = deltas[i][l] + edge_score;
         if (best < 0 || value > best_value) {
           best_value = value;
-          best = it->first;
+          best = l;
         }
       }
       CHECK_GE(best, 0) << node_scores[i].size() << " possible tags.";

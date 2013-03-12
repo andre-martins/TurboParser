@@ -35,6 +35,9 @@ DEFINE_bool(tagger_large_feature_set, false,
             "accurate but slower and have a larger memory footprint.");
 DEFINE_bool(tagger_prune_tags, true,
             "True for pruning the set of possible tags by using a dictionary.");
+DEFINE_string(file_unknown_word_tags, "",
+              "Path to the file containing the possible tags to be assigned "
+              "to out-of-vocabulary words.");
 
 // Save current option flags to the model file.
 void SequenceOptions::Save(FILE* fs) {
@@ -47,6 +50,9 @@ void SequenceOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, prune_tags_);
   CHECK(success);
+
+  // TODO: Maybe we should load/save also the list of tags for unknown
+  // words?
 }
 
 // Load current option flags to the model file.
@@ -66,6 +72,9 @@ void SequenceOptions::Load(FILE* fs) {
   CHECK(success);
   LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_tagger_prune_tags;
 
+  // TODO: Maybe we should load/save also the list of tags for unknown
+  // words?
+
   Initialize();
 }
 
@@ -76,5 +85,6 @@ void SequenceOptions::Initialize() {
   model_type_ = FLAGS_tagger_model_type;
   large_feature_set_ = FLAGS_tagger_large_feature_set;
   prune_tags_ = FLAGS_tagger_prune_tags;
+  file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
 }
 

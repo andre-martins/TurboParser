@@ -19,10 +19,10 @@
 #ifndef TIMEUTILS_H
 #define TIMEUTILS_H
 
-#ifndef _WIN32
-#include <sys/time.h>
-#else
+#ifdef _WIN32
 #include <gettimeofday.h>
+#else
+#include <sys/time.h>
 #endif
 using namespace std;
 

@@ -29,8 +29,8 @@ int SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
   int i;
   int id;
 
-  int affix_length = FLAGS_affix_length;
   int prefix_length = FLAGS_prefix_length;
+  int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   Clear();
@@ -62,8 +62,8 @@ int SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
       prefix_ids_[i][l] = id;
     }
 
-    suffix_ids_[i].resize(affix_length);
-    for (int l = 0; l < affix_length; ++l) {
+    suffix_ids_[i].resize(suffix_length);
+    for (int l = 0; l < suffix_length; ++l) {
       int start = form.length() - l - 1;
       if (start < 0) start = 0;
       string suffix = form.substr(start, l+1);
