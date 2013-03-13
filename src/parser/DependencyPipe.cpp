@@ -810,13 +810,25 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
   int sentence_length = sentence->size();
   bool make_gold = (gold_outputs != NULL);
 
+#if 0
+  for (int h = 0; h < sentence_length; ++h) {
+    cout << "h=" << h << ": ";
+    for (int m = 1; m < sentence_length; ++m) {
+      int r = dependency_parts->FindArc(h, m);
+      if (r >=0 && NEARLY_EQ_TOL((*gold_outputs)[r], 1.0, 1e-9)) {
+        cout << m << " ";
+      }
+    }
+    cout << endl;
+  }
+#endif
+
   // Three consecutive siblings: (h,m), (h,s), and (h,t).
   for (int h = 0; h < sentence_length; ++h) {
     bool first_arc_active;
     bool second_arc_active = false;
     bool third_arc_active = false;
-    bool arc_between_first;
-    bool arc_between_second;
+    bool arc_between;
 
     // Right side.
     for (int m = h; m < sentence_length; ++m) {
@@ -833,7 +845,7 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
         } else {
           first_arc_active = false;
         }
-        arc_between_first = false;
+        arc_between = false;
       }
 
       // Assume s cannot be the stop symbol.
@@ -851,10 +863,6 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
           } else {
             second_arc_active = false;
           }
-          if (first_arc_active && second_arc_active && !arc_between_first) {
-            arc_between_first = true;
-          }
-          arc_between_second = false;
         }
 
         // Assume t can be the stop symbol.
@@ -879,11 +887,17 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
 
           if (make_gold) {
             double value = 0.0;
-            if (second_arc_active && third_arc_active && !arc_between_second) {
-              if (first_arc_active && !arc_between_first) value = 1.0;
-              arc_between_second = true;
+            if (first_arc_active && second_arc_active && third_arc_active &&
+                !arc_between) {
+              value = 1.0;
+              arc_between = true;
             }
             gold_outputs->push_back(value);
+#if 0
+            if (value == 1.0) {
+              cout << "Gold trisibling: " << h << " " << m << " " << s << " " << t << endl;
+            }
+#endif
           }
         }
       }
@@ -904,7 +918,7 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
         } else {
           first_arc_active = false;
         }
-        arc_between_first = false;
+        arc_between = false;
       }
 
       // Assume s cannot be the stop symbol.
@@ -922,10 +936,6 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
           } else {
             second_arc_active = false;
           }
-          if (first_arc_active && second_arc_active && !arc_between_first) {
-            arc_between_first = true;
-          }
-          arc_between_second = false;
         }
 
         // Assume t can be the stop symbol.
@@ -950,11 +960,17 @@ void DependencyPipe::MakePartsTriSiblings(Instance *instance,
 
           if (make_gold) {
             double value = 0.0;
-            if (second_arc_active && third_arc_active && !arc_between_second) {
-              if (first_arc_active && !arc_between_first) value = 1.0;
-              arc_between_second = true;
+            if (first_arc_active && second_arc_active && third_arc_active &&
+                !arc_between) {
+              value = 1.0;
+              arc_between = true;
             }
             gold_outputs->push_back(value);
+#if 0
+            if (value == 1.0) {
+              cout << "Gold trisibling: " << h << " " << m << " " << s << " " << t << endl;
+            }
+#endif
           }
         }
       }

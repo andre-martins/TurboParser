@@ -53,7 +53,7 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       }
     }
     stream << endl;
-    CHECK_EQ(additional_log_potentials_.size(), total); 
+    CHECK_EQ(additional_log_potentials_.size(), total);
   }
 
   // Compute the score of a given assignment.
@@ -85,7 +85,7 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
         path[m][i].resize(i);
         for (int j = 0; j < i; ++j) {
           // In this case, the previous state must also be (j,i).
-          assert(i < values[m-1].size()); 
+          assert(i < values[m-1].size());
           assert(j < values[m-1][i].size());
           values[m][i][j] = values[m-1][i][j];
           path[m][i][j] = j; // This is state (j,i).
@@ -172,8 +172,7 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       }
       best_path[m-1] = i;
       //cout << "best_path[" << m-1 << "] = " << best_path[m-1] << endl;
-        
-        
+
       /*
       // path[2][1][1] does not exist...
       if (best_path[m-1] == -1) {
@@ -194,6 +193,116 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       }
     }
     //cout << "End Maximizing" << endl;
+
+#if 0
+    double value2;
+    Evaluate(variable_log_potentials,
+             additional_log_potentials,
+             configuration,
+             &value2);
+    cout << *value << " " << value2 << endl;
+#endif
+
+#if 0
+    vector<vector<int> > modseqs;
+    double best_value;
+    int best = -1;
+    if (false && length == 5) {
+      int config1[] = {};
+      modseqs.push_back(vector<int>(config1, config1));
+      int config2[] = {3};
+      modseqs.push_back(vector<int>(config2, config2+1));
+      int config3[] = {2};
+      modseqs.push_back(vector<int>(config3, config3+1));
+      int config4[] = {2,3};
+      modseqs.push_back(vector<int>(config4, config4+2));
+      int config5[] = {1};
+      modseqs.push_back(vector<int>(config5, config5+1));
+      int config6[] = {1,3};
+      modseqs.push_back(vector<int>(config6, config6+2));
+      int config7[] = {1,2};
+      modseqs.push_back(vector<int>(config7, config7+2));
+      int config8[] = {1,2,3};
+      modseqs.push_back(vector<int>(config8, config8+3));
+      int config9[] = {4};
+      modseqs.push_back(vector<int>(config9, config9+1));
+      int config10[] = {3,4};
+      modseqs.push_back(vector<int>(config10, config10+2));
+      int config11[] = {2,4};
+      modseqs.push_back(vector<int>(config11, config11+2));
+      int config12[] = {2,3,4};
+      modseqs.push_back(vector<int>(config12, config12+3));
+      int config13[] = {1,4};
+      modseqs.push_back(vector<int>(config13, config13+2));
+      int config14[] = {1,3,4};
+      modseqs.push_back(vector<int>(config14, config14+3));
+      int config15[] = {1,2,4};
+      modseqs.push_back(vector<int>(config15, config15+3));
+      int config16[] = {1,2,3,4};
+      modseqs.push_back(vector<int>(config16, config16+4));
+      for (int i = 0; i < modseqs.size(); ++i) {
+        double value_tmp;
+        Evaluate(variable_log_potentials,
+                 additional_log_potentials,
+                 &modseqs[i],
+                 &value_tmp);
+        if (best < 0 || value_tmp > best_value) {
+          best = i;
+          best_value = value_tmp;
+        }
+      }
+      cout << *value << "->" << best_value << endl;
+    } else if (false && length == 4) {
+      int config1[] = {};
+      modseqs.push_back(vector<int>(config1, config1));
+      int config2[] = {3};
+      modseqs.push_back(vector<int>(config2, config2+1));
+      int config3[] = {2};
+      modseqs.push_back(vector<int>(config3, config3+1));
+      int config4[] = {2,3};
+      modseqs.push_back(vector<int>(config4, config4+2));
+      int config5[] = {1};
+      modseqs.push_back(vector<int>(config5, config5+1));
+      int config6[] = {1,3};
+      modseqs.push_back(vector<int>(config6, config6+2));
+      int config7[] = {1,2};
+      modseqs.push_back(vector<int>(config7, config7+2));
+      int config8[] = {1,2,3};
+      modseqs.push_back(vector<int>(config8, config8+3));
+      for (int i = 0; i < modseqs.size(); ++i) {
+        double value_tmp;
+        Evaluate(variable_log_potentials,
+                 additional_log_potentials,
+                 &modseqs[i],
+                 &value_tmp);
+        if (best < 0 || value_tmp > best_value) {
+          best = i;
+          best_value = value_tmp;
+        }
+      }
+      cout << *value << "->" << best_value << endl;
+    } else if (false && length == 3) {
+      int config1[] = {};
+      modseqs.push_back(vector<int>(config1, config1));
+      int config3[] = {2};
+      modseqs.push_back(vector<int>(config3, config3+1));
+      int config5[] = {1};
+      modseqs.push_back(vector<int>(config5, config5+1));
+      int config7[] = {1,2};
+      modseqs.push_back(vector<int>(config7, config7+2));
+      for (int i = 0; i < modseqs.size(); ++i) {
+        double value_tmp;
+        Evaluate(variable_log_potentials,
+                 additional_log_potentials,
+                 &modseqs[i],
+                 &value_tmp);
+        if (best < 0 || value_tmp > best_value) {
+          best = i;
+          best_value = value_tmp;
+        }
+      }
+    }
+#endif
   }
 
   // Compute the score of a given assignment.
