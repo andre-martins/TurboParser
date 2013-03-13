@@ -403,6 +403,38 @@ struct DependencyFeatureTemplateGrandSibl {
   };
 };
 
+struct DependencyFeatureTemplateTriSibl {
+  enum types {
+    // There is a cross-product between these and direction, pos, cpos
+    BIAS = 0,				/* bias */
+
+    // Quadruplet features.
+    HP_MP_SP_TP,			/* head POS, mod POS, sib POS, other sib POS */
+    HW_MP_SP_TP,			/* head word, mod POS, sib POS, other sib POS */
+    HP_MW_SP_TP,			/* head POS, mod word, sib POS, other sib POS */
+    HP_MP_SW_TP,			/* head POS, mod POS, sib word, other sib POS */
+    HP_MP_SP_TW,			/* head POS, mod POS, sib POS, other sib word */
+
+    // Triplet features.
+    HP_MP_TP,			/* head POS, mod POS, other sib POS */
+    MP_SP_TP,			/* mod POS, sib POS, other sib POS */
+    HW_MP_TP,			/* head word, mod POS, other sib POS */
+    HP_MW_TP,			/* head POS, mod word, other sib POS */
+    HP_MP_TW,			/* head POS, mod POS, other sib word */
+    MW_SP_TP,			/* mod word, sib POS, other sib POS */
+    MP_SW_TP,			/* mod POS, sib word, other sib POS */
+    MP_SP_TW,			/* mod POS, sib POS, other sib word */
+
+    // Pairwise features.
+    MP_TP,			/* mod POS, other sib POS */
+    MW_TP,			/* mod word, other sib POS */
+    MP_TW,			/* mod POS, other sib word */
+
+    // TODO: features to deal with conjunctions.
+    COUNT
+  };
+};
+
 struct DependencyFeatureTemplateNonprojArc {
   enum types {
     // There is a cross-product between these and direction, distance, {word form}, {pos cpos}

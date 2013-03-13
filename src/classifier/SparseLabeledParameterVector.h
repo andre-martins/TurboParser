@@ -382,8 +382,7 @@ class SparseLabeledParameterVector {
     LabelWeights *label_weights = iterator->second;
     label_weights->SetWeight(label, value / scale_factor_);
 
-    //LOG(INFO) << iterator->second->Size();
-    // TODO: make this into dense label weights.
+    // Make this into dense label weights.
     if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
       DenseLabelWeights *dense_label_weights =
@@ -407,9 +406,15 @@ class SparseLabeledParameterVector {
     if (!label_weights) label_weights = new SparseLabelWeights;
     label_weights->SetWeight(label, value / scale_factor_);
 
-    if (label_weights->Size() > kNumMaxSparseLabels) {
-      // TODO: make this into dense label weights.
+    // Make this into dense label weights.
+    if (label_weights->Size() > kNumMaxSparseLabels &&
+        label_weights->IsSparse()) {
+      DenseLabelWeights *dense_label_weights =
+          new DenseLabelWeights(label_weights);
+      delete label_weights;
+      iterator->second = dense_label_weights;
     }
+
     // This prevents numerical issues:
     if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }

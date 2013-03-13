@@ -545,6 +545,101 @@ void DependencyFeatures::AddTriSiblingFeatures(DependencyInstanceNumeric* senten
   input_features_[r] = features;
 
   // TODO(afm).
+  int sentence_length = sentence->size();
+  bool first_child = (head == modifier);
+  bool last_child = (other_sibling == sentence_length || other_sibling <= 0);
+
+  CHECK_LT(sibling, sentence_length);
+  CHECK_GT(sibling, 0);
+  CHECK_NE(other_sibling, 0) << "Currently, last child is encoded as s = -1.";
+
+  // Direction of attachment.
+  uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
+
+  if (other_sibling < head) {
+    direction_code = 0x0;
+  } else {
+    direction_code = 0x1;
+  }
+
+  // Codewords for accommodating word/POS information.
+  uint16_t HWID, MWID, SWID, TWID;
+  uint8_t HPID, MPID, SPID, TPID;
+
+  // Array of form/lemma IDs.
+  const vector<int>* word_ids = &sentence->GetFormIds();
+
+  // Array of POS/CPOS IDs.
+  const vector<int>* pos_ids = &sentence->GetCoarsePosIds();
+
+  uint64_t fkey;
+  uint8_t flags = 0;
+
+  // Words/POS.
+  HWID = (*word_ids)[head];
+  MWID = first_child? TOKEN_START : (*word_ids)[modifier];
+  SWID = (*word_ids)[sibling];
+  TWID = last_child? TOKEN_STOP : (*word_ids)[other_sibling];
+  HPID = (*pos_ids)[head];
+  MPID = first_child? TOKEN_START : (*pos_ids)[modifier];
+  SPID = (*pos_ids)[sibling];
+  TPID = last_child? TOKEN_STOP : (*pos_ids)[other_sibling];
+
+  flags = DependencyFeatureTemplateParts::TRISIBL;
+
+  // Maximum is 255 feature templates.
+  CHECK_LT(DependencyFeatureTemplateTriSibl::COUNT, 256);
+
+  // Add direction information.
+  flags |= (direction_code << 6); // 1 more bit.
+
+  // Bias feature.
+  fkey = encoder_.CreateFKey_NONE(DependencyFeatureTemplateTriSibl::BIAS, flags);
+  AddFeature(fkey, features);
+
+  // Quadruplet POS feature.
+  fkey = encoder_.CreateFKey_PPPP(DependencyFeatureTemplateTriSibl::HP_MP_SP_TP, flags, HPID, MPID, SPID, TPID);
+  AddFeature(fkey, features);
+
+  // Quadruplet unilexical features.
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateTriSibl::HW_MP_SP_TP, flags, HWID, MPID, SPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateTriSibl::HP_MW_SP_TP, flags, MWID, HPID, SPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateTriSibl::HP_MP_SW_TP, flags, SWID, HPID, MPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyFeatureTemplateTriSibl::HP_MP_SP_TW, flags, TWID, HPID, MPID, SPID);
+
+  // Triplet POS features.
+  fkey = encoder_.CreateFKey_PPP(DependencyFeatureTemplateTriSibl::HP_MP_TP, flags, HPID, MPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPP(DependencyFeatureTemplateTriSibl::MP_SP_TP, flags, MPID, SPID, TPID);
+  AddFeature(fkey, features);
+
+  // Triplet unilexical features.
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::HW_MP_TP, flags, HWID, MPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::HP_MW_TP, flags, MWID, HPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::HP_MP_TW, flags, TWID, HPID, MPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::MW_SP_TP, flags, MWID, SPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::MP_SW_TP, flags, SWID, MPID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyFeatureTemplateTriSibl::MP_SP_TW, flags, TWID, MPID, SPID);
+  AddFeature(fkey, features);
+
+  // Pairwise POS features.
+  fkey = encoder_.CreateFKey_PP(DependencyFeatureTemplateTriSibl::MP_TP, flags, MPID, TPID);
+  AddFeature(fkey, features);
+
+  // Pairwise unilexical features.
+  fkey = encoder_.CreateFKey_WP(DependencyFeatureTemplateTriSibl::MW_TP, flags, MWID, TPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WP(DependencyFeatureTemplateTriSibl::MP_TW, flags, TWID, MPID);
+  AddFeature(fkey, features);
 }
 
 // Add features for non-projective arcs.
