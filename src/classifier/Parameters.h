@@ -214,8 +214,8 @@ class Parameters {
   bool use_average_;
 
   // Weights and averaged weights for the "simple" features.
-  SparseParameterVectorFloat weights_;
-  SparseParameterVectorFloat averaged_weights_;
+  SparseParameterVectorDouble weights_;
+  SparseParameterVectorDouble averaged_weights_;
 
   // Weights and averaged weights for the "labeled" features.
   SparseLabeledParameterVector labeled_weights_;
