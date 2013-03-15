@@ -35,11 +35,11 @@ class FeatureVector {
     labeled_weights_.Initialize();
   }
   virtual ~FeatureVector() {};
-  const SparseParameterVector &weights() { return weights_; }
+  const SparseParameterVectorDouble &weights() { return weights_; }
   const SparseLabeledParameterVector &labeled_weights() {
     return labeled_weights_;
   }
-  SparseParameterVector *mutable_weights() { return &weights_; }
+  SparseParameterVectorDouble *mutable_weights() { return &weights_; }
   SparseLabeledParameterVector *mutable_labeled_weights() {
     return &labeled_weights_;
   }
@@ -48,7 +48,7 @@ class FeatureVector {
   }
 
  protected:
-  SparseParameterVector weights_;
+  SparseParameterVectorDouble weights_;
   SparseLabeledParameterVector labeled_weights_;
 };
 
@@ -214,8 +214,8 @@ class Parameters {
   bool use_average_;
 
   // Weights and averaged weights for the "simple" features.
-  SparseParameterVector weights_;
-  SparseParameterVector averaged_weights_;
+  SparseParameterVectorFloat weights_;
+  SparseParameterVectorFloat averaged_weights_;
 
   // Weights and averaged weights for the "labeled" features.
   SparseLabeledParameterVector labeled_weights_;

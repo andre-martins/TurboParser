@@ -26,7 +26,10 @@ using namespace std;
 
 // A parameter map is a hash-table that maps from feature keys (64-bit words)
 // to weights (double-precision floats).
-typedef std::tr1::unordered_map <uint64_t, double> ParameterMap;
+template<typename Real>
+struct ParameterMap {
+  typedef std::tr1::unordered_map<uint64_t, Real> type;
+};
 
 // A threshold beyond which we need to renormalize the parameter vector.
 const double kScaleFactorThreshold = 1e-9;
@@ -40,6 +43,7 @@ const double kScaleFactorThreshold = 1e-9;
 // This way we can scale the weight vector in constant time (this operation is
 // necessary in some training algorithms such as SGD), and manipulating a few
 // elements is still fast. Plus, we can obtain the norm in constant time.
+template<typename Real>
 class SparseParameterVector {
  public:
   SparseParameterVector() { growth_stopped_ = false; };
@@ -56,7 +60,8 @@ class SparseParameterVector {
     bool success;
     success = WriteInteger(fs, Size());
     CHECK(success);
-    for (ParameterMap::const_iterator iterator = values_.begin();
+    for (typename ParameterMap<Real>::type::const_iterator iterator =
+           values_.begin();
          iterator != values_.end();
          ++iterator) {
       success = WriteUINT64(fs, iterator->first);
@@ -95,16 +100,18 @@ class SparseParameterVector {
 
   // True if this feature key is already instantiated.
   bool Exists(uint64_t key) const {
-    ParameterMap::const_iterator iterator = values_.find(key);
+    typename ParameterMap<Real>::type::const_iterator iterator =
+      values_.find(key);
     if (iterator == values_.end()) return false;
     return true;
   }
 
   // Get the weight of this feature key.
   double Get(uint64_t key) const {
-    ParameterMap::const_iterator iterator = values_.find(key);
+    typename ParameterMap<Real>::type::const_iterator iterator =
+      values_.find(key);
     if (iterator == values_.end()) return 0.0;
-    return iterator->second * scale_factor_;
+    return GetValue(iterator);
   }
 
   // Get the squared norm of the parameter vector.
@@ -119,28 +126,31 @@ class SparseParameterVector {
   }
 
   // Set the parameter value of a feature pointed by an iterator.
-  void SetValue(ParameterMap::iterator iterator, double value) {
+  void SetValue(typename ParameterMap<Real>::type::iterator iterator,
+                double value) {
     double current_value = GetValue(iterator);
     squared_norm_ += value * value - current_value * current_value;
-    iterator->second = value / scale_factor_;
+    // Might lose precision here.
+    iterator->second = static_cast<Real>(value / scale_factor_);
 
     // This prevents numerical issues:
     if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }
 
   // Get the parameter value of a feature pointed by an iterator.
-  double GetValue(ParameterMap::const_iterator iterator) const {
-    return iterator->second * scale_factor_;
+  double GetValue(typename ParameterMap<Real>::type::const_iterator
+                  iterator) const {
+    return static_cast<double>(iterator->second) * scale_factor_;
   }
 
   // Obtain the iterator pointing to a feature key. If the key does not exist
   // and the parameters are not locked, inserts the key and returns the
   // corresponding iterator.
-  ParameterMap::iterator FindOrInsert(uint64_t key) {
-    ParameterMap::iterator iterator = values_.find(key);
+  typename ParameterMap<Real>::type::iterator FindOrInsert(uint64_t key) {
+    typename ParameterMap<Real>::type::iterator iterator = values_.find(key);
     if (iterator != values_.end() || growth_stopped()) return iterator;
-    pair<ParameterMap::iterator, bool> result =
-      values_.insert(pair<uint64_t, double>(key, 0.0));
+    pair<typename ParameterMap<Real>::type::iterator, bool> result =
+      values_.insert(pair<uint64_t, Real>(key, 0.0));
     CHECK(result.second);
     return result.first;
   }
@@ -149,7 +159,7 @@ class SparseParameterVector {
   // is not instantiated and cannot be inserted.
   // w'[id] = val.
   bool Set(uint64_t key, double value) {
-    ParameterMap::iterator iterator = FindOrInsert(key);
+    typename ParameterMap<Real>::type::iterator iterator = FindOrInsert(key);
     if (iterator != values_.end()) {
       SetValue(iterator, value);
       return true;
@@ -162,7 +172,7 @@ class SparseParameterVector {
   // false if the feature is not instantiated and cannot be inserted.
   // w'[id] = w[id] + val.
   bool Add(uint64_t key, double value) {
-    ParameterMap::iterator iterator = FindOrInsert(key);
+    typename ParameterMap<Real>::type::iterator iterator = FindOrInsert(key);
     if (iterator != values_.end()) {
       SetValue(iterator, iterator->second * scale_factor_ + value);
       return true;
@@ -185,7 +195,8 @@ class SparseParameterVector {
   // NOTE: Silently bypasses the ones that could not be inserted, if any.
   // w'[id] = w[id] + val.
   void Add(const SparseParameterVector &parameters) {
-    for (ParameterMap::const_iterator iterator = parameters.values_.begin();
+    for (typename ParameterMap<Real>::type::const_iterator iterator =
+           parameters.values_.begin();
          iterator != parameters.values_.end();
          ++iterator) {
       uint64_t key = iterator->first;
@@ -198,7 +209,7 @@ class SparseParameterVector {
  protected:
   // If the scale factor is too small, renormalize the entire parameter map.
   void RenormalizeIfNecessary() {
-    if (scale_factor_ > -kScaleFactorThreshold && 
+    if (scale_factor_ > -kScaleFactorThreshold &&
         scale_factor_ < kScaleFactorThreshold) {
       Renormalize();
     }
@@ -207,7 +218,7 @@ class SparseParameterVector {
   // Renormalize the entire parameter map (an expensive operation).
   void Renormalize() {
     LOG(INFO) << "Renormalizing the parameter map...";
-    for (ParameterMap::iterator iterator = values_.begin();
+    for (typename ParameterMap<Real>::type::iterator iterator = values_.begin();
          iterator != values_.end();
          ++iterator) {
       iterator->second *= scale_factor_;
@@ -216,10 +227,13 @@ class SparseParameterVector {
   }
 
  protected:
-  ParameterMap values_; // Weight values, up to a scale.
+  typename ParameterMap<Real>::type values_; // Weight values, up to a scale.
   double scale_factor_; // The scale factor, such that w = values * scale.
   double squared_norm_; // The squared norm of the parameter vector.
   bool growth_stopped_; // True if parameters are locked.
 };
+
+typedef SparseParameterVector<double> SparseParameterVectorDouble;
+typedef SparseParameterVector<float> SparseParameterVectorFloat;
 
 #endif /*SPARSEPARAMETERVECTOR_H_*/
