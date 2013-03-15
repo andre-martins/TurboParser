@@ -2049,9 +2049,11 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   double *value = &value_ref;
 
   factor_graph->SetMaxIterationsAD3(500);
+  //factor_graph->SetMaxIterationsAD3(200);
   factor_graph->SetEtaAD3(0.05);
   factor_graph->AdaptEtaAD3(true);
   factor_graph->SetResidualThresholdAD3(1e-3);
+  //factor_graph->SetResidualThresholdAD3(1e-6);
 
   // Run AD3.
   timeval start, end;
@@ -2104,7 +2106,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 #include <ilcplex/ilocplex.h>
 ILOSTLBEGIN
 
-void DependencyDecoder::DecodeCPLEX(Instance *instance, Parts *parts, 
+void DependencyDecoder::DecodeCPLEX(Instance *instance, Parts *parts,
                                     const vector<double> &scores,
                                     bool single_root,
                                     bool relax,

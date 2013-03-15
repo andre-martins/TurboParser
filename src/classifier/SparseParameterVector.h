@@ -78,6 +78,8 @@ class SparseParameterVector {
     int length;
     success = ReadInteger(fs, &length);
     CHECK(success);
+    //values_.reserve(length);
+    values_.rehash(length); // This is the number of buckets.
     for (int i = 0; i < length; ++i) {
       uint64_t key;
       double value;
