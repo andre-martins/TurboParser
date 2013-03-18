@@ -37,6 +37,8 @@ DECLARE_double(train_regularization_constant);
 DECLARE_double(train_initial_learning_rate);
 DECLARE_string(train_learning_rate_schedule);
 
+DECLARE_int32(parameters_max_num_buckets);
+
 // General training/test options.
 class Options {
  public:
