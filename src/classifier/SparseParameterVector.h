@@ -22,6 +22,7 @@
 #include <tr1/unordered_map>
 #include "SerializationUtils.h"
 #include "Options.h"
+//#include "HashTable.h"
 
 using namespace std;
 
@@ -32,6 +33,9 @@ class MapUINT64 : public std::tr1::unordered_map<uint64_t, Real> {
     max_num_buckets_ = FLAGS_parameters_max_num_buckets;
     threshold_load_factor_ = 0.95;
     growth_rate_load_factor_ = 2.0;
+
+    //HashTable<uint64_t, Real> map;
+    //LOG(INFO) << map.bucket_count();
   }
 
   void PrepareForResize() {
