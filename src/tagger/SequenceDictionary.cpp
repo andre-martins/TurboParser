@@ -35,7 +35,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
     for (int i = 0; i < instance_length; ++i) {
       int id;
 
-      // Add dependency label to alphabet.
+      // Add tag to alphabet.
       id = tag_alphabet_.Insert(instance->GetTag(i));
       if (id >= tag_freqs.size()) {
         CHECK_EQ(id, tag_freqs.size());
@@ -88,4 +88,32 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   reader->Close();
 
   LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
+
+  // If there is a list of possible tags for the unknown words, load it.
+  SequenceOptions *options =
+    static_cast<SequenceOptions*>(pipe_->GetOptions());
+  if (options->GetUnknownWordTagsFilePath().size() == 0) {
+    for (int i = 0; i < tag_alphabet_.size(); ++i) {
+      unknown_word_tags_.push_back(i);
+    }
+  } else {
+    LOG(INFO) << "Loading file with unknown word tags...";
+    std::ifstream is;
+    is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open " 
+                     << options->GetUnknownWordTagsFilePath() << ".";
+    vector<vector<string> > sentence_fields;
+    string line;
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line.size() == 0) break;
+        int tagid = tag_alphabet_.Lookup(line);
+        CHECK(tagid >= 0) << "Tag " << line << " does not exist.";
+        unknown_word_tags_.push_back(tagid);
+        LOG(INFO) << "Unknown word tag: " << line;
+      }
+    }
+  }
+  LOG(INFO) << "Number of unknown word tags: " << unknown_word_tags_.size();
 }

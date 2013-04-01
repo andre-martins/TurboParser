@@ -40,7 +40,16 @@ class SequenceDictionary : public Dictionary {
   void Save(FILE *fs) {
     if (0 > tag_alphabet_.Save(fs)) CHECK(false);
     bool success;
-    int length = word_tags_.size();
+    int length = unknown_word_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+      int tag = unknown_word_tags_[j];
+      success = WriteInteger(fs, tag);
+      CHECK(success);
+    }
+
+    length = word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < word_tags_.size(); ++i) {
@@ -59,6 +68,15 @@ class SequenceDictionary : public Dictionary {
     if (0 > tag_alphabet_.Load(fs)) CHECK(false);
     bool success;
     int length;
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    unknown_word_tags_.resize(length);
+    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+      int tag;
+      success = ReadInteger(fs, &tag);
+      CHECK(success);
+      unknown_word_tags_[j] = tag;
+    }
     success = ReadInteger(fs, &length);
     CHECK(success);
     word_tags_.resize(length);
@@ -109,7 +127,15 @@ class SequenceDictionary : public Dictionary {
   }
 
   const vector<int> &GetWordTags(int word) {
-    return word_tags_[word];
+    // return word_tags_[word];
+    // TODO: Not sure is this should be done here...
+    // It may be cleaner to return an empty vector here and 
+    // fill it with the unknown tags elsewhere.
+    if (!word_tags_[word].empty()) {
+      return word_tags_[word];
+    } else {
+      return unknown_word_tags_;
+    }
   }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
@@ -124,6 +150,7 @@ class SequenceDictionary : public Dictionary {
   TokenDictionary *token_dictionary_;
   Alphabet tag_alphabet_;
   vector<vector<int> > word_tags_;
+  vector<int> unknown_word_tags_;
 };
 
 #endif /* SEQUENCEDICTIONARY_H_ */

@@ -20,7 +20,9 @@
 #include <iostream>
 #include <sstream>
 #include "Utils.h"
-
+#ifdef _WIN32
+#include <glog\logging.h>
+#endif
 using namespace std;
 
 void Reader::Open(const string &filepath) {

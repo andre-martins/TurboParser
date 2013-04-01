@@ -20,8 +20,15 @@
 #define ALPHABET_H_
 
 #include "Utils.h"
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
+#endif
 #include <stdio.h>
+#ifdef _WIN32
+#include <glog\logging.h>
+#endif
 
 using namespace std;
 

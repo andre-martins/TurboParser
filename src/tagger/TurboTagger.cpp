@@ -23,7 +23,9 @@ int main(int argc, char** argv) {
   // Parse command line flags.
   google::ParseCommandLineFlags(&argc, &argv, true);
 
-
+#ifdef _WIN32
+  google::LogToStderr();
+#endif
   if (FLAGS_train) {
     LOG(INFO) << "Training tagger..." << endl;
     TrainTagger();

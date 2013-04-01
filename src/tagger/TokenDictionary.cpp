@@ -33,7 +33,7 @@ const unsigned int kMaxFormAlphabetSize = 0xffff;
 const unsigned int kMaxLemmaAlphabetSize = 0xffff;
 const unsigned int kMaxPosAlphabetSize = 0xff;
 const unsigned int kMaxCoarsePosAlphabetSize = 0xff;
-const unsigned int kMaxFeatsAlphabetSize = 0xfff; // 0xffff;
+const unsigned int kMaxFeatsAlphabetSize = 0xfff; //0xffff;
 
 DEFINE_int32(form_cutoff, 0,
              "Ignore word forms whose frequency is less than this.");
@@ -45,19 +45,24 @@ DEFINE_int32(pos_cutoff, 0,
              "Ignore POS tags whose frequency is less than this.");
 DEFINE_int32(cpos_cutoff, 0,
              "Ignore CPOS tags whose frequency is less than this.");
-DEFINE_int32(affix_length, 4,
-             "Length of affixes/suffixes.");
+DEFINE_int32(prefix_length, 4,
+             "Length of prefixes.");
+DEFINE_int32(suffix_length, 4,
+             "Length of suffixes.");
 DEFINE_bool(form_case_sensitive, false,
             "Distinguish upper/lower case of word forms.");
 
 void TokenDictionary::Load(FILE* fs) {
   bool success;
-  success = ReadInteger(fs, &FLAGS_affix_length);
-  CHECK(success);
-  LOG(INFO) << "Setting --affix_length=" << FLAGS_affix_length;
   success = ReadBool(fs, &FLAGS_form_case_sensitive);
   CHECK(success);
   LOG(INFO) << "Setting --form_case_sensitive=" << FLAGS_form_case_sensitive;
+  success = ReadInteger(fs, &FLAGS_prefix_length);
+  CHECK(success);
+  LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
+  success = ReadInteger(fs, &FLAGS_suffix_length);
+  CHECK(success);
+  LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
 
   if (0 > form_alphabet_.Load(fs)) CHECK(false);
   if (0 > lemma_alphabet_.Load(fs)) CHECK(false);
@@ -74,9 +79,11 @@ void TokenDictionary::Load(FILE* fs) {
 
 void TokenDictionary::Save(FILE* fs) {
   bool success;
-  success = WriteInteger(fs, FLAGS_affix_length);
-  CHECK(success);
   success = WriteBool(fs, FLAGS_form_case_sensitive);
+  CHECK(success);
+  success = WriteInteger(fs, FLAGS_prefix_length);
+  CHECK(success);
+  success = WriteInteger(fs, FLAGS_suffix_length);
   CHECK(success);
 
   if (0 > form_alphabet_.Save(fs)) CHECK(false);
@@ -93,11 +100,11 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
   LOG(INFO) << "Creating token dictionary...";
 
   int form_cutoff = FLAGS_form_cutoff;
-  int affix_length = FLAGS_affix_length;
+  int prefix_length = FLAGS_prefix_length;
+  int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   vector<int> form_freqs;
-
   Alphabet form_alphabet;
 
   string special_symbols[NUM_SPECIAL_TOKENS];
@@ -136,11 +143,11 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
       ++form_freqs[id];
 
       // Add prefix/suffix to alphabet.
-      string prefix = form.substr(0, affix_length);
+      string prefix = form.substr(0, prefix_length);
       id = prefix_alphabet_.Insert(prefix);
-      int start = form.length() - affix_length;
+      int start = form.length() - suffix_length;
       if (start < 0) start = 0;
-      string suffix = form.substr(start, affix_length);
+      string suffix = form.substr(start, suffix_length);
       id = suffix_alphabet_.Insert(suffix);
     }
     delete instance;
@@ -197,7 +204,8 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
   int feats_cutoff = FLAGS_feats_cutoff;
   int pos_cutoff = FLAGS_pos_cutoff;
   int cpos_cutoff = FLAGS_cpos_cutoff;
-  int affix_length = FLAGS_affix_length;
+  int prefix_length = FLAGS_prefix_length;
+  int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   vector<int> form_freqs;
@@ -265,11 +273,11 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
 
       // Add prefix/suffix to alphabet.
       // TODO: add varying lengths.
-      string prefix = form.substr(0, affix_length);
+      string prefix = form.substr(0, prefix_length);
       id = prefix_alphabet_.Insert(prefix);
-      int start = form.length() - affix_length;
+      int start = form.length() - suffix_length;
       if (start < 0) start = 0;
-      string suffix = form.substr(start, affix_length);
+      string suffix = form.substr(start, suffix_length);
       id = suffix_alphabet_.Insert(suffix);
 
       // Add POS to alphabet.

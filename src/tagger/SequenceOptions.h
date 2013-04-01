@@ -37,12 +37,16 @@ class SequenceOptions : public Options {
   bool large_feature_set() { return large_feature_set_; }
   bool prune_tags() { return prune_tags_; }
   int markov_order() { return model_type_; }
+  const string &GetUnknownWordTagsFilePath() {
+    return file_unknown_word_tags_;
+  }
 
  protected:
   string file_format_;
   int model_type_;
   bool large_feature_set_;
   bool prune_tags_;
+  string file_unknown_word_tags_;
 };
 
 #endif // SEQUENCE_OPTIONS_H_

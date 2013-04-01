@@ -24,7 +24,11 @@
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 #include "HashTable.h"
 #else
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
+#endif
 #endif
 #include "SerializationUtils.h"
 
@@ -419,7 +423,8 @@ class SparseLabeledParameterVector {
     LabelWeights *label_weights = iterator->second;
     label_weights->SetWeight(label, value / scale_factor_);
 
-    // Make this into dense label weights.
+    // If the number of labels is growing large, make this into dense 
+    // label weights.
     if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
       DenseLabelWeights *dense_label_weights =
@@ -443,7 +448,8 @@ class SparseLabeledParameterVector {
     if (!label_weights) label_weights = new SparseLabelWeights;
     label_weights->SetWeight(label, value / scale_factor_);
 
-    // Make this into dense label weights.
+    // If the number of labels is growing large, make this into dense 
+    // label weights.
     if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
       DenseLabelWeights *dense_label_weights =

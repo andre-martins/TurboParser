@@ -30,7 +30,8 @@ void DependencyInstanceNumeric::Initialize(
   int i;
   int id;
 
-  int affix_length = FLAGS_affix_length;
+  int prefix_length = FLAGS_prefix_length;
+  int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   Clear();
@@ -65,15 +66,15 @@ void DependencyInstanceNumeric::Initialize(
     if (id < 0) id = TOKEN_UNKNOWN;
     lemma_ids_[i] = id;
 
-    string prefix = form.substr(0, affix_length);
+    string prefix = form.substr(0, prefix_length);
     id = token_dictionary->GetPrefixId(prefix);
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
     prefix_ids_[i] = id;
 
-    int start = form.length() - affix_length;
+    int start = form.length() - suffix_length;
     if (start < 0) start = 0;
-    string suffix = form.substr(start, affix_length);
+    string suffix = form.substr(start, suffix_length);
     id = token_dictionary->GetSuffixId(suffix);
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;

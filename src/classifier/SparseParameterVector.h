@@ -24,7 +24,11 @@
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 #include "HashTable.h"
 #else
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
+#endif
 #endif
 #include "SerializationUtils.h"
 #include "Options.h"
