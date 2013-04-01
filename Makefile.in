@@ -194,6 +194,16 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@DEBUG_FALSE@AM_CFLAGS = -O2
+
+############################################
+# Temporary solution to enable debug builds.
+# See: http://stackoverflow.com/questions/4553735/gnu-autotools-debug-release-targets
+############################################
+@DEBUG_TRUE@AM_CFLAGS = -g3 -O0
+@DEBUG_FALSE@AM_CXXFLAGS = -O2
+@DEBUG_TRUE@AM_CXXFLAGS = -g3 -O0
+############################################
 SUBDIRS = src/tagger src/parser
 EXTRA_DIST = scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \

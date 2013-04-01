@@ -1,3 +1,16 @@
+############################################
+# Temporary solution to enable debug builds.
+# See: http://stackoverflow.com/questions/4553735/gnu-autotools-debug-release-targets
+############################################
+if DEBUG
+AM_CFLAGS = -g3 -O0
+AM_CXXFLAGS = -g3 -O0
+else
+AM_CFLAGS = -O2
+AM_CXXFLAGS = -O2
+endif
+############################################
+
 SUBDIRS=src/tagger src/parser
 EXTRA_DIST=scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \

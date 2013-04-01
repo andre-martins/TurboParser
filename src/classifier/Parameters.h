@@ -71,7 +71,7 @@ class Parameters {
   // Initialize the parameters.
   void Initialize(bool use_average) {
     use_average_ = use_average;
-    weights_.Initialize(); 
+    weights_.Initialize();
     if (use_average_) averaged_weights_.Initialize();
     labeled_weights_.Initialize();
     if (use_average_) averaged_labeled_weights_.Initialize();

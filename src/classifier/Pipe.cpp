@@ -231,7 +231,6 @@ void Pipe::TrainEpoch(int epoch) {
   for (int i = 0; i < instances_.size(); i++) {
     int t = num_instances * epoch + i;
     instance = instances_[i];
-
     MakeParts(instance, parts, &gold_outputs);
     MakeFeatures(instance, parts, features);
 
@@ -382,7 +381,7 @@ void Pipe::Run() {
 
   timeval start, end;
   gettimeofday(&start, NULL);
-  
+
   if (options_->evaluate()) BeginEvaluation();
 
   reader_->Open(options_->GetTestFilePath());

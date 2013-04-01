@@ -27,7 +27,7 @@ namespace AD3 {
 class FactorGrandparentHeadAutomaton : public GenericFactor {
  public:
   FactorGrandparentHeadAutomaton() {}
-  virtual ~FactorGrandparentHeadAutomaton() {}
+  virtual ~FactorGrandparentHeadAutomaton() { ClearActiveSet(); }
 
   // Print as a string.
   void Print(ostream& stream) {
