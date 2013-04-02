@@ -19,16 +19,57 @@
 #ifndef SPARSEPARAMETERVECTOR_H_
 #define SPARSEPARAMETERVECTOR_H_
 
+//#define USE_CUSTOMIZED_HASH_TABLE
+
+#ifdef USE_CUSTOMIZED_HASH_TABLE
+#include "HashTable.h"
+#else
+#ifdef _WIN32
+#include <unordered_map>
+#else
 #include <tr1/unordered_map>
+#endif
+#endif
 #include "SerializationUtils.h"
+#include "Options.h"
 
 using namespace std;
+
+template<typename Real>
+#ifdef USE_CUSTOMIZED_HASH_TABLE
+class MapUINT64 : public HashTable<uint64_t, Real> {
+#else
+class MapUINT64 : public std::tr1::unordered_map<uint64_t, Real> {
+#endif
+ public:
+  MapUINT64() {
+    max_num_buckets_ = FLAGS_parameters_max_num_buckets;
+    threshold_load_factor_ = 0.95;
+    growth_rate_load_factor_ = 2.0;
+  }
+
+  void PrepareForResize() {
+    if (this->bucket_count() > max_num_buckets_ &&
+        this->load_factor() > threshold_load_factor_ * this->max_load_factor()) {
+      // About to rehash; increase the load factor to avoid rehashing.
+      double new_load_factor = growth_rate_load_factor_ * this->max_load_factor();
+      LOG(INFO) << "Increasing the load factor to " << new_load_factor << "...";
+      this->max_load_factor(new_load_factor);
+    }
+  }
+
+ protected:
+  int max_num_buckets_;
+  double threshold_load_factor_;
+  double growth_rate_load_factor_;
+};
 
 // A parameter map is a hash-table that maps from feature keys (64-bit words)
 // to weights (double-precision floats).
 template<typename Real>
 struct ParameterMap {
-  typedef std::tr1::unordered_map<uint64_t, Real> type;
+  //  typedef std::tr1::unordered_map<uint64_t, Real> type;
+  typedef MapUINT64<Real> type;
 };
 
 // A threshold beyond which we need to renormalize the parameter vector.
@@ -56,7 +97,7 @@ class SparseParameterVector {
   bool growth_stopped () const { return growth_stopped_; }
 
   // Save/load the parameters to/from a file.
-  void Save(FILE *fs) {
+  void Save(FILE *fs) const {
     bool success;
     success = WriteInteger(fs, Size());
     CHECK(success);
@@ -78,8 +119,7 @@ class SparseParameterVector {
     int length;
     success = ReadInteger(fs, &length);
     CHECK(success);
-    //values_.reserve(length);
-    values_.rehash(length); // This is the number of buckets.
+    //values_.rehash(length); // This is the number of buckets.
     for (int i = 0; i < length; ++i) {
       uint64_t key;
       double value;
@@ -139,8 +179,15 @@ class SparseParameterVector {
     if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }
 
-  // Get the parameter value of a feature pointed by an iterator.
+  // Get the parameter value of a feature pointed by a constant
+  // iterator.
   double GetValue(typename ParameterMap<Real>::type::const_iterator
+                  iterator) const {
+    return static_cast<double>(iterator->second) * scale_factor_;
+  }
+
+  // Get the parameter value of a feature pointed by an iterator.
+  double GetValue(typename ParameterMap<Real>::type::iterator
                   iterator) const {
     return static_cast<double>(iterator->second) * scale_factor_;
   }
@@ -151,6 +198,7 @@ class SparseParameterVector {
   typename ParameterMap<Real>::type::iterator FindOrInsert(uint64_t key) {
     typename ParameterMap<Real>::type::iterator iterator = values_.find(key);
     if (iterator != values_.end() || growth_stopped()) return iterator;
+    values_.PrepareForResize();
     pair<typename ParameterMap<Real>::type::iterator, bool> result =
       values_.insert(pair<uint64_t, Real>(key, 0.0));
     CHECK(result.second);

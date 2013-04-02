@@ -20,7 +20,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#ifdef _WIN32
+#include <gettimeofday.h>
+#else
 #include <sys/time.h>
+#endif
 
 using namespace std;
 

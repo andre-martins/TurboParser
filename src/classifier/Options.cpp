@@ -51,6 +51,8 @@ DEFINE_int32(train_epochs, 10,
              "Number of training epochs.");
 DEFINE_double(train_regularization_constant, 1e12,
               "Regularization parameter C.");
+DEFINE_int32(parameters_max_num_buckets, 50000000,
+           "Maximum number of buckets in the hash table that stores the parameters.");
 
 void Options::Initialize() {
   file_train_ = FLAGS_file_train;

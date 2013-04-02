@@ -33,6 +33,7 @@ class FactorTree : public GenericFactor {
         delete arcs_[r];
       }
     }
+    ClearActiveSet();
   }
 
   // Print as a string.
@@ -114,7 +115,7 @@ class FactorTree : public GenericFactor {
     for (int i = 1; i < heads1->size(); ++i) {
       if ((*heads1)[i] != (*heads2)[i]) return false;
     }
-    return true;    
+    return true;
   }
 
   // Delete configuration.
@@ -127,7 +128,7 @@ class FactorTree : public GenericFactor {
   // Create configuration.
   Configuration CreateConfiguration() {
     vector<int>* heads = new vector<int>(length_);
-    return static_cast<Configuration>(heads); 
+    return static_cast<Configuration>(heads);
   }
 
  public:

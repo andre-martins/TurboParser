@@ -27,7 +27,7 @@ namespace AD3 {
 class FactorTrigramHeadAutomaton : public GenericFactor {
  public:
   FactorTrigramHeadAutomaton() {}
-  virtual ~FactorTrigramHeadAutomaton() {}
+  virtual ~FactorTrigramHeadAutomaton() { ClearActiveSet(); }
 
   // Print as a string.
   void Print(ostream& stream) {

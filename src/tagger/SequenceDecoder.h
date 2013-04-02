@@ -55,7 +55,8 @@ class SequenceDecoder : public Decoder {
       const vector<vector<vector<double> > > &edge_scores,
       const vector<vector<vector<vector<double> > > > &triplet_scores,
       vector<vector<double> > *transformed_node_scores,
-      vector<vector<vector<double> > > *transformed_edge_scores);
+      vector<vector<vector<std::pair<int, double> > > > *transformed_edge_scores);
+  //vector<vector<vector<double> > > *transformed_edge_scores);
 
   void RecoverBestPath(
       const vector<int> &best_path,
@@ -64,6 +65,11 @@ class SequenceDecoder : public Decoder {
 
   double RunViterbi(const vector<vector<double> > &node_scores,
                     const vector<vector<vector<double > > >
+                     &edge_scores,
+                    vector<int> *best_path);
+
+  double RunViterbi(const vector<vector<double> > &node_scores,
+                    const vector<vector<vector<std::pair<int, double> > > >
                      &edge_scores,
                     vector<int> *best_path);
 

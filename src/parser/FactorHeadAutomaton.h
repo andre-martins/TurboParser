@@ -27,7 +27,7 @@ namespace AD3 {
 class FactorHeadAutomaton : public GenericFactor {
  public:
   FactorHeadAutomaton() {}
-  virtual ~FactorHeadAutomaton() {}
+  virtual ~FactorHeadAutomaton() { ClearActiveSet(); }
 
   // Print as a string.
   void Print(ostream& stream) {

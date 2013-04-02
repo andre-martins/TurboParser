@@ -25,6 +25,9 @@ namespace AD3 {
 
 class FactorSequence : public GenericFactor {
  public:
+  FactorSequence() {}
+  virtual ~FactorSequence() { ClearActiveSet(); }
+
   // Print as a string.
   void Print(ostream& stream) {
     stream << "SEQUENCE";

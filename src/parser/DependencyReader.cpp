@@ -30,7 +30,7 @@ DependencyInstance *DependencyReader::GetNext() {
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
-      if (line.length() <= 0) break;     
+      if (line.length() <= 0) break;
       vector<string> fields;
       StringSplit(line, "\t", &fields);
       sentence_fields.push_back(fields);
@@ -49,7 +49,7 @@ DependencyInstance *DependencyReader::GetNext() {
   vector<vector<string> > feats(length+1);
   vector<string> deprels(length+1);
   vector<int> heads(length+1);
-  
+
   forms[0] = "_root_";
   lemmas[0] = "_root_";
   cpos[0] = "_root_";
@@ -57,7 +57,7 @@ DependencyInstance *DependencyReader::GetNext() {
   deprels[0] = "_root_";
   heads[0] = -1;
   feats[0] = vector<string>(1, "_root_");
-  
+
   for(int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
@@ -75,7 +75,7 @@ DependencyInstance *DependencyReader::GetNext() {
 
     deprels[i+1] = info[7];
     stringstream ss(info[6]);
-    ss >> heads[i+1];  
+    ss >> heads[i+1];
   }
 
   DependencyInstance *instance = NULL;
