@@ -59,6 +59,7 @@ then
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --tagger_model_type=${model_type} \
+        --form_cutoff=1 \
         --logtostderr
 fi
 
