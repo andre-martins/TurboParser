@@ -57,7 +57,7 @@ void TokenDictionary::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_form_case_sensitive);
   CHECK(success);
   LOG(INFO) << "Setting --form_case_sensitive=" << FLAGS_form_case_sensitive;
-#if 1
+#if 0
   success = ReadInteger(fs, &FLAGS_prefix_length);
   CHECK(success);
   LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
