@@ -33,9 +33,9 @@ echo "Done."
 # Install ad3.
 echo ""
 echo "Installing ad3..."
-rm -rf AD3-2.0.1
-tar -zxf AD3-2.0.1.tar.gz
-cd AD3-2.0.1
+rm -rf AD3-2.0.2
+tar -zxf AD3-2.0.2.tar.gz
+cd AD3-2.0.2
 make
 cp ad3/libad3.a ${LOCAL_DEPS_DIR}/lib
 mkdir -p ${LOCAL_DEPS_DIR}/include/ad3
