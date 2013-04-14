@@ -57,12 +57,20 @@ void TokenDictionary::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_form_case_sensitive);
   CHECK(success);
   LOG(INFO) << "Setting --form_case_sensitive=" << FLAGS_form_case_sensitive;
+#if 0
+  success = ReadInteger(fs, &FLAGS_prefix_length);
+  CHECK(success);
+  LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
+  FLAGS_suffix_length = FLAGS_prefix_length;
+  LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
+#else
   success = ReadInteger(fs, &FLAGS_prefix_length);
   CHECK(success);
   LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
   success = ReadInteger(fs, &FLAGS_suffix_length);
   CHECK(success);
   LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
+#endif
 
   if (0 > form_alphabet_.Load(fs)) CHECK(false);
   if (0 > lemma_alphabet_.Load(fs)) CHECK(false);
