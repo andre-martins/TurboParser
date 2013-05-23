@@ -1,6 +1,6 @@
 ================================================================================
 TurboParser -- Dependency Parser with Linear Programming Relaxations.
-Version 2.0
+Version 2.1.x
 
 Written and maintained by André Martins (afm [at] cs.cmu.edu).
 ================================================================================
@@ -297,9 +297,10 @@ In general, the --model_type flag is a string formed by the one or several of
 the following pieces: af enables arc-factored parts (required), +cs enables
 consecutive sibling parts, +gp enables grandparent parts, +as enables
 arbitrary sibling parts, +np enables non-projectivity parts, +dp enables
-directed path parts, +hb enables head bigram parts. The following alias are
-predefined: "basic" is af, "standard" is af+cs+gp, "full" is
-af+cs+gp+as+hb. Default is "standard".
+directed path parts, +hb enables head bigram parts, +gs enables grand-sibling
+(third-order) parts, +ts enables tri-sibling (third-order) parts. The following
+alias are predefined: "basic" is af, "standard" is af+cs+gp, "full" is
+af+cs+gp+as+hb+gs+ts. Default is "standard".
 
 In any case, after training ends, a model file "models/danish_parser.model" will
 be created. To run the parser on new data (e.g. a file 
@@ -529,7 +530,7 @@ with Intel Core i7 CPU 3.4 GHz and 8GB RAM.
 
 - basic (arc-factored): 4,300 tokens per second, accuracy 90.72%.
 - standard (af+cs+gp): 1,200 tokens per second, accuracy 92.48%.
-- full (af+cs+gp+hb+as): 900 tokens per second, accuracy 92.62%.
+- full (af+cs+gp+hb+as+gs+ts): 900 tokens per second, accuracy 92.62%.
 
 ================================================================================
 5. Reproducing results in the ICML, ACL, and EMNLP papers
