@@ -23,7 +23,7 @@ large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
-model_type=full #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
+model_type=standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they
