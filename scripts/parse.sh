@@ -1,6 +1,8 @@
 DIR=$(cd $(dirname "$0"); pwd)
 tmp_folder=${DIR}/tmp
 
+mkdir -p ${tmp_folder}
+
 if [ $# == 0 ]
 then
     read text
