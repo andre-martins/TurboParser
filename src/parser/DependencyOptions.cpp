@@ -39,11 +39,13 @@ DEFINE_string(model_type, "standard",
               "+as enables arbitrary sibling parts,"
               "+np enables non-projectivity parts,"
               "+dp enables directed path parts,"
-              "+hb enables head bigram parts."
+              "+hb enables head bigram parts,"
+              "+gs enables grand-sibling (third-order) parts,"
+              "+ts enables tri-sibling (third-order) parts."
               "The following alias are predefined:"
               "basic is af, "
               "standard is af+cs+gp, "
-              "full is af+cs+gp+as+hb. "
+              "full is af+cs+gp+as+hb+gs+ts. "
               "NOTE: dp and np are currently not recommended as they make the "
               "parser significantly slower");
 DEFINE_bool(large_feature_set, true,
@@ -103,8 +105,7 @@ DEFINE_string(pruner_train_learning_rate_schedule, "invsqrt",
               "Learning rate annealing schedule of pruner (for SGD only). "
               "Options are fixed, lecun, invsqrt, inv.");
 DEFINE_bool(pruner_large_feature_set, false,
-            "True for using a large feature set. Parsers are usually more "
-            "accurate but slower and have a larger memory footprint.");
+            "True for using a large feature set in the pruner.");
 
 // TODO: Implement the tagger within the parser.
 // DEFINE_bool(train_tagger, true,
@@ -220,7 +221,7 @@ void DependencyOptions::Initialize() {
   } else if (model_type == "standard") {
     model_type = "af+cs+gp";
   } else if (model_type == "full") {
-    model_type = "af+cs+gp+as+hb";
+    model_type = "af+cs+gp+as+hb+gs+ts";
   }
   vector<string> enabled_parts;
   bool use_arc_factored = false;
