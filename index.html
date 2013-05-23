@@ -35,7 +35,7 @@ approximate inference can greatly increase performance.
 
 <p>
 This package contains a C++ implementation of a 
-dependency parser based on the papers [1,2,3,4] below.
+dependency parser based on the papers [1,2,3,4,5] below.
 </p>
 <p>
 This package allows:
@@ -49,6 +49,18 @@ This package allows:
 <br/>
 
 <h3>News</h3>
+<p>
+<b>We released TurboParser v2.1 on May 23th, 2013!</b>
+This version introduces some new features:
+<ul>
+<li>
+The full model has now third-order parts for grand-siblings and tri-siblings (see ref. [5] below).
+</li>
+<li>
+Compatibility with MS Windows (using MSVC).
+</li>
+</ul>
+</p>
 <p>
 <b>We released TurboParser v2.0 on September 20th, 2012!</b>
 This version introduces a number of new features:
@@ -93,9 +105,9 @@ for commandline flag processing. All these libraries are free software and are
 provided as tarballs in this package.
 </p>
 <p>
-This software has been tested on Linux, but it should run in other platforms with minor adaptations.
+This software has been tested in several Linux platforms. It has also
+successfully compiled in Mac OS X and MS Windows (using MSVC). 
 </p>
-
 <br/>
 
 
@@ -116,7 +128,7 @@ Andr&eacute; F. T. Martins, Noah A. Smith, and Eric P. Xing.<br />
 <a href="http://www.cs.cmu.edu/~afm/Home_files/icml2009.pdf">Polyhedral Outer Approximations with Application to Natural Language Parsing</a>.<br />
 International Conference on Machine Learning (ICML'09), Montreal, Canada, June 2009.<br />
 </td></tr>
-<tr valign="top"><td>[4]&nbsp;</td>
+<tr valign="top"><td>[3]&nbsp;</td>
 <td>
 Andr&eacute; F. T. Martins, Noah A. Smith, Eric P. Xing, M&aacute;rio A. T. Figueiredo, Pedro M. Q. Aguiar.<br />
 <a href="http://www.cs.cmu.edu/~afm/Home_files/emnlp2010.pdf">TurboParsers: Dependency Parsing by Approximate Variational Inference</a>.<br />
@@ -128,6 +140,12 @@ Andr&eacute; F. T. Martins, Noah A. Smith, M&aacute;rio A. T. Figueiredo, Pedro 
 <a href="http://www.cs.cmu.edu/~afm/Home_files/emnlp2011b.pdf">Dual Decomposition With Many Overlapping Components</a>.<br />
 Empirical Methods in Natural Language Processing (EMNLP'11), Edinburgh, UK, July 2011.<br>
 </td></tr>
+<tr valign="top"><td>[5]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins, Miguel B. Almeida, Noah A. Smith.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/acl2013short.pdf">Turning on the Turbo: Fast Third-Order Non-Projective Turbo Parsers</a>.<br />
+In Annual Meeting of the Association for Computational Linguistics (ACL'13), Sofia, Bulgaria, August 2013.<br>
+</td></tr>
 </table>
 </p>
 
@@ -135,7 +153,7 @@ Empirical Methods in Natural Language Processing (EMNLP'11), Edinburgh, UK, July
 
 <h3>Download</h3>
 <p>
-The latest version of TurboParser is <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.tar.gz">TurboParser v2.0 [~3.2MB,.tar.gz format]</a>. 
+The latest version of TurboParser is <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.1.0.tar.gz">TurboParser v2.1.0 [~2.5MB,.tar.gz format]</a>. 
 See the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> file for instructions for compilation, running, and file formatting. 
 It does <i>not</i> include the data sets used in the papers; 
 for information about how to get these data sets, please go to <a href="http://nextens.uvt.nl/~conll">http://nextens.uvt.nl/~conll</a>. 
@@ -182,6 +200,26 @@ Click <a href="sample_models/english.tar.gz">here</a> to download this model [~1
 <li>A model trained in the Arabic dataset provided in the CoNLL-X shared task. <br>
 Click <a href="sample_models/arabic.tar.gz">here</a> to download this model [~225 MB, .tar.gz format].
 <-->
+<li>First and second-order Arabic parsers trained in the Arabic dataset provided in the CoNLL-X shared task. 
+Click <a href="sample_models/arabic_parser.tar.gz">here</a> to download these models [~520 MB, .tar.gz format].
+Uncompress this file and save the models in a local folder (e.g. as models/arabic_model-{basic,standard,full}.model). 
+To parse a new file &lt;input-file&gt; in CoNLL format, type:<br/>
+ <br/>
+ <div class="mybox" style="font-family:Courier">
+./TurboParser --test \<br/>
+--file_model=models/arabic_parser_model-standard.model \<br/>
+--file_test=&lt;input-file&gt; \<br/>
+--file_prediction=&lt;output-file&gt; \<br/>
+--logtostderr<br/>
+</div>
+<br/>
+Check the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> for file formatting instructions and additional options.
+
+<li>Taggers and parsers for <a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/kin-turbo-v1.0.tgz">Kinyarwanda</a> and
+<a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/mlg-turbo-v1.0.tgz">Malagasy</a>.
+There is
+a <a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/README">README</a>
+specifically for these models.
 </ul>
 
 <p>
@@ -239,6 +277,12 @@ yields
 </p>
 <p> Older versions: 
 <ul>
+<li>
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.2.tar.gz">TurboParser v2.0.2 [~2.5MB,.tar.gz format]</a>. 
+<li>
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.1.tar.gz">TurboParser v2.0.1 [~2.5MB,.tar.gz format]</a>. 
+<li>
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.tar.gz">TurboParser v2.0 [~3.2MB,.tar.gz format]</a>.
 <li> 
 <a href="http://www.cs.cmu.edu/~afm/TurboParser/turboparser-0.1.tar.gz">TurboParser v0.1 [~2.5Mb,.tar.gz format]</a>. 
 Along with this distribution, we released 
@@ -261,8 +305,8 @@ a <a href="TurboParser-0.1/sample_models/run_pretrained.sh">script</a> to apply 
 the CMU-Portugal Program, and by Priberam. This
 work was partially supported by the FET programme
 (EU FP7), under the SIMBAD project (contract 213250), 
-and 
-by National Science Foundation grant  IIS-1054319.</p>
+by National Science Foundation grant  IIS-1054319,
+and by the QNRF grant NPRP 08-485-1-083.</p>
 
 </body>
 </html>

@@ -30,6 +30,10 @@ Pedro M. Q. Aguiar. 2011.
 Dual Decomposition With Many Overlapping Components.
 In Empirical Methods in Natural Language Processing (EMNLP).
 
+[5] André F. T. Martins, Miguel B. Almeida, Noah A. Smith. 2013.
+Turning on the Turbo: Fast Third-Order Non-Projective Turbo Parsers.
+In Annual Meeting of the Association for Computational Linguistics (ACL).
+
 This package allows:
 - learning the parser from a treebank,
 - run the parser on new data,
@@ -41,7 +45,8 @@ library for linear algebra; glog, a library for logging; gflags, a library
 for commandline flag processing. All these libraries are free software and are 
 provided as tarballs in this package.
 
-This package has been tested in several Linux platforms.
+This package has been tested in several Linux platforms. It has also
+successfully compiled in Mac OS X and MS Windows (using MSVC). 
 
 If there are any problems running the parser please email: afm [at] cs.cmu.edu
 I will only respond to questions not answered in this README.
@@ -95,8 +100,8 @@ Contents
 
 To compile the code, first unzip/tar the downloaded file:
 
-> tar -zxvf TurboParser-2.0.tar.gz
-> cd TurboParser-2.0
+> tar -zxvf TurboParser-2.1.0.tar.gz
+> cd TurboParser-2.1.0
 
 Next, run the following command
 
@@ -379,7 +384,7 @@ test files in the format above. Run:
 This will train a sequential trigram model for POS tagging. The default training 
 algorithm is (cost-augmented) MIRA, but there are other options (see section 
 3e below). For the sections 02-21 of the Penn Treebank, training will take only
-about 15-20 minutes.
+about 5 minutes.
 
 Note the flag --form_cutoff=1, which defines a cut-off on word frequency. 
 Without setting this flag, performance will be substantially lower.
@@ -400,8 +405,8 @@ the predictions made by the tagger, and will output some accuracy and speed
 metrics. 
 
 When training on 02-21 of the Penn Treebank, TurboTagger achieves an accuracy
-of 96.9% in section 22 and 97.3% in section 23. Speed is about 40,000 tokens
-per second, on a desktop PC with Intel Core i7 CPU and 8GB RAM.
+of 96.9% in section 22 and 97.2% in section 23. Speed is about 40,000 tokens
+per second, on a desktop PC with Intel Core i7 CPU @3.4 GHz and 8GB RAM.
 
 NOTE: A script is included in this package for creating CoNLL files with the 
 tags predicted by TurboTagger (rather than gold tags). This requires the 
@@ -524,18 +529,19 @@ settings takes about 7-8 hours). This time is shortened to 1 hour using an
 arc-factored model.
 
 Here is a quick comparison of parser models and rough speeds. This is when 
-trained on 02-21 of the Penn Treebank; accuracies are unlabeled  attachment 
+trained on 02-21 of the Penn Treebank; accuracies are unlabeled attachment 
 scores (without punctuation) in section 23. Speeds were measured in a desktop PC 
 with Intel Core i7 CPU 3.4 GHz and 8GB RAM.
 
-- basic (arc-factored): 4,300 tokens per second, accuracy 90.72%.
-- standard (af+cs+gp): 1,200 tokens per second, accuracy 92.48%.
-- full (af+cs+gp+hb+as+gs+ts): 900 tokens per second, accuracy 92.62%.
+- basic (arc-factored): 4,058 tokens per second, accuracy 91.05%.
+- standard (af+cs+gp): 1,414 tokens per second, accuracy 92.81%.
+- full (af+cs+gp+hb+as+gs+ts): 735 tokens per second, accuracy 93.07%.
 
 ================================================================================
 5. Reproducing results in the ICML, ACL, and EMNLP papers
 ================================================================================
 
+TurboParser 2.1.0 should reproduce the results in reference [5] above.
 This software won't allow to reproduce exactly the results in the references 
 [1,2,3,4] above, because a complete refactoring was made, and a different set 
 of features is used.
