@@ -31,6 +31,8 @@ DEFINE_bool(use_upper_dependencies, false,
             "True for using upper dependencies.");
 DEFINE_int32(dependency_token_context, 1,
             "Size of the context in token features.");
+//DEFINE_bool(use_nonprojective_grandparent, true,
+//            "True for using nonprojective grandparent features.");
 DEFINE_bool(use_nonprojective_grandparent, false,
             "True for using nonprojective grandparent features.");
 DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/

@@ -43,7 +43,7 @@ SequenceInstance *SequenceReader::GetNext() {
   // Convert to array of words and tags.
   vector<string> forms(length);
   vector<string> tags(length);
-  
+
   for(int i = 0; i < length; ++i) {
     const vector<string> &info = sentence_fields[i];
     forms[i] = info[0];

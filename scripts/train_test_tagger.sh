@@ -12,6 +12,7 @@ regularization_parameter=1e12 # The C parameter in MIRA.
 train=true
 test=true
 model_type=2 # Second-order model (trigrams).
+form_cutoff=1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
 suffix=tagger
 
 # Set path folders.
@@ -59,6 +60,7 @@ then
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --tagger_model_type=${model_type} \
+        --form_cutoff=${form_cutoff} \
         --logtostderr
 fi
 
