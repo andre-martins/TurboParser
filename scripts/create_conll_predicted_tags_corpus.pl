@@ -1,6 +1,8 @@
-#!/usr/bin/perl -w                                                                                                                                           
+#!/usr/bin/perl -w
 open(CONLL, "<$ARGV[0]");
 open(TAGGING, "<$ARGV[1]");
+
+$define_coarse_tags = 0;
 
 $i = 0;
 while($line = <CONLL>) {
@@ -15,11 +17,15 @@ while($line = <CONLL>) {
     @fields = split(/\t/, $line);
     @fields_tagging = split(/\t/, $line_tagging);
     $pos = $fields_tagging[1];
-    # Define coarse POS tags which are the first two characters of the POS tag.
-    if (($pos ne "PRP") && ($pos ne "PRP\$")) {
-      $cpos = substr($pos, 0, 2);
+    if ($define_coarse_tags) {
+        # Define coarse POS tags which are the first two characters of the POS tag.
+        if (($pos ne "PRP") && ($pos ne "PRP\$")) {
+            $cpos = substr($pos, 0, 2);
+        } else {
+            $cpos = $pos;
+        }
     } else {
-      $cpos = $pos;
+        $cpos = $pos;
     }
     # Replace gold tags by predicted tags, and eliminate lemmas and 
     # morpho-syntactic features.
