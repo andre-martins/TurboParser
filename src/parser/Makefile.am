@@ -7,7 +7,8 @@ TurboParserprg_PROGRAMS = TurboParser
 TurboParser_SOURCES = DependencyDecoder.cpp DependencyFeatures.h \
 DependencyInstanceNumeric.h DependencyPipe.cpp DependencyWriter.h \
 DependencyDecoder.h DependencyFeatureTemplates.h DependencyOptions.cpp \
-DependencyPipe.h FactorGrandparentHeadAutomaton.h TurboParser.cpp \
+DependencyPipe.h FactorGrandparentHeadAutomaton.h FactorTrigramHeadAutomaton.h \
+TurboParser.cpp \
 DependencyDictionary.cpp DependencyInstance.cpp DependencyOptions.h \
 DependencyReader.cpp FactorHeadAutomaton.h DependencyDictionary.h \
 DependencyInstance.h DependencyPart.cpp DependencyReader.h FactorSequence.h \
