@@ -32,7 +32,7 @@ class SequenceDictionary : public Dictionary {
   virtual ~SequenceDictionary() { Clear(); }
 
   void Clear() {
-    if (token_dictionary_) token_dictionary_->Clear();
+    // Don't clear token_dictionary, since this class does not own it.
     tag_alphabet_.clear();
     word_tags_.clear();
   }

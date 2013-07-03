@@ -35,7 +35,7 @@ class DependencyDictionary : public Dictionary {
 
   void CreateLabelDictionary(DependencyReader *reader);
 
-  void Clear() { 
+  void Clear() {
     // Don't clear token_dictionary, since this class does not own it.
     label_alphabet_.clear();
     existing_labels_.clear();

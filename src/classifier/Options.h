@@ -73,6 +73,20 @@ class Options {
   bool test() { return test_; }
   bool evaluate() { return evaluate_; }
 
+  // Set option values.
+  void SetTrainingFilePath(const string &file_train) {
+    file_train_ = file_train;
+  }
+  void SetTestFilePath(const string &file_test) {
+    file_test_ = file_test;
+  }
+  void SetModelFilePath(const string &file_model) {
+    file_model_ = file_model;
+  }
+  void SetOutputFilePath(const string &file_prediction) {
+    file_prediction_ = file_prediction;
+  }
+
  protected:
   string file_train_;
   string file_test_;

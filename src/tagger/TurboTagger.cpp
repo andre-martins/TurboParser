@@ -55,7 +55,10 @@ void TrainTagger() {
   time = diff_ms(end,start);
 
   LOG(INFO) << "Training took " << static_cast<double>(time)/1000.0 
-            << " sec." << endl; 
+            << " sec." << endl;
+
+  delete pipe;
+  delete options;
 }
 
 void TestTagger() {
@@ -76,6 +79,7 @@ void TestTagger() {
 
   LOG(INFO) << "Testing took " << static_cast<double>(time)/1000.0
             << " sec." << endl;
+
+  delete pipe;
+  delete options;
 }
-
-

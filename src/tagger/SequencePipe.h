@@ -32,8 +32,8 @@
 
 class SequencePipe : public Pipe {
  public:
-  SequencePipe(Options* options) : Pipe(options) { token_dictionary_ = NULL; };
-  virtual ~SequencePipe() { delete token_dictionary_; };
+  SequencePipe(Options* options) : Pipe(options) { token_dictionary_ = NULL; }
+  virtual ~SequencePipe() { delete token_dictionary_; }
 
   SequenceReader *GetSequenceReader() {
     return static_cast<SequenceReader*>(reader_);
@@ -46,7 +46,7 @@ class SequencePipe : public Pipe {
   };
 
  protected:
-  void CreateDictionary() { 
+  void CreateDictionary() {
     dictionary_ = new SequenceDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
   }

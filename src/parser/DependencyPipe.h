@@ -32,14 +32,14 @@
 
 class DependencyPipe : public Pipe {
  public:
-  DependencyPipe(Options* options) : Pipe(options) { 
-    token_dictionary_ = NULL; 
+  DependencyPipe(Options* options) : Pipe(options) {
+    token_dictionary_ = NULL;
     pruner_parameters_ = NULL;
     train_pruner_ = false;
   }
-  virtual ~DependencyPipe() { 
+  virtual ~DependencyPipe() {
     delete token_dictionary_;
-    delete pruner_parameters_; 
+    delete pruner_parameters_;
   }
 
   DependencyReader *GetDependencyReader() {
