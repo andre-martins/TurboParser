@@ -16,6 +16,10 @@ echo ""
 echo "Installing gflags..."
 tar -zxf gflags-2.0-no-svn-files.tar.gz
 cd gflags-2.0
+rm missing
+aclocal
+autoconf
+automake --add-missing
 ./configure --prefix=${LOCAL_DEPS_DIR} && make && make install
 cd ..
 echo "Done."
@@ -25,6 +29,10 @@ echo ""
 echo "Installing glog..."
 tar -zxf glog-0.3.2.tar.gz
 cd glog-0.3.2
+rm missing
+aclocal
+autoconf
+automake --add-missing
 ./configure --prefix=${LOCAL_DEPS_DIR} --with-gflags=${LOCAL_DEPS_DIR} \
   && make && make install
 cd ..
