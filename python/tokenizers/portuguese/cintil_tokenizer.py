@@ -64,20 +64,20 @@ class PortugueseCintilWordTokenizer(TokenizerI):
     
     # If True, replace all parenthesis by a single quote.
     replace_parenthesis = True
-    
+        
     # Generate list of contractions.
     contractions = contr.generate_contractions()
     
     # Generate list of clitics.
     clitics, suffixes = clit.generate_clitics()
 
-
+            
     def tokenize(self, text):
         """
         Return a tokenized copy of *s*.
 
         :rtype: list of str
-        """        
+        """            
         if self.replace_parenthesis:
             # Replace all parenthesis by single quotes.
             # This looks a really terrible idea. However, since there are
@@ -92,7 +92,7 @@ class PortugueseCintilWordTokenizer(TokenizerI):
             # Replace all quotes by single quotes.
             # This looks a terrible idea, but necessary for consistency with
             # the CINTIL corpus.
-            text = re.sub(r'"|«|»|``|“|”|\'', '\' ', text)
+            text = re.sub(r'"|«|»|``|“|”|\'|`', '\' ', text)
         else:
             #starting quotes
             text = re.sub('«', r'``', text) # These are non-ASCII starting quotes
@@ -129,9 +129,9 @@ class PortugueseCintilWordTokenizer(TokenizerI):
 
         text = re.sub(" +", " ", text)
         text = text.strip()
-
+            
         #add space at end to match up with MacIntyre's output (for debugging)
         if text != "":
             text += " "
-
+            
         return text.split()

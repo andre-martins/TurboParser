@@ -96,6 +96,7 @@ class NLPPipeline:
             for i, token in enumerate(tokenized_sentence):
                 conll_str += str(i+1) + '\t' + token + '\t_\t' + tags[i] + '\t' + tags[i] + '\t_\t' + str(heads[i]) + '\t' + deprels[i] + '\n'
             conll_str += '\n'
+	#print conll_str
         return conll_str
     
         
