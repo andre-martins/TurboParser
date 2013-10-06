@@ -31,7 +31,7 @@ DEFINE_string(file_prediction, "",
               "Path to the file where the predictions are output.");
 DEFINE_bool(train, false,
             "True for training the parser.");
-DEFINE_bool(test, false,
+DEFINE_bool(test, true,
             "True for testing the parser.");
 DEFINE_bool(evaluate, false,
             "True for evaluating the parser (requires --test).");

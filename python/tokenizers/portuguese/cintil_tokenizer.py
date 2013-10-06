@@ -77,7 +77,11 @@ class PortugueseCintilWordTokenizer(TokenizerI):
         Return a tokenized copy of *s*.
 
         :rtype: list of str
-        """            
+        """
+        # Replace non-breaking spaces by spaces.
+        # Note: the Portuguese sentence tokenizer should also do this!!
+        text = re.sub('\xc2\xa0', ' ', text)
+        
         if self.replace_parenthesis:
             # Replace all parenthesis by single quotes.
             # This looks a really terrible idea. However, since there are
