@@ -29,6 +29,19 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
+
+#Create tagging corpus from CoNNL data if it does not yet exist
+if [ -e "${path_data}/${language}_train.conll" ] && [ ! -e "${path_data}/${language}_train.conll.tagging" ]; 
+then
+    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_train.conll"
+    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_test.conll"
+
+    if [ "$language" == "english_proj" ]
+    then
+        ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_dev.conll"
+    fi
+fi
+
 if [ "$language" == "english_proj" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.tagging
