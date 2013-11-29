@@ -30,9 +30,11 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
 
-#Create tagging corpus from CoNNL data if it does not yet exist
+# Create tagging corpus from CoNLL data if it does not yet exist.
 if [ -e "${path_data}/${language}_train.conll" ] && [ ! -e "${path_data}/${language}_train.conll.tagging" ]; 
 then
+    echo "Creating tagging corpus from CoNLL data."
+
     ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_train.conll"
     ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_test.conll"
 
