@@ -2027,12 +2027,12 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     VLOG(2) << "Number of variables: " << factor_graph->GetNumVariables();
   }
 
-  //#define PRINT_GRAPH
+//#define PRINT_GRAPH
 #ifdef PRINT_GRAPH
     //static int num_inst = 0;
   ofstream stream;
-  stream.open("tmp.fg", ofstream::out | ofstream::app);
-  //stream.open("tmp.fg", ofstream::out);
+  //stream.open("tmp.fg", ofstream::out | ofstream::app);
+  stream.open("tmp.fg", ofstream::out);
   CHECK(stream.good());
   factor_graph->Print(stream);
   stream << endl;
