@@ -93,7 +93,7 @@ class TokenDictionary : public Dictionary {
   int GetNumFeatures() {
     CHECK(false) << "There is no notion of number of features in TokenDictionary.";
   }
-  
+
   void InitializeFromReader(SequenceReader *reader);
   void InitializeFromReader(DependencyReader *reader);
 
