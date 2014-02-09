@@ -285,6 +285,7 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
 void SemanticPipe::MakeParts(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs) {
+  LOG(INFO) << "MakeParts begin";
   int sentence_length =
       static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
@@ -309,6 +310,7 @@ void SemanticPipe::MakeParts(Instance *instance,
     MakePartsGlobal(instance, parts, gold_outputs);
     semantic_parts->BuildOffsets();
   }
+  LOG(INFO) << "MakeParts end";
 }
 
 void SemanticPipe::MakePartsBasic(Instance *instance,
@@ -374,7 +376,9 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
         if (add_labeled_parts) {
           // If no unlabeled arc is there, just skip it.
           // This happens if that arc was pruned out.
-          if (0 > semantic_parts->FindArc(p, a, s)) continue;
+          if (0 > semantic_parts->FindArc(p, a, s)) {
+            continue;
+          }
         } else {
           if (prune_distances) {
             int predicate_pos_id = sentence->GetPosId(p);
@@ -561,8 +565,13 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
     if (!selected_parts[r]) continue;
     SemanticPartArc *arc =
       static_cast<SemanticPartArc*>((*semantic_parts)[r]);
+    int lemma_id = sentence->GetLemmaId(arc->predicate());
+    const vector<SemanticPredicate*> &predicates =
+      GetSemanticDictionary()->GetLemmaPredicates(lemma_id);
+    int predicate_id = predicates[arc->sense()]->id();
     semantic_features->AddArcFeatures(sentence, r, arc->predicate(),
-                                      arc->argument());
+                                      arc->argument(),
+                                      predicate_id);
 #if 0
     if (pruner) {
       semantic_features->AddArcFeaturesLight(sentence, r, arc->head(),

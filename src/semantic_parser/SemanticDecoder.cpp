@@ -152,17 +152,18 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
 void SemanticDecoder::DecodeLabels(Instance *instance, Parts *parts,
                                    const vector<double> &scores,
                                    vector<int> *best_labeled_parts) {
-#if 0
-  SemanticParts *dependency_parts = static_cast<SemanticParts*>(parts);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
 
   int offset, num_arcs;
-  dependency_parts->GetOffsetArc(&offset, &num_arcs);
+  semantic_parts->GetOffsetArc(&offset, &num_arcs);
   best_labeled_parts->resize(num_arcs);
   for (int r = 0; r < num_arcs; ++r) {
     SemanticPartArc *arc =
         static_cast<SemanticPartArc*>((*parts)[offset + r]);
     const vector<int> &index_labeled_parts =
-        dependency_parts->FindLabeledArcs(arc->head(), arc->modifier());
+        semantic_parts->FindLabeledArcs(arc->predicate(),
+                                        arc->argument(),
+                                        arc->sense());
     // Find the best label for each candidate arc.
     int best_label = -1;
     double best_score;
@@ -175,7 +176,6 @@ void SemanticDecoder::DecodeLabels(Instance *instance, Parts *parts,
     }
     (*best_labeled_parts)[r] = best_label;
   }
-#endif
 }
 
 // Decode the label marginals for each candidate arc. The output vector
@@ -223,17 +223,16 @@ void SemanticDecoder::DecodeLabelMarginals(Instance *instance, Parts *parts,
 #endif
 }
 
-void SemanticDecoder::Decode(Instance *instance, Parts *parts, 
+void SemanticDecoder::Decode(Instance *instance, Parts *parts,
                              const vector<double> &scores,
                              vector<double> *predicted_output) {
-#if 0
-  SemanticParts *dependency_parts = static_cast<SemanticParts*>(parts);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
 
   // Create copy of the scores.
   vector<double> copied_scores(scores);
   vector<int> best_labeled_parts;
   int offset_arcs, num_arcs;
-  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
 
   // If labeled parsing, decode the labels and update the scores.
   if (pipe_->GetSemanticOptions()->labeled()) {
@@ -246,22 +245,20 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
   predicted_output->clear();
   predicted_output->resize(parts->size(), 0.0);
 
-  if (dependency_parts->IsArcFactored() ||
-      dependency_parts->IsLabeledArcFactored()) {
+  if (semantic_parts->IsArcFactored() ||
+      semantic_parts->IsLabeledArcFactored()) {
     double value;
     DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
   } else {
-#ifdef USE_CPLEX
-    DecodeCPLEX(instance, parts, copied_scores, false, true, predicted_output);
-#else
+    CHECK(false);
+#if 0
     DecodeFactorGraph(instance, parts, copied_scores, false, true,
                       predicted_output);
 #endif
-    // At test time, run Chu-Liu-Edmonds on top of the outcome of AD3
-    // as a rounding heuristic to make sure we get a valid tree.
+    // At test time, run a basic decoder on top of the outcome of AD3
+    // as a rounding heuristic to make sure we get a valid graph.
     // TODO: maybe change the interface to AD3 to let us implement
-    // a primal rounding heuristic - in this case just getting the output
-    // coming from the TREE factor should work well enough.
+    // a primal rounding heuristic.
     if (pipe_->GetSemanticOptions()->test()) {
       for (int r = 0; r < num_arcs; ++r) {
         copied_scores[offset_arcs + r] = (*predicted_output)[offset_arcs + r];
@@ -279,7 +276,6 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
           (*predicted_output)[offset_arcs + r];
     }
   }
-#endif
 }
 
 void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
@@ -363,18 +359,18 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
 }
 #endif
 
-// Decoder for the basic model; it finds a maximum weighted arborescence
-// using Edmonds' algorithm (which runs in O(n^2)).
+// Decoder for the basic model. For each predicate, choose the best
+// sense and the best set of arcs independently.
 void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
-                                    const vector<double> &scores,
-                                    vector<double> *predicted_output,
-                                    double *value) {
-#if 0
+                                  const vector<double> &scores,
+                                  vector<double> *predicted_output,
+                                  double *value) {
+  LOG(INFO) << "Decoding...";
   int sentence_length =
     static_cast<SemanticInstanceNumeric*>(instance)->size();
-  SemanticParts *dependency_parts = static_cast<SemanticParts*>(parts);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   int offset_arcs, num_arcs;
-  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
   vector<SemanticPartArc*> arcs(num_arcs);
   vector<double> scores_arcs(num_arcs);
   for (int r = 0; r < num_arcs; ++r) {
@@ -382,21 +378,55 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
     scores_arcs[r] = scores[offset_arcs + r];
   }
 
-  vector<int> heads;
-  RunChuLiuEdmonds(sentence_length, arcs, scores_arcs, &heads, value);
+  vector<vector<vector<int> > > arcs_by_predicate;
+  arcs_by_predicate.resize(sentence_length);
+  for (int r = 0; r < num_arcs; ++r) {
+    int p = arcs[r]->predicate();
+    int s = arcs[r]->sense();
+    if (s >= arcs_by_predicate[p].size()) {
+      arcs_by_predicate[p].resize(s+1);
+    }
+    arcs_by_predicate[p][s].push_back(r);
+  }
 
   predicted_output->resize(parts->size());
   for (int r = 0; r < num_arcs; ++r) {
     (*predicted_output)[offset_arcs + r] = 0.0;
   }
-  for (int m = 1; m < sentence_length; ++m) {
-    int h = heads[m];
-    int r = dependency_parts->FindArc(h, m);
-    if (r < 0) {
-      LOG(INFO) << "No arc " << h << " -> " << m;
-    } else {
-      (*predicted_output)[offset_arcs + r] = 1.0;
+
+  double total_score = 0.0;
+  for (int p = 0; p < sentence_length; ++p) {
+    int best_sense = -1;
+    double best_score = 0.0;
+    vector<vector<bool> > selected_arcs;
+    selected_arcs.resize(arcs_by_predicate[p].size());
+    for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
+      // Compute the best assignment of arcs departing from this
+      // predicate word.
+      selected_arcs[s].resize(arcs_by_predicate[p][s].size());
+      double score = 0.0;
+      for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
+        int r = arcs_by_predicate[p][s][k];
+        if (scores_arcs[r] > 0.0) {
+          selected_arcs[s][k] = true;
+          score += scores_arcs[r];
+        } else {
+          selected_arcs[s][k] = false;
+        }
+      }
+      if (score > best_score) {
+        best_sense = s;
+        best_score = score;
+      }
+    }
+    if (best_sense > 0) {
+      total_score += best_score;
+      int s = best_sense;
+      for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
+        if (!selected_arcs[s][k]) continue;
+        int r = arcs_by_predicate[p][s][k];
+        (*predicted_output)[offset_arcs + r] = 1.0;
+      }
     }
   }
-#endif
 }

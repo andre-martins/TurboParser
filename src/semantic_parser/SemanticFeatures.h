@@ -67,7 +67,8 @@ class SemanticFeatures: public Features {
   void AddArcFeatures(SemanticInstanceNumeric *sentence,
                       int r,
                       int predicate,
-                      int argument);
+                      int argument,
+                      int predicate_id);
 
 #if 0
   void AddArbitrarySiblingFeatures(SemanticInstanceNumeric* sentence,

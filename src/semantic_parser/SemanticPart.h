@@ -160,9 +160,26 @@ class SemanticParts : public Parts {
     return index_senses_[predicate];
   }
   int FindArc(int predicate, int argument, int sense) {
+    CHECK_GE(predicate, 0);
+    CHECK_GE(argument, 0);
+    CHECK_GE(sense, 0);
+    CHECK_LT(predicate, index_.size());
+    CHECK_LT(argument, index_[predicate].size());
+    if (sense >= index_[predicate][argument].size()) {
+      return -1;
+    }
     return index_[predicate][argument][sense];
   }
   const vector<int> &FindLabeledArcs(int predicate, int argument, int sense) {
+    CHECK_GE(predicate, 0);
+    CHECK_GE(argument, 0);
+    CHECK_GE(sense, 0);
+    CHECK_LT(predicate, index_labeled_.size());
+    CHECK_LT(argument, index_labeled_[predicate].size());
+    CHECK_LT(sense, index_labeled_[predicate][argument].size());
+    //if (sense >= index_labeled_[predicate][argument].size()) {
+    //  return -1;
+    //}
     return index_labeled_[predicate][argument][sense];
   }
 
