@@ -16,29 +16,27 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef READER_H_
-#define READER_H_
+#ifndef SEMANTICREADER_H_
+#define SEMANTICREADER_H_
 
-#include "Instance.h"
+#include "SemanticInstance.h"
+#include "DependencyReader.h"
 #include <fstream>
+
 using namespace std;
 
-// Abstract class for the reader. Task-specific parts should derive
-// from this class and implement the pure virtual methods.
-// The reader reads instances from a file.
-class Reader {
+// Note: this is made to derive from DependencyReader so that
+// we don't need to change TokenDictionary.h which already
+// builds all necessary dictionaries given a set of dependency
+// instances.
+class SemanticReader : public DependencyReader {
 public:
-  Reader() {};
-  virtual ~Reader() {};
+  SemanticReader() {};
+  virtual ~SemanticReader() {};
 
 public:
-  void Open(const string &filepath);
-  void Close();
-  virtual Instance *GetNext() = 0;
-
-protected:
-  ifstream is_;
-
+  Instance *GetNext();
 };
 
-#endif /* READER_H_ */
+#endif /* SEMANTICREADER_H_ */
+

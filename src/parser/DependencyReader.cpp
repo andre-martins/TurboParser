@@ -23,7 +23,8 @@
 
 using namespace std;
 
-DependencyInstance *DependencyReader::GetNext() {
+Instance *DependencyReader::GetNext() {
+  CHECK(false);
   // Fill all fields for the entire sentence.
   vector<vector<string> > sentence_fields;
   string line;
@@ -84,5 +85,5 @@ DependencyInstance *DependencyReader::GetNext() {
     instance->Initialize(forms, lemmas, cpos, pos, feats, deprels, heads);
   }
 
-  return instance;
+  return static_cast<Instance*>(instance);
 }

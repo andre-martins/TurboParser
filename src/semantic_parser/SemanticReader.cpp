@@ -23,7 +23,7 @@
 
 using namespace std;
 
-DependencyInstance *SemanticReader::GetNext() {
+Instance *SemanticReader::GetNext() {
   // Fill all fields for the entire sentence.
   vector<vector<string> > sentence_fields;
   string line;
@@ -79,43 +79,43 @@ DependencyInstance *SemanticReader::GetNext() {
     deprels[i+1] = info[9];
     stringstream ss(info[8]);
     ss >> heads[i+1];
-  }
 
-  // Semantic role labeling information.
-  if (read_semantic_roles) {
-    string predicate_name = info[10];
-    bool is_predicate = false;
-    if (0 != predicate_name.compare("_")) is_predicate = true;
-    int offset = 11;
-    if (i == 0) {
-      // Allocate space for predicates.
-      num_predicates = info.size() - offset;
-      predicate_names.resize(num_predicates);
-      predicate_indices.resize(num_predicates);
-      argument_roles.resize(num_predicates);
-      argument_indices.resize(num_predicates);
-      num_predicates = 0;
-    }
+    // Semantic role labeling information.
+    if (read_semantic_roles) {
+      string predicate_name = info[10];
+      bool is_predicate = false;
+      if (0 != predicate_name.compare("_")) is_predicate = true;
+      int offset = 11;
+      if (i == 0) {
+        // Allocate space for predicates.
+        num_predicates = info.size() - offset;
+        predicate_names.resize(num_predicates);
+        predicate_indices.resize(num_predicates);
+        argument_roles.resize(num_predicates);
+        argument_indices.resize(num_predicates);
+        num_predicates = 0;
+      }
 
-    if (is_predicate) {
-      predicate_names[num_predicates] = predicate_name;
-      predicate_indices[num_predicates] = i+1;
-      ++num_predicates;
-    }
+      if (is_predicate) {
+        predicate_names[num_predicates] = predicate_name;
+        predicate_indices[num_predicates] = i+1;
+        ++num_predicates;
+      }
 
-    for (int j = offset; j < info.size(); ++j) {
-      string argument_role = info[j];
-      bool is_argument = false;
-      if (0 != argument_role.compare("_")) is_argument = true;
-      if (is_argument) {
-        int k = j - offset;
-        argument_roles[k].push_back(argument_role);
-        argument_indices[k].push_back(i+1);
+      for (int j = offset; j < info.size(); ++j) {
+        string argument_role = info[j];
+        bool is_argument = false;
+        if (0 != argument_role.compare("_")) is_argument = true;
+        if (is_argument) {
+          int k = j - offset;
+          argument_roles[k].push_back(argument_role);
+          argument_indices[k].push_back(i+1);
+        }
       }
     }
-
-    CHECK_EQ(num_predicates, predicate_names.size());
   }
+
+  CHECK_EQ(num_predicates, predicate_names.size());
 
   SemanticInstance *instance = NULL;
   if (length > 0) {
@@ -125,5 +125,5 @@ DependencyInstance *SemanticReader::GetNext() {
                          argument_indices);
   }
 
-  return static_cast<DependencyInstance*>(instance);
+  return static_cast<Instance*>(instance);
 }

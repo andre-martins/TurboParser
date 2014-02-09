@@ -42,7 +42,7 @@ class SemanticPartArc : public Part {
   virtual ~SemanticPartArc() {}
 
  public:
-  int predicate() { return P_; }
+  int predicate() { return p_; }
   int argument() { return a_; }
   int sense() { return s_; }
 
@@ -64,7 +64,7 @@ class SemanticPartLabeledArc : public Part {
   virtual ~SemanticPartLabeledArc() {}
 
  public:
-  int predicate() { return P_; }
+  int predicate() { return p_; }
   int argument() { return a_; }
   int sense() { return s_; }
   int role() { return r_; }
@@ -237,7 +237,7 @@ class SemanticParts : public Parts {
   // Maps a triple (p, a, s) to a SemanticPartArc index.
   vector<vector<vector<int> > > index_;
   // Maps a quadruple (p, a, s, r) to a SemanticPartLabeledArc index.
-  vector<vector<vector<int> > > index_labeled_;
+  vector<vector<vector<vector<int> > > > index_labeled_;
   int offsets_[NUM_SEMANTICPARTS];
 };
 

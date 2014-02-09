@@ -16,27 +16,22 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEMANTICREADER_H_
-#define SEMANTICREADER_H_
+#ifndef SEMANTICWRITER_H_
+#define SEMANTICWRITER_H_
 
-#include "SemanticInstance.h"
-#include "DependencyReader.h"
+#include "DependencyWriter.h"
 #include <fstream>
 
 using namespace std;
 
-// Note: this is made to derive from DependencyReader so that
-// we don't need to change TokenDictionary.h which already
-// builds all necessary dictionaries given a set of dependency
-// instances.
-class SemanticReader : public DependencyReader {
+class SemanticWriter : public DependencyWriter {
 public:
-  SemanticReader() {};
-  virtual ~SemanticReader() {};
+  SemanticWriter() {};
+  virtual ~SemanticWriter() {};
 
 public:
-  DependencyInstance *GetNext();
+  void Write(Instance *instance);
 };
 
-#endif /* SEMANTICREADER_H_ */
+#endif /* SEMANTICWRITER_H_ */
 

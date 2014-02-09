@@ -80,6 +80,7 @@ class TokenDictionary : public Dictionary {
 
   int GetNumPosTags() const { return pos_alphabet_.size(); }
   int GetNumForms() const { return form_alphabet_.size(); }
+  int GetNumLemmas() const { return lemma_alphabet_.size(); }
 
   int GetFormId(const string &form) const { return form_alphabet_.Lookup(form); };
   int GetLemmaId(const string &lemma) const { return lemma_alphabet_.Lookup(lemma); };

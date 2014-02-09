@@ -21,7 +21,10 @@
 
 #include "Dictionary.h"
 #include "TokenDictionary.h"
+#include "DependencyDictionary.h"
 #include "SerializationUtils.h"
+#include "SemanticPredicate.h"
+#include "SemanticReader.h"
 
 class Pipe;
 
@@ -33,18 +36,35 @@ class SemanticDictionary : public Dictionary {
     Clear();
   }
 
-  void CreateRoleDictionary(SemanticReader *reader);
+  void CreatePredicateRoleDictionaries(SemanticReader *reader);
 
   void Clear() {
     // Don't clear token_dictionary, since this class does not own it.
+    for (int i = 0; i < lemma_predicates_.size(); ++i) {
+      for (int j = 0; j < lemma_predicates_[i].size(); ++j) {
+        delete lemma_predicates_[i][j];
+      }
+      lemma_predicates_[i].clear();
+    }
+    lemma_predicates_.clear();
+    predicate_alphabet_.clear();
     role_alphabet_.clear();
     existing_roles_.clear();
     maximum_left_distances_.clear();
     maximum_right_distances_.clear();
   }
 
-  void BuildRoleNames() {
+  void BuildPredicateRoleNames() {
+    predicate_alphabet_.BuildNames();
     role_alphabet_.BuildNames();
+  }
+
+  const vector<SemanticPredicate*> &GetLemmaPredicates(int lemma) const {
+    return lemma_predicates_[lemma];
+  }
+
+  const string &GetPredicateName(int predicate) const {
+    return predicate_alphabet_.GetName(predicate);
   }
 
   const string &GetRoleName(int role) const {
@@ -55,9 +75,21 @@ class SemanticDictionary : public Dictionary {
   void StopGrowth() { token_dictionary_->StopGrowth(); }
 
   void Save(FILE *fs) {
+    if (0 > predicate_alphabet_.Save(fs)) CHECK(false);
     if (0 > role_alphabet_.Save(fs)) CHECK(false);
     bool success;
-    int length = existing_roles_.size();
+    int length = lemma_predicates_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < lemma_predicates_.size(); ++i) {
+      length = lemma_predicates_[i].size();
+      success = WriteInteger(fs, length);
+      CHECK(success);
+      for (int j = 0; j < lemma_predicates_[i].size(); ++j) {
+        lemma_predicates_[i][j]->Save(fs);
+      }
+    }
+    length = existing_roles_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < existing_roles_.size(); ++i) {
@@ -85,9 +117,22 @@ class SemanticDictionary : public Dictionary {
   }
 
   void Load(FILE *fs) {
+    if (0 > predicate_alphabet_.Load(fs)) CHECK(false);
     if (0 > role_alphabet_.Load(fs)) CHECK(false);
     bool success;
     int length;
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    lemma_predicates_.resize(length);
+    for (int i = 0; i < lemma_predicates_.size(); ++i) {
+      success = ReadInteger(fs, &length);
+      CHECK(success);
+      lemma_predicates_[i].resize(length);
+      for (int j = 0; j < lemma_predicates_[i].size(); ++j) {
+        lemma_predicates_[i][j] = new SemanticPredicate();
+        lemma_predicates_[i][j]->Load(fs);
+      }
+    }
     success = ReadInteger(fs, &length);
     CHECK(success);
     existing_roles_.resize(length);
@@ -118,12 +163,20 @@ class SemanticDictionary : public Dictionary {
         maximum_right_distances_[i][j] = distance;
       }
     }
-    BuildRoleNames();
+    BuildPredicateRoleNames();
   }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
   void SetTokenDictionary(TokenDictionary *token_dictionary) {
     token_dictionary_ = token_dictionary;
+    //CHECK(token_dictionary_ == NULL);
+  }
+
+  DependencyDictionary *GetDependencyDictionary() const {
+    return dependency_dictionary_;
+  }
+  void SetDependencyDictionary(DependencyDictionary *dependency_dictionary) {
+    dependency_dictionary_ = dependency_dictionary;
     //CHECK(token_dictionary_ == NULL);
   }
 
@@ -139,12 +192,16 @@ class SemanticDictionary : public Dictionary {
     return maximum_right_distances_[predicate_pos_id][argument_pos_id];
   }
 
+  const Alphabet &GetPredicateAlphabet() const { return predicate_alphabet_; };
   const Alphabet &GetRoleAlphabet() const { return role_alphabet_; };
 
 
  protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
+  DependencyDictionary *dependency_dictionary_;
+  vector<vector<SemanticPredicate*> > lemma_predicates_;
+  Alphabet predicate_alphabet_;
   Alphabet role_alphabet_;
   vector<vector<vector<int> > > existing_roles_;
   vector<vector<int> > maximum_left_distances_;

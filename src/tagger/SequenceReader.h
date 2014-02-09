@@ -31,7 +31,7 @@ public:
   virtual ~SequenceReader() {};
 
 public:
-  SequenceInstance *GetNext();
+  Instance *GetNext();
 };
 
 #endif /* SEQUENCEREADER_H_ */

@@ -23,7 +23,7 @@
 
 using namespace std;
 
-SequenceInstance *SequenceReader::GetNext() {
+Instance *SequenceReader::GetNext() {
   // Fill all fields for the entire sentence.
   vector<vector<string> > sentence_fields;
   string line;
@@ -56,5 +56,5 @@ SequenceInstance *SequenceReader::GetNext() {
     instance->Initialize(forms, tags);
   }
 
-  return instance;
+  return static_cast<Instance*>(instance);
 }

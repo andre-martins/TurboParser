@@ -53,8 +53,8 @@ class SemanticInstance : public DependencyInstance {
                     const vector<int> &argument_indices) {
     predicate_names_.push_back(predicate_name);
     predicate_indices_.push_back(predicate_index);
-    argument_roles_.push_back(argument_roles.copy());
-    argument_indices_.push_back(argument_indices.copy());
+    argument_roles_.push_back(argument_roles);
+    argument_indices_.push_back(argument_indices);
   }
 
  protected:

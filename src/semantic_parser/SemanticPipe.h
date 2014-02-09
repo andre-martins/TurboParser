@@ -34,11 +34,13 @@ class SemanticPipe : public Pipe {
  public:
   SemanticPipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
+    dependency_dictionary_ = NULL;
     pruner_parameters_ = NULL;
     train_pruner_ = false;
   }
   virtual ~SemanticPipe() {
     delete token_dictionary_;
+    delete dependency_dictionary_;
     delete pruner_parameters_;
   }
 
@@ -71,16 +73,21 @@ class SemanticPipe : public Pipe {
   void CreateDictionary() {
     dictionary_ = new SemanticDictionary(this);
     GetSemanticDictionary()->SetTokenDictionary(token_dictionary_);
-  };
-  void CreateReader() { reader_ = new SemanticReader; };
-  void CreateWriter() { writer_ = new SemanticWriter; };
-  void CreateDecoder() { decoder_ = new SemanticDecoder(this); };
-  Parts *CreateParts() { return new SemanticParts; };
-  Features *CreateFeatures() { return new SemanticFeatures(this); };
+    GetSemanticDictionary()->SetDependencyDictionary(dependency_dictionary_);
+  }
+  void CreateReader() { reader_ = new SemanticReader; }
+  void CreateWriter() { writer_ = new SemanticWriter; }
+  void CreateDecoder() { decoder_ = new SemanticDecoder(this); }
+  Parts *CreateParts() { return new SemanticParts; }
+  Features *CreateFeatures() { return new SemanticFeatures(this); }
 
   void CreateTokenDictionary() {
     token_dictionary_ = new TokenDictionary(this);
-  };
+  }
+
+  void CreateDependencyDictionary() {
+    dependency_dictionary_ = new DependencyDictionary(this);
+  }
 
   Parameters *GetTrainingParameters() {
     if (train_pruner_) return pruner_parameters_;
@@ -246,6 +253,7 @@ class SemanticPipe : public Pipe {
 #endif
  protected:
   TokenDictionary *token_dictionary_;
+  DependencyDictionary *dependency_dictionary_;
   bool train_pruner_;
   Parameters *pruner_parameters_;
 #if 0

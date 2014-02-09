@@ -19,36 +19,65 @@
 #include "SemanticDictionary.h"
 #include "SemanticPipe.h"
 
-void SemanticDictionary::CreateLabelDictionary(SemanticReader *reader) {
-  LOG(INFO) << "Creating label dictionary...";
+void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader) {
+  LOG(INFO) << "Creating predicate and role dictionaries...";
 
-  vector<int> label_freqs;
+  // Initialize lemma predicates.
+  int num_lemmas = token_dictionary_->GetNumLemmas();
+  lemma_predicates_.resize(num_lemmas);
+
+  vector<int> role_freqs;
 
   // Go through the corpus and build the predicate/roles dictionaries,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SemanticInstance *instance = reader->GetNext();
+  SemanticInstance *instance =
+    static_cast<SemanticInstance*>(reader->GetNext());
   int instance_length = instance->size();
   while (instance != NULL) {
     for (int k = 0; k < instance->GetNumPredicates(); ++k) {
       int i = instance->GetPredicateIndex(k);
       const std::string lemma = instance->GetLemma(i);
       const std::string predicate_name = instance->GetPredicateName(k);
-      // Add predicate to predicate map.
-      // TODO(atm)
+
+      // Get the lemma integer representation.
+      int lemma_id = token_dictionary_->GetLemmaId(lemma);
+      // Assume lemma exists.
+      // TODO(atm): handle the case where there is a label cutoff.
+      CHECK_GE(lemma_id, 0);
+
+      // Add predicate name to alphabet.
+      int predicate_id =
+        predicate_alphabet_.Insert(predicate_name);
+
+      // Add predicate to the list of lemma predicates.
+      std::vector<SemanticPredicate*> *predicates =
+        &lemma_predicates_[lemma_id];
+      SemanticPredicate *predicate = NULL;
+      for (int j = 0; j < predicates->size(); ++j) {
+        if ((*predicates)[j]->id() == predicate_id) {
+          predicate = (*predicates)[j];
+        }
+      }
+      if (!predicate) {
+        predicate = new SemanticPredicate(predicate_id);
+        predicates->push_back(predicate);
+      }
 
       // Add semantic roles to alphabet.
       for (int l = 0; l < instance->GetNumArgumentsPredicate(k); ++l) {
-        id = role_alphabet_.Insert(instance->GetArgumentRole(k, l));
-        if (id >= role_freqs.size()) {
-          CHECK_EQ(id, role_freqs.size());
+        int role_id = role_alphabet_.Insert(instance->GetArgumentRole(k, l));
+        if (role_id >= role_freqs.size()) {
+          CHECK_EQ(role_id, role_freqs.size());
           role_freqs.push_back(0);
         }
-        ++role_freqs[id];
+        ++role_freqs[role_id];
+        // Add this role to the predicate.
+        if (!predicate->HasRole(role_id)) predicate->InsertRole(role_id);
       }
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<SemanticInstance*>(reader->GetNext());
   }
   reader->Close();
   role_alphabet_.StopGrowth();
@@ -71,7 +100,7 @@ void SemanticDictionary::CreateLabelDictionary(SemanticReader *reader) {
                                     token_dictionary_->GetNumPosTags(), 0));
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  instance = reader->GetNext();
+  instance = static_cast<SemanticInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int k = 0; k < instance->GetNumPredicates(); ++k) {
@@ -92,7 +121,7 @@ void SemanticDictionary::CreateLabelDictionary(SemanticReader *reader) {
         // Insert new role in the set of existing labels, if it is not there
         // already. NOTE: this is inefficient, maybe we should be using a
         // different data structure.
-        vector<int> &roles = existing_roles_[predicate_pos_id][modifier_pos_id];
+        vector<int> &roles = existing_roles_[predicate_pos_id][argument_pos_id];
         int j;
         for (j = 0; j < roles.size(); ++j) {
           if (roles[j] == id) break;
@@ -116,9 +145,10 @@ void SemanticDictionary::CreateLabelDictionary(SemanticReader *reader) {
       }
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<SemanticInstance*>(reader->GetNext());
   }
   reader->Close();
 
+  LOG(INFO) << "Number of predicates: " << predicate_alphabet_.size();
   LOG(INFO) << "Number of roles: " << role_alphabet_.size();
 }

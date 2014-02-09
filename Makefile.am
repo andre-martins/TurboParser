@@ -11,7 +11,7 @@ AM_CXXFLAGS = -O2
 endif
 ############################################
 
-SUBDIRS=src/tagger src/parser
+SUBDIRS=src/tagger src/parser src/semantic_parser
 EXTRA_DIST=scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \
 scripts/create_conll_predicted_tags_corpus.sh \

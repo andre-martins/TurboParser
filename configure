@@ -4693,7 +4693,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/tagger/Makefile src/parser/Makefile"
+ac_config_files="$ac_config_files Makefile src/tagger/Makefile src/parser/Makefile src/semantic_parser/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5438,6 +5438,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/tagger/Makefile") CONFIG_FILES="$CONFIG_FILES src/tagger/Makefile" ;;
     "src/parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/parser/Makefile" ;;
+    "src/semantic_parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/semantic_parser/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
