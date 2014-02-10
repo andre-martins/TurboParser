@@ -365,7 +365,6 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
                                   const vector<double> &scores,
                                   vector<double> *predicted_output,
                                   double *value) {
-  LOG(INFO) << "Decoding...";
   int sentence_length =
     static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
@@ -419,13 +418,17 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
         best_score = score;
       }
     }
-    if (best_sense > 0) {
+    if (best_sense >= 0) {
       total_score += best_score;
       int s = best_sense;
       for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
         if (!selected_arcs[s][k]) continue;
         int r = arcs_by_predicate[p][s][k];
         (*predicted_output)[offset_arcs + r] = 1.0;
+        //LOG(INFO) << "Selected arc "
+        //          << arcs[r]->predicate() << " "
+        //          << arcs[r]->argument() << " "
+        //          << arcs[r]->sense();
       }
     }
   }

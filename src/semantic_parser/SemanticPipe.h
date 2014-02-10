@@ -180,67 +180,104 @@ class SemanticPipe : public Pipe {
              bool preserve_gold);
 
   virtual void BeginEvaluation() {
-#if 0
-    num_head_mistakes_ = 0;
-    num_head_pruned_mistakes_ = 0;
-    num_heads_after_pruning_ = 0;
+    num_predicted_unlabeled_arcs_ = 0;
+    num_gold_unlabeled_arcs_ = 0;
+    num_matched_unlabeled_arcs_ = 0;
     num_tokens_ = 0;
+    num_unlabeled_arcs_after_pruning_ = 0;
+    num_pruned_gold_unlabeled_arcs_ = 0;
+    num_possible_unlabeled_arcs_ = 0;
     gettimeofday(&start_clock_, NULL);
-#endif
   }
   virtual void EvaluateInstance(Instance *instance, Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
-#if 0
+    int num_possible_unlabeled_arcs = 0;
+    int num_gold_unlabeled_arcs = 0;
     SemanticInstance *semantic_instance =
       static_cast<SemanticInstance*>(instance);
     SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
     for (int p = 1; p < semantic_instance->size(); ++p) {
-      int head = -1;
-      int num_possible_heads = 0;
-      for (int a = 0; a < dependency_instance->size(); ++a) {
-        int r = dependency_parts->FindArc(h, m);
-        if (r < 0) continue;
-        ++num_possible_heads;
-        if (gold_outputs[r] >= 0.5) {
-          CHECK_EQ(gold_outputs[r], 1.0);
-          if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-            ++num_head_mistakes_;
+      const vector<int> &senses = semantic_parts->GetSenses(p);
+      for (int a = 1; a < semantic_instance->size(); ++a) {
+        for (int k = 0; k < senses.size(); ++k) {
+          int s = senses[k];
+          int r = semantic_parts->FindArc(p, a, s);
+          if (r < 0) continue;
+          ++num_possible_unlabeled_arcs;
+          if (gold_outputs[r] >= 0.5) {
+            CHECK_EQ(gold_outputs[r], 1.0);
+            if (NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
+              ++num_matched_unlabeled_arcs_;
+            }
+            ++num_gold_unlabeled_arcs;
           }
-          head = h;
-          //break;
+          if (predicted_outputs[r] >= 0.5) {
+            CHECK_EQ(predicted_outputs[r], 1.0);
+            ++num_predicted_unlabeled_arcs_;
+          }
         }
       }
-      if (head < 0) {
-        VLOG(2) << "Pruned gold part...";
-        ++num_head_mistakes_;
-        ++num_head_pruned_mistakes_;
-      }
+
       ++num_tokens_;
-      num_heads_after_pruning_ += num_possible_heads;
+      num_unlabeled_arcs_after_pruning_ += num_possible_unlabeled_arcs;
     }
-#endif
+
+    int num_actual_gold_unlabeled_arcs = 0;
+    for (int k = 0; k < semantic_instance->GetNumPredicates(); ++k) {
+      num_actual_gold_unlabeled_arcs +=
+        semantic_instance->GetNumArgumentsPredicate(k);
+    }
+    num_gold_unlabeled_arcs_ += num_actual_gold_unlabeled_arcs;
+    int missed = num_actual_gold_unlabeled_arcs - num_gold_unlabeled_arcs;
+    //if (missed > 0) {
+    //  LOG(INFO) << "Missed " << missed << " unlabeled arcs.";
+    //}
+    num_pruned_gold_unlabeled_arcs_ += missed;
+    num_possible_unlabeled_arcs_ += num_possible_unlabeled_arcs;
   }
+
   virtual void EndEvaluation() {
-#if 0
-    LOG(INFO) << "Parsing accuracy: " <<
-      static_cast<double>(num_tokens_ - num_head_mistakes_) /
+    double unlabeled_precision =
+      static_cast<double>(num_matched_unlabeled_arcs_) /
+        static_cast<double>(num_predicted_unlabeled_arcs_);
+    double unlabeled_recall =
+      static_cast<double>(num_matched_unlabeled_arcs_) /
+        static_cast<double>(num_gold_unlabeled_arcs_);
+    double unlabeled_F1 = 2.0 * unlabeled_precision * unlabeled_recall /
+      (unlabeled_precision + unlabeled_recall);
+    double pruning_unlabeled_recall =
+      static_cast<double>(num_gold_unlabeled_arcs_ -
+                          num_pruned_gold_unlabeled_arcs_) /
+        static_cast<double>(num_gold_unlabeled_arcs_);
+    double pruning_efficiency =
+      static_cast<double>(num_possible_unlabeled_arcs_) /
         static_cast<double>(num_tokens_);
-    LOG(INFO) << "Pruning recall: " <<
-      static_cast<double>(num_tokens_ - num_head_pruned_mistakes_) /
-        static_cast<double>(num_tokens_);
-    LOG(INFO) << "Pruning efficiency: " <<
-      static_cast<double>(num_heads_after_pruning_) /
-        static_cast<double>(num_tokens_)
-              << " possible heads per token.";
+
+    LOG(INFO) << "Unlabeled precision: " << unlabeled_precision
+              << " (" << num_matched_unlabeled_arcs_ << "/"
+              << num_predicted_unlabeled_arcs_ << ")";
+    LOG(INFO) << "Unlabeled recall: " << unlabeled_recall
+              << " (" << num_matched_unlabeled_arcs_ << "/"
+              << num_gold_unlabeled_arcs_ << ")";
+    LOG(INFO) << "Unlabeled F1: " << unlabeled_F1;
+    LOG(INFO) << "Pruning unlabeled recall: " << pruning_unlabeled_recall
+              << " ("
+              << num_gold_unlabeled_arcs_ - num_pruned_gold_unlabeled_arcs_
+              << "/"
+              << num_gold_unlabeled_arcs_ << ")";
+    LOG(INFO) << "Pruning efficiency: " << pruning_efficiency
+              << " possible unlabeled arcs per token"
+              << " (" << num_possible_unlabeled_arcs_ << "/"
+              << num_tokens_ << ")";
+
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
         static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
-    LOG(INFO) << "Parsing speed: "
+    LOG(INFO) << "Speed: "
               << tokens_per_second << " tokens per second.";
-#endif
   }
 
 #if 0
@@ -256,12 +293,13 @@ class SemanticPipe : public Pipe {
   DependencyDictionary *dependency_dictionary_;
   bool train_pruner_;
   Parameters *pruner_parameters_;
-#if 0
-  int num_head_mistakes_;
-  int num_head_pruned_mistakes_;
-  int num_heads_after_pruning_;
-#endif
+  int num_predicted_unlabeled_arcs_;
+  int num_gold_unlabeled_arcs_;
+  int num_matched_unlabeled_arcs_;
   int num_tokens_;
+  int num_unlabeled_arcs_after_pruning_;
+  int num_pruned_gold_unlabeled_arcs_;
+  int num_possible_unlabeled_arcs_;
   timeval start_clock_;
 };
 

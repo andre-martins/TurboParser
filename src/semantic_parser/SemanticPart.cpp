@@ -116,12 +116,13 @@ void SemanticParts::BuildIndices(int sentence_length, bool labeled) {
       int p = static_cast<SemanticPartLabeledArc*>(part)->predicate();
       int a = static_cast<SemanticPartLabeledArc*>(part)->argument();
       int s = static_cast<SemanticPartLabeledArc*>(part)->sense();
-      int role = static_cast<SemanticPartLabeledArc*>(part)->role();
+      //int role = static_cast<SemanticPartLabeledArc*>(part)->role();
       if (s >= index_labeled_[p][a].size()) index_labeled_[p][a].resize(s+1);
-      if (role >= index_labeled_[p][a][s].size()) {
-        index_labeled_[p][a][s].resize(role+1, -1);
-      }
-      index_labeled_[p][a][s][role] = offset + r;
+      //if (role >= index_labeled_[p][a][s].size()) {
+      //  index_labeled_[p][a][s].resize(role+1, -1);
+      //}
+      //index_labeled_[p][a][s][role] = offset + r;
+      index_labeled_[p][a][s].push_back(offset + r);
     }
   }
 }

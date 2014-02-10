@@ -20,6 +20,7 @@
 #define SEMANTICPREDICATE_H_
 
 #include "SerializationUtils.h"
+#include <set>
 
 class SemanticPredicate {
  public:
@@ -29,20 +30,18 @@ class SemanticPredicate {
 
  public:
   int id() const { return id_; }
-  const std::vector<int> &GetRoles() const {
+  const std::set<int> &GetRoles() const {
     return roles_;
   }
 
   bool HasRole(int role) const {
-    for (int i = 0; i < roles_.size(); ++i) {
-      if (roles_[i] == role) return true;
-    }
-    return false;
+    std::set<int>::iterator it = roles_.find(role);
+    return (it != roles_.end());
   }
 
   void InsertRole(int role) {
     CHECK(!HasRole(role)) << "Role existed already.";
-    roles_.push_back(role);
+    roles_.insert(role);
   }
 
   void Save(FILE *fs) {
@@ -52,8 +51,9 @@ class SemanticPredicate {
     CHECK(success);
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i < roles_.size(); ++i) {
-      int label = roles_[i];
+    for (std::set<int>::iterator it = roles_.begin();
+         it != roles_.end(); ++it) {
+      int label = *it;
       success = WriteInteger(fs, label);
       CHECK(success);
     }
@@ -66,18 +66,17 @@ class SemanticPredicate {
     CHECK(success);
     success = ReadInteger(fs, &length);
     CHECK(success);
-    roles_.resize(length);
-    for (int i = 0; i < roles_.size(); ++i) {
+    for (int i = 0; i < length; ++i) {
       int label;
       success = ReadInteger(fs, &label);
       CHECK(success);
-      roles_[i] = label;
+      InsertRole(label);
     }
   }
 
  protected:
   int id_;
-  std::vector<int> roles_;
+  std::set<int> roles_;
 };
 
 #endif /* SEMANTICPREDICATE_H_ */

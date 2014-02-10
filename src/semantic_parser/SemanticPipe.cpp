@@ -115,9 +115,12 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
                                           arc->sense());
       vector<int> allowed_labels(index_labeled_parts.size());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        CHECK_GE(index_labeled_parts[k], 0);
+        CHECK_LT(index_labeled_parts[k], parts->size());
         SemanticPartLabeledArc *labeled_arc =
             static_cast<SemanticPartLabeledArc*>(
                 (*parts)[index_labeled_parts[k]]);
+        CHECK(labeled_arc != NULL);
         allowed_labels[k] = labeled_arc->role();
       }
       vector<double> label_scores;
@@ -285,7 +288,6 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
 void SemanticPipe::MakeParts(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs) {
-  LOG(INFO) << "MakeParts begin";
   int sentence_length =
       static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
@@ -310,7 +312,6 @@ void SemanticPipe::MakeParts(Instance *instance,
     MakePartsGlobal(instance, parts, gold_outputs);
     semantic_parts->BuildOffsets();
   }
-  LOG(INFO) << "MakeParts end";
 }
 
 void SemanticPipe::MakePartsBasic(Instance *instance,
@@ -401,7 +402,17 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           allowed_labels.clear();
           allowed_labels = semantic_dictionary->
             GetExistingRoles(predicate_pos_id, argument_pos_id);
-          //TODO: maybe check here if predicate->HasRole(label)?
+          set<int> label_set;
+          for (int m = 0; m < allowed_labels.size(); ++m) {
+            if (predicates[s]->HasRole(allowed_labels[m])) {
+              label_set.insert(allowed_labels[m]);
+            }
+          }
+          allowed_labels.clear();
+          for (set<int>::iterator it = label_set.begin();
+               it != label_set.end(); ++it) {
+            allowed_labels.push_back(*it);
+          }
           if (!add_labeled_parts && allowed_labels.empty()) {
             continue;
           }
@@ -419,9 +430,10 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
               allowed_labels[role] = role;
             }
           }
+
           for (int m = 0; m < allowed_labels.size(); ++m) {
             int role = allowed_labels[m];
-            if (!predicates[s]->HasRole(role)) continue; // TODO: move this elsewhere?
+            CHECK(predicates[s]->HasRole(role));
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
             semantic_parts->push_back(part);
             if (make_gold) {
