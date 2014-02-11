@@ -38,7 +38,7 @@ void SemanticWriter::Write(Instance *instance) {
     os_ << semantic_instance->GetLemma(i) << "\t";
     os_ << semantic_instance->GetPosTag(i) << "\t";
     os_ << semantic_instance->GetHead(i) << "\t";
-    os_ << semantic_instance->GetDependencyRelation(i) << endl;
+    os_ << semantic_instance->GetDependencyRelation(i) << "\t";
 
     if (write_semantic_roles) {
       string predicate_name = "_";
@@ -61,4 +61,5 @@ void SemanticWriter::Write(Instance *instance) {
 
     os_ << endl;
   }
+  os_ << endl;
 }

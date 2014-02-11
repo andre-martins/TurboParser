@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "DependencyInstance.h"
+#include <iostream>
 
 class SemanticInstance : public DependencyInstance {
  public:
@@ -46,6 +47,17 @@ class SemanticInstance : public DependencyInstance {
   int GetNumArgumentsPredicate(int k) { return argument_roles_[k].size(); }
   const string &GetArgumentRole(int k, int l) { return argument_roles_[k][l]; }
   int GetArgumentIndex(int k, int l) { return argument_indices_[k][l]; }
+
+  void ClearPredicates() {
+    predicate_names_.clear();
+    predicate_indices_.clear();
+    for (int p = 0; p < argument_roles_.size(); ++p) {
+      argument_indices_[p].clear();
+      argument_roles_[p].clear();
+    }
+    argument_indices_.clear();
+    argument_roles_.clear();
+  }
 
   void AddPredicate(const string& predicate_name,
                     int predicate_index,

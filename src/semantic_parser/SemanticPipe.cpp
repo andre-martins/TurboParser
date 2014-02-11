@@ -713,53 +713,72 @@ void SemanticPipe::Prune(Instance *instance, Parts *parts,
   delete features;
 }
 
-void SemanticPipe::LabelInstance(Parts *parts, const vector<double> &output,
-                   Instance *instance) {
-#if 0
+void SemanticPipe::LabelInstance(Parts *parts,
+                                 const vector<double> &output,
+                                 Instance *instance) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   SemanticInstance *semantic_instance =
       static_cast<SemanticInstance*>(instance);
+  SemanticDictionary *semantic_dictionary =
+    static_cast<SemanticDictionary*>(dictionary_);
   int instance_length = semantic_instance->size();
-  for (int m = 0; m < instance_length; ++m) {
-    dependency_instance->SetHead(m, -1);
-    if (GetSemanticOptions()->labeled()) {
-      dependency_instance->SetSemanticRelation(m, "NULL");
-    }
-  }
   double threshold = 0.5;
+  semantic_instance->ClearPredicates();
+  for (int p = 1; p < instance_length; ++p) {
+    const vector<int> &senses = semantic_parts->GetSenses(p);
+    vector<int> argument_indices;
+    vector<string> argument_roles;
+    int predicted_sense = -1;
+    for (int k = 0; k < senses.size(); k++) {
+      int s = senses[k];
+      for (int a = 1; a < instance_length; ++a) {
+        if (GetSemanticOptions()->labeled()) {
+          int r = semantic_parts->FindArc(p, a, s);
+          if (r < 0) continue;
+          const vector<int> &labeled_arcs =
+            semantic_parts->FindLabeledArcs(p, a, s);
+          for (int l = 0; l < labeled_arcs.size(); ++l) {
+            int r = labeled_arcs[l];
+            if (output[r] > threshold) {
+              if (predicted_sense != s) {
+                CHECK_LT(predicted_sense, 0);
+                predicted_sense = s;
+              }
+              argument_indices.push_back(a);
+              SemanticPartLabeledArc *labeled_arc =
+                static_cast<SemanticPartLabeledArc*>((*parts)[r]);
+              string role =
+                semantic_dictionary->GetRoleName(labeled_arc->role());
+              argument_roles.push_back(role);
+            }
+          }
+        } else {
+          int r = semantic_parts->FindArc(p, a, s);
+          if (r < 0) continue;
+          if (output[r] > threshold) {
+            if (predicted_sense != s) {
+              CHECK_LT(predicted_sense, 0);
+              predicted_sense = s;
+            }
+            argument_indices.push_back(a);
+            argument_roles.push_back("ARG");
+          }
+        }
+      }
+    }
 
-  if (GetSemanticOptions()->labeled()) {
-    int offset, num_labeled_arcs;
-    dependency_parts->GetOffsetLabeledArc(&offset, &num_labeled_arcs);
-    for (int r = 0; r < num_labeled_arcs; ++r) {
-      SemanticPartLabeledArc *arc =
-          static_cast<SemanticPartLabeledArc*>((*dependency_parts)[offset + r]);
-      if (output[offset + r] >= threshold) {
-        dependency_instance->SetHead(arc->modifier(), arc->head());
-        dependency_instance->SetSemanticRelation(arc->modifier(),
-          GetSemanticDictionary()->GetLabelName(arc->label()));
-      }
-    }
-  } else {
-    int offset, num_basic_parts;
-    dependency_parts->GetOffsetArc(&offset, &num_basic_parts);
-    for (int r = 0; r < num_basic_parts; ++r) {
-      SemanticPartArc *arc =
-          static_cast<SemanticPartArc*>((*dependency_parts)[offset + r]);
-      if (output[offset + r] >= threshold) {
-        dependency_instance->SetHead(arc->modifier(), arc->head());
-      }
+    if (predicted_sense >= 0) {
+      int s = predicted_sense;
+      int lemma_id = semantic_dictionary->GetTokenDictionary()->
+        GetLemmaId(semantic_instance->GetLemma(p));
+      CHECK_GE(lemma_id, 0);
+      const vector<SemanticPredicate*> &predicates =
+        semantic_dictionary->GetLemmaPredicates(lemma_id);
+      int predicate_id = predicates[s]->id();
+      string predicate_name =
+        semantic_dictionary->GetPredicateName(predicate_id);
+      semantic_instance->AddPredicate(predicate_name, p, argument_roles,
+                                      argument_indices);
     }
   }
-  for (int m = 1; m < instance_length; ++m) {
-    if (dependency_instance->GetHead(m) < 0) {
-      VLOG(2) << "Word without head.";
-      dependency_instance->SetHead(m, 0);
-      if (GetSemanticOptions()->labeled()) {
-        dependency_instance->SetSemanticRelation(m, GetSemanticDictionary()->GetLabelName(0));
-      }
-    }
-  }
-#endif
 }
-
