@@ -48,10 +48,22 @@ public:
     }
     argument_indices_.clear();
     DeleteIndices();
+
+    // List of dependents, left and right siblings.
+    for (int h = 0; h < modifiers_.size(); ++h) {
+      modifiers_[h].clear();
+      left_siblings_[h] = -1;
+      right_siblings_[h] = -1;
+    }
   }
 
   void Initialize(const SemanticDictionary &dictionary,
                   SemanticInstance *instance);
+
+  void ComputeDependencyInformation(const SemanticDictionary &dictionary,
+                                    SemanticInstance *instance);
+
+  bool ComputePassiveVoice(SemanticInstance *instance, int index);
 
   void DeleteIndices() {
     index_predicates_.clear();
@@ -98,6 +110,11 @@ public:
   int FindPredicate(int p) { return index_predicates_[p]; }
   int FindArc(int p, int a) { return index_arcs_[p][a]; }
 
+  bool IsPassiveVoice(int p) { return is_passive_voice_[p]; }
+  const vector<int> &GetModifiers(int h) { return modifiers_[h]; }
+  int GetLeftSibling(int h) { return left_siblings_[h]; }
+  int GetRightSibling(int h) { return right_siblings_[h]; }
+
  private:
   vector<int> predicate_ids_;
   vector<int> predicate_indices_;
@@ -106,6 +123,11 @@ public:
 
   vector<int> index_predicates_;
   vector<vector<int> > index_arcs_;
+
+  vector<vector<int> > modifiers_;
+  vector<int> left_siblings_;
+  vector<int> right_siblings_;
+  vector<bool> is_passive_voice_;
 };
 
 #endif /* SEMANTICINSTANCENUMERIC_H_ */

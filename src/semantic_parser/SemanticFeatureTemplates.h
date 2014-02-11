@@ -79,6 +79,30 @@ struct SemanticFeatureTemplateArc {
     HL,
     ML,
 
+    // Contextual dependency features
+    HP_ldMP, /* predicate POS, argument leftmost dependent POS */
+    HW_ldMP, /* predicate word, argument leftmost dependent POS */
+    HP_ldMW, /* predicate POS, argument leftmost dependent word */
+    HW_ldMW, /* predicate word, argument leftmost dependent word */
+    HP_rdMP, /* predicate POS, argument rightmost dependent POS */
+    HW_rdMP, /* predicate word, argument rightmost dependent POS */
+    HP_rdMW, /* predicate POS, argument rightmost dependent word */
+    HW_rdMW, /* predicate word, argument rightmost dependent word */
+
+    HP_lMP, /* predicate POS, argument left sibling POS */
+    HW_lMP, /* predicate word, argument left sibling POS */
+    HP_lMW, /* predicate POS, argument left sibling word */
+    HW_lMW, /* predicate word, argument left sibling word */
+    HP_rMP, /* predicate POS, argument right sibling POS */
+    HW_rMP, /* predicate word, argument right sibling POS */
+    HP_rMW, /* predicate POS, argument right sibling word */
+    HW_rMW, /* predicate word, argument right sibling word */
+
+    // Dependency features
+    HS, /* predicate sense */
+    HV, /* predicate voice (active/passive) */
+    MR, /* modifier dependency relation */
+
     // Contextual features
     pHP,
     nHP,
