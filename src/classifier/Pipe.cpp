@@ -405,7 +405,7 @@ void Pipe::Run() {
                        parts, gold_outputs, predicted_outputs);
     }
 
-    writer_->Write(instance);
+    writer_->Write(output_instance);
 
     if (formatted_instance != instance) delete formatted_instance;
     delete instance;
