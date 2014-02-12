@@ -38,11 +38,11 @@ DEFINE_double(train_cost_false_negatives, 1.0,
               "Cost for predicting false negatives.");
 
 void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
-                                            const vector<double> &scores,
-                                            const vector<double> &gold_output,
-                                            vector<double> *predicted_output,
-                                            double *cost,
-                                            double *loss) {
+                                          const vector<double> &scores,
+                                          const vector<double> &gold_output,
+                                          vector<double> *predicted_output,
+                                          double *cost,
+                                          double *loss) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   int offset_arcs, num_arcs;
 

@@ -23,6 +23,11 @@
 
 using namespace std;
 
+const int kUnknownPredicate = 0xffff;
+const int kUnknownRole = 0xffff;
+const int kUnknownRelationPath = 0xffff;
+const int kUnknownPosPath = 0xffff;
+
 void SemanticInstanceNumeric::Initialize(
     const SemanticDictionary &dictionary,
     SemanticInstance* instance) {
@@ -46,7 +51,7 @@ void SemanticInstanceNumeric::Initialize(
     const string &name = instance->GetPredicateName(k);
     int id = dictionary.GetPredicateAlphabet().Lookup(name);
     CHECK_LT(id, 0xffff);
-    if (id < 0) id = TOKEN_UNKNOWN;
+    if (id < 0) id = kUnknownPredicate;
     predicate_ids_[k] = id;
     predicate_indices_[k] = instance->GetPredicateIndex(k);
 
@@ -57,7 +62,7 @@ void SemanticInstanceNumeric::Initialize(
       const string &name = instance->GetArgumentRole(k, l);
       id = dictionary.GetRoleAlphabet().Lookup(name);
       CHECK_LT(id, 0xffff);
-      if (id < 0) id = TOKEN_UNKNOWN;
+      if (id < 0) id = kUnknownRole;
       argument_role_ids_[k][l] = id;
       argument_indices_[k][l] = instance->GetArgumentIndex(k, l);
     }
@@ -104,6 +109,29 @@ void SemanticInstanceNumeric::ComputeDependencyInformation(
   is_passive_voice_.assign(instance_length, false);
   for (int i = 0; i < instance_length; ++i) {
     is_passive_voice_[i] = ComputePassiveVoice(instance, i);
+  }
+
+  // Compute relation/pos paths.
+  relation_path_ids_.resize(instance_length);
+  pos_path_ids_.resize(instance_length);
+  for (int p = 0; p < instance_length; ++p) {
+    relation_path_ids_[p].assign(instance_length, -1);
+    pos_path_ids_[p].assign(instance_length, -1);
+    for (int a = 1; a < instance_length; ++a) {
+      string relation_path;
+      string pos_path;
+      dictionary.ComputeDependencyPath(instance, p, a,
+                                       &relation_path, &pos_path);
+      int relation_path_id =
+        dictionary.GetRelationPathAlphabet().Lookup(relation_path);
+      CHECK_LT(relation_path_id, 0xffff);
+      if (relation_path_id < 0) relation_path_id = kUnknownRelationPath;
+      int pos_path_id = dictionary.GetPosPathAlphabet().Lookup(pos_path);
+      CHECK_LT(pos_path_id, 0xffff);
+      if (pos_path_id < 0) pos_path_id = kUnknownPosPath;
+      relation_path_ids_[p][a] = relation_path_id;
+      pos_path_ids_[p][a] = pos_path_id;
+    }
   }
 }
 

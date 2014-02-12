@@ -10,7 +10,7 @@ train_algorithm=svm_mira # Training algorithm.
 train_algorithm_pruner=crf_mira # Training algorithm for pruner.
 num_epochs=10 # Number of training epochs.
 num_epochs_pruner=10 # Number of training epochs for the pruner.
-regularization_parameter=0.001 # The C parameter in MIRA.
+regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 regularization_parameter_pruner=1e12 # Same for the pruner.
 train=true
 test=true
@@ -25,8 +25,8 @@ model_type=basic # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb").
                     # Currently, flags np+dp are not recommended because they
                     # make the parser a lot slower.
-train_cost_false_positives=$2
-train_cost_false_negatives=$3
+train_cost_false_positives=$3
+train_cost_false_negatives=$4
 allow_self_loops=true
 
 if [ "${model_type}" == "basic" ]

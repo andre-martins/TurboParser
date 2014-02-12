@@ -45,6 +45,9 @@ class DependencyInstance : public Instance {
 
   int size() { return forms_.size(); };
 
+  const vector<int> &GetHeads() { return heads_; }
+  const vector<string> &GetDependencyRelations() { return deprels_; }
+
   const string &GetForm(int i) { return forms_[i]; };
   const string &GetLemma(int i) { return lemmas_[i]; };
   const string &GetCoarsePosTag(int i) { return cpostags_[i]; };

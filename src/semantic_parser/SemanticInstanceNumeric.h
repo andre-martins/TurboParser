@@ -60,6 +60,14 @@ public:
       left_siblings_[h] = -1;
       right_siblings_[h] = -1;
     }
+
+    // Relation and POS dependency paths.
+    for (int p = 0; p < relation_path_ids_.size(); ++p) {
+      relation_path_ids_[p].clear();
+      pos_path_ids_[p].clear();
+    }
+    relation_path_ids_.clear();
+    pos_path_ids_.clear();
   }
 
   void Initialize(const SemanticDictionary &dictionary,
@@ -119,12 +127,16 @@ public:
   const vector<int> &GetModifiers(int h) { return modifiers_[h]; }
   int GetLeftSibling(int h) { return left_siblings_[h]; }
   int GetRightSibling(int h) { return right_siblings_[h]; }
+  int GetRelationPathId(int p, int a) { return relation_path_ids_[p][a]; }
+  int GetPosPathId(int p, int a) { return pos_path_ids_[p][a]; }
 
  private:
   vector<int> predicate_ids_;
   vector<int> predicate_indices_;
   vector<vector<int> > argument_role_ids_;
   vector<vector<int> > argument_indices_;
+  vector<vector<int> > relation_path_ids_;
+  vector<vector<int> > pos_path_ids_;
 
   vector<int> index_predicates_;
   vector<vector<int> > index_arcs_;

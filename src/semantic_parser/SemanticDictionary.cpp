@@ -142,13 +142,82 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
             maximum_left_distances_[predicate_pos_id][argument_pos_id] = p - a;
           }
         }
+
+        // Compute the syntactic path between the predicate and the argument and
+        // add it to the dictionary.
+        string relation_path;
+        string pos_path;
+        ComputeDependencyPath(instance, p, a, &relation_path, &pos_path);
+        int relation_path_id = relation_path_alphabet_.Insert(relation_path);
+        int pos_path_id = pos_path_alphabet_.Insert(pos_path);
       }
     }
     delete instance;
     instance = static_cast<SemanticInstance*>(reader->GetNext());
   }
   reader->Close();
+  relation_path_alphabet_.StopGrowth();
+  pos_path_alphabet_.StopGrowth();
+
+  CHECK_LT(relation_path_alphabet_.size(), 0xffff);
+  CHECK_LT(pos_path_alphabet_.size(), 0xffff);
 
   LOG(INFO) << "Number of predicates: " << predicate_alphabet_.size();
   LOG(INFO) << "Number of roles: " << role_alphabet_.size();
+  LOG(INFO) << "Number of relation paths: " << relation_path_alphabet_.size();
+  LOG(INFO) << "Number of POS paths: " << pos_path_alphabet_.size();
+}
+
+void SemanticDictionary::ComputeDependencyPath(SemanticInstance *instance,
+                                               int p, int a,
+                                               string *relation_path,
+                                               string *pos_path) const {
+  const vector<int>& heads = instance->GetHeads();
+  vector<string> relations_up;
+  vector<string> relations_down;
+  vector<string> pos_up;
+  vector<string> pos_down;
+
+  int ancestor = FindLowestCommonAncestor(heads, p, a);
+  int h = p;
+  while (ancestor != h) {
+    relations_up.push_back(instance->GetDependencyRelation(h));
+    pos_up.push_back(instance->GetPosTag(h));
+    h = heads[h];
+  }
+  h = a;
+  while (ancestor != h) {
+    relations_down.push_back(instance->GetDependencyRelation(h));
+    pos_down.push_back(instance->GetPosTag(h));
+    h = heads[h];
+  }
+
+  relation_path->clear();
+  pos_path->clear();
+  for (int i = 0; i < relations_up.size(); ++i) {
+    *relation_path += relations_up[i] + "^";
+    *pos_path += pos_up[i] + "^";
+  }
+  *pos_path += instance->GetPosTag(ancestor);
+  for (int i = relations_down.size()-1; i >= 0; --i) {
+    *relation_path += relations_down[i] + "!";
+    *pos_path += pos_down[i] + "!";
+  }
+}
+
+int SemanticDictionary::FindLowestCommonAncestor(const vector<int>& heads,
+                                                 int p, int a) const {
+  vector<bool> is_ancestor(heads.size(), false);
+  int h = p;
+  // 0 is the root and is a common ancestor.
+  while (h != 0) {
+    is_ancestor[h] = true;
+    h = heads[h];
+  }
+  h = a;
+  while (h != 0) {
+    if (is_ancestor[h]) return h;
+    h = heads[h];
+  }
+  return 0;
 }

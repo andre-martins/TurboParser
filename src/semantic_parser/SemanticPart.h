@@ -28,6 +28,7 @@ using namespace std;
 enum {
   SEMANTICPART_ARC = 0,
   SEMANTICPART_LABELEDARC,
+  SEMANTICPART_PREDICATE,
   SEMANTICPART_ARGUMENT,
   SEMANTICPART_SIBLING,
   NUM_SEMANTICPARTS
@@ -78,6 +79,26 @@ class SemanticPartLabeledArc : public Part {
   int s_; // Predicate sense.
   int r_; // Role label.
 };
+
+
+// Part for the event that a word is a predicate.
+class SemanticPartPredicate : public Part {
+ public:
+  SemanticPartPredicate() { p_ = -1; }
+  SemanticPartPredicate(int predicate) :
+    p_(predicate) {}
+  virtual ~SemanticPartPredicate() {}
+
+ public:
+  int predicate() { return p_; }
+
+ public:
+  int type() { return SEMANTICPART_PREDICATE; }
+
+ private:
+  int p_; // Index of the argument.
+};
+
 
 // Part for the event that a word is an argument of at least one predicate.
 class SemanticPartArgument : public Part {
@@ -141,6 +162,9 @@ class SemanticParts : public Parts {
   Part *CreatePartLabeledArc(int predicate, int argument, int sense, int role) {
     return new SemanticPartLabeledArc(predicate, argument, sense, role);
   }
+  Part *CreatePartPredicate(int predicate) {
+    return new SemanticPartPredicate(predicate);
+  }
   Part *CreatePartArgument(int argument) {
     return new SemanticPartArgument(argument);
   }
@@ -184,6 +208,7 @@ class SemanticParts : public Parts {
   }
 
   // True is model is arc-factored, i.e., all parts are unlabeled arcs.
+  // TODO: change this to incorporate predicate parts.
   bool IsArcFactored() {
     int offset, num_arcs;
     GetOffsetArc(&offset, &num_arcs);
@@ -192,6 +217,7 @@ class SemanticParts : public Parts {
 
   // True is model is arc-factored, i.e., all parts are unlabeled and labeled
   // arcs.
+  // TODO: change this to incorporate predicate parts.
   bool IsLabeledArcFactored() {
     int offset, num_arcs, num_labeled_arcs;
     GetOffsetArc(&offset, &num_arcs);
@@ -214,6 +240,9 @@ class SemanticParts : public Parts {
   void SetOffsetArc(int offset, int size) {
     SetOffset(SEMANTICPART_ARC, offset, size);
   };
+  void SetOffsetPredicate(int offset, int size) {
+    SetOffset(SEMANTICPART_PREDICATE, offset, size);
+  };
   void SetOffsetArgument(int offset, int size) {
     SetOffset(SEMANTICPART_ARGUMENT, offset, size);
   };
@@ -226,6 +255,9 @@ class SemanticParts : public Parts {
   };
   void GetOffsetArc(int *offset, int *size) const {
     GetOffset(SEMANTICPART_ARC, offset, size);
+  };
+  void GetOffsetPredicate(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_PREDICATE, offset, size);
   };
   void GetOffsetArgument(int *offset, int *size) const {
     GetOffset(SEMANTICPART_ARGUMENT, offset, size);

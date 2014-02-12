@@ -64,6 +64,11 @@ class SemanticFeatures: public Features {
   };
 
  public:
+  void AddPredicateFeatures(SemanticInstanceNumeric *sentence,
+                            int r,
+                            int predicate,
+                            int predicate_id);
+
   void AddArcFeatures(SemanticInstanceNumeric *sentence,
                       int r,
                       int predicate,

@@ -49,6 +49,8 @@ class SemanticDictionary : public Dictionary {
     lemma_predicates_.clear();
     predicate_alphabet_.clear();
     role_alphabet_.clear();
+    relation_path_alphabet_.clear();
+    pos_path_alphabet_.clear();
     existing_roles_.clear();
     maximum_left_distances_.clear();
     maximum_right_distances_.clear();
@@ -57,6 +59,8 @@ class SemanticDictionary : public Dictionary {
   void BuildPredicateRoleNames() {
     predicate_alphabet_.BuildNames();
     role_alphabet_.BuildNames();
+    relation_path_alphabet_.BuildNames();
+    pos_path_alphabet_.BuildNames();
   }
 
   const vector<SemanticPredicate*> &GetLemmaPredicates(int lemma) const {
@@ -71,12 +75,24 @@ class SemanticDictionary : public Dictionary {
     return role_alphabet_.GetName(role);
   }
 
+  const string &GetRelationPathName(int path) const {
+    return relation_path_alphabet_.GetName(path);
+  }
+
+  const string &GetPosPathName(int path) const {
+    return pos_path_alphabet_.GetName(path);
+  }
+
+  // TODO(atm): check if we should allow/stop growth of the other dictionaries
+  // as well.
   void AllowGrowth() { token_dictionary_->AllowGrowth(); }
   void StopGrowth() { token_dictionary_->StopGrowth(); }
 
   void Save(FILE *fs) {
     if (0 > predicate_alphabet_.Save(fs)) CHECK(false);
     if (0 > role_alphabet_.Save(fs)) CHECK(false);
+    if (0 > relation_path_alphabet_.Save(fs)) CHECK(false);
+    if (0 > pos_path_alphabet_.Save(fs)) CHECK(false);
     bool success;
     int length = lemma_predicates_.size();
     success = WriteInteger(fs, length);
@@ -119,6 +135,8 @@ class SemanticDictionary : public Dictionary {
   void Load(FILE *fs) {
     if (0 > predicate_alphabet_.Load(fs)) CHECK(false);
     if (0 > role_alphabet_.Load(fs)) CHECK(false);
+    if (0 > relation_path_alphabet_.Load(fs)) CHECK(false);
+    if (0 > pos_path_alphabet_.Load(fs)) CHECK(false);
     bool success;
     int length;
     success = ReadInteger(fs, &length);
@@ -194,7 +212,18 @@ class SemanticDictionary : public Dictionary {
 
   const Alphabet &GetPredicateAlphabet() const { return predicate_alphabet_; };
   const Alphabet &GetRoleAlphabet() const { return role_alphabet_; };
+  const Alphabet &GetRelationPathAlphabet() const {
+    return relation_path_alphabet_;
+  };
+  const Alphabet &GetPosPathAlphabet() const { return pos_path_alphabet_; };
 
+  void ComputeDependencyPath(SemanticInstance *instance,
+                             int p, int a,
+                             string *relation_path,
+                             string *pos_path) const;
+
+ protected:
+  int FindLowestCommonAncestor(const vector<int>& heads, int p, int a) const;
 
  protected:
   Pipe *pipe_;
@@ -203,10 +232,11 @@ class SemanticDictionary : public Dictionary {
   vector<vector<SemanticPredicate*> > lemma_predicates_;
   Alphabet predicate_alphabet_;
   Alphabet role_alphabet_;
+  Alphabet relation_path_alphabet_;
+  Alphabet pos_path_alphabet_;
   vector<vector<vector<int> > > existing_roles_;
   vector<vector<int> > maximum_left_distances_;
   vector<vector<int> > maximum_right_distances_;
 };
 
 #endif /* SEMANTICDICTIONARY_H_ */
-

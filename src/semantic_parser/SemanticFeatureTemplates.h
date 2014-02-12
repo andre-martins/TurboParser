@@ -22,6 +22,7 @@
 struct SemanticFeatureTemplateParts {
   enum types {
     ARC = 0,
+    PREDICATE,
     NEXTSIBL,
     ALLSIBL,
     GRANDPAR,
@@ -33,6 +34,30 @@ struct SemanticFeatureTemplateParts {
     GRANDSIBL_G_S
   };
 };
+
+struct SemanticFeatureTemplatePredicate {
+  enum types {
+    BIAS = 0,				/* bias */
+    HP,
+    HW,
+    HL,
+    HS,
+    HR,
+    HW_hHW,
+    HW_hHP,
+    HP_hHW,
+    HP_hHP,
+    HW_bdHW,
+    HW_bdHP,
+    HW_bdHR,
+    HP_bdHW,
+    HP_bdHP,
+    HP_bdHR,
+
+    COUNT
+  };
+};
+
 
 struct SemanticFeatureTemplateArc {
   enum types {
@@ -102,6 +127,8 @@ struct SemanticFeatureTemplateArc {
     HS, /* predicate sense */
     HV, /* predicate voice (active/passive) */
     MR, /* modifier dependency relation */
+    PATHR, /* dependency path from predicate to argument (relations) */
+    PATHP, /* dependency path from predicate to argument (POS tags) */
 
     // Contextual features
     pHP,
