@@ -28,6 +28,12 @@ class SequenceInstance : public Instance {
   SequenceInstance() {}
   virtual ~SequenceInstance() {}
 
+  Instance* Copy() {
+    SequenceInstance* instance = new SequenceInstance();
+    instance->Initialize(forms_, tags_);
+    return static_cast<Instance*>(instance);
+  }
+
   void Initialize(const vector<string> &forms,
                   const vector<string> &tags);
 

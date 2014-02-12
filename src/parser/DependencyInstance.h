@@ -28,6 +28,13 @@ class DependencyInstance : public Instance {
   DependencyInstance() {};
   virtual ~DependencyInstance() {};
 
+  Instance* Copy() {
+    DependencyInstance* instance = new DependencyInstance();
+    instance->Initialize(forms_, lemmas_, cpostags_, postags_,
+                         feats_, deprels_, heads_);
+    return static_cast<Instance*>(instance);
+  }
+
   void Initialize(const vector<string> &forms,
                   const vector<string> &lemmas,
                   const vector<string> &cpos, 

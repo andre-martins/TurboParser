@@ -31,6 +31,11 @@ public:
   SequenceInstanceNumeric() {};
   virtual ~SequenceInstanceNumeric() { Clear(); };
 
+  Instance* Copy() {
+    CHECK(false) << "Not implemented.";
+    return NULL;
+  }
+
   int size() { return form_ids_.size(); };
 
   void Clear() {

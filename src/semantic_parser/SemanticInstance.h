@@ -29,6 +29,15 @@ class SemanticInstance : public DependencyInstance {
   SemanticInstance() {};
   virtual ~SemanticInstance() {};
 
+  Instance* Copy() {
+    SemanticInstance* instance = new SemanticInstance();
+    instance->Initialize(forms_, lemmas_, cpostags_, postags_,
+                         feats_, deprels_, heads_,
+                         predicate_names_, predicate_indices_,
+                         argument_roles_, argument_indices_);
+    return static_cast<Instance*>(instance);
+  }
+
   void Initialize(const vector<string> &forms,
                   const vector<string> &lemmas,
                   const vector<string> &cpos,

@@ -33,6 +33,11 @@ public:
   SemanticInstanceNumeric() {};
   virtual ~SemanticInstanceNumeric() { Clear(); };
 
+  Instance* Copy() {
+    CHECK(false) << "Not implemented.";
+    return NULL;
+  }
+
   int size() { return form_ids_.size(); };
 
   void Clear() {

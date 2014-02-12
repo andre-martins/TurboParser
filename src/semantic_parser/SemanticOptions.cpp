@@ -72,7 +72,7 @@ DEFINE_double(pruner_posterior_threshold, 0.0001,
             "pruning. For each word p, if "
             "P(p,a) < pruner_posterior_threshold * P(p,a'), "
             "where a' is the best scored argument, then (p,a) will be pruned out.");
-DEFINE_int32(pruner_max_arguments, 10,
+DEFINE_int32(pruner_max_arguments, 20,
             "Maximum number of possible arguments for a given word, in basic "
             "pruning.");
 

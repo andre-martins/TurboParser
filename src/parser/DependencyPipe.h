@@ -207,7 +207,9 @@ class DependencyPipe : public Pipe {
     num_tokens_ = 0;
     gettimeofday(&start_clock_, NULL);
   }
-  virtual void EvaluateInstance(Instance *instance, Parts *parts,
+  virtual void EvaluateInstance(Instance *instance,
+                                Instance *output_instance,
+                                Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
     DependencyInstance *dependency_instance =

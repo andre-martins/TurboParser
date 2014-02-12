@@ -32,6 +32,11 @@ typedef Eigen::Matrix<LogValD, Dynamic, Dynamic> MatrixXlogd;
 
 using namespace std;
 
+DEFINE_double(train_cost_false_positives, 1.0,
+              "Cost for predicting false positives.");
+DEFINE_double(train_cost_false_negatives, 1.0,
+              "Cost for predicting false negatives.");
+
 void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                             const vector<double> &scores,
                                             const vector<double> &gold_output,
@@ -47,15 +52,30 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
     semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
   }
 
+  ////////////////////////////////////////////////////
+  // F1: a = 0.5, b = 0.5.
+  // Recall: a = 0, b = 1.
+  // In general:
+  // p = a - (a+b)*z0
+  // q = b*sum(z0)
+  // p'*z + q = a*sum(z) - (a+b)*z0'*z + b*sum(z0)
+  //          = a*(1-z0)'*z + b*(1-z)'*z0.
+  ////////////////////////////////////////////////////
+
+  // Penalty for predicting 1 when it is 0 (FP).
+  double a = FLAGS_train_cost_false_positives;
+  // Penalty for predicting 0 when it is 1 (FN).
+  double b = FLAGS_train_cost_false_negatives;
+
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;
   vector<double> p(num_arcs, 0.0);
 
   vector<double> scores_cost = scores;
   for (int r = 0; r < num_arcs; ++r) {
-    p[r] = 0.5 - gold_output[offset_arcs + r];
+    p[r] = a - (a+b) * gold_output[offset_arcs + r];
     scores_cost[offset_arcs + r] += p[r];
-    q += 0.5*gold_output[offset_arcs + r];
+    q += b*gold_output[offset_arcs + r];
   }
 
   Decode(instance, parts, scores_cost, predicted_output);
