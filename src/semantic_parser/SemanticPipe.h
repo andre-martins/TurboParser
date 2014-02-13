@@ -207,7 +207,7 @@ class SemanticPipe : public Pipe {
     SemanticInstance *semantic_instance =
       static_cast<SemanticInstance*>(instance);
     SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
-    for (int p = 1; p < semantic_instance->size(); ++p) {
+    for (int p = 0; p < semantic_instance->size(); ++p) {
       const vector<int> &senses = semantic_parts->GetSenses(p);
       for (int a = 1; a < semantic_instance->size(); ++a) {
         for (int k = 0; k < senses.size(); ++k) {

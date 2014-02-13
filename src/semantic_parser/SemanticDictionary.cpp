@@ -19,6 +19,13 @@
 #include "SemanticDictionary.h"
 #include "SemanticPipe.h"
 
+// Special symbols.
+const string kPredicateUnknown = "_UNKNOWN_.01"; // Unknown predicate.
+
+// Maximum alphabet sizes.
+const unsigned int kMaxPredicateAlphabetSize = 0xffff;
+const unsigned int kMaxRoleAlphabetSize = 0xffff;
+
 void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader) {
   LOG(INFO) << "Creating predicate and role dictionaries...";
 
@@ -27,6 +34,17 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   lemma_predicates_.resize(num_lemmas);
 
   vector<int> role_freqs;
+  vector<int> predicate_freqs;
+
+  string special_symbols[NUM_SPECIAL_PREDICATES];
+  special_symbols[PREDICATE_UNKNOWN] = kPredicateUnknown;
+
+  for (int i = 0; i < NUM_SPECIAL_PREDICATES; ++i) {
+    predicate_alphabet_.Insert(special_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    predicate_freqs.push_back(-1);
+  }
 
   // Go through the corpus and build the predicate/roles dictionaries,
   // counting the frequencies.
@@ -42,26 +60,31 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
 
       // Get the lemma integer representation.
       int lemma_id = token_dictionary_->GetLemmaId(lemma);
-      // Assume lemma exists.
-      // TODO(atm): handle the case where there is a label cutoff.
-      CHECK_GE(lemma_id, 0);
 
-      // Add predicate name to alphabet.
-      int predicate_id =
-        predicate_alphabet_.Insert(predicate_name);
-
-      // Add predicate to the list of lemma predicates.
-      std::vector<SemanticPredicate*> *predicates =
-        &lemma_predicates_[lemma_id];
+      // If the lemma does not exist, the predicate will not be added.
       SemanticPredicate *predicate = NULL;
-      for (int j = 0; j < predicates->size(); ++j) {
-        if ((*predicates)[j]->id() == predicate_id) {
-          predicate = (*predicates)[j];
+      if (lemma_id >= 0) {
+        // Add predicate name to alphabet.
+        int predicate_id =
+          predicate_alphabet_.Insert(predicate_name);
+        if (predicate_id >= predicate_freqs.size()) {
+          CHECK_EQ(predicate_id, predicate_freqs.size());
+          predicate_freqs.push_back(0);
         }
-      }
-      if (!predicate) {
-        predicate = new SemanticPredicate(predicate_id);
-        predicates->push_back(predicate);
+        ++predicate_freqs[predicate_id];
+
+        // Add predicate to the list of lemma predicates.
+        std::vector<SemanticPredicate*> *predicates =
+          &lemma_predicates_[lemma_id];
+        for (int j = 0; j < predicates->size(); ++j) {
+          if ((*predicates)[j]->id() == predicate_id) {
+            predicate = (*predicates)[j];
+          }
+        }
+        if (!predicate) {
+          predicate = new SemanticPredicate(predicate_id);
+          predicates->push_back(predicate);
+        }
       }
 
       // Add semantic roles to alphabet.
@@ -73,7 +96,9 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         }
         ++role_freqs[role_id];
         // Add this role to the predicate.
-        if (!predicate->HasRole(role_id)) predicate->InsertRole(role_id);
+        if (predicate && !predicate->HasRole(role_id)) {
+          predicate->InsertRole(role_id);
+        }
       }
     }
     delete instance;
@@ -81,6 +106,30 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   }
   reader->Close();
   role_alphabet_.StopGrowth();
+
+  // Take care of the special "unknown" predicate.
+  bool allow_unseen_predicates =
+    static_cast<SemanticPipe*>(pipe_)->GetSemanticOptions()->
+       allow_unseen_predicates();
+  if (allow_unseen_predicates) {
+    // 1) Add the predicate as the singleton list of lemma predicates for the
+    // "unknown" lemma.
+    std::vector<SemanticPredicate*> *predicates =
+      &lemma_predicates_[TOKEN_UNKNOWN];
+    CHECK_EQ(predicates->size(), 0);
+    SemanticPredicate *predicate = new SemanticPredicate(PREDICATE_UNKNOWN);
+    predicates->push_back(predicate);
+
+    // 2) Add all possible roles to the special "unknown" predicate.
+    for (int role_id = 0; role_id < role_alphabet_.size(); ++role_id) {
+      if (!predicate->HasRole(role_id)) predicate->InsertRole(role_id);
+    }
+  }
+
+  predicate_alphabet_.StopGrowth();
+
+  CHECK_LT(predicate_alphabet_.size(), kMaxPredicateAlphabetSize);
+  CHECK_LT(role_alphabet_.size(), kMaxRoleAlphabetSize);
 
   // Go through the corpus and build the existing labels for each head-modifier
   // POS pair.

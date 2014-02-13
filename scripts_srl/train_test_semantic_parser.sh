@@ -28,6 +28,9 @@ model_type=basic # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
 train_cost_false_positives=$3
 train_cost_false_negatives=$4
 allow_self_loops=true
+allow_root_predicate=false
+allow_unseen_predicates=true # false
+use_predicate_senses=true
 
 if [ "${model_type}" == "basic" ]
 then
@@ -100,6 +103,9 @@ then
         --train_cost_false_positives=${train_cost_false_positives} \
         --train_cost_false_negatives=${train_cost_false_negatives} \
         --allow_self_loops=${allow_self_loops} \
+        --allow_root_predicate=${allow_root_predicate} \
+        --allow_unseen_predicates=${allow_unseen_predicates} \
+        --use_predicate_senses=${use_predicate_senses} \
         --logtostderr
 
     rm -f ${file_pruner_results}
@@ -156,6 +162,9 @@ then
             --train_cost_false_negatives=${train_cost_false_negatives} \
             --model_type=${model_type} \
             --allow_self_loops=${allow_self_loops} \
+            --allow_root_predicate=${allow_root_predicate} \
+            --allow_unseen_predicates=${allow_unseen_predicates} \
+            --use_predicate_senses=${use_predicate_senses} \
             --logtostderr
     else
         # Train a pruner along with the parser.
@@ -178,6 +187,9 @@ then
             --pruner_train_algorithm=${train_algorithm_pruner} \
             --pruner_train_regularization_constant=${regularization_parameter_pruner} \
             --allow_self_loops=${allow_self_loops} \
+            --allow_root_predicate=${allow_root_predicate} \
+            --allow_unseen_predicates=${allow_unseen_predicates} \
+            --use_predicate_senses=${use_predicate_senses} \
             --logtostderr
     fi
 fi

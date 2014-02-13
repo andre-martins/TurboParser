@@ -41,6 +41,9 @@ class SemanticOptions : public Options {
   // Get option values.
   bool labeled() { return labeled_; }
   bool allow_self_loops() { return allow_self_loops_; }
+  bool allow_root_predicate() { return allow_root_predicate_; }
+  bool allow_unseen_predicates() { return allow_unseen_predicates_; }
+  bool use_predicate_senses() { return use_predicate_senses_; }
   bool prune_labels() { return prune_labels_; }
   bool prune_distances() { return prune_distances_; }
   bool prune_basic() { return prune_basic_; }
@@ -60,6 +63,9 @@ class SemanticOptions : public Options {
   string model_type_;
   bool labeled_;
   bool allow_self_loops_;
+  bool allow_root_predicate_;
+  bool allow_unseen_predicates_;
+  bool use_predicate_senses_;
   bool prune_labels_;
   bool prune_distances_;
   bool prune_basic_;

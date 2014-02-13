@@ -28,6 +28,11 @@
 
 class Pipe;
 
+enum SpecialPredicates {
+  PREDICATE_UNKNOWN = 0,
+  NUM_SPECIAL_PREDICATES
+};
+
 class SemanticDictionary : public Dictionary {
  public:
   SemanticDictionary() { token_dictionary_ = NULL; }
