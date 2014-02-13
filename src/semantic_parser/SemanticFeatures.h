@@ -56,6 +56,7 @@ class SemanticFeatures: public Features {
   }
 
   const BinaryFeatures &GetPartFeatures(int r) const {
+    CHECK(input_features_[r] != NULL);
     return *(input_features_[r]);
   };
 
@@ -117,6 +118,12 @@ class SemanticFeatures: public Features {
 #endif
 
  protected:
+  void AddPredicateFeatures(SemanticInstanceNumeric *sentence,
+                            uint8_t feature_type,
+                            int r,
+                            int predicate,
+                            int predicate_id);
+
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {
     features->push_back(fkey);
   }
