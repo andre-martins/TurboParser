@@ -77,6 +77,11 @@ Instance *DependencyReader::GetNext() {
     deprels[i+1] = info[7];
     stringstream ss(info[6]);
     ss >> heads[i+1];
+    if (heads[i+1] < 0 || heads[i+1] > length) {
+      CHECK(false) << "Invalid value of head (" << heads[i+1]
+                   << " not in range [0.." << length
+                   << "]";
+    }
   }
 
   DependencyInstance *instance = NULL;

@@ -75,8 +75,26 @@ class SemanticPipe : public Pipe {
     GetSemanticDictionary()->SetTokenDictionary(token_dictionary_);
     GetSemanticDictionary()->SetDependencyDictionary(dependency_dictionary_);
   }
-  void CreateReader() { reader_ = new SemanticReader; }
-  void CreateWriter() { writer_ = new SemanticWriter; }
+  void CreateReader() {
+    reader_ = new SemanticReader;
+    if (GetSemanticOptions()->allow_root_predicate()) {
+      static_cast<SemanticReader*>(reader_)->UseTopNodes(true);
+    } else {
+      static_cast<SemanticReader*>(reader_)->UseTopNodes(false);
+    }
+    const string &format = GetSemanticOptions()->file_format();
+    static_cast<SemanticReader*>(reader_)->SetFormat(format);
+  }
+  void CreateWriter() {
+    writer_ = new SemanticWriter;
+    if (GetSemanticOptions()->allow_root_predicate()) {
+      static_cast<SemanticWriter*>(writer_)->UseTopNodes(true);
+    } else {
+      static_cast<SemanticWriter*>(writer_)->UseTopNodes(false);
+    }
+    const string &format = GetSemanticOptions()->file_format();
+    static_cast<SemanticWriter*>(writer_)->SetFormat(format);
+  }
   void CreateDecoder() { decoder_ = new SemanticDecoder(this); }
   Parts *CreateParts() { return new SemanticParts; }
   Features *CreateFeatures() { return new SemanticFeatures(this); }
@@ -207,7 +225,7 @@ class SemanticPipe : public Pipe {
     SemanticInstance *semantic_instance =
       static_cast<SemanticInstance*>(instance);
     SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
-    for (int p = 1; p < semantic_instance->size(); ++p) {
+    for (int p = 0; p < semantic_instance->size(); ++p) {
       const vector<int> &senses = semantic_parts->GetSenses(p);
       for (int a = 1; a < semantic_instance->size(); ++a) {
         for (int k = 0; k < senses.size(); ++k) {

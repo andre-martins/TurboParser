@@ -28,6 +28,16 @@
 
 class Pipe;
 
+enum SpecialPredicates {
+  PREDICATE_UNKNOWN = 0,
+  NUM_SPECIAL_PREDICATES
+};
+
+enum SpecialDependencyPaths {
+  PATH_UNKNOWN = 0,
+  NUM_SPECIAL_PATHS
+};
+
 class SemanticDictionary : public Dictionary {
  public:
   SemanticDictionary() { token_dictionary_ = NULL; }
@@ -183,6 +193,8 @@ class SemanticDictionary : public Dictionary {
     }
     BuildPredicateRoleNames();
   }
+
+  Pipe *GetPipe() const { return pipe_; }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
   void SetTokenDictionary(TokenDictionary *token_dictionary) {

@@ -102,7 +102,8 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
   for (int r = 0; r < parts->size(); ++r) {
     // Labeled arcs will be treated by looking at the unlabeled arcs and
     // conjoining with the label.
-    if (pruner) CHECK_EQ((*parts)[r]->type(), SEMANTICPART_ARC);
+    if (pruner) CHECK((*parts)[r]->type() == SEMANTICPART_ARC ||
+                      (*parts)[r]->type() == SEMANTICPART_PREDICATE);
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
     if ((*parts)[r]->type() == SEMANTICPART_ARC && !pruner &&
@@ -148,8 +149,9 @@ void SemanticPipe::RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
 
   for (int r = 0; r < parts->size(); ++r) {
     if (!selected_parts[r]) continue;
-    if (pruner) CHECK_EQ((*parts)[r]->type(), SEMANTICPART_ARC);
-    // Skip labeled arcs, are they use the features from unlabeled arcs.
+    if (pruner) CHECK((*parts)[r]->type() == SEMANTICPART_ARC ||
+                      (*parts)[r]->type() == SEMANTICPART_PREDICATE);
+    // Skip labeled arcs, as they use the features from unlabeled arcs.
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
     BinaryFeatures *part_features =
       static_cast<SemanticFeatures*>(features)->GetMutablePartFeatures(r);
@@ -296,13 +298,13 @@ void SemanticPipe::MakeParts(Instance *instance,
   if (make_gold) gold_outputs->clear();
 
   if (train_pruner_) {
-    // For the pruner, make only unlabeled arc-factored parts and compute
-    // indices.
+    // For the pruner, make only unlabeled arc-factored and predicate parts and
+    // compute indices.
     MakePartsBasic(instance, false, parts, gold_outputs);
     semantic_parts->BuildOffsets();
     semantic_parts->BuildIndices(sentence_length, false);
   } else {
-    // Make arc-factored parts and compute indices.
+    // Make arc-factored and predicate parts and compute indices.
     MakePartsBasic(instance, parts, gold_outputs);
     semantic_parts->BuildOffsets();
     semantic_parts->BuildIndices(sentence_length,
@@ -355,6 +357,9 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   bool prune_labels = semantic_options->prune_labels();
   bool prune_distances = semantic_options->prune_distances();
   bool allow_self_loops = semantic_options->allow_self_loops();
+  bool allow_root_predicate = semantic_options->allow_root_predicate();
+  bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
+  bool use_predicate_senses = semantic_options->use_predicate_senses();
   vector<int> allowed_labels;
 
   if (add_labeled_parts && !prune_labels) {
@@ -364,16 +369,67 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
     }
   }
 
+  // Add predicate parts.
   int num_parts_initial = semantic_parts->size();
+  if (!add_labeled_parts) {
+    for (int p = 0; p < sentence_length; ++p) {
+      if (p == 0 && !allow_root_predicate) continue;
+      int lemma_id = TOKEN_UNKNOWN;
+      if (use_predicate_senses) {
+        lemma_id = sentence->GetLemmaId(p);
+        CHECK_GE(lemma_id, 0);
+      }
+      const vector<SemanticPredicate*> *predicates =
+        &semantic_dictionary->GetLemmaPredicates(lemma_id);
+      if (predicates->size() == 0 && allow_unseen_predicates) {
+        predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+      }
+      for (int s = 0; s < predicates->size(); ++s) {
+        Part *part = semantic_parts->CreatePartPredicate(p, s);
+        semantic_parts->push_back(part);
+        if (make_gold) {
+          bool is_gold = false;
+          int k = sentence->FindPredicate(p);
+          if (k >= 0) {
+            int predicate_id = sentence->GetPredicateId(k);
+            if (!use_predicate_senses) {
+              CHECK_EQ((*predicates)[s]->id(), PREDICATE_UNKNOWN);
+            }
+            if (predicate_id < 0 || (*predicates)[s]->id() == predicate_id) {
+              is_gold = true;
+            }
+          }
+          if (is_gold) {
+            gold_outputs->push_back(1.0);
+          } else {
+            gold_outputs->push_back(0.0);
+          }
+        }
+      }
+    }
 
-  for (int p = 1; p < sentence_length; ++p) {
-    int lemma_id = sentence->GetLemmaId(p);
-    const vector<SemanticPredicate*> &predicates =
-      semantic_dictionary->GetLemmaPredicates(lemma_id);
+    // Compute offsets for predicate parts.
+    semantic_parts->SetOffsetPredicate(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
+  }
 
+  // Add unlabeled/labeled arc parts.
+  num_parts_initial = semantic_parts->size();
+  for (int p = 0; p < sentence_length; ++p) {
+    if (p == 0 && !allow_root_predicate) continue;
+    int lemma_id = TOKEN_UNKNOWN;
+    if (use_predicate_senses) {
+      lemma_id = sentence->GetLemmaId(p);
+      CHECK_GE(lemma_id, 0);
+    }
+    const vector<SemanticPredicate*> *predicates =
+      &semantic_dictionary->GetLemmaPredicates(lemma_id);
+    if (predicates->size() == 0 && allow_unseen_predicates) {
+      predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
     for (int a = 1; a < sentence_length; ++a) {
       if (!allow_self_loops && p == a) continue;
-      for (int s = 0; s < predicates.size(); ++s) {
+      for (int s = 0; s < predicates->size(); ++s) {
         if (add_labeled_parts) {
           // If no unlabeled arc is there, just skip it.
           // This happens if that arc was pruned out.
@@ -404,7 +460,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
             GetExistingRoles(predicate_pos_id, argument_pos_id);
           set<int> label_set;
           for (int m = 0; m < allowed_labels.size(); ++m) {
-            if (predicates[s]->HasRole(allowed_labels[m])) {
+            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
               label_set.insert(allowed_labels[m]);
             }
           }
@@ -433,17 +489,23 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
           for (int m = 0; m < allowed_labels.size(); ++m) {
             int role = allowed_labels[m];
-            CHECK(predicates[s]->HasRole(role));
+            CHECK((*predicates)[s]->HasRole(role));
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
             semantic_parts->push_back(part);
             if (make_gold) {
               int k = sentence->FindPredicate(p);
               int l = sentence->FindArc(p, a);
               bool is_gold = false;
+
               if (k >= 0 && l >= 0) {
                 int predicate_id = sentence->GetPredicateId(k);
                 int argument_id = sentence->GetArgumentRoleId(k, l);
-                if (predicates[s]->id() == predicate_id &&
+                if (!use_predicate_senses) {
+                  CHECK_EQ((*predicates)[s]->id(), PREDICATE_UNKNOWN);
+                }
+                if (use_predicate_senses) CHECK_LT(predicate_id, 0);
+                if ((predicate_id < 0 ||
+                     (*predicates)[s]->id() == predicate_id) &&
                     role == argument_id) {
                   is_gold = true;
                 }
@@ -464,7 +526,12 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
             bool is_gold = false;
             if (k >= 0 && l >= 0) {
               int predicate_id = sentence->GetPredicateId(k);
-              if (predicates[s]->id() == predicate_id) is_gold = true;
+              if (!use_predicate_senses) {
+                CHECK_EQ((*predicates)[s]->id(), PREDICATE_UNKNOWN);
+              }
+              if (predicate_id < 0 || (*predicates)[s]->id() == predicate_id) {
+                is_gold = true;
+              }
             }
             if (is_gold) {
               gold_outputs->push_back(1.0);
@@ -477,7 +544,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
     }
   }
 
-  // Compute offsets.
+  // Compute offsets for labeled/unlabeled arcs.
   if (!add_labeled_parts) {
     semantic_parts->SetOffsetArc(num_parts_initial,
         semantic_parts->size() - num_parts_initial);
@@ -569,18 +636,54 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
 
   semantic_features->Initialize(instance, parts);
 
+  // Build features for predicates.
+  int offset, size;
+  semantic_parts->GetOffsetPredicate(&offset, &size);
+  for (int r = offset; r < offset + size; ++r) {
+    if (!selected_parts[r]) continue;
+    SemanticPartPredicate *predicate_part =
+      static_cast<SemanticPartPredicate*>((*semantic_parts)[r]);
+    // Get the predicate id for this part.
+    // TODO(atm): store this somewhere, so that we don't need to recompute this
+    // all the time.
+    int lemma_id = TOKEN_UNKNOWN;
+    if (GetSemanticOptions()->use_predicate_senses()) {
+      lemma_id = sentence->GetLemmaId(predicate_part->predicate());
+    }
+    const vector<SemanticPredicate*> *predicates =
+      &GetSemanticDictionary()->GetLemmaPredicates(lemma_id);
+    if (predicates->size() == 0 &&
+        GetSemanticOptions()->allow_unseen_predicates()) {
+      predicates = &GetSemanticDictionary()->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
+    int predicate_id = (*predicates)[predicate_part->sense()]->id();
+    // Add the predicate features.
+    semantic_features->AddPredicateFeatures(sentence, r,
+                                            predicate_part->predicate(),
+                                            predicate_id);
+  }
+
   // Even in the case of labeled parsing, build features for unlabeled arcs
   // only. They will later be conjoined with the labels.
-  int offset, size;
   semantic_parts->GetOffsetArc(&offset, &size);
   for (int r = offset; r < offset + size; ++r) {
     if (!selected_parts[r]) continue;
     SemanticPartArc *arc =
       static_cast<SemanticPartArc*>((*semantic_parts)[r]);
-    int lemma_id = sentence->GetLemmaId(arc->predicate());
-    const vector<SemanticPredicate*> &predicates =
-      GetSemanticDictionary()->GetLemmaPredicates(lemma_id);
-    int predicate_id = predicates[arc->sense()]->id();
+    // Get the predicate id for this part.
+    // TODO(atm): store this somewhere, so that we don't need to recompute this
+    // all the time. Maybe store this directly in arc->sense()?
+    int lemma_id = TOKEN_UNKNOWN;
+    if (GetSemanticOptions()->use_predicate_senses()) {
+      lemma_id = sentence->GetLemmaId(arc->predicate());
+    }
+    const vector<SemanticPredicate*> *predicates =
+      &GetSemanticDictionary()->GetLemmaPredicates(lemma_id);
+    if (predicates->size() == 0 &&
+        GetSemanticOptions()->allow_unseen_predicates()) {
+      predicates = &GetSemanticDictionary()->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
+    int predicate_id = (*predicates)[arc->sense()]->id();
     semantic_features->AddArcFeatures(sentence, r, arc->predicate(),
                                       arc->argument(),
                                       predicate_id);
@@ -721,10 +824,12 @@ void SemanticPipe::LabelInstance(Parts *parts,
       static_cast<SemanticInstance*>(instance);
   SemanticDictionary *semantic_dictionary =
     static_cast<SemanticDictionary*>(dictionary_);
+  //bool allow_root_predicate = GetSemanticOptions()->allow_root_predicate();
   int instance_length = semantic_instance->size();
   double threshold = 0.5;
   semantic_instance->ClearPredicates();
-  for (int p = 1; p < instance_length; ++p) {
+  for (int p = 0; p < instance_length; ++p) {
+    //if (p == 0 && !allow_root_predicate) continue;
     const vector<int> &senses = semantic_parts->GetSenses(p);
     vector<int> argument_indices;
     vector<string> argument_roles;
@@ -769,12 +874,22 @@ void SemanticPipe::LabelInstance(Parts *parts,
 
     if (predicted_sense >= 0) {
       int s = predicted_sense;
-      int lemma_id = semantic_dictionary->GetTokenDictionary()->
-        GetLemmaId(semantic_instance->GetLemma(p));
-      CHECK_GE(lemma_id, 0);
-      const vector<SemanticPredicate*> &predicates =
-        semantic_dictionary->GetLemmaPredicates(lemma_id);
-      int predicate_id = predicates[s]->id();
+      // Get the predicate id for this part.
+      // TODO(atm): store this somewhere, so that we don't need to recompute this
+      // all the time. Maybe store this directly in arc->sense()?
+      int lemma_id = TOKEN_UNKNOWN;
+      if (GetSemanticOptions()->use_predicate_senses()) {
+        lemma_id = semantic_dictionary->GetTokenDictionary()->
+          GetLemmaId(semantic_instance->GetLemma(p));
+        if (lemma_id < 0) lemma_id = TOKEN_UNKNOWN;
+      }
+      const vector<SemanticPredicate*> *predicates =
+        &GetSemanticDictionary()->GetLemmaPredicates(lemma_id);
+      if (predicates->size() == 0 &&
+          GetSemanticOptions()->allow_unseen_predicates()) {
+        predicates = &GetSemanticDictionary()->GetLemmaPredicates(TOKEN_UNKNOWN);
+      }
+      int predicate_id = (*predicates)[s]->id();
       string predicate_name =
         semantic_dictionary->GetPredicateName(predicate_id);
       semantic_instance->AddPredicate(predicate_name, p, argument_roles,

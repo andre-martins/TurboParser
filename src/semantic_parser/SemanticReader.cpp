@@ -31,6 +31,10 @@ Instance *SemanticReader::GetNext() {
     while (!is_.eof()) {
       getline(is_, line);
       if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
+        //LOG(INFO) << line;
+        continue; // Sentence ID.
+      }
       vector<string> fields;
       StringSplit(line, "\t", &fields);
       sentence_fields.push_back(fields);
@@ -67,33 +71,79 @@ Instance *SemanticReader::GetNext() {
   for(int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
+    int offset = 1;
+    if (!use_sdp_format_) {
+      offset += 4;
+    }
+
     // Use splitted forms.
-    forms[i+1] = info[5];
-    lemmas[i+1] = info[6];
-    cpos[i+1] = info[7];
-    pos[i+1] = info[7];
+    forms[i+1] = info[offset];
+    ++offset;
+    lemmas[i+1] = info[offset];
+    ++offset;
+    cpos[i+1] = info[offset];
+    pos[i+1] = info[offset]; // No distiction between pos and cpos.
+    ++offset;
 
     // No morpho-syntactic information.
     feats[i+1].clear();
 
-    deprels[i+1] = info[9];
-    stringstream ss(info[8]);
+    stringstream ss(info[offset]);
+    ++offset;
     ss >> heads[i+1];
+    deprels[i+1] = info[offset];
+    ++offset;
+
+    if (heads[i+1] < 0 || heads[i+1] > length) {
+      LOG(INFO) << "Invalid value of head (" << heads[i+1]
+                << " not in range [0.." << length
+                << "] - attaching to the root.";
+      heads[i+1] = 0;
+    }
 
     // Semantic role labeling information.
     if (read_semantic_roles) {
-      string predicate_name = info[10];
+      bool is_top = false; // For sdp format only.
+      if (use_sdp_format_) {
+        string top_name = info[offset];
+        ++offset;
+        CHECK(0 == top_name.compare("-") || 0 == top_name.compare("+"));
+        if (0 == top_name.compare("+")) is_top = true;
+      }
+      string predicate_name = info[offset];
+      ++offset;
       bool is_predicate = false;
-      if (0 != predicate_name.compare("_")) is_predicate = true;
-      int offset = 11;
+      if (use_sdp_format_) {
+        CHECK(0 == predicate_name.compare("-") ||
+              0 == predicate_name.compare("+"));
+        if (0 == predicate_name.compare("+")) is_predicate = true;
+      } else {
+        if (0 != predicate_name.compare("_")) is_predicate = true;
+      }
+      if (!use_sdp_format_) CHECK_EQ(offset, 11);
       if (i == 0) {
         // Allocate space for predicates.
         num_predicates = info.size() - offset;
+        // Top nodes will be considered arguments of a special root node.
+        if (use_top_nodes_) ++num_predicates;
         predicate_names.resize(num_predicates);
         predicate_indices.resize(num_predicates);
         argument_roles.resize(num_predicates);
         argument_indices.resize(num_predicates);
         num_predicates = 0;
+        if (use_top_nodes_) {
+          predicate_names[num_predicates] = "__ROOT__";
+          predicate_indices[num_predicates] = 0;
+          ++num_predicates;
+        }
+      }
+
+      if (is_top) {
+        //if (i == 0) {
+        //  LOG(INFO) << "Top: " << i+1;
+        //}
+        argument_roles[0].push_back("__TOP__");
+        argument_indices[0].push_back(i+1);
       }
 
       if (is_predicate) {

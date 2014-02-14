@@ -26,7 +26,8 @@ using namespace std;
 // TODO: Implement the text format.
 DEFINE_string(file_format, "conll",
               "Format of the input file containing the data. Use ""conll"" for "
-              "the format used in CONLL 2008, and ""text"" for tokenized sentences"
+              "the format used in CONLL 2008, ""sdp"" for the format in "
+              "SemEval 2014, and ""text"" for tokenized sentences"
               "(one per line, with tokens separated by white-spaces.");
 DEFINE_string(model_type, "standard",
               "Model type. This a string formed by the one or several of the "
@@ -48,6 +49,16 @@ DEFINE_bool(labeled, true,
             "parser outputs just the backbone dependencies.)");
 DEFINE_bool(allow_self_loops, true,
             "True for allowing self-loops (a predicate being its own argument.)");
+DEFINE_bool(allow_root_predicate, false,
+            "True for allowing the root to be a predicate (useful for handling "
+            "top nodes).)");
+DEFINE_bool(allow_unseen_predicates, false,
+            "True for allowing an unseen predicate to be have a predicate sense "
+            "(assumes --use_predicate_senses=true.)");
+DEFINE_bool(use_predicate_senses, true,
+            "True for using predicate senses (e.g. temperature.01). If false, "
+            "any word can be a predicate and (eventual) sense information will "
+            "be ignored.");
 DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
@@ -110,6 +121,12 @@ void SemanticOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, allow_self_loops_);
   CHECK(success);
+  success = WriteBool(fs, allow_root_predicate_);
+  CHECK(success);
+  success = WriteBool(fs, allow_unseen_predicates_);
+  CHECK(success);
+  success = WriteBool(fs, use_predicate_senses_);
+  CHECK(success);
   success = WriteBool(fs, prune_labels_);
   CHECK(success);
   success = WriteBool(fs, prune_distances_);
@@ -137,6 +154,16 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_allow_self_loops);
   CHECK(success);
   LOG(INFO) << "Setting --allow_self_loops=" << FLAGS_allow_self_loops;
+  success = ReadBool(fs, &FLAGS_allow_root_predicate);
+  CHECK(success);
+  LOG(INFO) << "Setting --allow_root_predicate=" << FLAGS_allow_root_predicate;
+  success = ReadBool(fs, &FLAGS_allow_unseen_predicates);
+  CHECK(success);
+  LOG(INFO) << "Setting --allow_unseen_predicates="
+            << FLAGS_allow_unseen_predicates;
+  success = ReadBool(fs, &FLAGS_use_predicate_senses);
+  CHECK(success);
+  LOG(INFO) << "Setting --use_predicate_senses=" << FLAGS_use_predicate_senses;
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
@@ -183,6 +210,9 @@ void SemanticOptions::Initialize() {
   model_type_ = FLAGS_model_type;
   labeled_ = FLAGS_labeled;
   allow_self_loops_ = FLAGS_allow_self_loops;
+  allow_root_predicate_ = FLAGS_allow_root_predicate;
+  allow_unseen_predicates_ = FLAGS_allow_unseen_predicates;
+  use_predicate_senses_ = FLAGS_use_predicate_senses;
   prune_labels_ = FLAGS_prune_labels;
   prune_distances_ = FLAGS_prune_distances;
   prune_basic_ = FLAGS_prune_basic;

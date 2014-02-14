@@ -23,6 +23,7 @@ struct SemanticFeatureTemplateParts {
   enum types {
     ARC = 0,
     PREDICATE,
+    ARC_PREDICATE,
     NEXTSIBL,
     ALLSIBL,
     GRANDPAR,
@@ -37,7 +38,7 @@ struct SemanticFeatureTemplateParts {
 
 struct SemanticFeatureTemplatePredicate {
   enum types {
-    BIAS = 0,				/* bias */
+    BIAS = 0,  /* bias */
     HP,
     HW,
     HL,

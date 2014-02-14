@@ -27,7 +27,23 @@ model_type=basic # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # make the parser a lot slower.
 train_cost_false_positives=$3
 train_cost_false_negatives=$4
-allow_self_loops=true
+file_format=sdp # conll
+
+if [ "${file_format}" == "sdp" ]
+then
+    allow_self_loops=false
+    allow_root_predicate=true
+    allow_unseen_predicates=false # This should be irrelevant.
+    use_predicate_senses=true
+    formalism=dm
+    subfolder=sdp/${formalism}
+else
+    allow_self_loops=true
+    allow_root_predicate=false
+    allow_unseen_predicates=false
+    use_predicate_senses=true
+    subfolder=srl
+fi
 
 if [ "${model_type}" == "basic" ]
 then
@@ -41,9 +57,9 @@ suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
-path_data=${root_folder}/srl/data/${language} # Folder with the data.
-path_models=${root_folder}/srl/models/${language} # Folder where models are stored.
-path_results=${root_folder}/srl/results/${language} # Folder for the results.
+path_data=${root_folder}/${subfolder}/data/${language} # Folder with the data.
+path_models=${root_folder}/${subfolder}/models/${language} # Folder where models are stored.
+path_results=${root_folder}/${subfolder}/results/${language} # Folder for the results.
 
 # Create folders if they don't exist.
 mkdir -p ${path_data}
@@ -58,11 +74,18 @@ file_pruner_results=${path_results}/${language}_${suffix_pruner}.txt
 
 if [ "$language" == "english" ]
 then
-    file_train=${path_data}/${language}_train.conll2008
-    files_test[0]=${path_data}/${language}_test.conll2008
-    files_test[1]=${path_data}/${language}_devel.conll2008
-    files_test[2]=${path_data}/${language}_test.conll2008.MST
-    files_test[3]=${path_data}/${language}_devel.conll2008.MST
+    if [ "$file_format" == "sdp" ]
+    then
+        file_train=${path_data}/${formalism}_augmented_train.sdp
+        files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
+        files_test[1]=${path_data}/${formalism}_augmented_test.sdp
+    else
+        file_train=${path_data}/${language}_train.conll2008
+        files_test[0]=${path_data}/${language}_test.conll2008
+        files_test[1]=${path_data}/${language}_devel.conll2008
+        files_test[2]=${path_data}/${language}_test.conll2008.MST
+        files_test[3]=${path_data}/${language}_devel.conll2008.MST
+    fi
 else
     file_train=${path_data}/${language}_train.conll2008
     file_test=${path_data}/${language}_test.conll2008
@@ -101,6 +124,10 @@ then
         --train_cost_false_positives=${train_cost_false_positives} \
         --train_cost_false_negatives=${train_cost_false_negatives} \
         --allow_self_loops=${allow_self_loops} \
+        --allow_root_predicate=${allow_root_predicate} \
+        --allow_unseen_predicates=${allow_unseen_predicates} \
+        --use_predicate_senses=${use_predicate_senses} \
+        --file_format=${file_format} \
         --logtostderr
 
     rm -f ${file_pruner_results}
@@ -117,6 +144,7 @@ then
             --file_model=${file_pruner_model} \
             --file_test=${file_test} \
             --file_prediction=${file_pruner_prediction} \
+            --file_format=${file_format} \
             --logtostderr
 
         echo ""
@@ -157,6 +185,10 @@ then
             --train_cost_false_negatives=${train_cost_false_negatives} \
             --model_type=${model_type} \
             --allow_self_loops=${allow_self_loops} \
+            --allow_root_predicate=${allow_root_predicate} \
+            --allow_unseen_predicates=${allow_unseen_predicates} \
+            --use_predicate_senses=${use_predicate_senses} \
+            --file_format=${file_format} \
             --logtostderr
     else
         # Train a pruner along with the parser.
@@ -179,6 +211,10 @@ then
             --pruner_train_algorithm=${train_algorithm_pruner} \
             --pruner_train_regularization_constant=${regularization_parameter_pruner} \
             --allow_self_loops=${allow_self_loops} \
+            --allow_root_predicate=${allow_root_predicate} \
+            --allow_unseen_predicates=${allow_unseen_predicates} \
+            --use_predicate_senses=${use_predicate_senses} \
+            --file_format=${file_format} \
             --logtostderr
     fi
 fi
@@ -209,6 +245,7 @@ then
             --file_model=${file_model} \
             --file_test=${file_test} \
             --file_prediction=${file_prediction} \
+            --file_format=${file_format} \
             --logtostderr
 
         echo ""

@@ -27,13 +27,27 @@ void SemanticWriter::Write(Instance *instance) {
 
   bool write_semantic_roles = true;
   int current_predicate = 0;
+  vector<int> top_nodes;
+  if (use_top_nodes_) {
+    if (semantic_instance->GetNumPredicates() > 0 &&
+        0 == semantic_instance->GetPredicateIndex(0)) {
+      int num_top_nodes = semantic_instance->GetNumArgumentsPredicate(0);
+      top_nodes.resize(num_top_nodes);
+      for (int l = 0; l < num_top_nodes; ++l) {
+        top_nodes[l] = semantic_instance->GetArgumentIndex(0, l);
+      }
+      ++current_predicate; // Skip the root.
+    }
+  }
 
   for (int i = 1; i < semantic_instance->size(); ++i) {
     os_ << i << "\t";
-    os_ << "_" << "\t"; // Change this later
-    os_ << "_" << "\t"; // Change this later
-    os_ << "_" << "\t"; // Change this later
-    os_ << "_" << "\t"; // Change this later
+    if (!use_sdp_format_) {
+      os_ << "_" << "\t"; // Change this later
+      os_ << "_" << "\t"; // Change this later
+      os_ << "_" << "\t"; // Change this later
+      os_ << "_" << "\t"; // Change this later
+    }
     os_ << semantic_instance->GetForm(i) << "\t";
     os_ << semantic_instance->GetLemma(i) << "\t";
     os_ << semantic_instance->GetPosTag(i) << "\t";
@@ -41,13 +55,38 @@ void SemanticWriter::Write(Instance *instance) {
     os_ << semantic_instance->GetDependencyRelation(i) << "\t";
 
     if (write_semantic_roles) {
+      bool is_top_node = false;
+      for (int l = 0; l < top_nodes.size(); ++l) {
+        if (i == top_nodes[l]) {
+          is_top_node = true;
+          break;
+        }
+      }
+      if (use_sdp_format_) {
+        if (is_top_node) {
+          os_ << '+' << "\t";
+        } else {
+          os_ << '-' << "\t";
+        }
+      }
+
+      bool is_predicate_node = false;
       string predicate_name = "_";
       if (current_predicate < semantic_instance->GetNumPredicates() &&
           i == semantic_instance->GetPredicateIndex(current_predicate)) {
+        is_predicate_node = true;
         predicate_name = semantic_instance->GetPredicateName(current_predicate);
         ++current_predicate;
       }
-      os_ << predicate_name << "\t";
+      if (use_sdp_format_) {
+        if (is_predicate_node) {
+          os_ << '+' << "\t";
+        } else {
+          os_ << '-' << "\t";
+        }
+      } else {
+        os_ << predicate_name << "\t";
+      }
       for (int k = 0; k < semantic_instance->GetNumPredicates(); ++k) {
         string argument_name = "_";
         for (int l = 0; l < semantic_instance->GetNumArgumentsPredicate(k); ++l) {

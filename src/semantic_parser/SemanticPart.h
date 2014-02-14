@@ -26,9 +26,9 @@
 using namespace std;
 
 enum {
-  SEMANTICPART_ARC = 0,
+  SEMANTICPART_PREDICATE = 0,
+  SEMANTICPART_ARC,
   SEMANTICPART_LABELEDARC,
-  SEMANTICPART_PREDICATE,
   SEMANTICPART_ARGUMENT,
   SEMANTICPART_SIBLING,
   NUM_SEMANTICPARTS
@@ -84,19 +84,21 @@ class SemanticPartLabeledArc : public Part {
 // Part for the event that a word is a predicate.
 class SemanticPartPredicate : public Part {
  public:
-  SemanticPartPredicate() { p_ = -1; }
-  SemanticPartPredicate(int predicate) :
-    p_(predicate) {}
+  SemanticPartPredicate() { p_ = -1; s_ = -1; }
+  SemanticPartPredicate(int predicate, int sense) :
+    p_(predicate), s_(sense) {}
   virtual ~SemanticPartPredicate() {}
 
  public:
   int predicate() { return p_; }
+  int sense() { return s_; }
 
  public:
   int type() { return SEMANTICPART_PREDICATE; }
 
  private:
-  int p_; // Index of the argument.
+  int p_; // Index of the predicate.
+  int s_; // Index of the sense.
 };
 
 
@@ -162,8 +164,8 @@ class SemanticParts : public Parts {
   Part *CreatePartLabeledArc(int predicate, int argument, int sense, int role) {
     return new SemanticPartLabeledArc(predicate, argument, sense, role);
   }
-  Part *CreatePartPredicate(int predicate) {
-    return new SemanticPartPredicate(predicate);
+  Part *CreatePartPredicate(int predicate, int sense) {
+    return new SemanticPartPredicate(predicate, sense);
   }
   Part *CreatePartArgument(int argument) {
     return new SemanticPartArgument(argument);
@@ -207,22 +209,25 @@ class SemanticParts : public Parts {
     return index_labeled_[predicate][argument][sense];
   }
 
-  // True is model is arc-factored, i.e., all parts are unlabeled arcs.
+  // True is model is arc-factored, i.e., all parts are predicate parts or
+  // unlabeled arcs.
   // TODO: change this to incorporate predicate parts.
   bool IsArcFactored() {
-    int offset, num_arcs;
+    int offset, num_predicate_parts, num_arcs;
+    GetOffsetPredicate(&offset, &num_predicate_parts);
     GetOffsetArc(&offset, &num_arcs);
-    return (num_arcs == size());
+    return (num_predicate_parts + num_arcs == size());
   }
 
   // True is model is arc-factored, i.e., all parts are unlabeled and labeled
   // arcs.
   // TODO: change this to incorporate predicate parts.
   bool IsLabeledArcFactored() {
-    int offset, num_arcs, num_labeled_arcs;
+    int offset, num_predicate_parts, num_arcs, num_labeled_arcs;
+    GetOffsetPredicate(&offset, &num_predicate_parts);
     GetOffsetArc(&offset, &num_arcs);
     GetOffsetLabeledArc(&offset, &num_labeled_arcs);
-    return (num_arcs + num_labeled_arcs == size());
+    return (num_predicate_parts + num_arcs + num_labeled_arcs == size());
   }
 
   // Set/Get offsets:

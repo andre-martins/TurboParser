@@ -46,6 +46,7 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   int offset_arcs, num_arcs;
 
+  // TODO(atm): make it possible to penalize wrong predicate parts as well?
   if (pipe_->GetSemanticOptions()->labeled()) {
     semantic_parts->GetOffsetLabeledArc(&offset_arcs, &num_arcs);
   } else {
@@ -388,8 +389,12 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
   int sentence_length =
     static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int offset_predicate_parts, num_predicate_parts;
   int offset_arcs, num_arcs;
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
   semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+
   vector<SemanticPartArc*> arcs(num_arcs);
   vector<double> scores_arcs(num_arcs);
   for (int r = 0; r < num_arcs; ++r) {
@@ -408,7 +413,24 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
     arcs_by_predicate[p][s].push_back(r);
   }
 
+  vector<double> scores_predicates(num_predicate_parts);
+  vector<vector<int> > index_predicates(sentence_length);
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    scores_predicates[r] = scores[offset_predicate_parts + r];
+    SemanticPartPredicate *predicate_part =
+      static_cast<SemanticPartPredicate*>((*parts)[offset_predicate_parts + r]);
+    int p = predicate_part->predicate();
+    int s = predicate_part->sense();
+    if (s >= index_predicates[p].size()) {
+      index_predicates[p].resize(s+1, -1);
+    }
+    index_predicates[p][s] = r;
+  }
+
   predicted_output->resize(parts->size());
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    (*predicted_output)[offset_predicate_parts + r] = 0.0;
+  }
   for (int r = 0; r < num_arcs; ++r) {
     (*predicted_output)[offset_arcs + r] = 0.0;
   }
@@ -423,7 +445,8 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
       // Compute the best assignment of arcs departing from this
       // predicate word.
       selected_arcs[s].resize(arcs_by_predicate[p][s].size());
-      double score = 0.0;
+      int r = index_predicates[p][s];
+      double score = scores_predicates[r];
       for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
         int r = arcs_by_predicate[p][s][k];
         if (scores_arcs[r] > 0.0) {
@@ -441,6 +464,9 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
     if (best_sense >= 0) {
       total_score += best_score;
       int s = best_sense;
+      int r = index_predicates[p][s];
+      CHECK_GE(r, 0);
+      (*predicted_output)[offset_predicate_parts + r] = 1.0;
       for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
         if (!selected_arcs[s][k]) continue;
         int r = arcs_by_predicate[p][s][k];
