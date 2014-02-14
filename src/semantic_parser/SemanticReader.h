@@ -38,6 +38,15 @@ class SemanticReader : public DependencyReader {
   virtual ~SemanticReader() {}
 
  public:
+  void UseTopNodes(bool use_top_nodes) { use_top_nodes_ = use_top_nodes; }
+  void SetFormat(const string &format) {
+    if (format == "sdp") {
+      use_sdp_format_ = true;
+    } else {
+      use_sdp_format_ = false;
+    }
+  }
+
   Instance *GetNext();
 
  protected:

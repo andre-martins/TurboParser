@@ -21,10 +21,18 @@
 
 // Special symbols.
 const string kPredicateUnknown = "_UNKNOWN_.01"; // Unknown predicate.
+const string kPathUnknown = "_UNKNOWN_"; // Unknown path.
 
 // Maximum alphabet sizes.
 const unsigned int kMaxPredicateAlphabetSize = 0xffff;
 const unsigned int kMaxRoleAlphabetSize = 0xffff;
+const unsigned int kMaxRelationPathAlphabetSize = 0xffff;
+const unsigned int kMaxPosPathAlphabetSize = 0xffff;
+
+DEFINE_int32(relation_path_cutoff, 0,
+             "Ignore relation paths whose frequency is less than this.");
+DEFINE_int32(pos_path_cutoff, 0,
+             "Ignore relation paths whose frequency is less than this.");
 
 void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader) {
   LOG(INFO) << "Creating predicate and role dictionaries...";
@@ -38,7 +46,6 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
 
   string special_symbols[NUM_SPECIAL_PREDICATES];
   special_symbols[PREDICATE_UNKNOWN] = kPredicateUnknown;
-
   for (int i = 0; i < NUM_SPECIAL_PREDICATES; ++i) {
     predicate_alphabet_.Insert(special_symbols[i]);
 
@@ -134,6 +141,24 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   CHECK_LT(predicate_alphabet_.size(), kMaxPredicateAlphabetSize);
   CHECK_LT(role_alphabet_.size(), kMaxRoleAlphabetSize);
 
+
+  // Prepare alphabets for dependency paths (relations and POS).
+  vector<int> relation_path_freqs;
+  Alphabet relation_path_alphabet;
+  vector<int> pos_path_freqs;
+  Alphabet pos_path_alphabet;
+
+  string special_path_symbols[NUM_SPECIAL_PATHS];
+  special_path_symbols[PATH_UNKNOWN] = kPathUnknown;
+  for (int i = 0; i < NUM_SPECIAL_PATHS; ++i) {
+    relation_path_alphabet.Insert(special_path_symbols[i]);
+    pos_path_alphabet.Insert(special_path_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    relation_path_freqs.push_back(-1);
+    pos_path_freqs.push_back(-1);
+  }
+
   // Go through the corpus and build the existing labels for each head-modifier
   // POS pair.
   existing_roles_.clear();
@@ -200,19 +225,69 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         string relation_path;
         string pos_path;
         ComputeDependencyPath(instance, p, a, &relation_path, &pos_path);
-        int relation_path_id = relation_path_alphabet_.Insert(relation_path);
-        int pos_path_id = pos_path_alphabet_.Insert(pos_path);
+        id = relation_path_alphabet.Insert(relation_path);
+        if (id >= relation_path_freqs.size()) {
+          CHECK_EQ(id, relation_path_freqs.size());
+          relation_path_freqs.push_back(0);
+        }
+        ++relation_path_freqs[id];
+        id = pos_path_alphabet.Insert(pos_path);
+        if (id >= pos_path_freqs.size()) {
+          CHECK_EQ(id, pos_path_freqs.size());
+          pos_path_freqs.push_back(0);
+        }
+        ++pos_path_freqs[id];
       }
     }
     delete instance;
     instance = static_cast<SemanticInstance*>(reader->GetNext());
   }
   reader->Close();
+
+  // Now adjust the cutoffs if necessary.
+  int relation_path_cutoff = FLAGS_relation_path_cutoff;
+  while (true) {
+    relation_path_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_PATHS; ++i) {
+      relation_path_alphabet_.Insert(special_path_symbols[i]);
+    }
+    for (Alphabet::iterator iter = relation_path_alphabet.begin();
+         iter != relation_path_alphabet.end();
+         ++iter) {
+      if (relation_path_freqs[iter->second] > relation_path_cutoff) {
+        relation_path_alphabet_.Insert(iter->first);
+      }
+    }
+    if (relation_path_alphabet_.size() < kMaxRelationPathAlphabetSize) break;
+    ++relation_path_cutoff;
+    LOG(INFO) << "Incrementing relation path cutoff to "
+              << relation_path_cutoff << "...";
+  }
+
+  int pos_path_cutoff = FLAGS_pos_path_cutoff;
+  while (true) {
+    pos_path_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_PATHS; ++i) {
+      pos_path_alphabet_.Insert(special_path_symbols[i]);
+    }
+    for (Alphabet::iterator iter = pos_path_alphabet.begin();
+         iter != pos_path_alphabet.end();
+         ++iter) {
+      if (pos_path_freqs[iter->second] > pos_path_cutoff) {
+        pos_path_alphabet_.Insert(iter->first);
+      }
+    }
+    if (pos_path_alphabet_.size() < kMaxPosPathAlphabetSize) break;
+    ++pos_path_cutoff;
+    LOG(INFO) << "Incrementing pos path cutoff to "
+              << pos_path_cutoff << "...";
+  }
+
   relation_path_alphabet_.StopGrowth();
   pos_path_alphabet_.StopGrowth();
 
-  CHECK_LT(relation_path_alphabet_.size(), 0xffff);
-  CHECK_LT(pos_path_alphabet_.size(), 0xffff);
+  CHECK_LT(relation_path_alphabet_.size(), kMaxRelationPathAlphabetSize);
+  CHECK_LT(pos_path_alphabet_.size(), kMaxPosPathAlphabetSize);
 
   LOG(INFO) << "Number of predicates: " << predicate_alphabet_.size();
   LOG(INFO) << "Number of roles: " << role_alphabet_.size();

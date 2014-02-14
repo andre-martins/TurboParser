@@ -75,8 +75,26 @@ class SemanticPipe : public Pipe {
     GetSemanticDictionary()->SetTokenDictionary(token_dictionary_);
     GetSemanticDictionary()->SetDependencyDictionary(dependency_dictionary_);
   }
-  void CreateReader() { reader_ = new SemanticReader; }
-  void CreateWriter() { writer_ = new SemanticWriter; }
+  void CreateReader() {
+    reader_ = new SemanticReader;
+    if (GetSemanticOptions()->allow_root_predicate()) {
+      static_cast<SemanticReader*>(reader_)->UseTopNodes(true);
+    } else {
+      static_cast<SemanticReader*>(reader_)->UseTopNodes(false);
+    }
+    const string &format = GetSemanticOptions()->file_format();
+    static_cast<SemanticReader*>(reader_)->SetFormat(format);
+  }
+  void CreateWriter() {
+    writer_ = new SemanticWriter;
+    if (GetSemanticOptions()->allow_root_predicate()) {
+      static_cast<SemanticWriter*>(writer_)->UseTopNodes(true);
+    } else {
+      static_cast<SemanticWriter*>(writer_)->UseTopNodes(false);
+    }
+    const string &format = GetSemanticOptions()->file_format();
+    static_cast<SemanticWriter*>(writer_)->SetFormat(format);
+  }
   void CreateDecoder() { decoder_ = new SemanticDecoder(this); }
   Parts *CreateParts() { return new SemanticParts; }
   Features *CreateFeatures() { return new SemanticFeatures(this); }

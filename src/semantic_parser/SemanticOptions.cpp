@@ -26,7 +26,8 @@ using namespace std;
 // TODO: Implement the text format.
 DEFINE_string(file_format, "conll",
               "Format of the input file containing the data. Use ""conll"" for "
-              "the format used in CONLL 2008, and ""text"" for tokenized sentences"
+              "the format used in CONLL 2008, ""sdp"" for the format in "
+              "SemEval 2014, and ""text"" for tokenized sentences"
               "(one per line, with tokens separated by white-spaces.");
 DEFINE_string(model_type, "standard",
               "Model type. This a string formed by the one or several of the "

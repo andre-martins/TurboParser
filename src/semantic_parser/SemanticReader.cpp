@@ -31,6 +31,10 @@ Instance *SemanticReader::GetNext() {
     while (!is_.eof()) {
       getline(is_, line);
       if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
+        //LOG(INFO) << line;
+        continue; // Sentence ID.
+      }
       vector<string> fields;
       StringSplit(line, "\t", &fields);
       sentence_fields.push_back(fields);
@@ -90,6 +94,13 @@ Instance *SemanticReader::GetNext() {
     deprels[i+1] = info[offset];
     ++offset;
 
+    if (heads[i+1] < 0 || heads[i+1] > length) {
+      LOG(INFO) << "Invalid value of head (" << heads[i+1]
+                << " not in range [0.." << length
+                << "] - attaching to the root.";
+      heads[i+1] = 0;
+    }
+
     // Semantic role labeling information.
     if (read_semantic_roles) {
       bool is_top = false; // For sdp format only.
@@ -128,6 +139,9 @@ Instance *SemanticReader::GetNext() {
       }
 
       if (is_top) {
+        //if (i == 0) {
+        //  LOG(INFO) << "Top: " << i+1;
+        //}
         argument_roles[0].push_back("__TOP__");
         argument_indices[0].push_back(i+1);
       }

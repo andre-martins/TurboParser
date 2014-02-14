@@ -72,6 +72,8 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
     for (int i = 1; i < instance_length; ++i) {
       int id;
       int head = instance->GetHead(i);
+      CHECK_GE(head, 0);
+      CHECK_LT(head, instance_length);
       const string &modifier_pos = instance->GetPosTag(i);
       const string &head_pos = instance->GetPosTag(head);
       int modifier_pos_id = token_dictionary_->GetPosTagId(modifier_pos);

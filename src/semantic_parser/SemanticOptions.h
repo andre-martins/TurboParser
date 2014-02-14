@@ -39,6 +39,7 @@ class SemanticOptions : public Options {
   void CopyPrunerFlags();
 
   // Get option values.
+  const string &file_format() { return file_format_; }
   bool labeled() { return labeled_; }
   bool allow_self_loops() { return allow_self_loops_; }
   bool allow_root_predicate() { return allow_root_predicate_; }
