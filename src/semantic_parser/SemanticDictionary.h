@@ -189,6 +189,8 @@ class SemanticDictionary : public Dictionary {
     BuildPredicateRoleNames();
   }
 
+  Pipe *GetPipe() const { return pipe_; }
+
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
   void SetTokenDictionary(TokenDictionary *token_dictionary) {
     token_dictionary_ = token_dictionary;

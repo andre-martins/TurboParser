@@ -30,12 +30,19 @@ using namespace std;
 // builds all necessary dictionaries given a set of dependency
 // instances.
 class SemanticReader : public DependencyReader {
-public:
-  SemanticReader() {};
-  virtual ~SemanticReader() {};
+ public:
+  SemanticReader() {
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  virtual ~SemanticReader() {}
 
-public:
+ public:
   Instance *GetNext();
+
+ protected:
+  bool use_sdp_format_;
+  bool use_top_nodes_;
 };
 
 #endif /* SEMANTICREADER_H_ */

@@ -26,11 +26,18 @@ using namespace std;
 
 class SemanticWriter : public DependencyWriter {
 public:
-  SemanticWriter() {};
-  virtual ~SemanticWriter() {};
+  SemanticWriter() {
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  virtual ~SemanticWriter() {}
 
 public:
   void Write(Instance *instance);
+
+ protected:
+  bool use_sdp_format_;
+  bool use_top_nodes_;
 };
 
 #endif /* SEMANTICWRITER_H_ */

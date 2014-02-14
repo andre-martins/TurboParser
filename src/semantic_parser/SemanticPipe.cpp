@@ -503,6 +503,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
                 if (!use_predicate_senses) {
                   CHECK_EQ((*predicates)[s]->id(), PREDICATE_UNKNOWN);
                 }
+                if (use_predicate_senses) CHECK_LT(predicate_id, 0);
                 if ((predicate_id < 0 ||
                      (*predicates)[s]->id() == predicate_id) &&
                     role == argument_id) {

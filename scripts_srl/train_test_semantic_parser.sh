@@ -29,8 +29,8 @@ train_cost_false_positives=$3
 train_cost_false_negatives=$4
 allow_self_loops=true
 allow_root_predicate=false
-allow_unseen_predicates=true # false
-use_predicate_senses=true
+allow_unseen_predicates=false
+use_predicate_senses=false
 
 if [ "${model_type}" == "basic" ]
 then

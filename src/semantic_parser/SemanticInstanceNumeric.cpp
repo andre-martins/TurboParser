@@ -17,7 +17,7 @@
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticInstanceNumeric.h"
-//#include "DependencyDictionary.h"
+#include "SemanticPipe.h"
 #include <iostream>
 #include <algorithm>
 
@@ -36,6 +36,8 @@ void SemanticInstanceNumeric::Initialize(
     dictionary.GetDependencyDictionary();
   DependencyInstance *dependency_instance =
     static_cast<DependencyInstance*>(instance);
+  SemanticOptions *options =
+    static_cast<SemanticPipe*>(dictionary.GetPipe())->GetSemanticOptions();
 
   Clear();
 
@@ -48,10 +50,13 @@ void SemanticInstanceNumeric::Initialize(
   argument_role_ids_.resize(num_predicates);
   argument_indices_.resize(num_predicates);
   for (int k = 0; k < instance->GetNumPredicates(); k++) {
-    const string &name = instance->GetPredicateName(k);
-    int id = dictionary.GetPredicateAlphabet().Lookup(name);
-    CHECK_LT(id, 0xffff);
-    if (id < 0) id = kUnknownPredicate;
+    int id = -1;
+    if (options->use_predicate_senses()) {
+      const string &name = instance->GetPredicateName(k);
+      int id = dictionary.GetPredicateAlphabet().Lookup(name);
+      CHECK_LT(id, 0xffff);
+      if (id < 0) id = kUnknownPredicate;
+    }
     predicate_ids_[k] = id;
     predicate_indices_[k] = instance->GetPredicateIndex(k);
 

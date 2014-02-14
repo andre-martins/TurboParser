@@ -111,7 +111,10 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   bool allow_unseen_predicates =
     static_cast<SemanticPipe*>(pipe_)->GetSemanticOptions()->
        allow_unseen_predicates();
-  if (allow_unseen_predicates) {
+  bool use_predicate_senses =
+    static_cast<SemanticPipe*>(pipe_)->GetSemanticOptions()->
+       use_predicate_senses();
+  if (allow_unseen_predicates || !use_predicate_senses) {
     // 1) Add the predicate as the singleton list of lemma predicates for the
     // "unknown" lemma.
     std::vector<SemanticPredicate*> *predicates =
