@@ -35,7 +35,8 @@ then
     prune=false
 fi
 
-suffix=parser_pruned-${prune}_model-${model_type}
+#suffix=parser_pruned-${prune}_model-${model_type}
+suffix=parser_pruned-${prune}_model-${model_type}_C-${regularization_parameter}
 suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
 
 # Set path folders.
