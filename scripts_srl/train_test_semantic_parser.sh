@@ -37,6 +37,7 @@ then
     use_predicate_senses=true
     formalism=dm
     subfolder=sdp/${formalism}
+    folder_path_sdp_eval=~/sdp
 else
     allow_self_loops=true
     allow_root_predicate=false
@@ -150,9 +151,18 @@ then
         echo ""
         echo "Evaluating pruner..."
         touch ${file_pruner_results}
-        perl eval08.pl -q -g ${file_test} -s ${file_pruner_prediction} | grep -A7 'SEMANTIC SCORES:' \
-            >> ${file_pruner_results}
-        cat ${file_pruner_results}
+
+	if [ "$file_format" == "sdp" ]
+	then
+	    python remove_augmented.py ${file_pruner_prediction} > ${file_pruner_prediction}.unaugmented
+	    sh ${folder_path_sdp_eval}/run.sh Evaluator ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented \
+		>> ${file_pruner_results}
+            cat ${file_pruner_results}
+	else
+            perl eval08.pl -q -g ${file_test} -s ${file_pruner_prediction} | grep -A7 'SEMANTIC SCORES:' \
+		>> ${file_pruner_results}
+            cat ${file_pruner_results}
+	fi
     done
 fi
 
@@ -251,8 +261,17 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        perl eval08.pl -q -g ${file_test} -s ${file_prediction} | grep -A7 'SEMANTIC SCORES:' \
-            >> ${file_results}
-        cat ${file_results}
+
+	if [ "$file_format" == "sdp" ]
+	then
+	    python remove_augmented.py ${file_prediction} > ${file_prediction}.unaugmented
+	    sh ${folder_path_sdp_eval}/run.sh Evaluator ${file_test}.unaugmented ${file_prediction}.unaugmented \
+		>> ${file_results}
+            cat ${file_results}
+	else
+            perl eval08.pl -q -g ${file_test} -s ${file_prediction} | grep -A7 'SEMANTIC SCORES:' \
+		>> ${file_results}
+            cat ${file_results}
+	fi
     done
 fi
