@@ -18,7 +18,8 @@
 
 #include "SemanticInstance.h"
 
-void SemanticInstance::Initialize(const vector<string> &forms,
+void SemanticInstance::Initialize(const string &name,
+                                  const vector<string> &forms,
                                   const vector<string> &lemmas,
                                   const vector<string> &cpos,
                                   const vector<string> &pos,
@@ -31,6 +32,7 @@ void SemanticInstance::Initialize(const vector<string> &forms,
                                   const vector<vector<int> > &argument_indices) {
   DependencyInstance::Initialize(forms, lemmas, cpos, pos, feats, deprels,
                                  heads);
+  name_ = name;
   predicate_names_ = predicate_names;
   predicate_indices_ = predicate_indices;
   argument_roles_ = argument_roles;

@@ -31,14 +31,15 @@ class SemanticInstance : public DependencyInstance {
 
   Instance* Copy() {
     SemanticInstance* instance = new SemanticInstance();
-    instance->Initialize(forms_, lemmas_, cpostags_, postags_,
+    instance->Initialize(name_, forms_, lemmas_, cpostags_, postags_,
                          feats_, deprels_, heads_,
                          predicate_names_, predicate_indices_,
                          argument_roles_, argument_indices_);
     return static_cast<Instance*>(instance);
   }
 
-  void Initialize(const vector<string> &forms,
+  void Initialize(const string &name,
+                  const vector<string> &forms,
                   const vector<string> &lemmas,
                   const vector<string> &cpos,
                   const vector<string> &pos,
@@ -50,6 +51,7 @@ class SemanticInstance : public DependencyInstance {
                   const vector<vector<string> > &argument_roles,
                   const vector<vector<int> > &argument_indices);
 
+  const string &GetName() { return name_; }
   int GetNumPredicates() { return predicate_names_.size(); }
   const string &GetPredicateName(int k) { return predicate_names_[k]; }
   int GetPredicateIndex(int k) { return predicate_indices_[k]; }
@@ -79,7 +81,9 @@ class SemanticInstance : public DependencyInstance {
   }
 
  protected:
-  // Names of the predicates (e.g. "take.01")
+  // Name of the sentence (e.g. "#2000001").
+  string name_;
+  // Names of the predicates (e.g. "take.01").
   vector<string> predicate_names_;
   // Positions of each predicate in the sentence.
   vector<int> predicate_indices_;

@@ -17,6 +17,7 @@
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticReader.h"
+#include "SemanticOptions.h"
 #include "Utils.h"
 #include <iostream>
 #include <sstream>
@@ -24,7 +25,18 @@
 using namespace std;
 
 Instance *SemanticReader::GetNext() {
+  SemanticOptions *semantic_options =
+    static_cast<SemanticOptions*>(options_);
+  if (semantic_options->allow_root_predicate()) {
+    UseTopNodes(true);
+  } else {
+    UseTopNodes(false);
+  }
+  const string &format = semantic_options->file_format();
+  SetFormat(format);
+
   // Fill all fields for the entire sentence.
+  string name = "";
   vector<vector<string> > sentence_fields;
   string line;
   if (is_.is_open()) {
@@ -33,6 +45,7 @@ Instance *SemanticReader::GetNext() {
       if (line.length() <= 0) break;
       if (0 == line.substr(0, 1).compare("#")) {
         //LOG(INFO) << line;
+        name = line;
         continue; // Sentence ID.
       }
       vector<string> fields;
@@ -96,7 +109,7 @@ Instance *SemanticReader::GetNext() {
 
     if (heads[i+1] < 0 || heads[i+1] > length) {
       LOG(INFO) << "Invalid value of head (" << heads[i+1]
-                << " not in range [0.." << length
+                << ") not in range [0.." << length
                 << "] - attaching to the root.";
       heads[i+1] = 0;
     }
@@ -158,6 +171,7 @@ Instance *SemanticReader::GetNext() {
         if (0 != argument_role.compare("_")) is_argument = true;
         if (is_argument) {
           int k = j - offset;
+          if (use_top_nodes_) ++k;
           argument_roles[k].push_back(argument_role);
           argument_indices[k].push_back(i+1);
         }
@@ -170,7 +184,7 @@ Instance *SemanticReader::GetNext() {
   SemanticInstance *instance = NULL;
   if (length > 0) {
     instance = new SemanticInstance;
-    instance->Initialize(forms, lemmas, cpos, pos, feats, deprels, heads,
+    instance->Initialize(name, forms, lemmas, cpos, pos, feats, deprels, heads,
                          predicate_names, predicate_indices, argument_roles,
                          argument_indices);
   }

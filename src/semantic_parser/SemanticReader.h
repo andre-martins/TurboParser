@@ -21,6 +21,7 @@
 
 #include "SemanticInstance.h"
 #include "DependencyReader.h"
+#include "Options.h"
 #include <fstream>
 
 using namespace std;
@@ -32,6 +33,12 @@ using namespace std;
 class SemanticReader : public DependencyReader {
  public:
   SemanticReader() {
+    options_ = NULL;
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  SemanticReader(Options *options) {
+    options_ = options;
     use_sdp_format_ = false;
     use_top_nodes_ = false;
   }
@@ -50,6 +57,7 @@ class SemanticReader : public DependencyReader {
   Instance *GetNext();
 
  protected:
+  Options *options_;
   bool use_sdp_format_;
   bool use_top_nodes_;
 };

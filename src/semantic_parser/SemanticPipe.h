@@ -76,24 +76,10 @@ class SemanticPipe : public Pipe {
     GetSemanticDictionary()->SetDependencyDictionary(dependency_dictionary_);
   }
   void CreateReader() {
-    reader_ = new SemanticReader;
-    if (GetSemanticOptions()->allow_root_predicate()) {
-      static_cast<SemanticReader*>(reader_)->UseTopNodes(true);
-    } else {
-      static_cast<SemanticReader*>(reader_)->UseTopNodes(false);
-    }
-    const string &format = GetSemanticOptions()->file_format();
-    static_cast<SemanticReader*>(reader_)->SetFormat(format);
+    reader_ = new SemanticReader(options_);
   }
   void CreateWriter() {
-    writer_ = new SemanticWriter;
-    if (GetSemanticOptions()->allow_root_predicate()) {
-      static_cast<SemanticWriter*>(writer_)->UseTopNodes(true);
-    } else {
-      static_cast<SemanticWriter*>(writer_)->UseTopNodes(false);
-    }
-    const string &format = GetSemanticOptions()->file_format();
-    static_cast<SemanticWriter*>(writer_)->SetFormat(format);
+    writer_ = new SemanticWriter(options_);
   }
   void CreateDecoder() { decoder_ = new SemanticDecoder(this); }
   Parts *CreateParts() { return new SemanticParts; }
@@ -243,6 +229,12 @@ class SemanticPipe : public Pipe {
           if (predicted_outputs[r] >= 0.5) {
             CHECK_EQ(predicted_outputs[r], 1.0);
             ++num_predicted_unlabeled_arcs_;
+
+            //LOG(INFO) << semantic_instance->GetForm(a)
+            //          << " <-- "
+            //          << semantic_instance->GetForm(p);
+
+
           }
           if (GetSemanticOptions()->labeled()) {
             const vector<int> &labeled_arcs =
@@ -255,6 +247,11 @@ class SemanticPipe : public Pipe {
                 CHECK_EQ(gold_outputs[r], 1.0);
                 if (NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
                   ++num_matched_labeled_arcs_;
+
+                  //LOG(INFO) << semantic_instance->GetForm(a)
+                  //          << " <-*- "
+                  //          << semantic_instance->GetForm(p);
+
                 }
                 ++num_gold_labeled_arcs;
               }

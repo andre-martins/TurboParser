@@ -20,6 +20,7 @@
 #define SEMANTICWRITER_H_
 
 #include "DependencyWriter.h"
+#include "Options.h"
 #include <fstream>
 
 using namespace std;
@@ -27,6 +28,12 @@ using namespace std;
 class SemanticWriter : public DependencyWriter {
 public:
   SemanticWriter() {
+    options_ = NULL;
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  SemanticWriter(Options *options) {
+    options_ = options;
     use_sdp_format_ = false;
     use_top_nodes_ = false;
   }
@@ -44,6 +51,7 @@ public:
   void Write(Instance *instance);
 
  protected:
+  Options *options_;
   bool use_sdp_format_;
   bool use_top_nodes_;
 };

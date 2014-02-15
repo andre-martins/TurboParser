@@ -18,15 +18,30 @@
 
 #include "SemanticWriter.h"
 #include "SemanticInstance.h"
+#include "SemanticOptions.h"
+#include "Utils.h"
 #include <iostream>
 #include <sstream>
 
 void SemanticWriter::Write(Instance *instance) {
   SemanticInstance *semantic_instance =
     static_cast<SemanticInstance*>(instance);
+  SemanticOptions *semantic_options =
+    static_cast<SemanticOptions*>(options_);
+  if (semantic_options->allow_root_predicate()) {
+    UseTopNodes(true);
+  } else {
+    UseTopNodes(false);
+  }
+  const string &format = semantic_options->file_format();
+  SetFormat(format);
+
+  if (semantic_instance->GetName() != "") {
+    os_ << semantic_instance->GetName() << endl;
+  }
 
   bool write_semantic_roles = true;
-  int current_predicate = 0;
+  int first_predicate = 0;
   vector<int> top_nodes;
   if (use_top_nodes_) {
     if (semantic_instance->GetNumPredicates() > 0 &&
@@ -36,10 +51,11 @@ void SemanticWriter::Write(Instance *instance) {
       for (int l = 0; l < num_top_nodes; ++l) {
         top_nodes[l] = semantic_instance->GetArgumentIndex(0, l);
       }
-      ++current_predicate; // Skip the root.
+      ++first_predicate; // Skip the root.
     }
   }
 
+  int current_predicate = first_predicate;
   for (int i = 1; i < semantic_instance->size(); ++i) {
     os_ << i << "\t";
     if (!use_sdp_format_) {
@@ -87,10 +103,16 @@ void SemanticWriter::Write(Instance *instance) {
       } else {
         os_ << predicate_name << "\t";
       }
-      for (int k = 0; k < semantic_instance->GetNumPredicates(); ++k) {
+      for (int k = first_predicate;
+           k < semantic_instance->GetNumPredicates();
+           ++k) {
         string argument_name = "_";
         for (int l = 0; l < semantic_instance->GetNumArgumentsPredicate(k); ++l) {
           if (i == semantic_instance->GetArgumentIndex(k, l)) {
+            int p = semantic_instance->GetPredicateIndex(k);
+            //LOG(INFO) << semantic_instance->GetForm(i)
+            //          << " <- "
+            //          << semantic_instance->GetForm(p);
             argument_name = semantic_instance->GetArgumentRole(k, l);
           }
         }
