@@ -15,7 +15,7 @@ regularization_parameter_pruner=1e12 # Same for the pruner.
 train=true
 test=true
 prune=true # This will revert to false if model_type=basic.
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true #false # If true, the pruner is trained separately.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
@@ -47,8 +47,8 @@ fi
 
 if [ "${model_type}" == "basic" ]
 then
-    echo "Reverting prune to false..."
-    prune=false
+    #echo "Reverting prune to false..."
+    #prune=false
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}

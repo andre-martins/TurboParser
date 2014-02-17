@@ -39,6 +39,10 @@ class SemanticDecoder : public Decoder {
               const vector<double> &scores,
               vector<double> *predicted_output);
 
+  void DecodePrunerNaive(Instance *instance, Parts *parts,
+                         const vector<double> &scores,
+                         vector<double> *predicted_output);
+
   void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const vector<double> &scores,
                            const vector<double> &gold_output,
