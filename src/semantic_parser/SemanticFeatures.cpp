@@ -32,8 +32,8 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-  //AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::PREDICATE,
-  //                     r, predicate, predicate_id);
+  AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::PREDICATE,
+                       r, predicate, predicate_id);
 }
 
 void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,

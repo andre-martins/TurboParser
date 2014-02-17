@@ -35,7 +35,7 @@ then
     allow_root_predicate=true
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=true
-    formalism=dm
+    formalism=$5 #pcedt #pas #dm
     subfolder=sdp/${formalism}
 else
     allow_self_loops=true
