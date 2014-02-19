@@ -489,7 +489,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
           for (int m = 0; m < allowed_labels.size(); ++m) {
             int role = allowed_labels[m];
-            CHECK((*predicates)[s]->HasRole(role));
+            if (prune_labels) CHECK((*predicates)[s]->HasRole(role));
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
             semantic_parts->push_back(part);
             if (make_gold) {
