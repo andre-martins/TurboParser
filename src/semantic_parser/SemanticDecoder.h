@@ -72,6 +72,12 @@ class SemanticDecoder : public Decoder {
                    vector<double> *predicted_output,
                    double *value);
 
+  void DecodeBasicMarginals(Instance *instance, Parts *parts,
+                            const vector<double> &scores,
+                            vector<double> *predicted_output,
+                            double *log_partition_function,
+                            double *entropy);
+
  protected:
   SemanticPipe *pipe_;
 };

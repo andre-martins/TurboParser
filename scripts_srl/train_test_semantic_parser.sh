@@ -49,6 +49,7 @@ if [ "${model_type}" == "basic" ]
 then
     #echo "Reverting prune to false..."
     #prune=false
+    echo "Stupid pruning..."
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}

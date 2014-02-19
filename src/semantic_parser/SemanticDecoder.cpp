@@ -98,21 +98,23 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
                                       vector<double> *predicted_output,
                                       double *entropy,
                                       double *loss) {
-#if 0
-  SemanticParts *dependency_parts = static_cast<SemanticParts*>(parts);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
 
   // Right now, only allow marginal inference for arc-factored models.
-  CHECK(dependency_parts->IsArcFactored());
+  CHECK(semantic_parts->IsArcFactored());
 
   // Create copy of the scores.
   vector<double> copied_scores(scores);
   vector<double> total_scores;
   vector<double> label_marginals;
+  int offset_predicate_parts, num_predicate_parts;
   int offset_arcs, num_arcs;
-  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
   int offset_labeled_arcs, num_labeled_arcs;
-  dependency_parts->GetOffsetLabeledArc(&offset_labeled_arcs,
-                                        &num_labeled_arcs);
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
+  semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  semantic_parts->GetOffsetLabeledArc(&offset_labeled_arcs,
+                                      &num_labeled_arcs);
 
   // If labeled parsing, decode the labels and update the scores.
   if (pipe_->GetSemanticOptions()->labeled()) {
@@ -127,8 +129,8 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   predicted_output->resize(parts->size(), 0.0);
 
   double log_partition_function;
-  DecodeMatrixTree(instance, parts, copied_scores, predicted_output,
-                   &log_partition_function, entropy);
+  DecodeBasicMarginals(instance, parts, copied_scores, predicted_output,
+                       &log_partition_function, entropy);
 
   // If labeled parsing, write the components of the predicted output that
   // correspond to the labeled parts.
@@ -137,8 +139,9 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
       SemanticPartLabeledArc *labeled_arc =
           static_cast<SemanticPartLabeledArc*>(
               (*parts)[offset_labeled_arcs + r]);
-      int index_arc = dependency_parts->FindArc(labeled_arc->head(),
-                                                labeled_arc->modifier());
+      int index_arc = semantic_parts->FindArc(labeled_arc->predicate(),
+                                              labeled_arc->argument(),
+                                              labeled_arc->sense());
       CHECK_GE(index_arc, 0);
       (*predicted_output)[offset_labeled_arcs + r] =
           label_marginals[r] * (*predicted_output)[index_arc];
@@ -164,7 +167,6 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
     LOG(INFO) << "Loss truncated to zero (" << *loss << ")";
     *loss = 0.0;
   }
-#endif
 }
 
 // Decode the best label for each candidate arc. The output vector
@@ -505,4 +507,121 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
       }
     }
   }
+}
+
+// Decoder for the basic model. For each predicate, choose the best
+// sense and the best set of arcs independently.
+void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
+                                           const vector<double> &scores,
+                                           vector<double> *predicted_output,
+                                           double *log_partition_function,
+                                           double *entropy) {
+  int sentence_length =
+    static_cast<SemanticInstanceNumeric*>(instance)->size();
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int offset_predicate_parts, num_predicate_parts;
+  int offset_arcs, num_arcs;
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
+  semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+
+  vector<SemanticPartArc*> arcs(num_arcs);
+  vector<double> scores_arcs(num_arcs);
+  for (int r = 0; r < num_arcs; ++r) {
+    arcs[r] = static_cast<SemanticPartArc*>((*parts)[offset_arcs + r]);
+    scores_arcs[r] = scores[offset_arcs + r];
+  }
+
+  vector<vector<vector<int> > > arcs_by_predicate;
+  arcs_by_predicate.resize(sentence_length);
+  for (int r = 0; r < num_arcs; ++r) {
+    int p = arcs[r]->predicate();
+    int s = arcs[r]->sense();
+    if (s >= arcs_by_predicate[p].size()) {
+      arcs_by_predicate[p].resize(s+1);
+    }
+    arcs_by_predicate[p][s].push_back(r);
+  }
+
+  vector<double> scores_predicates(num_predicate_parts);
+  vector<vector<int> > index_predicates(sentence_length);
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    scores_predicates[r] = scores[offset_predicate_parts + r];
+    SemanticPartPredicate *predicate_part =
+      static_cast<SemanticPartPredicate*>((*parts)[offset_predicate_parts + r]);
+    int p = predicate_part->predicate();
+    int s = predicate_part->sense();
+    if (s >= index_predicates[p].size()) {
+      index_predicates[p].resize(s+1, -1);
+    }
+    index_predicates[p][s] = r;
+  }
+
+  predicted_output->resize(parts->size());
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    (*predicted_output)[offset_predicate_parts + r] = 0.0;
+  }
+  for (int r = 0; r < num_arcs; ++r) {
+    (*predicted_output)[offset_arcs + r] = 0.0;
+  }
+
+  *log_partition_function = 0.0;
+  *entropy = 0.0;
+  for (int p = 0; p < sentence_length; ++p) {
+    LogValD log_partition_all_senses = LogValD::Zero();
+    vector<LogValD> log_partition_senses(arcs_by_predicate[p].size(),
+                                         LogValD::Zero());
+    vector<vector<LogValD> > log_partition_arcs(arcs_by_predicate[p].size());
+    for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
+      int r = index_predicates[p][s];
+      double score = scores_predicates[r];
+      CHECK_EQ(score, 0.0);
+      // Initialize log partition arcs to exp(0.0) to account for the
+      // event that the arc does not exist.
+      log_partition_arcs[s].assign(arcs_by_predicate[p][s].size(),
+                                   LogValD::One());
+      for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
+        int r = arcs_by_predicate[p][s][k];
+        log_partition_arcs[s][k] += LogValD(scores_arcs[r], false);
+        score += log_partition_arcs[s][k].as_float();
+      }
+      log_partition_senses[s] = LogValD(score, false);
+      LOG(INFO) << s << " " << log_partition_senses[s].logabs();
+      log_partition_all_senses += log_partition_senses[s];
+    }
+
+    // This makes sure the log partition function does not become -infty for
+    // predicates that do not have any sense.
+    if (arcs_by_predicate[p].size() > 0) {
+      *log_partition_function += log_partition_all_senses.logabs();
+    }
+
+    for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
+      int r = index_predicates[p][s];
+      double predicate_marginal = LogValD(log_partition_senses[s].logabs() -
+                                          log_partition_all_senses.logabs(),
+                                          false).as_float();
+      LOG(INFO) << "Predicate marginal[" << p << "][" << s << "] = "
+                << predicate_marginal;
+      (*predicted_output)[offset_predicate_parts + r] = predicate_marginal;
+      CHECK_EQ(scores_predicates[r], 0.0);
+      *entropy -= scores_predicates[r] * predicate_marginal;
+      for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
+        int r = arcs_by_predicate[p][s][k];
+        double marginal = LogValD(scores_arcs[r] -
+                                  log_partition_arcs[s][k].logabs(),
+                                  false).as_float();
+        marginal *= predicate_marginal;
+        LOG(INFO) << "marginal[" << p << "][" << s << "][" << k << "] = "
+                  << marginal << "\t"
+                  << "scores_arcs[" << p << "][" << s << "][" << k << "] = "
+                  << scores_arcs[r];
+        (*predicted_output)[offset_arcs + r] = marginal;
+        *entropy -= scores_arcs[r] * marginal;
+      }
+    }
+  }
+
+  *entropy += *log_partition_function;
+  LOG(INFO) << *log_partition_function;
 }
