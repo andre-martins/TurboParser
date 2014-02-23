@@ -583,16 +583,23 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
       for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
         int r = arcs_by_predicate[p][s][k];
         log_partition_arcs[s][k] += LogValD(scores_arcs[r], false);
-        score += log_partition_arcs[s][k].as_float();
+        //score += log_partition_arcs[s][k].as_float();
+        score += log_partition_arcs[s][k].logabs();
       }
+      //LOG(INFO) << s << " " << score;
       log_partition_senses[s] = LogValD(score, false);
-      LOG(INFO) << s << " " << log_partition_senses[s].logabs();
+      //log_partition_senses[s] = LogValD(score);
+      //LOG(INFO) << s << " " << log_partition_senses[s].logabs();
       log_partition_all_senses += log_partition_senses[s];
     }
 
     // This makes sure the log partition function does not become -infty for
     // predicates that do not have any sense.
     if (arcs_by_predicate[p].size() > 0) {
+      if (false && sentence_length < 5) {
+        LOG(INFO) << "Log partition[" << p << "] = "
+                  << log_partition_all_senses.logabs();
+      }
       *log_partition_function += log_partition_all_senses.logabs();
     }
 
@@ -601,8 +608,8 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
       double predicate_marginal = LogValD(log_partition_senses[s].logabs() -
                                           log_partition_all_senses.logabs(),
                                           false).as_float();
-      LOG(INFO) << "Predicate marginal[" << p << "][" << s << "] = "
-                << predicate_marginal;
+      //LOG(INFO) << "Predicate marginal[" << p << "][" << s << "] = "
+      //          << predicate_marginal;
       (*predicted_output)[offset_predicate_parts + r] = predicate_marginal;
       CHECK_EQ(scores_predicates[r], 0.0);
       *entropy -= scores_predicates[r] * predicate_marginal;
@@ -612,10 +619,12 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
                                   log_partition_arcs[s][k].logabs(),
                                   false).as_float();
         marginal *= predicate_marginal;
-        LOG(INFO) << "marginal[" << p << "][" << s << "][" << k << "] = "
-                  << marginal << "\t"
-                  << "scores_arcs[" << p << "][" << s << "][" << k << "] = "
-                  << scores_arcs[r];
+        if (false && sentence_length < 5) {
+          LOG(INFO) << "marginal[" << p << "][" << s << "][" << k << "] = "
+                    << marginal << "\t"
+                    << "scores_arcs[" << p << "][" << s << "][" << k << "] = "
+                    << scores_arcs[r];
+        }
         (*predicted_output)[offset_arcs + r] = marginal;
         *entropy -= scores_arcs[r] * marginal;
       }
@@ -623,5 +632,8 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
   }
 
   *entropy += *log_partition_function;
-  LOG(INFO) << *log_partition_function;
+  if (false && sentence_length < 5) {
+    LOG(INFO) << "Log-partition function:" << *log_partition_function;
+    LOG(INFO) << "Entropy:" << *entropy;
+  }
 }
