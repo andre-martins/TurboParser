@@ -554,6 +554,53 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   }
 }
 
+void SemanticPipe::MakePartsArbitrarySiblings(Instance *instance,
+                                              Parts *parts,
+                                              vector<double> *gold_outputs) {
+  SemanticInstanceNumeric *sentence =
+    static_cast<SemanticInstanceNumeric*>(instance);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  SemanticDictionary *semantic_dictionary = GetSemanticDictionary();
+  SemanticOptions *semantic_options = GetSemanticOptions();
+  //bool allow_self_loops = semantic_options->allow_self_loops();
+  bool allow_root_predicate = semantic_options->allow_root_predicate();
+  bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
+  bool use_predicate_senses = semantic_options->use_predicate_senses();
+
+  // Siblings: (p,s,a1) and (p,s,a2).
+  for (int p = 0; p < sentence_length; ++p) {
+    if (p == 0 && !allow_root_predicate) continue;
+    int lemma_id = TOKEN_UNKNOWN;
+    if (use_predicate_senses) {
+      lemma_id = sentence->GetLemmaId(p);
+      CHECK_GE(lemma_id, 0);
+    }
+    const vector<SemanticPredicate*> *predicates =
+      &semantic_dictionary->GetLemmaPredicates(lemma_id);
+    if (predicates->size() == 0 && allow_unseen_predicates) {
+      predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
+    for (int s = 0; s < predicates->size(); ++s) {
+      for (int a1 = 1; a1 < sentence_length; ++a1) {
+        int r1 = semantic_parts->FindArc(p, a1, s);
+        if (r1 < 0) continue;
+        for (int a2 = a1+1; a2 < sentence_length; ++a2) {
+          int r2 = semantic_parts->FindArc(p, a2, s);
+          if (r2 < 0) continue;
+          Part *part = semantic_parts->CreatePartSibling(p, s, a1, a2);
+          semantic_parts->push_back(part);
+          if (make_gold) {
+            // Logical AND of the two individual arcs.
+            gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
+          }
+        }
+      }
+    }
+  }
+}
+
 void SemanticPipe::MakePartsGlobal(Instance *instance,
                                    Parts *parts,
                                    vector<double> *gold_outputs) {
@@ -561,13 +608,13 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
 
   int num_parts_initial = semantic_parts->size();
-#if 0
   if (semantic_options->use_arbitrary_siblings()) {
     MakePartsArbitrarySiblings(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetSibling(num_parts_initial,
                                    semantic_parts->size() - num_parts_initial);
 
+#if 0
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_consecutive_siblings()) {
     MakePartsConsecutiveSiblings(instance, parts, gold_outputs);
@@ -698,9 +745,8 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
 #endif
   }
 
-#if 0
   // Build features for arbitrary siblings.
-  semantic_parts->GetOffsetSibl(&offset, &size);
+  semantic_parts->GetOffsetSibling(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
   for (int r = offset; r < offset + size; ++r) {
     if (!selected_parts[r]) continue;
@@ -708,10 +754,13 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
       static_cast<SemanticPartSibling*>((*semantic_parts)[r]);
     CHECK_EQ(part->type(), SEMANTICPART_SIBLING);
     semantic_features->AddArbitrarySiblingFeatures(sentence, r,
-      part->predicate(), part->first_argument(),
-      part->second_argument());
+                                                   part->predicate(),
+                                                   part->sense(),
+                                                   part->first_argument(),
+                                                   part->second_argument());
   }
 
+#if 0
   // Build features for consecutive siblings.
   dependency_parts->GetOffsetNextSibl(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);

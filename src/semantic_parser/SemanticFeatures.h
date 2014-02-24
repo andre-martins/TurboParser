@@ -76,26 +76,29 @@ class SemanticFeatures: public Features {
                       int argument,
                       int predicate_id);
 
-#if 0
   void AddArbitrarySiblingFeatures(SemanticInstanceNumeric* sentence,
                                    int r,
-                                   int head,
-                                   int modifier,
-                                   int sibling);
+                                   int predicate,
+                                   int sense,
+                                   int first_argument,
+                                   int second_argument);
 
   void AddConsecutiveSiblingFeatures(SemanticInstanceNumeric* sentence,
                                      int r,
-                                     int head,
-                                     int modifier,
-                                     int sibling);
+                                     int predicate,
+                                     int sense,
+                                     int first_argument,
+                                     int second_argument);
 
   void AddSiblingFeatures(SemanticInstanceNumeric* sentence,
                           int r,
-                          int head,
-                          int modifier,
-                          int sibling,
+                          int predicate,
+                          int sense,
+                          int first_argument,
+                          int second_argument,
                           bool consecutive);
 
+#if 0
   void AddGrandparentFeatures(SemanticInstanceNumeric* sentence,
                               int r,
                               int grandparent,

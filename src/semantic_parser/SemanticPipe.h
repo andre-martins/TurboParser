@@ -122,6 +122,9 @@ class SemanticPipe : public Pipe {
                       vector<double> *gold_outputs);
   void MakePartsGlobal(Instance *instance, Parts *parts,
                        vector<double> *gold_outputs);
+  void MakePartsArbitrarySiblings(Instance *instance,
+                                  Parts *parts,
+                                  vector<double> *gold_outputs);
 
   void MakeFeatures(Instance *instance, Parts *parts, bool pruner,
                     Features *features) {

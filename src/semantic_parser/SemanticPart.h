@@ -123,9 +123,11 @@ class SemanticPartArgument : public Part {
 
 class SemanticPartSibling : public Part {
  public:
-  SemanticPartSibling() { p_ = a1_ = a2_ = -1; };
-  SemanticPartSibling(int predicate, int first_argument, int second_argument) {
+  SemanticPartSibling() { p_ = s_ = a1_ = a2_ = -1; };
+  SemanticPartSibling(int predicate, int sense, int first_argument,
+                      int second_argument) {
     p_ = predicate;
+    s_ = sense;
     a1_ = first_argument;
     a2_ = second_argument;
   }
@@ -136,11 +138,13 @@ class SemanticPartSibling : public Part {
 
  public:
   int predicate() { return p_; };
+  int sense() { return s_; };
   int first_argument() { return a1_; };
   int second_argument() { return a2_; };
 
  private:
   int p_; // Index of the predicate.
+  int s_; // Index of the sense.
   int a1_; // Index of the first argument.
   int a2_; // Index of the second_argument.
 };
@@ -171,9 +175,11 @@ class SemanticParts : public Parts {
     return new SemanticPartArgument(argument);
   }
   Part *CreatePartSibling(int predicate,
+                          int sense,
                           int first_argument,
                           int second_argument) {
-    return new SemanticPartSibling(predicate, first_argument, second_argument);
+    return new SemanticPartSibling(predicate, sense, first_argument,
+                                   second_argument);
   }
 
  public:

@@ -29,6 +29,15 @@
 // TODO: deprecate this.
 DEFINE_bool(use_predicate_features, false,
             "True for using predicate features.");
+DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/
+            "True for using pair features for arbitrary sibling parts.");
+DEFINE_bool(use_pair_features_second_order, true, /*false,*/
+            "True for using pair features for second order parts.");
+DEFINE_bool(use_pair_features_grandsibling_conjunctions, true, /*false,*/
+            "True for using pair features for grandsiblings that are conjunctions.");
+// TODO: try setting this true.
+DEFINE_bool(use_trilexical_features, false,
+            "True for using trilexical features.");
 
 void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
                                             int r,
@@ -365,45 +374,54 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
 
 // Add features for arbitrary siblings.
-#if 0
 void SemanticFeatures::AddArbitrarySiblingFeatures(
                           SemanticInstanceNumeric* sentence,
                           int r,
-                          int head,
-                          int modifier,
-                          int sibling) {
-  AddSiblingFeatures(sentence, r, head, modifier, sibling, false);
+                          int predicate,
+                          int sense,
+                          int first_argument,
+                          int second_argument) {
+  AddSiblingFeatures(sentence, r, predicate, sense, first_argument,
+                     second_argument, false);
 }
 
+#if 0
 // Add features for consecutive siblings.
 void SemanticFeatures::AddConsecutiveSiblingFeatures(
                           SemanticInstanceNumeric* sentence,
                           int r,
-                          int head,
-                          int modifier,
-                          int sibling) {
-  AddSiblingFeatures(sentence, r, head, modifier, sibling, true);
+                          int predicate,
+                          int sense,
+                          int first_argument,
+                          int second_argument) {
+  AddSiblingFeatures(sentence, r, predicate, sense, first_argument,
+                     second_argument, true);
 }
+#endif
 
 // Add features for siblings.
-// The features are very similar to the ones used in Koo et al. EGSTRA.
 void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
-                                            int r,
-                                            int head,
-                                            int modifier,
-                                            int sibling,
-                                            bool consecutive) {
+                                          int r,
+                                          int predicate,
+                                          int sense,
+                                          int first_argument,
+                                          int second_argument,
+                                          bool consecutive) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
   int sentence_length = sentence->size();
-  bool first_child = consecutive && (head == modifier);
+  // Note: unlike the dependency parser case, here the first child
+  // does not have a1 == p (which would be ambiguous with the
+  // case where there is a self-loop), but a1 == -1.
+  bool first_child = consecutive && (first_argument < 0);
   bool last_child = consecutive &&
-                    (sibling == sentence_length || sibling <= 0);
+                    (second_argument == sentence_length || second_argument <= 0);
 
-  CHECK_NE(sibling, 0) << "Currently, last child is encoded as s = -1.";
+  CHECK_NE(second_argument, 0) << "Currently, last child is encoded as a2 = -1.";
 
+#if 0
   if (FLAGS_use_pair_features_second_order) {
     // Add word pair features for head and modifier, and modifier and sibling.
     if (consecutive) {
@@ -422,19 +440,21 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
       }
     }
   }
+#endif
 
   // Direction of attachment for the first and second children.
   // When consecutive == true, we only look at the second one.
+  // TODO: deal with self-cycles.
   uint8_t direction_code_first; // 0x1 if right attachment, 0x0 otherwise.
   uint8_t direction_code_second; // 0x1 if right attachment, 0x0 otherwise.
 
-  if (modifier < head) {
+  if (first_argument < predicate) {
     direction_code_first = 0x0;
   } else {
     direction_code_first = 0x1;
   }
 
-  if (sibling < head) {
+  if (second_argument < predicate) {
     direction_code_second = 0x0;
   } else {
     direction_code_second = 0x1;
@@ -448,18 +468,18 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   const vector<int>* word_ids = &sentence->GetFormIds();
 
   // Array of POS/CPOS IDs.
-  const vector<int>* pos_ids = &sentence->GetCoarsePosIds();
+  const vector<int>* pos_ids = &sentence->GetPosIds();
 
   uint64_t fkey;
   uint8_t flags = 0;
 
   // Words/POS.
-  HWID = (*word_ids)[head];
-  MWID = first_child? TOKEN_START : (*word_ids)[modifier];
-  SWID = last_child? TOKEN_STOP : (*word_ids)[sibling];
-  HPID = (*pos_ids)[head];
-  MPID = first_child? TOKEN_START : (*pos_ids)[modifier];
-  SPID = last_child? TOKEN_STOP : (*pos_ids)[sibling];
+  HWID = (*word_ids)[predicate];
+  MWID = first_child? TOKEN_START : (*word_ids)[first_argument];
+  SWID = last_child? TOKEN_STOP : (*word_ids)[second_argument];
+  HPID = (*pos_ids)[predicate];
+  MPID = first_child? TOKEN_START : (*pos_ids)[first_argument];
+  SPID = last_child? TOKEN_STOP : (*pos_ids)[second_argument];
 
   if (consecutive) {
     flags = SemanticFeatureTemplateParts::NEXTSIBL;
@@ -542,6 +562,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   AddFeature(fkey, features);
 }
 
+#if 0
 // Add features for grandparents.
 // The features are very similar to the ones used in Koo et al. EGSTRA.
 void SemanticFeatures::AddGrandparentFeatures(

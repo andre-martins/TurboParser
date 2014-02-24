@@ -492,7 +492,7 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
         } else {
           gold_outputs->push_back(0.0);
         }
-      }      
+      }
     }
 
     dependency_parts->SetOffsetArc(num_parts_initial,
@@ -506,7 +506,7 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
 void DependencyPipe::MakePartsArbitrarySiblings(Instance *instance,
                                                 Parts *parts,
                                                 vector<double> *gold_outputs) {
-  DependencyInstanceNumeric *sentence = 
+  DependencyInstanceNumeric *sentence =
     static_cast<DependencyInstanceNumeric*>(instance);
   DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
   int sentence_length = sentence->size();
