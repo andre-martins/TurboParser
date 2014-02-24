@@ -565,36 +565,36 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   if (semantic_options->use_arbitrary_siblings()) {
     MakePartsArbitrarySiblings(instance, parts, gold_outputs);
   }
-  dependency_parts->SetOffsetSibl(num_parts_initial,
-      dependency_parts->size() - num_parts_initial);
+  semantic_parts->SetOffsetSibling(num_parts_initial,
+                                   semantic_parts->size() - num_parts_initial);
 
-  num_parts_initial = dependency_parts->size();
-  if (dependency_options->use_consecutive_siblings()) {
+  num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_consecutive_siblings()) {
     MakePartsConsecutiveSiblings(instance, parts, gold_outputs);
   }
-  dependency_parts->SetOffsetNextSibl(num_parts_initial,
-      dependency_parts->size() - num_parts_initial);
+  semantic_parts->SetOffsetNextSibling(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
 
-  num_parts_initial = dependency_parts->size();
-  if (dependency_options->use_grandparents()) {
+  num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_grandparents()) {
     MakePartsGrandparents(instance, parts, gold_outputs);
   }
-  dependency_parts->SetOffsetGrandpar(num_parts_initial,
-      dependency_parts->size() - num_parts_initial);
+  semantic_parts->SetOffsetGrandparent(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
 
-  num_parts_initial = dependency_parts->size();
-  if (dependency_options->use_grandsiblings()) {
+  num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_grandsiblings()) {
     MakePartsGrandSiblings(instance, parts, gold_outputs);
   }
-  dependency_parts->SetOffsetGrandSibl(num_parts_initial,
-      dependency_parts->size() - num_parts_initial);
+  semantic_parts->SetOffsetGrandSiblings(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
 
-  num_parts_initial = dependency_parts->size();
-  if (dependency_options->use_trisiblings()) {
+  num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_trisiblings()) {
     MakePartsTriSiblings(instance, parts, gold_outputs);
   }
-  dependency_parts->SetOffsetTriSibl(num_parts_initial,
-      dependency_parts->size() - num_parts_initial);
+  semantic_parts->SetOffsetTriSiblings(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
 #endif
 }
 
@@ -794,24 +794,36 @@ void SemanticPipe::Prune(Instance *instance, Parts *parts,
   GetSemanticDecoder()->DecodePruner(instance, parts, scores,
                                      &predicted_outputs);
 
+  int offset_predicate_parts, num_predicate_parts;
+  int offset_arcs, num_arcs;
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
+  semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+
   double threshold = 0.5;
-  int r0 = 0;
-  for (int r = 0; r < parts->size(); ++r) {
+  int r0 = offset_arcs; // Preserve all the predicate parts.
+  semantic_parts->ClearOffsets();
+  semantic_parts->SetOffsetPredicate(offset_predicate_parts,
+                                     num_predicate_parts);
+  for (int r = 0; r < num_arcs; ++r) {
     // Preserve gold parts (at training time).
     if (predicted_outputs[r] >= threshold ||
         (preserve_gold && (*gold_outputs)[r] >= threshold)) {
-      (*parts)[r0] = (*parts)[r];
-      if (gold_outputs) (*gold_outputs)[r0] = (*gold_outputs)[r];
+      (*parts)[r0] = (*parts)[offset_arcs + r];
+      if (gold_outputs) {
+        (*gold_outputs)[r0] = (*gold_outputs)[offset_arcs + r];
+      }
       ++r0;
     } else {
-      delete (*parts)[r];
+      delete (*parts)[offset_arcs + r];
     }
   }
 
   if (gold_outputs) gold_outputs->resize(r0);
   parts->resize(r0);
   semantic_parts->DeleteIndices();
-  semantic_parts->SetOffsetArc(0, parts->size());
+  semantic_parts->SetOffsetArc(offset_arcs,
+                               parts->size() - offset_arcs);
 
   delete features;
 }

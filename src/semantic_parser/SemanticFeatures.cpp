@@ -22,6 +22,14 @@
 #include "SemanticFeatureTemplates.h"
 #include <set>
 
+// Flags for specific options in feature definitions.
+// Note: this will be deprecated soon.
+// Note 2: these flags don't get saved in the model file!!! So we need to call
+// them at test time too.
+// TODO: deprecate this.
+DEFINE_bool(use_predicate_features, false,
+            "True for using predicate features.");
+
 void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
                                             int r,
                                             int predicate,
@@ -32,8 +40,10 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-  AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::PREDICATE,
-                       r, predicate, predicate_id);
+  if (FLAGS_use_predicate_features) {
+    AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::PREDICATE,
+                         r, predicate, predicate_id);
+  }
 }
 
 void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,

@@ -231,9 +231,15 @@ class SemanticParts : public Parts {
   }
 
   // Set/Get offsets:
+  void ClearOffsets() {
+    for (int i = 0; i < NUM_SEMANTICPARTS; ++i) {
+      offsets_[i] = -1;
+    }
+  }
+
   void BuildOffsets() {
     for (int i = NUM_SEMANTICPARTS - 1; i >= 0; --i) {
-      if (offsets_[i] < 0) {
+      if (offsets_[i] < 0 || offsets_[i] > size()) {
         offsets_[i] = (i == NUM_SEMANTICPARTS - 1)? size() : offsets_[i + 1];
       }
     }
@@ -267,7 +273,7 @@ class SemanticParts : public Parts {
   void GetOffsetArgument(int *offset, int *size) const {
     GetOffset(SEMANTICPART_ARGUMENT, offset, size);
   };
-  void GetOffsetSibl(int *offset, int *size) const {
+  void GetOffsetSibling(int *offset, int *size) const {
     GetOffset(SEMANTICPART_SIBLING, offset, size);
   };
 

@@ -69,7 +69,7 @@ void SemanticParts::BuildIndices(int sentence_length, bool labeled) {
   index_senses_.resize(sentence_length);
   for (int r = 0; r < num_basic_parts; ++r) {
     Part *part = (*this)[offset + r];
-    CHECK(part->type() == SEMANTICPART_ARC);
+    CHECK(part->type() == SEMANTICPART_ARC) << part->type();
     int p = static_cast<SemanticPartArc*>(part)->predicate();
     int s = static_cast<SemanticPartArc*>(part)->sense();
     int k = 0;

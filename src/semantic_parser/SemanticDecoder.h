@@ -39,6 +39,10 @@ class SemanticDecoder : public Decoder {
               const vector<double> &scores,
               vector<double> *predicted_output);
 
+  void DecodePrunerNaive(Instance *instance, Parts *parts,
+                         const vector<double> &scores,
+                         vector<double> *predicted_output);
+
   void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const vector<double> &scores,
                            const vector<double> &gold_output,
@@ -67,6 +71,12 @@ class SemanticDecoder : public Decoder {
                    const vector<double> &scores,
                    vector<double> *predicted_output,
                    double *value);
+
+  void DecodeBasicMarginals(Instance *instance, Parts *parts,
+                            const vector<double> &scores,
+                            vector<double> *predicted_output,
+                            double *log_partition_function,
+                            double *entropy);
 
  protected:
   SemanticPipe *pipe_;

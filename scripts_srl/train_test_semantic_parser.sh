@@ -17,7 +17,8 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true # If true, the pruner is trained separately.
+trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
@@ -49,8 +50,9 @@ fi
 
 if [ "${model_type}" == "basic" ]
 then
-    echo "Reverting prune to false..."
-    prune=false
+    #echo "Reverting prune to false..."
+    #prune=false
+    echo "Stupid pruning..."
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}
@@ -176,7 +178,7 @@ fi
 
 if $train
 then
-    if $train_external_pruner
+    if $trained_external_pruner
     then
         # The pruner was already trained. Just set the external pruner
         # to the model that was obtained and train the parser.
