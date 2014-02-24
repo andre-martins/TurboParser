@@ -15,7 +15,9 @@ regularization_parameter_pruner=1e12 # Same for the pruner.
 train=false #true
 test=true
 prune=true # This will revert to false if model_type=basic.
-train_external_pruner=false #true # If true, the pruner is trained separately.
+prune_labels=true
+prune_distances=true
+train_external_pruner=true # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
@@ -81,6 +83,7 @@ then
         file_train=${path_data}/${formalism}_augmented_train.sdp
         files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
         files_test[1]=${path_data}/${formalism}_augmented_test.sdp
+        files_test[2]=${path_data}/${formalism}_augmented_train.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
         files_test[0]=${path_data}/${language}_test.conll2008
@@ -118,6 +121,8 @@ then
         --file_train=${file_train} \
         --model_type=basic \
         --labeled=false \
+        --prune_labels=${prune_labels} \
+        --prune_distances=${prune_distances} \
         --prune_basic=false \
         --only_supported_features \
         --form_case_sensitive=${case_sensitive} \
@@ -184,6 +189,8 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --prune_labels=${prune_labels} \
+            --prune_distances=${prune_distances} \
             --prune_basic=${prune} \
             --pruner_posterior_threshold=${posterior_threshold} \
             --pruner_max_arguments=${pruner_max_arguments} \
@@ -215,6 +222,8 @@ then
             --train_cost_false_positives=${train_cost_false_positives} \
             --train_cost_false_negatives=${train_cost_false_negatives} \
             --model_type=${model_type} \
+            --prune_labels=${prune_labels} \
+            --prune_distances=${prune_distances} \
             --prune_basic=${prune} \
             --pruner_posterior_threshold=${posterior_threshold} \
             --pruner_max_arguments=${pruner_max_arguments} \
