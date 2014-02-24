@@ -15,8 +15,8 @@ regularization_parameter_pruner=1e12 # Same for the pruner.
 train=true
 test=true
 prune=true # This will revert to false if model_type=basic.
-prune_labels=false #true
-prune_distances=false #true
+prune_labels=true
+prune_distances=true
 train_external_pruner=false # If true, the pruner is trained separately.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
@@ -36,7 +36,7 @@ then
     allow_self_loops=false
     allow_root_predicate=true
     allow_unseen_predicates=false # This should be irrelevant.
-    use_predicate_senses=true
+    use_predicate_senses=false #true
     formalism=$5 #pcedt #pas #dm
     subfolder=sdp/${formalism}
 else
