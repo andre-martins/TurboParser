@@ -376,6 +376,10 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
 
   predicted_output->clear();
   predicted_output->resize(parts->size(), 0.0);
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    // Don't prune any of the predicate parts.
+    (*predicted_output)[offset_predicate_parts + r] = 1.0;
+  }
 
   CHECK(semantic_parts->IsArcFactored());
 
@@ -403,6 +407,10 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
       for (int k = 0; k < max_arguments && k < scores_arguments.size(); ++k) {
         int r = scores_arguments[k].second;
         (*predicted_output)[r] = 1.0;
+        //LOG(INFO) << "Keeping arc (" << p << ", "
+        //          << s << ", "
+        //          << static_cast<SemanticPartArc*>((*parts)[r])->argument()
+        //          << ").";
       }
     }
   }

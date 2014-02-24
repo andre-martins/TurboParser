@@ -12,10 +12,10 @@ num_epochs=10 # Number of training epochs.
 num_epochs_pruner=10 # Number of training epochs for the pruner.
 regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 regularization_parameter_pruner=1e12 # Same for the pruner.
-train=true
+train=false #true
 test=true
 prune=true # This will revert to false if model_type=basic.
-train_external_pruner=true # If true, the pruner is trained separately.
+train_external_pruner=false #true # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
