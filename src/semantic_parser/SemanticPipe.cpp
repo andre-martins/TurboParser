@@ -856,8 +856,8 @@ void SemanticPipe::Prune(Instance *instance, Parts *parts,
                                      num_predicate_parts);
   for (int r = 0; r < num_arcs; ++r) {
     // Preserve gold parts (at training time).
-    if (predicted_outputs[r] >= threshold ||
-        (preserve_gold && (*gold_outputs)[r] >= threshold)) {
+    if (predicted_outputs[offset_arcs + r] >= threshold ||
+        (preserve_gold && (*gold_outputs)[offset_arcs + r] >= threshold)) {
       (*parts)[r0] = (*parts)[offset_arcs + r];
       if (gold_outputs) {
         (*gold_outputs)[r0] = (*gold_outputs)[offset_arcs + r];

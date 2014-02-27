@@ -27,7 +27,7 @@
 // Note 2: these flags don't get saved in the model file!!! So we need to call
 // them at test time too.
 // TODO: deprecate this.
-DEFINE_bool(use_predicate_features, false,
+DEFINE_bool(use_predicate_features, true, //false,
             "True for using predicate features.");
 DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/
             "True for using pair features for arbitrary sibling parts.");

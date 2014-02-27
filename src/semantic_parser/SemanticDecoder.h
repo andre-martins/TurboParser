@@ -57,6 +57,28 @@ class SemanticDecoder : public Decoder {
                        double *entropy,
                        double *loss);
 
+  void DecodeFactorGraph(Instance *instance, Parts *parts,
+                         const vector<double> &scores,
+                         bool relax,
+                         vector<double> *predicted_output);
+
+  void BuildBasicIndices(int sentence_length,
+                         const vector<SemanticPartPredicate*> &predicate_parts,
+                         const vector<SemanticPartArc*> &arcs,
+                         vector<vector<int> > *index_predicates,
+                         vector<vector<vector<int> > > *arcs_by_predicate);
+
+  void DecodeSemanticGraph(int sentence_length,
+                           const vector<SemanticPartPredicate*> &predicate_parts,
+                           const vector<SemanticPartArc*> &arcs,
+                           const vector<vector<int> > &index_predicates,
+                           const vector<vector<vector<int> > > &arcs_by_predicate,
+                           const vector<double> &predicate_scores,
+                           const vector<double> &arc_scores,
+                           vector<bool> *selected_predicates,
+                           vector<bool> *selected_arcs,
+                           double *value);
+
  protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const vector<double> &scores,

@@ -20,10 +20,10 @@ prune_distances=true
 train_external_pruner=false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
-pruner_max_arguments=20 # Maximum number of candidate heads allowed by the pruner.
+pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
 case_sensitive=false # Distinguish word upper/lower case.
-model_type=basic # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
+model_type=af+as # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb").
                     # Currently, flags np+dp are not recommended because they
@@ -51,8 +51,8 @@ fi
 if [ "${model_type}" == "basic" ]
 then
     #echo "Reverting prune to false..."
-    #prune=false
-    echo "Stupid pruning..."
+    prune=false
+    #echo "Stupid pruning..."
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}
