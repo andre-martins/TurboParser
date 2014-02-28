@@ -406,8 +406,8 @@ void SemanticDecoder::BuildBasicIndices(
 void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
                                    const vector<double> &scores,
                                    vector<double> *predicted_output) {
-  DecodePrunerNaive(instance, parts, scores, predicted_output);
-  return;
+  //DecodePrunerNaive(instance, parts, scores, predicted_output);
+  //return;
 
   int sentence_length =
     static_cast<SemanticInstanceNumeric*>(instance)->size();
@@ -742,14 +742,17 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
   *log_partition_function = 0.0;
   *entropy = 0.0;
   for (int p = 0; p < sentence_length; ++p) {
-    LogValD log_partition_all_senses = LogValD::Zero();
+    // Initiliaze log partition all senses to exp(0.0) to account for
+    // the null sense which implies there are no outgoing arcs.
+    LogValD log_partition_all_senses = LogValD::One();
+    //LogValD log_partition_all_senses = LogValD::Zero();
     vector<LogValD> log_partition_senses(arcs_by_predicate[p].size(),
                                          LogValD::Zero());
     vector<vector<LogValD> > log_partition_arcs(arcs_by_predicate[p].size());
     for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
       int r = index_predicates[p][s];
       double score = scores_predicates[r];
-      CHECK_EQ(score, 0.0);
+      //CHECK_EQ(score, 0.0);
       // Initialize log partition arcs to exp(0.0) to account for the
       // event that the arc does not exist.
       log_partition_arcs[s].assign(arcs_by_predicate[p][s].size(),
@@ -785,7 +788,7 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
       //LOG(INFO) << "Predicate marginal[" << p << "][" << s << "] = "
       //          << predicate_marginal;
       (*predicted_output)[offset_predicate_parts + r] = predicate_marginal;
-      CHECK_EQ(scores_predicates[r], 0.0);
+      //CHECK_EQ(scores_predicates[r], 0.0);
       *entropy -= scores_predicates[r] * predicate_marginal;
       for (int k = 0; k < arcs_by_predicate[p][s].size(); ++k) {
         int r = arcs_by_predicate[p][s][k];
@@ -852,6 +855,7 @@ void SemanticDecoder::DecodeSemanticGraph(
           selected[s][k] = false;
         }
       }
+      // Note: we're allowing a non-null sense (!= -1) without outgoing arcs.
       if (score > best_score) {
         best_sense = s;
         best_score = score;
