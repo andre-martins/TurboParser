@@ -313,7 +313,15 @@ void DependencyDecoder::DecodePruner(Instance *instance, Parts *parts,
     double max_posterior = -scores_heads[0].first;
     for (int k = 0; k < max_heads && k < scores_heads.size(); ++k) {
       int r = scores_heads[k].second;
-      if (-scores_heads[k].first >= posterior_threshold * max_posterior) {
+      // Note: better to put k == 0 because things could have gone
+      // wrong with the marginal decoder and all parents could
+      // end up with zero probability.
+      // TODO(atm): this still does not solve the problem, since
+      // it doesn't guarantee that there is a tree spanning the
+      // pruned graph. Need to call DependencyPipe::EnforceConnectedGraph
+      // somewhere after pruning.
+      if (k == 0 ||
+          -scores_heads[k].first >= posterior_threshold * max_posterior) {
         ++num_used_parts;
         (*predicted_output)[r] = 1.0;
       } else {
