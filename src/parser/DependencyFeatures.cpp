@@ -946,7 +946,7 @@ void DependencyFeatures::AddWordPairFeatures(DependencyInstanceNumeric* sentence
   CHECK_GE(pair_type, 0);
   uint8_t feature_type = pair_type;
 
-  int max_token_context = FLAGS_dependency_token_context; // 2.
+  int max_token_context = FLAGS_dependency_token_context; // 1.
 
   uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
   uint8_t binned_length_code; // Binned arc length.
@@ -1571,6 +1571,8 @@ void DependencyFeatures::AddWordPairFeaturesMST(DependencyInstanceNumeric* sente
 
     if (mode == 1) {
       flags |= (direction_code << 5); // 1 more bit.
+      // NOTE: This will overflow the 8-bit size (it may take 9 bits)!!!!!
+      // TODO(atm): fix this!!!
       flags |= (binned_length_code << 6); // 3 more bits.
     }
 

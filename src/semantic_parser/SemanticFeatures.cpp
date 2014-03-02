@@ -27,6 +27,10 @@
 // Note 2: these flags don't get saved in the model file!!! So we need to call
 // them at test time too.
 // TODO: deprecate this.
+DEFINE_bool(use_dependency_features, false,
+            "True for using features from the dependency syntactic tree.");
+DEFINE_bool(use_contextual_features, true,
+            "True for using contextual arc-factored features.");
 DEFINE_bool(use_predicate_features, true, //false,
             "True for using predicate features.");
 DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/
@@ -55,6 +59,7 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   }
 }
 
+#if 0
 void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
                                       int r,
                                       int predicate,
@@ -78,9 +83,10 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   bool labeled =
       static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
-  bool use_contextual_dependency_features = true;
-  bool use_contextual_features = false;
-  bool use_between_features = false;
+  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_contextual_dependency_features = use_dependency_features;
+  bool use_contextual_features = FLAGS_use_contextual_features;
+  bool use_between_features = false; // TODO(atm): change this.
 
   // Only 4 bits are allowed in feature_type.
   //CHECK_LT(pair_type, 16);
@@ -108,11 +114,11 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
   // 7 possible values for binned_length_code (3 bits)
   if (arc_length > 40) {
-    binned_length_code = 0x6;
+    binned_length_code = 0x3; //0x6;
   } else if (arc_length > 30) {
-    binned_length_code = 0x5;
+    binned_length_code = 0x3; //0x5;
   } else if (arc_length > 20) {
-    binned_length_code = 0x4;
+    binned_length_code = 0x3; //0x4;
   } else if (arc_length > 10) {
     binned_length_code = 0x3;
   } else if (arc_length > 5) {
@@ -137,11 +143,15 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   // 0x2: Passive voice.
   // Requires 2 bits.
   uint8_t passive_voice_code = 0x0;
-  if (sentence->IsVerb(predicate)) {
-    if (sentence->IsPassiveVoice(predicate)) {
-      passive_voice_code = 0x1;
-    } else {
-      passive_voice_code = 0x2;
+  if (use_dependency_features) {
+    // Right now, the detection of passive voice requires dependency syntax
+    // information.
+    if (sentence->IsVerb(predicate)) {
+      if (sentence->IsPassiveVoice(predicate)) {
+        passive_voice_code = 0x1;
+      } else {
+        passive_voice_code = 0x2;
+      }
     }
   }
 
@@ -180,29 +190,49 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   HSID = predicate_id;
 
   // Argument dependency relation.
-  MRID = sentence->GetRelationId(argument);
+  if (use_dependency_features) {
+    MRID = sentence->GetRelationId(argument);
+  } else {
+    MRID = 0x0;
+  }
 
   // Dependency paths.
-  PATHRID = sentence->GetRelationPathId(predicate, argument);
-  PATHPID = sentence->GetPosPathId(predicate, argument);
+  if (use_dependency_features) {
+    PATHRID = sentence->GetRelationPathId(predicate, argument);
+    PATHPID = sentence->GetPosPathId(predicate, argument);
+  } else {
+    PATHRID = 0x0;
+    PATHPID = 0x0;
+  }
 
   // Contextual dependency information (argument only).
-  ldMPID = (argument_leftmost_dependent > 0)?
-    (*pos_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-  rdMPID = (argument_rightmost_dependent > 0)?
-    (*pos_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-  lMPID = (argument_left_sibling > 0)?
-    (*pos_ids)[argument_left_sibling - 1] : TOKEN_START;
-  rMPID = (argument_right_sibling > 0)?
-    (*pos_ids)[argument_right_sibling - 1] : TOKEN_STOP;
-  ldMWID = (argument_leftmost_dependent > 0)?
-    (*word_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-  rdMWID = (argument_rightmost_dependent > 0)?
-    (*word_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-  lMWID = (argument_left_sibling > 0)?
-    (*word_ids)[argument_left_sibling - 1] : TOKEN_START;
-  rMWID = (argument_right_sibling > 0)?
-    (*word_ids)[argument_right_sibling - 1] : TOKEN_STOP;
+  if (use_contextual_dependency_features) {
+    ldMPID = (argument_leftmost_dependent > 0)?
+      (*pos_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
+    rdMPID = (argument_rightmost_dependent > 0)?
+      (*pos_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
+    lMPID = (argument_left_sibling > 0)?
+      (*pos_ids)[argument_left_sibling - 1] : TOKEN_START;
+    rMPID = (argument_right_sibling > 0)?
+      (*pos_ids)[argument_right_sibling - 1] : TOKEN_STOP;
+    ldMWID = (argument_leftmost_dependent > 0)?
+      (*word_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
+    rdMWID = (argument_rightmost_dependent > 0)?
+      (*word_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
+    lMWID = (argument_left_sibling > 0)?
+      (*word_ids)[argument_left_sibling - 1] : TOKEN_START;
+    rMWID = (argument_right_sibling > 0)?
+      (*word_ids)[argument_right_sibling - 1] : TOKEN_STOP;
+  } else {
+    ldMPID = 0x0;
+    rdMPID = 0x0;
+    lMPID = 0x0;
+    rMPID = 0x0;
+    ldMWID = 0x0;
+    rdMWID = 0x0;
+    lMWID = 0x0;
+    rMWID = 0x0;
+  }
 
   // Contextual information.
   pHPID = (predicate > 0)? (*pos_ids)[predicate - 1] : TOKEN_START;
@@ -269,30 +299,32 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
     AddFeature(fkey, features);
 
     // Predicate voice.
-    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::HV, flags,
-                                 passive_voice_code);
-    AddFeature(fkey, features);
+    if (use_dependency_features) {
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::HV, flags,
+                                   passive_voice_code);
+      AddFeature(fkey, features);
 
-    // Argument dependency relation.
-    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::MR, flags, MRID);
-    AddFeature(fkey, features);
+      // Argument dependency relation.
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::MR, flags, MRID);
+      AddFeature(fkey, features);
 
-    // Path between argument and predicate in the dependency tree (relations).
-    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHR, flags, PATHRID);
-    AddFeature(fkey, features);
+      // Path between argument and predicate in the dependency tree (relations).
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHR, flags, PATHRID);
+      AddFeature(fkey, features);
 
-    // Path between argument and predicate in the dependency tree (POS tags).
-    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHP, flags, PATHPID);
-    AddFeature(fkey, features);
+      // Path between argument and predicate in the dependency tree (POS tags).
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHP, flags, PATHPID);
+      AddFeature(fkey, features);
 
-    // RelPathToSupport.
-    // TODO(atm)
+      // RelPathToSupport.
+      // TODO(atm)
 
-    // VerbChainHasSubj.
-    // TODO(atm)
+      // VerbChainHasSubj.
+      // TODO(atm)
 
-    // ControllerHasObj.
-    // TODO(atm)
+      // ControllerHasObj.
+      // TODO(atm)
+    }
 
     if (use_contextual_dependency_features) {
       // Contextual dependency features: argument dependents.
@@ -371,6 +403,610 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
     }
   }
 }
+#else
+void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
+                                      int r,
+                                      int predicate,
+                                      int argument,
+                                      int predicate_id) {
+  //LOG(INFO) << "Adding arc features";
+
+  SemanticOptions *options = static_cast<class SemanticPipe*>(pipe_)->
+      GetSemanticOptions();
+
+  CHECK(!input_features_[r]);
+  BinaryFeatures *features = new BinaryFeatures;
+  input_features_[r] = features;
+
+  // Add arc predicate features.
+  AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::ARC_PREDICATE,
+                       r, predicate, predicate_id);
+
+  int sentence_length = sentence->size();
+  // True if labeled semantic parsing.
+  bool labeled =
+      static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
+
+  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_contextual_dependency_features = use_dependency_features;
+  bool use_contextual_features = FLAGS_use_contextual_features;
+  bool use_lemma_features = true;
+  bool use_between_features = true;
+
+  // Only 4 bits are allowed in feature_type.
+  // TODO(atm): allow other pair types.
+  int pair_type = SemanticFeatureTemplateParts::ARC;
+  CHECK_LT(pair_type, 16);
+  CHECK_GE(pair_type, 0);
+  uint8_t feature_type = pair_type;
+
+  int max_token_context = 1; //FLAGS_semantic_token_context; // 1.
+
+  uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
+  uint8_t binned_length_code; // Binned arc length.
+  uint8_t exact_length_code; // Exact arc length.
+  int left_position, right_position;
+  if (argument < predicate) {
+    left_position = argument;
+    right_position = predicate;
+    direction_code = 0x0;
+  } else {
+    left_position = predicate;
+    right_position = argument;
+    direction_code = 0x1;
+  }
+  int arc_length = right_position - left_position;
+
+  // 7 possible values for binned_length_code (3 bits).
+  exact_length_code = (arc_length > 0xff)? 0xff : arc_length;
+  if (arc_length > 40) {
+    binned_length_code = 0x6;
+  } else if (arc_length > 30) {
+    binned_length_code = 0x5;
+  } else if (arc_length > 20) {
+    binned_length_code = 0x4;
+  } else if (arc_length > 10) {
+    binned_length_code = 0x3;
+  } else if (arc_length > 5) {
+    binned_length_code = 0x2;
+  } else if (arc_length > 2) {
+    binned_length_code = 0x1;
+  } else {
+    binned_length_code = 0x0;
+  }
+
+  // List of argument dependents, left and right siblings.
+  const vector<int> &argument_dependents = sentence->GetModifiers(argument);
+  int argument_left_sibling = sentence->GetLeftSibling(argument);
+  int argument_right_sibling = sentence->GetRightSibling(argument);
+  int l = argument_dependents.size();
+  int argument_leftmost_dependent = (l > 0)? argument_dependents[0] : -1;
+  int argument_rightmost_dependent = (l > 0)? argument_dependents[l-1] : -1;
+
+  // Flag for passive voice (for the predicate).
+  // 0x0: No verb.
+  // 0x1: Active voice.
+  // 0x2: Passive voice.
+  // Requires 2 bits.
+  uint8_t passive_voice_code = 0x0;
+  if (use_dependency_features) {
+    // Right now, the detection of passive voice requires dependency syntax
+    // information.
+    if (sentence->IsVerb(predicate)) {
+      if (sentence->IsPassiveVoice(predicate)) {
+        passive_voice_code = 0x1;
+      } else {
+        passive_voice_code = 0x2;
+      }
+    }
+  }
+
+  // Codewords for accommodating word/POS information.
+  uint16_t HWID, MWID;
+  uint16_t HLID, MLID;
+  uint16_t HSID, MSID;
+  uint8_t HPID, MPID, BPID;
+  uint16_t pHWID, pMWID, nHWID, nMWID;
+  uint16_t pHLID, pMLID, nHLID, nMLID;
+  uint8_t pHPID, pMPID, nHPID, nMPID;
+  uint16_t ppHWID, ppMWID, nnHWID, nnMWID;
+  uint16_t ppHLID, ppMLID, nnHLID, nnMLID;
+  uint8_t ppHPID, ppMPID, nnHPID, nnMPID;
+
+  // Codewords for dependency-based features.
+  uint16_t ldMWID, rdMWID, lMWID, rMWID;
+  uint8_t ldMPID, rdMPID, lMPID, rMPID;
+  uint8_t MRID;
+  uint16_t PATHRID, PATHPID;
+
+  // Several flags.
+  // 4 bits to denote the kind of flag.
+  // Maximum will be 16 flags.
+  uint8_t flag_between_verb = 0x0;
+  uint8_t flag_between_punc = 0x1;
+  uint8_t flag_between_coord = 0x2;
+
+  // TODO: This is expensive and could be precomputed.
+  int num_between_verb = 0;
+  int num_between_punc = 0;
+  int num_between_coord = 0;
+  for (int i = left_position + 1; i < right_position; ++i) {
+    if (sentence->IsVerb(i)) {
+      ++num_between_verb;
+    } else if (sentence->IsPunctuation(i)) {
+      ++num_between_punc;
+    } else if (sentence->IsCoordination(i)) {
+      ++num_between_coord;
+    }
+  }
+
+  // 4 bits to denote the number of occurrences for each flag.
+  // Maximum will be 15 occurrences.
+  int max_occurrences = 15;
+  if (num_between_verb > max_occurrences) num_between_verb = max_occurrences;
+  if (num_between_punc > max_occurrences) num_between_punc = max_occurrences;
+  if (num_between_coord > max_occurrences) num_between_coord = max_occurrences;
+  flag_between_verb |= (num_between_verb << 4);
+  flag_between_punc |= (num_between_punc << 4);
+  flag_between_coord |= (num_between_coord << 4);
+
+  // Maximum is 255 feature templates.
+  CHECK_LT(SemanticFeatureTemplateArc::COUNT, 256);
+
+  uint64_t fkey;
+  uint8_t flags = 0;
+
+  // Words/POS.
+  HWID = sentence->GetFormId(predicate);
+  MWID = sentence->GetFormId(argument);
+  HPID = sentence->GetPosId(predicate);
+  MPID = sentence->GetPosId(argument);
+
+  // Predicate lemma/sense.
+  HLID = sentence->GetLemmaId(predicate);
+  CHECK_GE(predicate_id, 0);
+  CHECK_LT(predicate_id, 0xffff);
+  HSID = predicate_id;
+
+  // Argument dependency relation.
+  if (use_dependency_features) {
+    MRID = sentence->GetRelationId(argument);
+  } else {
+    MRID = 0x0;
+  }
+
+  // Dependency paths.
+  if (use_dependency_features) {
+    PATHRID = sentence->GetRelationPathId(predicate, argument);
+    PATHPID = sentence->GetPosPathId(predicate, argument);
+  } else {
+    PATHRID = 0x0;
+    PATHPID = 0x0;
+  }
+
+  // Array of form/lemma IDs.
+  const vector<int>* word_ids = &sentence->GetFormIds();
+  // Array of POS/CPOS IDs.
+  const vector<int>* pos_ids = &sentence->GetPosIds();
+
+  // Contextual dependency information (argument only).
+  if (use_contextual_dependency_features) {
+    ldMPID = (argument_leftmost_dependent > 0)?
+      (*pos_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
+    rdMPID = (argument_rightmost_dependent > 0)?
+      (*pos_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
+    lMPID = (argument_left_sibling > 0)?
+      (*pos_ids)[argument_left_sibling - 1] : TOKEN_START;
+    rMPID = (argument_right_sibling > 0)?
+      (*pos_ids)[argument_right_sibling - 1] : TOKEN_STOP;
+    ldMWID = (argument_leftmost_dependent > 0)?
+      (*word_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
+    rdMWID = (argument_rightmost_dependent > 0)?
+      (*word_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
+    lMWID = (argument_left_sibling > 0)?
+      (*word_ids)[argument_left_sibling - 1] : TOKEN_START;
+    rMWID = (argument_right_sibling > 0)?
+      (*word_ids)[argument_right_sibling - 1] : TOKEN_STOP;
+  } else {
+    ldMPID = 0x0;
+    rdMPID = 0x0;
+    lMPID = 0x0;
+    rMPID = 0x0;
+    ldMWID = 0x0;
+    rdMWID = 0x0;
+    lMWID = 0x0;
+    rMWID = 0x0;
+  }
+
+  // Contextual information.
+  // Context size = 1:
+  pHLID = (predicate > 0)? sentence->GetLemmaId(predicate - 1) : TOKEN_START;
+  pMLID = (argument > 0)? sentence->GetLemmaId(argument - 1) : TOKEN_START;
+  pHWID = (predicate > 0)? sentence->GetFormId(predicate - 1) : TOKEN_START;
+  pMWID = (argument > 0)? sentence->GetFormId(argument - 1) : TOKEN_START;
+  pHPID = (predicate > 0)? sentence->GetPosId(predicate - 1) : TOKEN_START;
+  pMPID = (argument > 0)? sentence->GetPosId(argument - 1) : TOKEN_START;
+
+  nHLID = (predicate < sentence_length - 1)?
+      sentence->GetLemmaId(predicate + 1) : TOKEN_STOP;
+  nMLID = (argument < sentence_length - 1)?
+      sentence->GetLemmaId(argument + 1) : TOKEN_STOP;
+  nHWID = (predicate < sentence_length - 1)?
+      sentence->GetFormId(predicate + 1) : TOKEN_STOP;
+  nMWID = (argument < sentence_length - 1)?
+      sentence->GetFormId(argument + 1) : TOKEN_STOP;
+  nHPID = (predicate < sentence_length - 1)?
+      sentence->GetPosId(predicate + 1) : TOKEN_STOP;
+  nMPID = (argument < sentence_length - 1)?
+      sentence->GetPosId(argument + 1) : TOKEN_STOP;
+
+  // Context size = 2:
+  ppHLID = (predicate > 1)? sentence->GetLemmaId(predicate - 2) : TOKEN_START;
+  ppMLID = (argument > 1)? sentence->GetLemmaId(argument - 2) : TOKEN_START;
+  ppHWID = (predicate > 1)? sentence->GetFormId(predicate - 2) : TOKEN_START;
+  ppMWID = (argument > 1)? sentence->GetFormId(argument - 2) : TOKEN_START;
+  ppHPID = (predicate > 1)? sentence->GetPosId(predicate - 2) : TOKEN_START;
+  ppMPID = (argument > 1)? sentence->GetPosId(argument - 2) : TOKEN_START;
+
+  nnHLID = (predicate < sentence_length - 2)?
+      sentence->GetLemmaId(predicate + 2) : TOKEN_STOP;
+  nnMLID = (argument < sentence_length - 2)?
+      sentence->GetLemmaId(argument + 2) : TOKEN_STOP;
+  nnHWID = (predicate < sentence_length - 2)?
+      sentence->GetFormId(predicate + 2) : TOKEN_STOP;
+  nnMWID = (argument < sentence_length - 2)?
+      sentence->GetFormId(argument + 2) : TOKEN_STOP;
+  nnHPID = (predicate < sentence_length - 2)?
+      sentence->GetPosId(predicate + 2) : TOKEN_STOP;
+  nnMPID = (argument < sentence_length - 2)?
+      sentence->GetPosId(argument + 2) : TOKEN_STOP;
+
+  // Code for feature type.
+  flags = feature_type; // 4 bits.
+  flags |= (direction_code << 4); // 1 more bit.
+
+  // Bias feature.
+  fkey = encoder_.CreateFKey_NONE(SemanticFeatureTemplateArc::BIAS, flags);
+  AddFeature(fkey, features);
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Token features.
+  /////////////////////////////////////////////////////////////////////////////
+
+  // POS features.
+  fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::HP, flags, HPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::MP, flags, MPID);
+  AddFeature(fkey, features);
+
+  // Lexical features.
+  fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::HW, flags, HWID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::MW, flags, MWID);
+  AddFeature(fkey, features);
+
+  // Features involving words and POS.
+  fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HWP, flags, HWID, HPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::MWP, flags, MWID, MPID);
+  AddFeature(fkey, features);
+
+  // Predicate and argument lemma.
+  if (use_lemma_features) {
+    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::HL, flags, HLID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::ML, flags, MLID);
+    AddFeature(fkey, features);
+  }
+
+  // Predicate sense.
+  fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::HS, flags, HSID);
+  AddFeature(fkey, features);
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Features that depend on syntactic dependencies.
+  /////////////////////////////////////////////////////////////////////////////
+
+  // Predicate voice.
+  if (use_dependency_features) {
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::HV, flags,
+                                 passive_voice_code);
+    AddFeature(fkey, features);
+
+    // Argument dependency relation.
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::MR, flags, MRID);
+    AddFeature(fkey, features);
+
+    // Path between argument and predicate in the dependency tree (relations).
+    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHR, flags, PATHRID);
+    AddFeature(fkey, features);
+
+    // Path between argument and predicate in the dependency tree (POS tags).
+    fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::PATHP, flags, PATHPID);
+    AddFeature(fkey, features);
+
+    // RelPathToSupport.
+    // TODO(atm)
+
+    // VerbChainHasSubj.
+    // TODO(atm)
+
+    // ControllerHasObj.
+    // TODO(atm)
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Features that depend on syntactic dependency context.
+  /////////////////////////////////////////////////////////////////////////////
+
+  if (use_contextual_dependency_features) {
+    // Contextual dependency features: argument dependents.
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_ldMP, flags, HPID, ldMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HW_ldMP, flags, HWID, ldMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HP_ldMW, flags, ldMWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HW_ldMW, flags, HWID, ldMWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_rdMP, flags, HPID, rdMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HW_rdMP, flags, HWID, rdMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HP_rdMW, flags, rdMWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HW_rdMW, flags, HWID, rdMWID);
+    AddFeature(fkey, features);
+
+    // Contextual dependency features: argument siblings.
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_lMP, flags, HPID, lMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HW_lMP, flags, HWID, lMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HP_lMW, flags, lMWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HW_lMW, flags, HWID, lMWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_rMP, flags, HPID, rMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HW_rMP, flags, HWID, rMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HP_rMW, flags, rMWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HW_rMW, flags, HWID, rMWID);
+    AddFeature(fkey, features);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Token contextual features.
+  /////////////////////////////////////////////////////////////////////////////
+
+  if (use_contextual_features) {
+    // Contextual features.
+    if (max_token_context >= 1) {
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::pHP, flags, pHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::nHP, flags, nHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::pMP, flags, pMPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::nMP, flags, nMPID);
+      AddFeature(fkey, features);
+
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::pHW, flags, pHWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nHW, flags, nHWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::pMW, flags, pMWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nMW, flags, nMWID);
+      AddFeature(fkey, features);
+
+      if (use_lemma_features) {
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::pHL, flags, pHLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nHL, flags, nHLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::pML, flags, pMLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nML, flags, nMLID);
+        AddFeature(fkey, features);
+      }
+
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::pHWP, flags, pHWID, pHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::nHWP, flags, nHWID, nHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::pMWP, flags, pMWID, pMPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::nMWP, flags, nMWID, nMPID);
+      AddFeature(fkey, features);
+    }
+
+    if (max_token_context >= 2) {
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::ppHP, flags, ppHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::nnHP, flags, nnHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::ppMP, flags, ppMPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::nnMP, flags, nnMPID);
+      AddFeature(fkey, features);
+
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::ppHW, flags, ppHWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nnHW, flags, nnHWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::ppMW, flags, ppMWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nnMW, flags, nnMWID);
+      AddFeature(fkey, features);
+
+      if (use_lemma_features) {
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::ppHL, flags, ppHLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nnHL, flags, nnHLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::ppML, flags, ppMLID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_W(SemanticFeatureTemplateArc::nnML, flags, nnMLID);
+        AddFeature(fkey, features);
+      }
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::ppHWP, flags, ppHWID, ppHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::nnHWP, flags, nnHWID, nnHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::ppMWP, flags, ppMWID, ppMPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::nnMWP, flags, nnMWID, nnMPID);
+      AddFeature(fkey, features);
+    }
+
+    // Contextual bigram and trigram features involving POS.
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_pHP, flags, HPID, pHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::MP_pMP, flags, MPID, pMPID);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_pHP_ppHP, flags, HPID, pHPID, ppHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::MP_pMP_ppMP, flags, MPID, pMPID, ppMPID);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_nHP, flags, HPID, nHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::MP_nMP, flags, MPID, nMPID);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_nHP_nnHP, flags, HPID, nHPID, nnHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::MP_nMP_nnMP, flags, MPID, nMPID, nnMPID);
+    AddFeature(fkey, features);
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Arc features.
+  // Everything goes with direction flags and with POS.
+  /////////////////////////////////////////////////////////////////////////////
+
+  // POS features.
+  fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP_MP, flags, HPID, MPID);
+  AddFeature(fkey, features);
+
+  // Lexical/Bilexical features.
+  fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HW_MW, flags, HWID, MWID);
+  AddFeature(fkey, features);
+
+  // Features involving words and POS.
+  fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HP_MW, flags, MWID, HPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HP_MWP, flags, MWID, MPID, HPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplateArc::HW_MP, flags, HWID, MPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HWP_MP, flags, HWID, HPID, MPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWPP(SemanticFeatureTemplateArc::HWP_MWP, flags, HWID, MWID, HPID, MPID);
+  AddFeature(fkey, features);
+
+  // Contextual features.
+  if (use_contextual_features) {
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_pHP, flags, HPID, MPID, pHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_nHP, flags, HPID, MPID, nHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_pMP, flags, HPID, MPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_nMP, flags, HPID, MPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_pHP_pMP, flags, HPID, MPID, pHPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_nHP_nMP, flags, HPID, MPID, nHPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_pHP_nMP, flags, HPID, MPID, pHPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_nHP_pMP, flags, HPID, MPID, nHPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPPPP(SemanticFeatureTemplateArc::HP_MP_pHP_nHP_pMP_nMP, flags, HPID, MPID, pHPID, nHPID, pMPID, nMPID);
+    AddFeature(fkey, features);
+
+    // Features for adjacent arcs.
+    if (predicate != 0 && predicate == argument - 1) {
+      fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_pHP, flags, HPID, MPID, pHPID, 0x1);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_nMP, flags, HPID, MPID, nMPID, 0x1);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_PPPPP(SemanticFeatureTemplateArc::HP_MP_pHP_nMP, flags, HPID, MPID, pHPID, nMPID, 0x1);
+      AddFeature(fkey, features);
+    } else if (predicate != 0 && predicate == argument + 1) {
+      fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_nHP, flags, HPID, MPID, nHPID, 0x1);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_PPPP(SemanticFeatureTemplateArc::HP_MP_pMP, flags, HPID, MPID, pMPID, 0x1);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_PPPPP(SemanticFeatureTemplateArc::HP_MP_nHP_pMP, flags, HPID, MPID, nHPID, pMPID, 0x1);
+      AddFeature(fkey, features);
+    }
+  }
+
+  // Exact arc length.
+  fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::DIST, flags, exact_length_code);
+  AddFeature(fkey, features);
+
+  // Binned arc length.
+  for (uint8_t bin = 0; bin <= binned_length_code; ++bin) {
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::BIAS, flags, bin);
+    AddFeature(fkey, features);
+  }
+
+  // POS features conjoined with binned arc length.
+  for (uint8_t bin = 0; bin <= binned_length_code; bin++) {
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::HP, flags, HPID, bin);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplateArc::MP, flags, MPID, bin);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP, flags, HPID, MPID, bin);
+    AddFeature(fkey, features);
+  }
+
+  if (use_between_features) {
+    // In-between flags.
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::BFLAG, flags, flag_between_verb);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::BFLAG, flags, flag_between_punc);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplateArc::BFLAG, flags, flag_between_coord);
+    AddFeature(fkey, features);
+
+    // POS features conjoined with in-between flag.
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_verb);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_punc);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_coord);
+    AddFeature(fkey, features);
+
+    set<int> BPIDs;
+    set<int> BWIDs;
+    for (int i = left_position + 1; i < right_position; ++i) {
+      BPID = sentence->GetCoarsePosId(i);
+      if (BPIDs.find(BPID) == BPIDs.end()) {
+        BPIDs.insert(BPID);
+
+        // POS in the middle.
+        fkey = encoder_.CreateFKey_PPP(SemanticFeatureTemplateArc::HP_MP_BP, flags, HPID, MPID, BPID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(SemanticFeatureTemplateArc::HW_MW_BP, flags, HWID, MWID, BPID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HW_MP_BP, flags, HWID, MPID, BPID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HP_MW_BP, flags, MWID, HPID, BPID);
+        AddFeature(fkey, features);
+      }
+      BPIDs.clear();
+    }
+  }
+}
+#endif
 
 
 // Add features for arbitrary siblings.
@@ -1256,8 +1892,9 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   bool labeled =
       static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
-  bool use_contextual_dependency_features = true;
-  bool use_contextual_features = false;
+  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_contextual_dependency_features = use_dependency_features;
+  bool use_contextual_features = FLAGS_use_contextual_features;
 
   // Only 4 bits are allowed in feature_type.
   //uint8_t feature_type = SemanticFeatureTemplateParts::PREDICATE;
@@ -1300,13 +1937,23 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   HSID = predicate_id;
 
   // Predicate dependency relation.
-  HRID = sentence->GetRelationId(predicate);
+  if (use_dependency_features) {
+    HRID = sentence->GetRelationId(predicate);
+  } else {
+    HRID = 0x0;
+  }
 
   // Contextual dependency information.
   int head = sentence->GetHead(predicate);
-  hHPID = (*pos_ids)[head];
-  hHWID = (*word_ids)[head];
-  hHLID = sentence->GetLemmaId(head);
+  if (use_dependency_features) {
+    hHPID = (*pos_ids)[head];
+    hHWID = (*word_ids)[head];
+    hHLID = sentence->GetLemmaId(head);
+  } else {
+    hHPID = 0x0;
+    hHWID = 0x0;
+    hHLID = 0x0;
+  }
 
   // Maximum is 255 feature templates.
   CHECK_LT(SemanticFeatureTemplatePredicate::COUNT, 256);
@@ -1331,20 +1978,21 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
     fkey = encoder_.CreateFKey_W(SemanticFeatureTemplatePredicate::HS, flags, HSID);
     AddFeature(fkey, features);
 
-    // Predicate dependency relation.
-    fkey = encoder_.CreateFKey_P(SemanticFeatureTemplatePredicate::HR, flags, HRID);
-    AddFeature(fkey, features);
+    if (use_dependency_features) {
+      // Predicate dependency relation.
+      fkey = encoder_.CreateFKey_P(SemanticFeatureTemplatePredicate::HR, flags, HRID);
+      AddFeature(fkey, features);
 
-    // Predicate head features.
-    fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplatePredicate::HW_hHW, flags, HWID, hHWID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_hHP, flags, HWID, hHPID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_hHW, flags, hHWID, HPID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplatePredicate::HP_hHP, flags, HPID, hHPID);
-    AddFeature(fkey, features);
-
+      // Predicate head features.
+      fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplatePredicate::HW_hHW, flags, HWID, hHWID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_hHP, flags, HWID, hHPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_hHW, flags, hHWID, HPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplatePredicate::HP_hHP, flags, HPID, hHPID);
+      AddFeature(fkey, features);
+    }
 
     if (use_contextual_dependency_features) {
       // Contextual dependency features: predicate dependents.
@@ -1370,7 +2018,8 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
 
     if (use_contextual_features) {
       // Contextual features.
-      CHECK(false);
+      // TODO(atm): implement this.
+      //CHECK(false);
     }
   }
 }

@@ -1,0 +1,230 @@
+===================== Options ======================
+Action: train
+Formalism: dm
+Algorithm: svm_mira
+Regularization: 0.1
+decoder-a: 0.2
+======================================================
+Read  33547  sentences.
+Read  267  sentences.
+Read  189  sentences.
+Number of argument labels: 51
+Label: _after_c #: 63790 # uniq: 63788
+Label: _not+to+mention_c #: 219715 # uniq: 219698
+Label: _and_c #: 133847 # uniq: 133770
+Label: appos #: 12916 # uniq: 12915
+Label: _formerly_c #: 60246 # uniq: 60246
+Label: subord #: 2514 # uniq: 2499
+Label: _much+less_c #: 4179 # uniq: 4179
+Label: _and+yet_c #: 3326 # uniq: 3325
+Label: _and+so_c #: 11737 # uniq: 11677
+Label: BV #: 4950 # uniq: 4592
+Label: _and+not_c #: 2736 # uniq: 2736
+Label: _versus_c #: 7989 # uniq: 7896
+Label: measure #: 25 # uniq: 25
+Label: conj #: 1155 # uniq: 1155
+Label: _except_c #: 6975 # uniq: 6975
+Label: loc #: 823 # uniq: 823
+Label: _instead+of_c #: 9 # uniq: 9
+Label: _if+not_c #: 5026 # uniq: 5021
+Label: _nor_c #: 87 # uniq: 87
+Label: neg #: 15 # uniq: 15
+Label: discourse #: 76 # uniq: 76
+Label: _not_c #: 1779 # uniq: 1771
+Label: _minus_c #: 167 # uniq: 167
+Label: _and+thus_c #: 28 # uniq: 26
+Label: mwe #: 321 # uniq: 321
+Label: _then_c #: 160 # uniq: 160
+Label: plus #: 245 # uniq: 245
+Label: _though_c #: 839 # uniq: 839
+Label: parenthetical #: 5 # uniq: 5
+Label: _and+then_c #: 1 # uniq: 1
+Label: _and+also_c #: 153 # uniq: 153
+Label: _but+also_c #: 282 # uniq: 282
+Label: _except+that_c #: 42 # uniq: 42
+Label: _yet_c #: 34 # uniq: 34
+Label: _rather+than_c #: 61 # uniq: 61
+Label: _even_c #: 8 # uniq: 8
+Label: compound #: 10 # uniq: 10
+Label: poss #: 10 # uniq: 10
+Label: temp #: 22 # uniq: 22
+Label: ARG1 #: 10 # uniq: 10
+Label: ARG2 #: 21 # uniq: 21
+Label: ARG3 #: 28 # uniq: 28
+Label: ARG4 #: 3 # uniq: 3
+Label: _plus_c #: 3 # uniq: 3
+Label: _but+not_c #: 7 # uniq: 7
+Label: times #: 2 # uniq: 2
+Label: _but_c #: 2 # uniq: 2
+Label: of #: 4 # uniq: 4
+Label: unspec_manner #: 3 # uniq: 3
+Label: _as+well+as_c #: 2 # uniq: 2
+Label: _or_c #: 1 # uniq: 1
+Average #components: 1.08078218619
+Max #components: 7
+# Sentences w/ zero components: 1
+# Sentences w/ single-component: 31303
+# Sentences w/ undirected loops: 10042
+# Sentences w/ cycles: 0
+# Edges: 546389
+# Nodes: 569226
+# Tokens: 735706
+
+
+
+===================== Options ======================
+Action: train
+Formalism: pas
+Algorithm: svm_mira
+Regularization: 0.1
+decoder-a: 0.2
+======================================================
+Read  33547  sentences.
+Read  267  sentences.
+Read  189  sentences.
+Number of argument labels: 42
+Label: lparen_ARG2 #: 71416 # uniq: 71416
+Label: comp_ARG1 #: 69947 # uniq: 69947
+Label: comp_ARG2 #: 69119 # uniq: 69119
+Label: punct_ARG1 #: 22855 # uniq: 22855
+Label: coord_ARG1 #: 22920 # uniq: 22920
+Label: coord_ARG2 #: 5220 # uniq: 5220
+Label: verb_ARG4 #: 70143 # uniq: 70143
+Label: verb_ARG3 #: 71193 # uniq: 71193
+Label: verb_ARG2 #: 68360 # uniq: 68360
+Label: verb_ARG1 #: 100853 # uniq: 100853
+Label: lparen_ARG3 #: 13852 # uniq: 13852
+Label: lgs_ARG2 #: 39289 # uniq: 39289
+Label: prep_ARG1 #: 1568 # uniq: 1568
+Label: prep_ARG3 #: 17583 # uniq: 17583
+Label: prep_ARG2 #: 17594 # uniq: 17594
+Label: relative_ARG2 #: 9004 # uniq: 9004
+Label: relative_ARG1 #: 5736 # uniq: 5736
+Label: adj_ARG2 #: 626 # uniq: 626
+Label: adj_ARG1 #: 5141 # uniq: 5141
+Label: app_ARG1 #: 5141 # uniq: 5141
+Label: app_ARG2 #: 4641 # uniq: 4641
+Label: prep_MOD #: 1837 # uniq: 1837
+Label: poss_ARG1 #: 6380 # uniq: 6380
+Label: poss_ARG2 #: 6666 # uniq: 6666
+Label: quote_ARG1 #: 3138 # uniq: 3138
+Label: dtv_ARG2 #: 1119 # uniq: 1119
+Label: verb_MOD #: 806 # uniq: 806
+Label: det_ARG1 #: 806 # uniq: 806
+Label: quote_ARG2 #: 807 # uniq: 807
+Label: noun_ARG2 #: 408 # uniq: 408
+Label: noun_ARG1 #: 125 # uniq: 125
+Label: adj_MOD #: 98 # uniq: 98
+Label: comp_MOD #: 203 # uniq: 203
+Label: it_ARG1 #: 231 # uniq: 231
+Label: conj_ARG1 #: 119 # uniq: 119
+Label: conj_ARG2 #: 113 # uniq: 113
+Label: conj_ARG3 #: 191 # uniq: 191
+Label: aux_ARG1 #: 118 # uniq: 118
+Label: quote_ARG3 #: 89 # uniq: 89
+Label: aux_ARG2 #: 8 # uniq: 8
+Label: aux_MOD #: 12 # uniq: 12
+Label: lparen_ARG1 #: 21 # uniq: 21
+Average #components: 1.00238471398
+Max #components: 3
+# Sentences w/ zero components: 0
+# Sentences w/ single-component: 33470
+# Sentences w/ undirected loops: 23717
+# Sentences w/ cycles: 0
+# Edges: 715496
+# Nodes: 702655
+# Tokens: 735706
+
+
+
+
+===================== Options ======================
+Action: train
+Formalism: pcedt
+Algorithm: svm_mira
+Regularization: 0.1
+decoder-a: 0.2
+======================================================
+Read  33547  sentences.
+Read  267  sentences.
+Read  189  sentences.
+Number of argument labels: 68
+Label: LOC #: 21734 # uniq: 17973
+Label: DPHR #: 13081 # uniq: 11683
+Label: PAT #: 68587 # uniq: 63236
+Label: VOCAT #: 75529 # uniq: 68755
+Label: DESCR #: 4697 # uniq: 4256
+Label: RESTR #: 101907 # uniq: 84841
+Label: OPER.member #: 1257 # uniq: 1248
+Label: PAR #: 21277 # uniq: 20158
+Label: AIM #: 480 # uniq: 478
+Label: TWHEN #: 1002 # uniq: 921
+Label: EXT #: 3226 # uniq: 3051
+Label: COND #: 15815 # uniq: 14077
+Label: PREC #: 1076 # uniq: 545
+Label: ACT #: 1371 # uniq: 1277
+Label: CRIT #: 16229 # uniq: 15312
+Label: BEN #: 7863 # uniq: 7333
+Label: CPR #: 2197 # uniq: 2049
+Label: REG #: 4046 # uniq: 4014
+Label: CPHR #: 2063 # uniq: 1752
+Label: DIR3 #: 11879 # uniq: 5787
+Label: CONJ.member #: 27858 # uniq: 12850
+Label: DIR1 #: 1367 # uniq: 1211
+Label: TSIN #: 2072 # uniq: 1909
+Label: MEANS #: 7190 # uniq: 6964
+Label: CONTRA.member #: 1626 # uniq: 1502
+Label: HER #: 6780 # uniq: 6623
+Label: NE #: 573 # uniq: 573
+Label: ID #: 1906 # uniq: 1888
+Label: CAUS #: 2260 # uniq: 2013
+Label: REAS.member #: 1541 # uniq: 1522
+Label: ACMP #: 1550 # uniq: 1333
+Label: CONTRD #: 2600 # uniq: 1308
+Label: DIR2 #: 4737 # uniq: 4551
+Label: NE.member #: 739 # uniq: 707
+Label: ORIG #: 958 # uniq: 953
+Label: MANN #: 2670 # uniq: 2430
+Label: INTF #: 3233 # uniq: 3011
+Label: SUBS #: 1114 # uniq: 993
+Label: CM #: 1568 # uniq: 1483
+Label: DISJ.member #: 2621 # uniq: 2434
+Label: PARTL #: 979 # uniq: 954
+Label: AUTH #: 3097 # uniq: 2833
+Label: THO #: 2191 # uniq: 2046
+Label: INTT #: 346 # uniq: 345
+Label: THL #: 261 # uniq: 128
+Label: TTILL #: 381 # uniq: 367
+Label: CNCS #: 233 # uniq: 224
+Label: RESL #: 754 # uniq: 740
+Label: DIFF #: 383 # uniq: 365
+Label: TPAR #: 2340 # uniq: 1153
+Label: ADVS.member #: 608 # uniq: 604
+Label: EFF #: 2367 # uniq: 2104
+Label: MAT #: 770 # uniq: 752
+Label: TFRWH #: 405 # uniq: 326
+Label: ADDR #: 252 # uniq: 125
+Label: TOWH #: 233 # uniq: 218
+Label: RSTR #: 76 # uniq: 69
+Label: APP #: 188 # uniq: 173
+Label: CSQ.member #: 177 # uniq: 159
+Label: CONFR.member #: 82 # uniq: 75
+Label: ATT #: 36 # uniq: 30
+Label: COMPL #: 78 # uniq: 39
+Label: APPS.member #: 48 # uniq: 23
+Label: RHEM #: 77 # uniq: 39
+Label: SM #: 11 # uniq: 8
+Label: TFHL #: 18 # uniq: 10
+Label: GRAD.member #: 9 # uniq: 9
+Label: MOD #: 6 # uniq: 6
+Average #components: 1.00778012937
+Max #components: 6
+# Sentences w/ zero components: 0
+# Sentences w/ single-component: 33360
+# Sentences w/ undirected loops: 14276
+# Sentences w/ cycles: 0
+# Edges: 466685
+# Nodes: 472350
+# Tokens: 735706
+
+
