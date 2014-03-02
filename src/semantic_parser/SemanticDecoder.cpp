@@ -898,12 +898,15 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                       &num_labeled_arcs);
   int offset_siblings, num_siblings;
   semantic_parts->GetOffsetSibling(&offset_siblings, &num_siblings);
+  int offset_grandparents, num_grandparents;
+  semantic_parts->GetOffsetGrandparent(&offset_grandparents, &num_grandparents);
+  int offset_coparents, num_coparents;
+  semantic_parts->GetOffsetCoparent(&offset_coparents, &num_coparents);
+
 #if 0
   int offset_next_siblings, num_next_siblings;
   semantic_parts->GetOffsetNextSibling(&offset_next_siblings,
                                        &num_next_siblings);
-  int offset_grandparents, num_grandparents;
-  semantic_parts->GetOffsetGrandparent(&offset_grandparents, &num_grandparents);
   int offset_grandsiblings, num_grandsiblings;
   semantic_parts->GetOffsetGrandSibling(&offset_grandsiblings, &num_grandsiblings);
   int offset_trisiblings, num_trisiblings;
@@ -912,9 +915,10 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   // Define what parts are used.
   bool use_arbitrary_sibling_parts = (num_siblings > 0);
+  bool use_grandparent_parts = (num_grandparents > 0);
+  bool use_coparent_parts = (num_coparents > 0);
 #if 0
   bool use_next_sibling_parts = (num_next_siblings > 0);
-  bool use_grandparent_parts = (num_grandparents > 0);
   bool use_grandsibling_parts = (num_grandsiblings > 0);
   bool use_trisibling_parts = (num_trisiblings > 0);
 #endif
@@ -1029,6 +1033,68 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       //factor->SetGlobalIndex(...);
       additional_part_indices.push_back(offset_siblings + r);
       factor_part_indices_.push_back(offset_siblings + r);
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // Build grandparent factors.
+  //////////////////////////////////////////////////////////////////////
+  if (use_grandparent_parts) {
+    for (int r = 0; r < num_grandparents; ++r) {
+      SemanticPartGrandparent *part = static_cast<SemanticPartGrandparent*>(
+          (*semantic_parts)[offset_grandparents + r]);
+      int r1 = semantic_parts->FindArc(part->grandparent_predicate(),
+                                       part->predicate(),
+                                       part->grandparent_sense());
+      int r2 = semantic_parts->FindArc(part->predicate(),
+                                       part->argument(),
+                                       part->sense());
+      CHECK_GE(r1, 0);
+      CHECK_GE(r2, 0);
+      vector<AD3::BinaryVariable*> local_variables;
+      local_variables.push_back(variables[r1 - offset_arcs +
+                                          offset_arc_variables]);
+      local_variables.push_back(variables[r2 - offset_arcs +
+                                          offset_arc_variables]);
+
+      factor_graph->CreateFactorPAIR(local_variables,
+                                     scores[offset_grandparents + r]);
+      // TODO: set these global indices at the end after all variables/factors
+      // are created.
+      //factor->SetGlobalIndex(...);
+      additional_part_indices.push_back(offset_grandparents + r);
+      factor_part_indices_.push_back(offset_grandparents + r);
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // Build co-parent factors.
+  //////////////////////////////////////////////////////////////////////
+  if (use_coparent_parts) {
+    for (int r = 0; r < num_coparents; ++r) {
+      SemanticPartCoparent *part = static_cast<SemanticPartCoparent*>(
+          (*semantic_parts)[offset_coparents + r]);
+      int r1 = semantic_parts->FindArc(part->first_predicate(),
+                                       part->argument(),
+                                       part->first_sense());
+      int r2 = semantic_parts->FindArc(part->second_predicate(),
+                                       part->argument(),
+                                       part->second_sense());
+      CHECK_GE(r1, 0);
+      CHECK_GE(r2, 0);
+      vector<AD3::BinaryVariable*> local_variables;
+      local_variables.push_back(variables[r1 - offset_arcs +
+                                          offset_arc_variables]);
+      local_variables.push_back(variables[r2 - offset_arcs +
+                                          offset_arc_variables]);
+
+      factor_graph->CreateFactorPAIR(local_variables,
+                                     scores[offset_coparents + r]);
+      // TODO: set these global indices at the end after all variables/factors
+      // are created.
+      //factor->SetGlobalIndex(...);
+      additional_part_indices.push_back(offset_coparents + r);
+      factor_part_indices_.push_back(offset_coparents + r);
     }
   }
 

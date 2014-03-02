@@ -468,7 +468,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   const vector<int>* word_ids = &sentence->GetFormIds();
 
   // Array of POS/CPOS IDs.
-  const vector<int>* pos_ids = &sentence->GetPosIds();
+  const vector<int>* pos_ids = &sentence->GetCoarsePosIds();
 
   uint64_t fkey;
   uint8_t flags = 0;
@@ -562,19 +562,50 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   AddFeature(fkey, features);
 }
 
-#if 0
+
 // Add features for grandparents.
-// The features are very similar to the ones used in Koo et al. EGSTRA.
 void SemanticFeatures::AddGrandparentFeatures(
                           SemanticInstanceNumeric* sentence,
                           int r,
-                          int grandparent,
-                          int head,
-                          int modifier) {
+                          int grandparent_predicate,
+                          int grandparent_sense,
+                          int predicate,
+                          int sense,
+                          int argument) {
+  AddSecondOrderFeatures(sentence, r, grandparent_predicate, grandparent_sense,
+                         predicate, sense, argument, false);
+}
+
+// Add features for co-parents.
+void SemanticFeatures::AddCoparentFeatures(
+                          SemanticInstanceNumeric* sentence,
+                          int r,
+                          int first_predicate,
+                          int first_sense,
+                          int second_predicate,
+                          int second_sense,
+                          int argument) {
+  AddSecondOrderFeatures(sentence, r, first_predicate, first_sense,
+                         second_predicate, second_sense, argument, true);
+}
+
+// Add second-order features (grandparents or co-parents).
+void SemanticFeatures::AddSecondOrderFeatures(
+                          SemanticInstanceNumeric* sentence,
+                          int r,
+                          int first_predicate,
+                          int first_sense,
+                          int second_predicate,
+                          int second_sense,
+                          int argument,
+                          bool coparents) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
+  int sentence_length = sentence->size();
+
+#if 0
   if (FLAGS_use_pair_features_second_order) {
     if (FLAGS_use_upper_dependencies) {
       AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::GRANDPAR_G_H,
@@ -583,46 +614,84 @@ void SemanticFeatures::AddGrandparentFeatures(
     AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::GRANDPAR_G_M,
                         grandparent, modifier, true, true, features);
   }
+#endif
 
   // Relative position of the grandparent, head and modifier.
-  uint8_t direction_code_gh; // 0x1 if right attachment, 0x0 otherwise.
-  uint8_t direction_code_hm; // 0x1 if right attachment, 0x0 otherwise.
-  uint8_t direction_code_gm; // 0x1 if right attachment, 0x0 otherwise.
-  uint8_t direction_code; // 0x0, 0x1, or 0x2 (see three cases below).
+  // TODO: deal with self-cycles.
+  uint8_t direction_code; // 0x0, 0x1, 0x2, or 0x3 (see four cases below).
 
-  if (head < grandparent) {
-    direction_code_gh = 0x0;
+  if (coparents) {
+    // Direction_code_gp will be the direction between the
+    // two predicates that are co-parents.
+    // It should always be 0x1 since we assume p1<p2.
+    uint8_t direction_code_gp; // 0x1 if right attachment, 0x0 otherwise.
+    uint8_t direction_code_pa; // 0x1 if right attachment, 0x0 otherwise.
+    uint8_t direction_code_ga; // 0x1 if right attachment, 0x0 otherwise.
+
+    if (second_predicate < first_predicate) {
+      direction_code_gp = 0x0;
+    } else {
+      direction_code_gp = 0x1;
+    }
+
+    if (argument < second_predicate) {
+      direction_code_pa = 0x0;
+    } else {
+      direction_code_pa = 0x1;
+    }
+
+    if (argument < first_predicate) {
+      direction_code_ga = 0x0;
+    } else {
+      direction_code_ga = 0x1;
+    }
+
+    if (direction_code_gp == direction_code_pa) {
+      // Argument on the right: p1 - p2 - a.
+      // Note: a - p2 - p1 will never happen since p1<p2.
+      direction_code = 0x0;
+    } else if (direction_code_pa != direction_code_ga) {
+      // Argument in the middle: p1 - a - p2.
+      direction_code = 0x1;
+    } else {
+      // Argument on the left: a - p1 - p2.
+      direction_code = 0x2;
+    }
   } else {
-    direction_code_gh = 0x1;
-  }
+    // Direction_code_gp will be the direction between the
+    // grandparent and the parent.
+    uint8_t direction_code_gp; // 0x1 if right attachment, 0x0 otherwise.
+    uint8_t direction_code_pa; // 0x1 if right attachment, 0x0 otherwise.
+    uint8_t direction_code_ga; // 0x1 if right attachment, 0x0 otherwise.
 
-  if (modifier < head) {
-    direction_code_hm = 0x0;
-  } else {
-    direction_code_hm = 0x1;
-  }
+    if (second_predicate < first_predicate) {
+      direction_code_gp = 0x0;
+    } else {
+      direction_code_gp = 0x1;
+    }
 
-  if (modifier < grandparent) {
-    direction_code_gm = 0x0;
-  } else {
-    direction_code_gm = 0x1;
-  }
+    if (argument < second_predicate) {
+      direction_code_pa = 0x0;
+    } else {
+      direction_code_pa = 0x1;
+    }
 
-  if (direction_code_gh == direction_code_hm) {
-    direction_code = 0x0; // Pointing in the same direction: g - h - m.
-  } else if (direction_code_hm != direction_code_gm) {
-    direction_code = 0x1; // Zig-zag inwards: g - m - h .
-  } else {
-    direction_code = 0x2; // Non-projective: m - g - h.
-  }
+    if (argument < first_predicate) {
+      direction_code_ga = 0x0;
+    } else {
+      direction_code_ga = 0x1;
+    }
 
-  // TODO: Maybe add some of the non-projective arc features for the case
-  // where direction_code = 0x2, which implies that (h,m) is non-projective.
-  if (FLAGS_use_nonprojective_grandparent) {
-    if (direction_code == 0x2) {
-      // (h,m) is necessarily non-projective.
-      AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::GRANDPAR_NONPROJ_H_M,
-                          head, modifier, true, true, features);
+    if (direction_code_gp == direction_code_pa) {
+      direction_code = 0x0; // Pointing in the same direction: g - p - a.
+    } else if (direction_code_pa != direction_code_ga) {
+      direction_code = 0x1; // Zig-zag inwards: g - a - p .
+    } else {
+      direction_code = 0x2; // Non-projective: a - g - p ("non-projective" for trees).
+    }
+    // To deal with length-1 cycles.
+    if (first_predicate == argument) {
+      direction_code = 0x3;
     }
   }
 
@@ -639,16 +708,20 @@ void SemanticFeatures::AddGrandparentFeatures(
   uint64_t fkey;
   uint8_t flags = 0;
 
-  // LOG(INFO) << grandparent << " " << head << " " << modifier << " " << sentence_length;
   // Words/POS.
-  GWID = (*word_ids)[grandparent];
-  HWID = (*word_ids)[head];
-  MWID = (*word_ids)[modifier];
-  GPID = (*pos_ids)[grandparent];
-  HPID = (*pos_ids)[head];
-  MPID = (*pos_ids)[modifier];
+  GWID = (*word_ids)[first_predicate];
+  HWID = (*word_ids)[second_predicate];
+  MWID = (*word_ids)[argument];
+  GPID = (*pos_ids)[first_predicate];
+  HPID = (*pos_ids)[second_predicate];
+  MPID = (*pos_ids)[argument];
 
-  flags = SemanticFeatureTemplateParts::GRANDPAR;
+  if (coparents) {
+    flags = SemanticFeatureTemplateParts::COPAR;
+  } else {
+    flags = SemanticFeatureTemplateParts::GRANDPAR;
+  }
+
 
   // Maximum is 255 feature templates.
   CHECK_LT(SemanticFeatureTemplateGrandparent::COUNT, 256);
@@ -723,6 +796,8 @@ void SemanticFeatures::AddGrandparentFeatures(
   AddFeature(fkey, features);
 }
 
+
+#if 0
 // Add features for grand-siblings.
 void SemanticFeatures::AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence,
                                                  int r,

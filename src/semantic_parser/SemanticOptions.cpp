@@ -33,11 +33,12 @@ DEFINE_string(model_type, "standard",
               "Model type. This a string formed by the one or several of the "
               "following pieces:"
               "af enables arc-factored parts (required), "
-              "+cs enables consecutive sibling parts, "
+              "+as enables arbitrary sibling parts,"
               "+gp enables grandparent parts,"
+              "+cp enables co-parent parts,"
               "+gs enables grandsibling parts,"
               "+ts enables trisibling parts,"
-              "+as enables arbitrary sibling parts,"
+              "+cs enables consecutive sibling parts, "
               "+gs enables grand-sibling (third-order) parts,"
               "+ts enables tri-sibling (third-order) parts."
               "The following alias are predefined:"
@@ -222,8 +223,9 @@ void SemanticOptions::Initialize() {
   pruner_max_arguments_ = FLAGS_pruner_max_arguments;
 
   use_arbitrary_siblings_ = false;
-  use_consecutive_siblings_ = false;
   use_grandparents_ = false;
+  use_coparents_ = false;
+  use_consecutive_siblings_ = false;
   use_grandsiblings_ = false;
   use_trisiblings_ = false;
 
@@ -243,21 +245,24 @@ void SemanticOptions::Initialize() {
     if (enabled_parts[i] == "af") {
       use_arc_factored = true;
       LOG(INFO) << "Arc factored parts enabled.";
-    } else if (enabled_parts[i] == "cs") {
-      use_consecutive_siblings_ = true;
-      LOG(INFO) << "Consecutive sibling parts enabled.";
+    } else if (enabled_parts[i] == "as") {
+      use_arbitrary_siblings_ = true;
+      LOG(INFO) << "Arbitrary sibling parts enabled.";
     } else if (enabled_parts[i] == "gp") {
       use_grandparents_ = true;
       LOG(INFO) << "Grandparent parts enabled.";
+    } else if (enabled_parts[i] == "cp") {
+      use_coparents_ = true;
+      LOG(INFO) << "Co-parent parts enabled.";
+    } else if (enabled_parts[i] == "cs") {
+      use_consecutive_siblings_ = true;
+      LOG(INFO) << "Consecutive sibling parts enabled.";
     } else if (enabled_parts[i] == "gs") {
       use_grandsiblings_ = true;
       LOG(INFO) << "Grandsibling parts enabled.";
     } else if (enabled_parts[i] == "ts") {
       use_trisiblings_ = true;
       LOG(INFO) << "Trisibling parts enabled.";
-    } else if (enabled_parts[i] == "as") {
-      use_arbitrary_siblings_ = true;
-      LOG(INFO) << "Arbitrary sibling parts enabled.";
     } else {
       CHECK(false) << "Unknown part in model type: " << enabled_parts[i];
     }

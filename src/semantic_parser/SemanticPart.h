@@ -31,6 +31,8 @@ enum {
   SEMANTICPART_LABELEDARC,
   SEMANTICPART_ARGUMENT,
   SEMANTICPART_SIBLING,
+  SEMANTICPART_GRANDPARENT,
+  SEMANTICPART_COPARENT,
   NUM_SEMANTICPARTS
 };
 
@@ -149,6 +151,68 @@ class SemanticPartSibling : public Part {
   int a2_; // Index of the second_argument.
 };
 
+class SemanticPartGrandparent : public Part {
+ public:
+  SemanticPartGrandparent() { g_ = t_ = p_ = s_ = a_ = -1; };
+  SemanticPartGrandparent(int grandparent_predicate, int grandparent_sense,
+                          int predicate, int sense, int argument) {
+    g_ = grandparent_predicate;
+    t_ = grandparent_sense;
+    p_ = predicate;
+    s_ = sense;
+    a_ = argument;
+  }
+  virtual ~SemanticPartGrandparent() {};
+
+ public:
+  int type() { return SEMANTICPART_GRANDPARENT; };
+
+ public:
+  int grandparent_predicate() { return g_; };
+  int grandparent_sense() { return t_; };
+  int predicate() { return p_; };
+  int sense() { return s_; };
+  int argument() { return a_; };
+
+ private:
+  int g_; // Index of the grandparent predicate.
+  int t_; // Index of the grandparent sense.
+  int p_; // Index of the predicate.
+  int s_; // Index of the sense.
+  int a_; // Index of the argument.
+};
+
+class SemanticPartCoparent : public Part {
+ public:
+  SemanticPartCoparent() { p1_ = s1_ = p2_ = s2_ = a_ = -1; };
+  SemanticPartCoparent(int first_predicate, int first_sense,
+                       int second_predicate, int second_sense,
+                       int argument) {
+    p1_ = first_predicate;
+    s1_ = first_sense;
+    p2_ = second_predicate;
+    s2_ = second_sense;
+    a_ = argument;
+  }
+  virtual ~SemanticPartCoparent() {};
+
+ public:
+  int type() { return SEMANTICPART_COPARENT; };
+
+ public:
+  int first_predicate() { return p1_; };
+  int first_sense() { return s1_; };
+  int second_predicate() { return p2_; };
+  int second_sense() { return s2_; };
+  int argument() { return a_; };
+
+ private:
+  int p1_; // Index of the first predicate.
+  int s1_; // Index of the first sense.
+  int p2_; // Index of the second predicate.
+  int s2_; // Index of the second sense.
+  int a_; // Index of the argument.
+};
 
 class SemanticParts : public Parts {
  public:
@@ -180,6 +244,23 @@ class SemanticParts : public Parts {
                           int second_argument) {
     return new SemanticPartSibling(predicate, sense, first_argument,
                                    second_argument);
+  }
+  Part *CreatePartGrandparent(int grandparent_predicate,
+                              int grandparent_sense,
+                              int predicate,
+                              int sense,
+                              int argument) {
+    return new SemanticPartGrandparent(grandparent_predicate, grandparent_sense,
+                                       predicate, sense, argument);
+  }
+  Part *CreatePartCoparent(int first_predicate,
+                           int first_sense,
+                           int second_predicate,
+                           int second_sense,
+                           int argument) {
+    return new SemanticPartCoparent(first_predicate, first_sense,
+                                    second_predicate, second_sense,
+                                    argument);
   }
 
  public:
@@ -266,6 +347,12 @@ class SemanticParts : public Parts {
   void SetOffsetSibling(int offset, int size) {
     SetOffset(SEMANTICPART_SIBLING, offset, size);
   };
+  void SetOffsetGrandparent(int offset, int size) {
+    SetOffset(SEMANTICPART_GRANDPARENT, offset, size);
+  };
+  void SetOffsetCoparent(int offset, int size) {
+    SetOffset(SEMANTICPART_COPARENT, offset, size);
+  };
 
   void GetOffsetLabeledArc(int *offset, int *size) const {
     GetOffset(SEMANTICPART_LABELEDARC, offset, size);
@@ -281,6 +368,12 @@ class SemanticParts : public Parts {
   };
   void GetOffsetSibling(int *offset, int *size) const {
     GetOffset(SEMANTICPART_SIBLING, offset, size);
+  };
+  void GetOffsetGrandparent(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_GRANDPARENT, offset, size);
+  };
+  void GetOffsetCoparent(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_COPARENT, offset, size);
   };
 
  private:

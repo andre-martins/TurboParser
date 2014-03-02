@@ -98,13 +98,32 @@ class SemanticFeatures: public Features {
                           int second_argument,
                           bool consecutive);
 
-#if 0
   void AddGrandparentFeatures(SemanticInstanceNumeric* sentence,
                               int r,
-                              int grandparent,
-                              int head,
-                              int modifier);
+                              int grandparent_predicate,
+                              int grandparent_sense,
+                              int predicate,
+                              int sense,
+                              int argument);
 
+  void AddCoparentFeatures(SemanticInstanceNumeric* sentence,
+                           int r,
+                           int first_predicate,
+                           int first_sense,
+                           int second_predicate,
+                           int second_sense,
+                           int argument);
+
+  void AddSecondOrderFeatures(SemanticInstanceNumeric* sentence,
+                              int r,
+                              int first_predicate,
+                              int first_sense,
+                              int second_predicate,
+                              int second_sense,
+                              int argument,
+                              bool coparents);
+
+#if 0
   void AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence,
                                int r,
                                int grandparent,
