@@ -53,7 +53,7 @@ void SemanticInstanceNumeric::Initialize(
     int id = -1;
     if (options->use_predicate_senses()) {
       const string &name = instance->GetPredicateName(k);
-      int id = dictionary.GetPredicateAlphabet().Lookup(name);
+      id = dictionary.GetPredicateAlphabet().Lookup(name);
       CHECK_LT(id, 0xffff);
       if (id < 0) id = kUnknownPredicate;
     }

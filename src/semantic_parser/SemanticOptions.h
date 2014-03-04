@@ -41,6 +41,9 @@ class SemanticOptions : public Options {
   // Get option values.
   const string &file_format() { return file_format_; }
   bool labeled() { return labeled_; }
+  bool use_dependency_syntactic_features() {
+    return use_dependency_syntactic_features_;
+  }
   bool allow_self_loops() { return allow_self_loops_; }
   bool allow_root_predicate() { return allow_root_predicate_; }
   bool allow_unseen_predicates() { return allow_unseen_predicates_; }
@@ -63,6 +66,7 @@ class SemanticOptions : public Options {
  protected:
   string file_format_;
   string model_type_;
+  bool use_dependency_syntactic_features_;
   bool labeled_;
   bool allow_self_loops_;
   bool allow_root_predicate_;

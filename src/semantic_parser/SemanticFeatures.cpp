@@ -27,8 +27,6 @@
 // Note 2: these flags don't get saved in the model file!!! So we need to call
 // them at test time too.
 // TODO: deprecate this.
-DEFINE_bool(use_dependency_features, true, //false,
-            "True for using features from the dependency syntactic tree.");
 DEFINE_bool(use_contextual_features, true,
             "True for using contextual arc-factored features.");
 DEFINE_bool(use_predicate_features, true, //false,
@@ -83,7 +81,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   bool labeled =
       static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
-  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
   bool use_contextual_features = FLAGS_use_contextual_features;
   bool use_between_features = false; // TODO(atm): change this.
@@ -427,7 +425,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   bool labeled =
       static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
-  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
   bool use_contextual_features = FLAGS_use_contextual_features;
   bool use_lemma_features = true;
@@ -1892,7 +1890,7 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   bool labeled =
       static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
-  bool use_dependency_features = FLAGS_use_dependency_features;
+  bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
   bool use_contextual_features = FLAGS_use_contextual_features;
 

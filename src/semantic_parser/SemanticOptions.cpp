@@ -45,6 +45,9 @@ DEFINE_string(model_type, "standard",
               "basic is af, "
               "standard is af+cs+gp, "
               "full is af+cs+gp+as+gs+ts.");
+DEFINE_bool(use_dependency_syntactic_features, true,
+            "True for using features from the dependency syntactic tree. "
+            "This should be false for the closed track in SemEval 2014.");
 DEFINE_bool(labeled, true,
             "True for training a parser with labeled arcs (if false, the "
             "parser outputs just the backbone dependencies.)");
@@ -118,6 +121,8 @@ void SemanticOptions::Save(FILE* fs) {
   bool success;
   success = WriteString(fs, model_type_);
   CHECK(success);
+  success = WriteBool(fs, use_dependency_syntactic_features_);
+  CHECK(success);
   success = WriteBool(fs, labeled_);
   CHECK(success);
   success = WriteBool(fs, allow_self_loops_);
@@ -149,6 +154,10 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadString(fs, &FLAGS_model_type);
   CHECK(success);
   LOG(INFO) << "Setting --model_type=" << FLAGS_model_type;
+  success = ReadBool(fs, &FLAGS_use_dependency_syntactic_features);
+  CHECK(success);
+  LOG(INFO) << "Setting --use_dependency_syntactic_features="
+            << FLAGS_use_dependency_syntactic_features;
   success = ReadBool(fs, &FLAGS_labeled);
   CHECK(success);
   LOG(INFO) << "Setting --labeled=" << FLAGS_labeled;
@@ -209,6 +218,7 @@ void SemanticOptions::Initialize() {
 
   file_format_ = FLAGS_file_format;
   model_type_ = FLAGS_model_type;
+  use_dependency_syntactic_features_ = FLAGS_use_dependency_syntactic_features;
   labeled_ = FLAGS_labeled;
   allow_self_loops_ = FLAGS_allow_self_loops;
   allow_root_predicate_ = FLAGS_allow_root_predicate;

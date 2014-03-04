@@ -17,13 +17,14 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true #false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
+use_dependency_syntactic_features=true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
-model_type=basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
+model_type=af #basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb").
                     # Currently, flags np+dp are not recommended because they
@@ -45,6 +46,7 @@ else
     allow_root_predicate=false
     allow_unseen_predicates=false
     use_predicate_senses=true
+    formalism=conll2008
     subfolder=srl
 fi
 
@@ -56,8 +58,8 @@ then
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}
-suffix=parser_pruned-${prune}_model-${model_type}_C-${regularization_parameter}
-suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
+suffix=semantic_parser_${formalism}_pruned-${prune}_model-${model_type}_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter}
+suffix_pruner=semantic_parser_${formalism}_pruner_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter_pruner}
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
@@ -122,6 +124,7 @@ then
         --file_train=${file_train} \
         --model_type=basic \
         --labeled=false \
+        --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
         --prune_labels=${prune_labels} \
         --prune_distances=${prune_distances} \
         --prune_basic=false \
@@ -190,6 +193,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
             --prune_labels=${prune_labels} \
             --prune_distances=${prune_distances} \
             --prune_basic=${prune} \
@@ -217,6 +221,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
             --form_case_sensitive=${case_sensitive} \
             --train_algorithm=${train_algorithm} \
             --train_regularization_constant=${regularization_parameter} \
