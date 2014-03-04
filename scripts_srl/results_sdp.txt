@@ -1,0 +1,209 @@
+
+========================================================================================
+Closed, Basic model, C=0.01, dm, best = 0.4/0.6
+========================================================================================
+
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 00:57:43.200875 23563 SemanticPipe.h:338] Unlabeled F1: 0.867029
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 00:57:43.200904 23563 SemanticPipe.h:355] Labeled F1: 0.858655
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 00:58:02.690052 23590 SemanticPipe.h:338] Unlabeled F1: 0.866158
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 00:58:02.690074 23590 SemanticPipe.h:355] Labeled F1: 0.856827
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 01:02:22.098635 23640 SemanticPipe.h:338] Unlabeled F1: 0.942835
+dm/out_closed_first_order_dm_0.01_0.4_0.6:I0303 01:02:22.098664 23640 SemanticPipe.h:355] Labeled F1: 0.939486
+
+========================================================================================
+Closed, Basic model, C=0.001, dm, best = 0.3/0.7
+========================================================================================
+
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:43:09.167479 25265 SemanticPipe.h:338] Unlabeled F1: 0.855337
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:43:09.167508 25265 SemanticPipe.h:355] Labeled F1: 0.841821
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:43:27.394352 25290 SemanticPipe.h:338] Unlabeled F1: 0.851416
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:43:27.394376 25290 SemanticPipe.h:355] Labeled F1: 0.836562
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:47:50.498096 25315 SemanticPipe.h:338] Unlabeled F1: 0.884861
+dm/out_closed_first_order_dm_0.001_0.3_0.7:I0303 05:47:50.498122 25315 SemanticPipe.h:355] Labeled F1: 0.872378
+
+========================================================================================
+Closed, Basic model, C=0.1, dm, best = 0.4/0.6
+========================================================================================
+
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 08:56:54.699408 26732 SemanticPipe.h:338] Unlabeled F1: 0.866806
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 08:56:54.699431 26732 SemanticPipe.h:355] Labeled F1: 0.858235
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 08:57:12.969288 26757 SemanticPipe.h:338] Unlabeled F1: 0.866357
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 08:57:12.969311 26757 SemanticPipe.h:355] Labeled F1: 0.857211
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 09:01:33.296825 26782 SemanticPipe.h:338] Unlabeled F1: 0.943051
+dm/out_closed_first_order_dm_0.1_0.4_0.6:I0303 09:01:33.296849 26782 SemanticPipe.h:355] Labeled F1: 0.93972
+
+========================================================================================
+Closed, Basic model, C=0.1, pas, best = 0.4/0.6
+========================================================================================
+
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:17:15.837741 25752 SemanticPipe.h:338] Unlabeled F1: 0.889707
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:17:15.837764 25752 SemanticPipe.h:355] Labeled F1: 0.88154
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:17:31.933979 25777 SemanticPipe.h:338] Unlabeled F1: 0.887794
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:17:31.934005 25777 SemanticPipe.h:355] Labeled F1: 0.878789
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:21:08.409705 25802 SemanticPipe.h:338] Unlabeled F1: 0.954548
+pas/out_closed_first_order_pas_0.1_0.4_0.6:I0303 07:21:08.409730 25802 SemanticPipe.h:355] Labeled F1: 0.951172
+
+========================================================================================
+Closed, Basic model, C=0.01, pas, best = 0.4/0.6
+========================================================================================
+
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:49:22.965160 23478 SemanticPipe.h:338] Unlabeled F1: 0.889286
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:49:22.965184 23478 SemanticPipe.h:355] Labeled F1: 0.880964
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:49:39.311713 23503 SemanticPipe.h:338] Unlabeled F1: 0.887768
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:49:39.311738 23503 SemanticPipe.h:355] Labeled F1: 0.878986
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:53:13.788544 23528 SemanticPipe.h:338] Unlabeled F1: 0.954375
+pas/out_closed_first_order_pas_0.01_0.4_0.6:I0303 00:53:13.788569 23528 SemanticPipe.h:355] Labeled F1: 0.950961
+
+========================================================================================
+Closed, Basic model, C=0.001, pas, best = 0.3/0.7
+========================================================================================
+
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:40:10.504537 24856 SemanticPipe.h:338] Unlabeled F1: 0.881256
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:40:10.504561 24856 SemanticPipe.h:355] Labeled F1: 0.872506
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:40:26.482605 24881 SemanticPipe.h:338] Unlabeled F1: 0.879238
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:40:26.482628 24881 SemanticPipe.h:355] Labeled F1: 0.868194
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:44:01.680111 24906 SemanticPipe.h:338] Unlabeled F1: 0.912261
+pas/out_closed_first_order_pas_0.001_0.3_0.7:I0303 04:44:01.680137 24906 SemanticPipe.h:355] Labeled F1: 0.904295
+
+========================================================================================
+Closed, Basic model, C=0.01, pcedt, best = 0.3/0.7
+========================================================================================
+
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:53:52.141866 23956 SemanticPipe.h:338] Unlabeled F1: 0.850752
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:53:52.141891 23956 SemanticPipe.h:355] Labeled F1: 0.776552
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:54:13.427223 23981 SemanticPipe.h:338] Unlabeled F1: 0.841216
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:54:13.427255 23981 SemanticPipe.h:355] Labeled F1: 0.76121
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:59:08.779611 24006 SemanticPipe.h:338] Unlabeled F1: 0.9505
+pcedt/out_closed_first_order_pcedt_0.01_0.3_0.7:I0303 01:59:08.779638 24006 SemanticPipe.h:355] Labeled F1: 0.915092
+
+========================================================================================
+Closed, Basic model, C=0.1, pcedt, best = 0.3/0.7
+========================================================================================
+
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:18:28.327687 27971 SemanticPipe.h:338] Unlabeled F1: 0.849986
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:18:28.327713 27971 SemanticPipe.h:355] Labeled F1: 0.775379
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:18:48.749308 28020 SemanticPipe.h:338] Unlabeled F1: 0.840473
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:18:48.749339 28020 SemanticPipe.h:355] Labeled F1: 0.760301
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:23:33.079251 28054 SemanticPipe.h:338] Unlabeled F1: 0.950623
+pcedt/out_closed_first_order_pcedt_0.1_0.3_0.7:I0303 11:23:33.079275 28054 SemanticPipe.h:355] Labeled F1: 0.915286
+
+========================================================================================
+Closed, Basic model, C=0.001, pcedt, best = 0.2/0.8
+========================================================================================
+
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:36:25.204982 25970 SemanticPipe.h:338] Unlabeled F1: 0.836571
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:36:25.205005 25970 SemanticPipe.h:355] Labeled F1: 0.764242
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:36:46.766206 25995 SemanticPipe.h:338] Unlabeled F1: 0.826105
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:36:46.766234 25995 SemanticPipe.h:355] Labeled F1: 0.745414
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:41:46.594873 26020 SemanticPipe.h:338] Unlabeled F1: 0.891181
+pcedt/out_closed_first_order_pcedt_0.001_0.2_0.8:I0303 07:41:46.594898 26020 SemanticPipe.h:355] Labeled F1: 0.831378
+
+
+
+
+
+
+
+
+
+
+
+========================================================================================
+Basic probabilistic model, unlabeled (used to prune), C=0.01, pcedt
+========================================================================================
+I0224 16:03:30.489624 25553 SemanticPipe.h:323] Unlabeled precision: 0.90027 (17684/19643)
+I0224 16:03:30.489636 25553 SemanticPipe.h:326] Unlabeled recall: 0.802979 (17684/22023)
+I0224 16:03:30.489640 25553 SemanticPipe.h:329] Unlabeled F1: 0.848846
+I0224 16:03:30.489645 25553 SemanticPipe.h:330] Pruning unlabeled recall: 0.998275 (21985/22023)
+I0224 16:03:30.489650 25553 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.2567 possible unlabeled arcs per token (413136/33707)
+--
+I0224 16:03:38.098300 25579 SemanticPipe.h:323] Unlabeled precision: 0.896413 (19367/21605)
+I0224 16:03:38.098322 25579 SemanticPipe.h:326] Unlabeled recall: 0.797422 (19367/24287)
+I0224 16:03:38.098327 25579 SemanticPipe.h:329] Unlabeled F1: 0.844025
+I0224 16:03:38.098332 25579 SemanticPipe.h:330] Pruning unlabeled recall: 0.996459 (24201/24287)
+I0224 16:03:38.098337 25579 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.3798 possible unlabeled arcs per token (455700/36810)
+--
+I0224 16:05:23.882752 25604 SemanticPipe.h:323] Unlabeled precision: 0.95403 (426707/447268)
+I0224 16:05:23.882769 25604 SemanticPipe.h:326] Unlabeled recall: 0.918064 (426707/464790)
+I0224 16:05:23.882776 25604 SemanticPipe.h:329] Unlabeled F1: 0.935701
+I0224 16:05:23.882779 25604 SemanticPipe.h:330] Pruning unlabeled recall: 1 (464790/464790)
+I0224 16:05:23.882784 25604 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.3251 possible unlabeled arcs per token (8738818/709029)
+
+
+========================================================================================
+Basic model, C=0.01, 0.5/0.5, pcedt [hyperv]
+========================================================================================
+
+atm@hyperv-ubuntu1:~/TurboParser/scripts_srl$ grep -C2 'F1:' out_pcedt_basicpruning.txt 
+I0224 18:27:06.481441 53682 SemanticPipe.h:323] Unlabeled precision: 0.920755 (16348/17755)
+I0224 18:27:06.481472 53682 SemanticPipe.h:326] Unlabeled recall: 0.742315 (16348/22023)
+I0224 18:27:06.481497 53682 SemanticPipe.h:329] Unlabeled F1: 0.821962
+I0224 18:27:06.481519 53682 SemanticPipe.h:330] Pruning unlabeled recall: 0.998275 (21985/22023)
+I0224 18:27:06.481551 53682 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.2567 possible unlabeled arcs per token (413136/33707)
+I0224 18:27:06.481580 53682 SemanticPipe.h:340] Labeled precision: 0.851873 (15125/17755)
+I0224 18:27:06.481611 53682 SemanticPipe.h:343] Labeled recall: 0.686782 (15125/22023)
+I0224 18:27:06.481647 53682 SemanticPipe.h:346] Labeled F1: 0.760471
+I0224 18:27:06.481681 53682 SemanticPipe.h:347] Pruning labeled recall: 0.995278 (21919/22023)
+I0224 18:27:06.481705 53682 SemanticPipe.h:352] Pruning labeled efficiency: 236.404 possible labeled arcs per token (7968480/33707)
+--
+I0224 18:27:38.245790 53703 SemanticPipe.h:323] Unlabeled precision: 0.916912 (17778/19389)
+I0224 18:27:38.245808 53703 SemanticPipe.h:326] Unlabeled recall: 0.731997 (17778/24287)
+I0224 18:27:38.245816 53703 SemanticPipe.h:329] Unlabeled F1: 0.814086
+I0224 18:27:38.245823 53703 SemanticPipe.h:330] Pruning unlabeled recall: 0.996459 (24201/24287)
+I0224 18:27:38.245831 53703 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.3798 possible unlabeled arcs per token (455700/36810)
+I0224 18:27:38.245841 53703 SemanticPipe.h:340] Labeled precision: 0.84156 (16317/19389)
+I0224 18:27:38.245849 53703 SemanticPipe.h:343] Labeled recall: 0.671841 (16317/24287)
+I0224 18:27:38.245857 53703 SemanticPipe.h:346] Labeled F1: 0.747184
+I0224 18:27:38.245864 53703 SemanticPipe.h:347] Pruning labeled recall: 0.993412 (24127/24287)
+I0224 18:27:38.245872 53703 SemanticPipe.h:352] Pruning labeled efficiency: 240.361 possible labeled arcs per token (8847701/36810)
+--
+I0224 18:33:33.224424 53724 SemanticPipe.h:323] Unlabeled precision: 0.977404 (429097/439017)
+I0224 18:33:33.224468 53724 SemanticPipe.h:326] Unlabeled recall: 0.923206 (429097/464790)
+I0224 18:33:33.224493 53724 SemanticPipe.h:329] Unlabeled F1: 0.949532
+I0224 18:33:33.224525 53724 SemanticPipe.h:330] Pruning unlabeled recall: 1 (464790/464790)
+I0224 18:33:33.224550 53724 SemanticPipe.h:335] Pruning unlabeled efficiency: 12.3251 possible unlabeled arcs per token (8738818/709029)
+I0224 18:33:33.224584 53724 SemanticPipe.h:340] Labeled precision: 0.957198 (420226/439017)
+I0224 18:33:33.224611 53724 SemanticPipe.h:343] Labeled recall: 0.90412 (420226/464790)
+I0224 18:33:33.224634 53724 SemanticPipe.h:346] Labeled F1: 0.929902
+I0224 18:33:33.224678 53724 SemanticPipe.h:347] Pruning labeled recall: 1 (464790/464790)
+I0224 18:33:33.224714 53724 SemanticPipe.h:352] Pruning labeled efficiency: 240.077 possible labeled arcs per token (170221737/709029)
+
+
+========================================================================================
+Basic model after pruning (stupid pruning), C=0.01, 0.5/0.5, pcedt
+========================================================================================
+
+atm@pba28:~/workspace/CPP/TurboParser/scripts_srl$ grep -C2 'F1:' out_pruned_fixed.txt 
+I0224 17:44:37.784286  1053 SemanticPipe.h:323] Unlabeled precision: 0.92068 (15809/17171)
+I0224 17:44:37.784297  1053 SemanticPipe.h:326] Unlabeled recall: 0.71784 (15809/22023)
+I0224 17:44:37.784302  1053 SemanticPipe.h:329] Unlabeled F1: 0.806705
+I0224 17:44:37.784307  1053 SemanticPipe.h:330] Pruning unlabeled recall: 0.963084 (21210/22023)
+I0224 17:44:37.784312  1053 SemanticPipe.h:335] Pruning unlabeled efficiency: 11.6718 possible unlabeled arcs per token (393423/33707)
+I0224 17:44:37.784318  1053 SemanticPipe.h:340] Labeled precision: 0.852251 (14634/17171)
+I0224 17:44:37.784322  1053 SemanticPipe.h:343] Labeled recall: 0.664487 (14634/22023)
+I0224 17:44:37.784327  1053 SemanticPipe.h:346] Labeled F1: 0.746747
+I0224 17:44:37.784332  1053 SemanticPipe.h:347] Pruning labeled recall: 0.960133 (21145/22023)
+I0224 17:44:37.784337  1053 SemanticPipe.h:352] Pruning labeled efficiency: 223.868 possible labeled arcs per token (7545921/33707)
+--
+I0224 17:45:04.989192  1082 SemanticPipe.h:323] Unlabeled precision: 0.915968 (17157/18731)
+I0224 17:45:04.989204  1082 SemanticPipe.h:326] Unlabeled recall: 0.706427 (17157/24287)
+I0224 17:45:04.989209  1082 SemanticPipe.h:329] Unlabeled F1: 0.797666
+I0224 17:45:04.989214  1082 SemanticPipe.h:330] Pruning unlabeled recall: 0.961008 (23340/24287)
+I0224 17:45:04.989219  1082 SemanticPipe.h:335] Pruning unlabeled efficiency: 11.7956 possible unlabeled arcs per token (434196/36810)
+I0224 17:45:04.989226  1082 SemanticPipe.h:340] Labeled precision: 0.841012 (15753/18731)
+I0224 17:45:04.989230  1082 SemanticPipe.h:343] Labeled recall: 0.648619 (15753/24287)
+I0224 17:45:04.989235  1082 SemanticPipe.h:346] Labeled F1: 0.732391
+I0224 17:45:04.989241  1082 SemanticPipe.h:347] Pruning labeled recall: 0.958085 (23269/24287)
+I0224 17:45:04.989256  1082 SemanticPipe.h:352] Pruning labeled efficiency: 227.977 possible labeled arcs per token (8391843/36810)
+--
+I0224 17:50:10.556403  1114 SemanticPipe.h:323] Unlabeled precision: 0.977719 (414104/423541)
+I0224 17:50:10.556416  1114 SemanticPipe.h:326] Unlabeled recall: 0.890949 (414104/464790)
+I0224 17:50:10.556421  1114 SemanticPipe.h:329] Unlabeled F1: 0.932319
+I0224 17:50:10.556426  1114 SemanticPipe.h:330] Pruning unlabeled recall: 0.963876 (448000/464790)
+I0224 17:50:10.556431  1114 SemanticPipe.h:335] Pruning unlabeled efficiency: 11.737 possible unlabeled arcs per token (8321862/709029)
+I0224 17:50:10.556437  1114 SemanticPipe.h:340] Labeled precision: 0.95786 (405693/423541)
+I0224 17:50:10.556442  1114 SemanticPipe.h:343] Labeled recall: 0.872852 (405693/464790)
+I0224 17:50:10.556447  1114 SemanticPipe.h:346] Labeled F1: 0.913383
+I0224 17:50:10.556452  1114 SemanticPipe.h:347] Pruning labeled recall: 0.963876 (448000/464790)
+I0224 17:50:10.556457  1114 SemanticPipe.h:352] Pruning labeled efficiency: 227.453 possible labeled arcs per token (161270895/709029)
+

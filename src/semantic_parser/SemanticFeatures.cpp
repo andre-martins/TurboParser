@@ -27,7 +27,7 @@
 // Note 2: these flags don't get saved in the model file!!! So we need to call
 // them at test time too.
 // TODO: deprecate this.
-DEFINE_bool(use_dependency_features, false,
+DEFINE_bool(use_dependency_features, true, //false,
             "True for using features from the dependency syntactic tree.");
 DEFINE_bool(use_contextual_features, true,
             "True for using contextual arc-factored features.");
