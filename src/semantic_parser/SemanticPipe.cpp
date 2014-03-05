@@ -25,6 +25,9 @@
 
 using namespace std;
 
+DEFINE_bool(use_unlabeled_arc_features, false, //true,
+            "True for using unlabeled arc features in addition to labeled ones.");
+
 void SemanticPipe::SaveModel(FILE* fs) {
   token_dictionary_->Save(fs);
   dependency_dictionary_->Save(fs);
@@ -105,10 +108,15 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
     if (pruner) CHECK((*parts)[r]->type() == SEMANTICPART_ARC ||
                       (*parts)[r]->type() == SEMANTICPART_PREDICATE);
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
     if ((*parts)[r]->type() == SEMANTICPART_ARC && !pruner &&
         GetSemanticOptions()->labeled()) {
-      (*scores)[r] = 0.0;
+      if (FLAGS_use_unlabeled_arc_features) {
+        (*scores)[r] = parameters->ComputeScore(part_features);
+      } else {
+        (*scores)[r] = 0.0;
+      }
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
           semantic_parts->FindLabeledArcs(arc->predicate(),
@@ -132,6 +140,40 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
       }
       continue;
     }
+#if 0
+    else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
+               FLAGS_use_labeled_siblings) {
+      CHECK(!pruner);
+      CHECK(GetSemanticOptions()->labeled());
+      SemanticPartSibling *sibling =
+        static_cast<SemanticPartSibling*>((*parts)[r]);
+      // TODO: Implement FindLabeledSiblings.
+      const vector<int> &index_labeled_parts =
+          semantic_parts->FindLabeledSiblings(sibling->predicate(),
+                                              sibling->sense(),
+                                              sibling->first_argument(),
+                                              sibling->second_argument());
+      vector<int> bigram_labels(index_labeled_parts.size());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        CHECK_GE(index_labeled_parts[k], 0);
+        CHECK_LT(index_labeled_parts[k], parts->size());
+        SemanticPartLabeledSibling *labeled_sibling =
+            static_cast<SemanticPartLabeledSibling*>(
+                (*parts)[index_labeled_parts[k]]);
+        CHECK(labeled_sibling != NULL);
+        bigram_labels[k] = semantic_dictionary->GetRoleBigramLabel(
+                               labeled_sibling->first_role(),
+                               labeled_sibling->second_role());
+      }
+      vector<double> label_scores;
+      parameters->ComputeLabelScores(part_features, bigram_labels,
+          &label_scores);
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        (*scores)[index_labeled_parts[k]] = label_scores[k];
+      }
+      continue;
+    }
+#endif
     (*scores)[r] = parameters->ComputeScore(part_features);
   }
 }
@@ -196,12 +238,16 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
                                         predicted_output[r] - gold_output[r]);
     } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
                 GetSemanticOptions()->labeled()) {
-      // TODO: Allow to have standalone features for unlabeled arcs.
-      continue;
+      // To allow having standalone features for unlabeled arcs.
+      if (FLAGS_use_unlabeled_arc_features) {
+        const BinaryFeatures &part_features = features->GetPartFeatures(r);
+        parameters->MakeGradientStep(part_features, eta, iteration,
+                                     predicted_output[r] - gold_output[r]);
+      } else {
+        continue;
+      }
     } else {
-      const BinaryFeatures &part_features =
-          features->GetPartFeatures(r);
-
+      const BinaryFeatures &part_features = features->GetPartFeatures(r);
       parameters->MakeGradientStep(part_features, eta, iteration,
         predicted_output[r] - gold_output[r]);
     }
@@ -234,12 +280,15 @@ void SemanticPipe::TouchParameters(Parts *parts, Features *features,
                                         0.0);
     } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
                 GetSemanticOptions()->labeled()) {
-      // TODO: Allow to have standalone features for unlabeled arcs.
-      continue;
+      // To allow having standalone features for unlabeled arcs.
+      if (FLAGS_use_unlabeled_arc_features) {
+        const BinaryFeatures &part_features = features->GetPartFeatures(r);
+        parameters->MakeGradientStep(part_features, 0.0, 0, 0.0);
+      } else {
+        continue;
+      }
     } else {
-      const BinaryFeatures &part_features =
-          features->GetPartFeatures(r);
-
+      const BinaryFeatures &part_features = features->GetPartFeatures(r);
       parameters->MakeGradientStep(part_features, 0.0, 0, 0.0);
     }
   }
@@ -274,11 +323,18 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
       }
     } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
                 GetSemanticOptions()->labeled()) {
-      // TODO: Allow to have standalone features for unlabeled arcs.
-      continue;
+      // To allow having standalone features for unlabeled arcs.
+      if (FLAGS_use_unlabeled_arc_features) {
+        const BinaryFeatures &part_features = features->GetPartFeatures(r);
+        for (int j = 0; j < part_features.size(); ++j) {
+          difference->mutable_weights()->Add(part_features[j],
+                                             predicted_output[r] - gold_output[r]);
+        }
+      } else {
+        continue;
+      }
     } else {
       const BinaryFeatures &part_features = features->GetPartFeatures(r);
-
       for (int j = 0; j < part_features.size(); ++j) {
         difference->mutable_weights()->Add(part_features[j],
                                            predicted_output[r] - gold_output[r]);
@@ -840,6 +896,7 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
 
   // Even in the case of labeled parsing, build features for unlabeled arcs
   // only. They will later be conjoined with the labels.
+  // TODO: allow distinguishing between unlabeled/labeled arc features.
   semantic_parts->GetOffsetArc(&offset, &size);
   for (int r = offset; r < offset + size; ++r) {
     if (!selected_parts[r]) continue;

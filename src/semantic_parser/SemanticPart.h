@@ -33,6 +33,7 @@ enum {
   SEMANTICPART_SIBLING,
   SEMANTICPART_GRANDPARENT,
   SEMANTICPART_COPARENT,
+  SEMANTICPART_LABELEDSIBLING,
   NUM_SEMANTICPARTS
 };
 
@@ -214,6 +215,41 @@ class SemanticPartCoparent : public Part {
   int a_; // Index of the argument.
 };
 
+class SemanticPartLabeledSibling : public Part {
+ public:
+  SemanticPartLabeledSibling() { p_ = s_ = a1_ = a2_ = r1_ = r2_ = -1; };
+  SemanticPartLabeledSibling(int predicate, int sense, int first_argument,
+                             int second_argument, int first_role,
+                             int second_role) {
+    p_ = predicate;
+    s_ = sense;
+    a1_ = first_argument;
+    a2_ = second_argument;
+    r1_ = first_role;
+    r2_ = second_role;
+  }
+  virtual ~SemanticPartLabeledSibling() {};
+
+ public:
+  int type() { return SEMANTICPART_LABELEDSIBLING; };
+
+ public:
+  int predicate() { return p_; };
+  int sense() { return s_; };
+  int first_argument() { return a1_; };
+  int second_argument() { return a2_; };
+  int first_role() { return r1_; };
+  int second_role() { return r2_; };
+
+ private:
+  int p_; // Index of the predicate.
+  int s_; // Index of the sense.
+  int a1_; // Index of the first argument.
+  int a2_; // Index of the second_argument.
+  int r1_; // First argument's role label.
+  int r2_; // Second_argument's role label.
+};
+
 class SemanticParts : public Parts {
  public:
   SemanticParts() {};
@@ -261,6 +297,16 @@ class SemanticParts : public Parts {
     return new SemanticPartCoparent(first_predicate, first_sense,
                                     second_predicate, second_sense,
                                     argument);
+  }
+  Part *CreatePartLabeledSibling(int predicate,
+                                 int sense,
+                                 int first_argument,
+                                 int second_argument,
+                                 int first_role,
+                                 int second_role) {
+    return new SemanticPartLabeledSibling(predicate, sense, first_argument,
+                                          second_argument, first_role,
+                                          second_role);
   }
 
  public:
@@ -353,6 +399,9 @@ class SemanticParts : public Parts {
   void SetOffsetCoparent(int offset, int size) {
     SetOffset(SEMANTICPART_COPARENT, offset, size);
   };
+  void SetOffsetLabeledSibling(int offset, int size) {
+    SetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
+  };
 
   void GetOffsetLabeledArc(int *offset, int *size) const {
     GetOffset(SEMANTICPART_LABELEDARC, offset, size);
@@ -374,6 +423,9 @@ class SemanticParts : public Parts {
   };
   void GetOffsetCoparent(int *offset, int *size) const {
     GetOffset(SEMANTICPART_COPARENT, offset, size);
+  };
+  void GetOffsetLabeledSibling(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
   };
 
  private:

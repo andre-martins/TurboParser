@@ -85,6 +85,12 @@ class SemanticDictionary : public Dictionary {
     return role_alphabet_.GetName(role);
   }
 
+  int GetRoleBigramLabel(int first_role, int second_role) const {
+    CHECK_GE(first_role, 0);
+    CHECK_GE(second_role, 0);
+    return first_role * role_alphabet_.size() + second_role;
+  }
+
   const string &GetRelationPathName(int path) const {
     return relation_path_alphabet_.GetName(path);
   }

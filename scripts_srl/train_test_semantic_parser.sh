@@ -17,14 +17,14 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=true #false # If true, the pruner is trained separately.
+train_external_pruner=false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
 use_dependency_syntactic_features=true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
-model_type=af #basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
+model_type=basic #basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb").
                     # Currently, flags np+dp are not recommended because they

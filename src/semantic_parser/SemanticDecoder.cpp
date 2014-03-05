@@ -49,6 +49,7 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
   int offset_arcs, num_arcs;
 
   // TODO(atm): make it possible to penalize wrong predicate parts as well?
+  // Or unlabeled arcs in addition to labeled arcs?
   if (pipe_->GetSemanticOptions()->labeled()) {
     semantic_parts->GetOffsetLabeledArc(&offset_arcs, &num_arcs);
   } else {
@@ -188,6 +189,8 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
     DecodeLabelMarginals(instance, parts, copied_scores, &total_scores,
         &label_marginals);
     for (int r = 0; r < total_scores.size(); ++r) {
+      // Sum the "labeled" scores to the (eventually) already existing
+      // "unlabeled" scores.
       copied_scores[offset_arcs + r] += total_scores[r];
     }
   }
@@ -216,6 +219,14 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
 
     // Recompute the entropy.
     *entropy = log_partition_function;
+    for (int r = 0; r < num_predicate_parts; ++r) {
+      *entropy -= (*predicted_output)[offset_predicate_parts + r] *
+          scores[offset_predicate_parts + r];
+    }
+    for (int r = 0; r < num_arcs; ++r) {
+      *entropy -= (*predicted_output)[offset_arcs + r] *
+          scores[offset_arcs + r];
+    }
     for (int r = 0; r < num_labeled_arcs; ++r) {
       *entropy -= (*predicted_output)[offset_labeled_arcs + r] *
           scores[offset_labeled_arcs + r];
@@ -321,13 +332,21 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
   // Create copy of the scores.
   vector<double> copied_scores(scores);
   vector<int> best_labeled_parts;
+  int offset_labeled_arcs, num_labeled_arcs;
+  semantic_parts->GetOffsetLabeledArc(&offset_labeled_arcs,
+                                      &num_labeled_arcs);
   int offset_arcs, num_arcs;
   semantic_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  int offset_predicate_parts, num_predicate_parts;
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
 
   // If labeled parsing, decode the labels and update the scores.
   if (pipe_->GetSemanticOptions()->labeled()) {
     DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
     for (int r = 0; r < best_labeled_parts.size(); ++r) {
+      // Sum the "labeled" scores to the (eventually) already existing
+      // "unlabeled" scores.
       copied_scores[offset_arcs + r] += copied_scores[best_labeled_parts[r]];
     }
   }
@@ -353,6 +372,15 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
       for (int r = 0; r < num_arcs; ++r) {
         copied_scores[offset_arcs + r] =
           (*predicted_output)[offset_arcs + r] - threshold;
+      }
+      // Note: this was missing!!!! Need to check the impact in sec-ord models.
+      for (int r = 0; r < num_predicate_parts; ++r) {
+        copied_scores[offset_predicate_parts + r] = 0.0;
+      }
+      // This is not strictly necessary (since labeled arcs are not used by
+      // DecodeBasic), but should not harm.
+      for (int r = 0; r < num_labeled_arcs; ++r) {
+        copied_scores[offset_labeled_arcs + r] = 0.0;
       }
       double value;
       DecodeBasic(instance, parts, copied_scores, predicted_output, &value);

@@ -69,7 +69,7 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
     const BinaryFeatures &unigram_features =
       sequence_features->GetUnigramFeatures(i);
 
-    const vector<int> &index_unigram_parts = 
+    const vector<int> &index_unigram_parts =
       sequence_parts->FindUnigramParts(i);
     vector<int> allowed_tags(index_unigram_parts.size());
     for (int k = 0; k < index_unigram_parts.size(); ++k) {

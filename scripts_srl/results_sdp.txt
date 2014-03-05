@@ -1,3 +1,291 @@
+========================================================================================
+Open, Second-order pruned model, C=0.01, pcedt, best = 0.3/0.7
+========================================================================================
+
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:16:46.682030 15612 SemanticPipe.h:338] Unlabeled F1: 0.884965
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:16:46.682067 15612 SemanticPipe.h:355] Labeled F1: 0.796111
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:17:53.630915 15634 SemanticPipe.h:338] Unlabeled F1: 0.878931
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:17:53.630954 15634 SemanticPipe.h:355] Labeled F1: 0.782484
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:25:22.980038 15658 SemanticPipe.h:338] Unlabeled F1: 0.992284
+out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:25:22.980077 15658 SemanticPipe.h:355] Labeled F1: 0.960236
+
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:14:28.828833 15350 SemanticPipe.h:338] Unlabeled F1: 0.881703
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:14:28.828871 15350 SemanticPipe.h:355] Labeled F1: 0.795505
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:15:37.451458 15371 SemanticPipe.h:338] Unlabeled F1: 0.874395
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:15:37.451495 15371 SemanticPipe.h:355] Labeled F1: 0.783812
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:22:56.172448 15392 SemanticPipe.h:338] Unlabeled F1: 0.991039
+out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:22:56.172484 15392 SemanticPipe.h:355] Labeled F1: 0.959626
+
+
+
+
+
+========================================================================================
+Open, Basic pruned model, C=0.01, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:34:07.103107  3696 SemanticPipe.h:338] Unlabeled F1: 0.871219
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:34:07.103131  3696 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:34:16.991791  3721 SemanticPipe.h:338] Unlabeled F1: 0.869054
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:34:16.991822  3721 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:36:33.300325  3746 SemanticPipe.h:338] Unlabeled F1: 0.940562
+out_open_pruner_dm_0.01_0.4_0.6:I0304 20:36:33.300350  3746 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:13:28.007509  3991 SemanticPipe.h:338] Unlabeled F1: 0.87675
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:13:28.007534  3991 SemanticPipe.h:355] Labeled F1: 0.868259
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:13:47.302042  4017 SemanticPipe.h:338] Unlabeled F1: 0.875167
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:13:47.302065  4017 SemanticPipe.h:355] Labeled F1: 0.865775
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:17:34.889626  4042 SemanticPipe.h:338] Unlabeled F1: 0.962608
+out_open_pruner_dm_0.01_0.4_0.6:I0304 21:17:34.889649  4042 SemanticPipe.h:355] Labeled F1: 0.960544
+
+========================================================================================
+Open, Basic pruned model, C=0.1, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:55:45.868551  8816 SemanticPipe.h:338] Unlabeled F1: 0.871219
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:55:45.868577  8816 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:55:55.791627  8841 SemanticPipe.h:338] Unlabeled F1: 0.869054
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:55:55.791654  8841 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:58:13.086381  8866 SemanticPipe.h:338] Unlabeled F1: 0.940562
+out_open_pruner_dm_0.1_0.4_0.6:I0305 08:58:13.086407  8866 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:35:47.043359  9064 SemanticPipe.h:338] Unlabeled F1: 0.876515
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:35:47.043383  9064 SemanticPipe.h:355] Labeled F1: 0.868142
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:36:06.972524  9089 SemanticPipe.h:338] Unlabeled F1: 0.874982
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:36:06.972547  9089 SemanticPipe.h:355] Labeled F1: 0.865588
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:39:58.072582  9114 SemanticPipe.h:338] Unlabeled F1: 0.962557
+out_open_pruner_dm_0.1_0.4_0.6:I0305 09:39:58.072605  9114 SemanticPipe.h:355] Labeled F1: 0.96048
+
+========================================================================================
+Open, Basic pruned model, C=0.001, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:41:01.330844  6148 SemanticPipe.h:338] Unlabeled F1: 0.871219
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:41:01.330868  6148 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:41:11.530150  6173 SemanticPipe.h:338] Unlabeled F1: 0.869054
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:41:11.530179  6173 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:43:31.455975  6198 SemanticPipe.h:338] Unlabeled F1: 0.940562
+out_open_pruner_dm_0.001_0.4_0.6:I0305 02:43:31.455999  6198 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:21:46.661723  6412 SemanticPipe.h:338] Unlabeled F1: 0.871205
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:21:46.661746  6412 SemanticPipe.h:355] Labeled F1: 0.860232
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:22:06.230401  6437 SemanticPipe.h:338] Unlabeled F1: 0.868698
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:22:06.230425  6437 SemanticPipe.h:355] Labeled F1: 0.85651
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:25:54.440883  6463 SemanticPipe.h:338] Unlabeled F1: 0.917552
+out_open_pruner_dm_0.001_0.4_0.6:I0305 03:25:54.440908  6463 SemanticPipe.h:355] Labeled F1: 0.909424
+
+
+========================================================================================
+Open, Basic pruned model, C=0.01, pas, best = 0.5/0.5
+========================================================================================
+
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:56:53.031843  4170 SemanticPipe.h:338] Unlabeled F1: 0.899944
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:56:53.031867  4170 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:57:02.697892  4195 SemanticPipe.h:338] Unlabeled F1: 0.897854
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:57:02.697921  4195 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:59:14.423447  4220 SemanticPipe.h:338] Unlabeled F1: 0.952649
+out_open_pruner_pas_0.01_0.5_0.5:I0304 21:59:14.423472  4220 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:32:24.805165  4667 SemanticPipe.h:338] Unlabeled F1: 0.897885
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:32:24.805188  4667 SemanticPipe.h:355] Labeled F1: 0.890981
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:32:43.399220  4717 SemanticPipe.h:338] Unlabeled F1: 0.895067
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:32:43.399243  4717 SemanticPipe.h:355] Labeled F1: 0.886633
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:36:18.935971  4742 SemanticPipe.h:338] Unlabeled F1: 0.969328
+out_open_pruner_pas_0.01_0.5_0.5:I0304 22:36:18.935994  4742 SemanticPipe.h:355] Labeled F1: 0.967318
+
+========================================================================================
+Open, Basic pruned model, C=0.1, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_pas_0.1_0.4_0.6:I0305 07:58:36.627552  8430 SemanticPipe.h:338] Unlabeled F1: 0.899944
+out_open_pruner_pas_0.1_0.4_0.6:I0305 07:58:36.627576  8430 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.1_0.4_0.6:I0305 07:58:47.439345  8455 SemanticPipe.h:338] Unlabeled F1: 0.897854
+out_open_pruner_pas_0.1_0.4_0.6:I0305 07:58:47.439375  8455 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:00:54.964401  8480 SemanticPipe.h:338] Unlabeled F1: 0.952649
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:00:54.964429  8480 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:33:48.282367  8636 SemanticPipe.h:338] Unlabeled F1: 0.898658
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:33:48.282390  8636 SemanticPipe.h:355] Labeled F1: 0.890814
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:34:06.727833  8661 SemanticPipe.h:338] Unlabeled F1: 0.895603
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:34:06.727854  8661 SemanticPipe.h:355] Labeled F1: 0.886625
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:37:39.874521  8687 SemanticPipe.h:338] Unlabeled F1: 0.97033
+out_open_pruner_pas_0.1_0.4_0.6:I0305 08:37:39.874544  8687 SemanticPipe.h:355] Labeled F1: 0.968148
+
+========================================================================================
+Open, Basic pruned model, C=0.001, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:11:59.306951  6054 SemanticPipe.h:338] Unlabeled F1: 0.899944
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:11:59.306973  6054 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:12:09.079493  6079 SemanticPipe.h:338] Unlabeled F1: 0.897854
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:12:09.079521  6079 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:14:21.062824  6104 SemanticPipe.h:338] Unlabeled F1: 0.952649
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:14:21.062849  6104 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:48:39.017328  6227 SemanticPipe.h:338] Unlabeled F1: 0.895852
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:48:39.017351  6227 SemanticPipe.h:355] Labeled F1: 0.887926
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:48:57.847923  6253 SemanticPipe.h:338] Unlabeled F1: 0.893213
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:48:57.847946  6253 SemanticPipe.h:355] Labeled F1: 0.883676
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:52:32.578814  6278 SemanticPipe.h:338] Unlabeled F1: 0.937954
+out_open_pruner_pas_0.001_0.4_0.6:I0305 02:52:32.578845  6278 SemanticPipe.h:355] Labeled F1: 0.931875
+
+
+========================================================================================
+Open, Basic pruned model, C=0.01, pcedt, best = 0.3/0.7
+========================================================================================
+
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:17:27.029330  4929 SemanticPipe.h:338] Unlabeled F1: 0.875989
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:17:27.029355  4929 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:17:36.631697  4954 SemanticPipe.h:338] Unlabeled F1: 0.870119
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:17:36.631723  4954 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:19:49.615541  4979 SemanticPipe.h:338] Unlabeled F1: 0.9487
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:19:49.615566  4979 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:57:16.666120  5174 SemanticPipe.h:338] Unlabeled F1: 0.866766
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:57:16.666142  5174 SemanticPipe.h:355] Labeled F1: 0.788887
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:57:38.890662  5199 SemanticPipe.h:338] Unlabeled F1: 0.860824
+out_open_pruner_pcedt_0.01_0.3_0.7:I0304 23:57:38.890686  5199 SemanticPipe.h:355] Labeled F1: 0.776957
+out_open_pruner_pcedt_0.01_0.3_0.7:I0305 00:01:24.427584  5252 SemanticPipe.h:338] Unlabeled F1: 0.970955
+out_open_pruner_pcedt_0.01_0.3_0.7:I0305 00:01:24.427608  5252 SemanticPipe.h:355] Labeled F1: 0.943783
+
+========================================================================================
+Open, Basic pruned model, C=0.1, pcedt, best = 0.4/0.6
+========================================================================================
+
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 07:58:13.321595  8378 SemanticPipe.h:338] Unlabeled F1: 0.875989
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 07:58:13.321619  8378 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 07:58:22.903991  8403 SemanticPipe.h:338] Unlabeled F1: 0.870119
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 07:58:22.904018  8403 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:00:34.276875  8428 SemanticPipe.h:338] Unlabeled F1: 0.9487
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:00:34.276901  8428 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:37:56.453143  8694 SemanticPipe.h:338] Unlabeled F1: 0.859722
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:37:56.453166  8694 SemanticPipe.h:355] Labeled F1: 0.788857
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:38:18.453850  8751 SemanticPipe.h:338] Unlabeled F1: 0.852681
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:38:18.453874  8751 SemanticPipe.h:355] Labeled F1: 0.776735
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:42:01.857959  8776 SemanticPipe.h:338] Unlabeled F1: 0.967501
+out_open_pruner_pcedt_0.1_0.4_0.6:I0305 08:42:01.857982  8776 SemanticPipe.h:355] Labeled F1: 0.941577
+
+========================================================================================
+Open, Basic pruned model, C=0.001, pcedt, best = 0.3/0.7
+========================================================================================
+
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:02:42.498719  7030 SemanticPipe.h:338] Unlabeled F1: 0.875989
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:02:42.498744  7030 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:02:52.038163  7055 SemanticPipe.h:338] Unlabeled F1: 0.870119
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:02:52.038190  7055 SemanticPipe.h:355] Labeled F1: -nan
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:05:05.171903  7080 SemanticPipe.h:338] Unlabeled F1: 0.9487
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:05:05.171928  7080 SemanticPipe.h:355] Labeled F1: -nan
+
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:45:00.154666  7260 SemanticPipe.h:338] Unlabeled F1: 0.857081
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:45:00.154690  7260 SemanticPipe.h:355] Labeled F1: 0.786758
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:45:22.763595  7285 SemanticPipe.h:338] Unlabeled F1: 0.850754
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:45:22.763618  7285 SemanticPipe.h:355] Labeled F1: 0.773298
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:49:08.064488  7311 SemanticPipe.h:338] Unlabeled F1: 0.93025
+out_open_pruner_pcedt_0.001_0.3_0.7:I0305 05:49:08.064513  7311 SemanticPipe.h:355] Labeled F1: 0.883258
+
+
+========================================================================================
+Open, Basic model, C=0.01, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:24:22.036874 29521 SemanticPipe.h:338] Unlabeled F1: 0.87695
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:24:22.036898 29521 SemanticPipe.h:355] Labeled F1: 0.868808
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:24:44.348950 29546 SemanticPipe.h:338] Unlabeled F1: 0.875326
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:24:44.348975 29546 SemanticPipe.h:355] Labeled F1: 0.865781
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:30:09.360000 29571 SemanticPipe.h:338] Unlabeled F1: 0.962358
+out_open_first_order_dm_0.01_0.4_0.6:I0303 17:30:09.360036 29571 SemanticPipe.h:355] Labeled F1: 0.960247
+
+========================================================================================
+Open, Basic model, C=0.1, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:07:32.473532   346 SemanticPipe.h:338] Unlabeled F1: 0.877476
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:07:32.473556   346 SemanticPipe.h:355] Labeled F1: 0.869096
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:07:54.631297   371 SemanticPipe.h:338] Unlabeled F1: 0.875124
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:07:54.631322   371 SemanticPipe.h:355] Labeled F1: 0.86558
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:13:15.417235   399 SemanticPipe.h:338] Unlabeled F1: 0.962392
+out_open_first_order_dm_0.1_0.4_0.6:I0304 04:13:15.417260   399 SemanticPipe.h:355] Labeled F1: 0.960303
+
+========================================================================================
+Open, Basic model, C=0.001, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:44:10.618505 31407 SemanticPipe.h:338] Unlabeled F1: 0.871089
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:44:10.618532 31407 SemanticPipe.h:355] Labeled F1: 0.859955
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:44:32.796176 31432 SemanticPipe.h:338] Unlabeled F1: 0.868952
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:44:32.796200 31432 SemanticPipe.h:355] Labeled F1: 0.856905
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:49:52.590128 31457 SemanticPipe.h:338] Unlabeled F1: 0.917281
+out_open_first_order_dm_0.001_0.4_0.6:I0303 22:49:52.590152 31457 SemanticPipe.h:355] Labeled F1: 0.909139
+
+
+========================================================================================
+Open, Basic model, C=0.01, pas, best = 0.5/0.5
+========================================================================================
+
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:37:42.063536 30805 SemanticPipe.h:338] Unlabeled F1: 0.897976
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:37:42.063562 30805 SemanticPipe.h:355] Labeled F1: 0.890755
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:38:00.991132 30830 SemanticPipe.h:338] Unlabeled F1: 0.894997
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:38:00.991154 30830 SemanticPipe.h:355] Labeled F1: 0.886479
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:42:22.457512 30855 SemanticPipe.h:338] Unlabeled F1: 0.969181
+out_open_first_order_pas_0.01_0.5_0.5:I0303 20:42:22.457537 30855 SemanticPipe.h:355] Labeled F1: 0.967133
+
+========================================================================================
+Open, Basic model, C=0.001, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:29:54.896301 31030 SemanticPipe.h:338] Unlabeled F1: 0.896312
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:29:54.896325 31030 SemanticPipe.h:355] Labeled F1: 0.888476
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:30:13.926386 31055 SemanticPipe.h:338] Unlabeled F1: 0.893443
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:30:13.926410 31055 SemanticPipe.h:355] Labeled F1: 0.883958
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:34:37.524556 31080 SemanticPipe.h:338] Unlabeled F1: 0.937911
+out_open_first_order_pas_0.001_0.4_0.6:I0303 21:34:37.524580 31080 SemanticPipe.h:355] Labeled F1: 0.931826
+
+========================================================================================
+Open, Basic model, C=0.1, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:49:40.173164 32165 SemanticPipe.h:338] Unlabeled F1: 0.89911
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:49:40.173189 32165 SemanticPipe.h:355] Labeled F1: 0.891233
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:49:59.133213 32190 SemanticPipe.h:338] Unlabeled F1: 0.896077
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:49:59.133239 32190 SemanticPipe.h:355] Labeled F1: 0.887014
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:54:22.706234 32215 SemanticPipe.h:338] Unlabeled F1: 0.97015
+out_open_first_order_pas_0.1_0.4_0.6:I0304 01:54:22.706259 32215 SemanticPipe.h:355] Labeled F1: 0.967959
+
+
+========================================================================================
+Open, Basic model, C=0.01, pcedt, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:34:32.000931 29717 SemanticPipe.h:338] Unlabeled F1: 0.860508
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:34:32.000957 29717 SemanticPipe.h:355] Labeled F1: 0.789647
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:34:59.216428 29742 SemanticPipe.h:338] Unlabeled F1: 0.851832
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:34:59.216457 29742 SemanticPipe.h:355] Labeled F1: 0.77598
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:41:06.719171 29767 SemanticPipe.h:338] Unlabeled F1: 0.967288
+out_open_first_order_pcedt_0.01_0.4_0.6:I0303 17:41:06.719197 29767 SemanticPipe.h:355] Labeled F1: 0.941363
+
+========================================================================================
+Open, Basic model, C=0.001, pcedt, best = 0.3/0.7
+========================================================================================
+
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:03:53.958814 32024 SemanticPipe.h:338] Unlabeled F1: 0.858347
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:03:53.958838 32024 SemanticPipe.h:355] Labeled F1: 0.787771
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:04:21.127738 32049 SemanticPipe.h:338] Unlabeled F1: 0.851055
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:04:21.127766 32049 SemanticPipe.h:355] Labeled F1: 0.773472
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:10:21.272635 32106 SemanticPipe.h:338] Unlabeled F1: 0.93001
+out_open_first_order_pcedt_0.001_0.3_0.7:I0304 01:10:21.272660 32106 SemanticPipe.h:355] Labeled F1: 0.88274
+
+========================================================================================
+Open, Basic model, C=0.1, pcedt, best = 0.4/0.6
+========================================================================================
+
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:02:34.675550   823 SemanticPipe.h:338] Unlabeled F1: 0.861282
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:02:34.675575   823 SemanticPipe.h:355] Labeled F1: 0.790009
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:03:00.144249   848 SemanticPipe.h:338] Unlabeled F1: 0.852014
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:03:00.144279   848 SemanticPipe.h:355] Labeled F1: 0.776053
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:08:40.277804   873 SemanticPipe.h:338] Unlabeled F1: 0.967229
+out_open_first_order_pcedt_0.1_0.4_0.6:I0304 06:08:40.277832   873 SemanticPipe.h:355] Labeled F1: 0.941352
+
 
 ========================================================================================
 Closed, Basic model, C=0.01, dm, best = 0.4/0.6
