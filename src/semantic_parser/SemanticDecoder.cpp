@@ -341,25 +341,18 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
   semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
                                      &num_predicate_parts);
 
-  // If labeled parsing, decode the labels and update the scores.
-  if (pipe_->GetSemanticOptions()->labeled()) {
-    DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
-    for (int r = 0; r < best_labeled_parts.size(); ++r) {
-      // Sum the "labeled" scores to the (eventually) already existing
-      // "unlabeled" scores.
-      copied_scores[offset_arcs + r] += copied_scores[best_labeled_parts[r]];
-    }
-  }
+  bool labeled_decoding = false;
+  // TODO: change this test.
+  int offset_labeled_siblings, num_labeled_siblings;
+  semantic_parts->GetOffsetLabeledSiblings(&offset_labeled_siblings,
+                                           &num_labeled_siblings);
+  if (num_labeled_siblings > 0) labeled_decoding = true;
 
-  predicted_output->clear();
-  predicted_output->resize(parts->size(), 0.0);
+  if (labeled_decoding) {
+    predicted_output->clear();
+    predicted_output->resize(parts->size(), 0.0);
 
-  if (semantic_parts->IsArcFactored() ||
-      semantic_parts->IsLabeledArcFactored()) {
-    double value;
-    DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
-  } else {
-    DecodeFactorGraph(instance, parts, copied_scores, true,
+    DecodeFactorGraph(instance, parts, copied_scores, labeled_decoding, true,
                       predicted_output);
 
     // At test time, run a basic decoder on top of the outcome of AD3
@@ -367,33 +360,89 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
     // TODO: maybe change the interface to AD3 to let us implement
     // a primal rounding heuristic.
     if (pipe_->GetSemanticOptions()->test()) {
-      //CHECK(false);
       double threshold = 0.5;
       for (int r = 0; r < num_arcs; ++r) {
-        copied_scores[offset_arcs + r] =
-          (*predicted_output)[offset_arcs + r] - threshold;
+        copied_scores[offset_arcs + r] = 0.0;
       }
-      // Note: this was missing!!!! Need to check the impact in sec-ord models.
       for (int r = 0; r < num_predicate_parts; ++r) {
         copied_scores[offset_predicate_parts + r] = 0.0;
       }
-      // This is not strictly necessary (since labeled arcs are not used by
-      // DecodeBasic), but should not harm.
       for (int r = 0; r < num_labeled_arcs; ++r) {
-        copied_scores[offset_labeled_arcs + r] = 0.0;
+        copied_scores[offset_labeled_arcs + r] =
+          (*predicted_output)[offset_labeled_arcs + r] - threshold;
       }
+
+      DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
+      for (int r = 0; r < best_labeled_parts.size(); ++r) {
+        // Sum the "labeled" scores to the (eventually) already existing
+        // "unlabeled" scores.
+        copied_scores[offset_arcs + r] += copied_scores[best_labeled_parts[r]];
+      }
+
       double value;
       DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
-    }
-  }
 
-  // If labeled parsing, write the components of the predicted output that
-  // correspond to the labeled parts.
-  if (pipe_->GetSemanticOptions()->labeled()) {
-    for (int r = 0; r < num_arcs; ++r) {
-      CHECK_GE(best_labeled_parts[r], offset_arcs + num_arcs);
-      (*predicted_output)[best_labeled_parts[r]] =
+      // Write the components of the predicted output that
+      // correspond to the labeled parts.
+      for (int r = 0; r < num_arcs; ++r) {
+        CHECK_GE(best_labeled_parts[r], offset_arcs + num_arcs);
+        (*predicted_output)[best_labeled_parts[r]] =
           (*predicted_output)[offset_arcs + r];
+      }
+    }
+  } else {
+    // If labeled parsing, decode the labels and update the scores.
+    if (pipe_->GetSemanticOptions()->labeled()) {
+      DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
+      for (int r = 0; r < best_labeled_parts.size(); ++r) {
+        // Sum the "labeled" scores to the (eventually) already existing
+        // "unlabeled" scores.
+        copied_scores[offset_arcs + r] += copied_scores[best_labeled_parts[r]];
+      }
+    }
+
+    predicted_output->clear();
+    predicted_output->resize(parts->size(), 0.0);
+
+    if (semantic_parts->IsArcFactored() ||
+        semantic_parts->IsLabeledArcFactored()) {
+      double value;
+      DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
+    } else {
+      DecodeFactorGraph(instance, parts, copied_scores, labeled_decoding, true,
+                        predicted_output);
+
+      // At test time, run a basic decoder on top of the outcome of AD3
+      // as a rounding heuristic to make sure we get a valid graph.
+      // TODO: maybe change the interface to AD3 to let us implement
+      // a primal rounding heuristic.
+      if (pipe_->GetSemanticOptions()->test()) {
+        double threshold = 0.5;
+        for (int r = 0; r < num_arcs; ++r) {
+          copied_scores[offset_arcs + r] =
+            (*predicted_output)[offset_arcs + r] - threshold;
+        }
+        for (int r = 0; r < num_predicate_parts; ++r) {
+          copied_scores[offset_predicate_parts + r] = 0.0;
+        }
+        // This is not strictly necessary (since labeled arcs are not used by
+        // DecodeBasic), but should not harm.
+        for (int r = 0; r < num_labeled_arcs; ++r) {
+          copied_scores[offset_labeled_arcs + r] = 0.0;
+        }
+        double value;
+        DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
+      }
+    }
+
+    // If labeled parsing, write the components of the predicted output that
+    // correspond to the labeled parts.
+    if (pipe_->GetSemanticOptions()->labeled()) {
+      for (int r = 0; r < num_arcs; ++r) {
+        CHECK_GE(best_labeled_parts[r], offset_arcs + num_arcs);
+        (*predicted_output)[best_labeled_parts[r]] =
+          (*predicted_output)[offset_arcs + r];
+      }
     }
   }
 }
@@ -908,6 +957,7 @@ void SemanticDecoder::DecodeSemanticGraph(
 // Decode building a factor graph and calling the AD3 algorithm.
 void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                         const vector<double> &scores,
+                                        bool labeled_decoding,
                                         bool relax,
                                         vector<double> *predicted_output) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
@@ -926,6 +976,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                       &num_labeled_arcs);
   int offset_siblings, num_siblings;
   semantic_parts->GetOffsetSibling(&offset_siblings, &num_siblings);
+  int offset_labeled_siblings, num_labeled_siblings;
+  semantic_parts->GetOffsetLabeledSibling(&offset_labeled_siblings,
+                                          &num_labeled_siblings);
   int offset_grandparents, num_grandparents;
   semantic_parts->GetOffsetGrandparent(&offset_grandparents, &num_grandparents);
   int offset_coparents, num_coparents;
@@ -943,6 +996,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   // Define what parts are used.
   bool use_arbitrary_sibling_parts = (num_siblings > 0);
+  bool use_labeled_arbitrary_sibling_parts = (num_labeled_siblings > 0);
   bool use_grandparent_parts = (num_grandparents > 0);
   bool use_coparent_parts = (num_coparents > 0);
 #if 0
@@ -950,6 +1004,10 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   bool use_grandsibling_parts = (num_grandsiblings > 0);
   bool use_trisibling_parts = (num_trisiblings > 0);
 #endif
+
+  if (!labeled_decoding) {
+    CHECK_EQ(num_labeled_siblings, 0);
+  }
 
   // Variables of the factor graph.
   vector<AD3::BinaryVariable*> variables;
@@ -985,6 +1043,17 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     part_indices_.push_back(offset_arcs + r);
   }
 
+  if (labeled_decoding) {
+    // Build labeled arc variables.
+    int offset_labeled_arc_variables = variables.size();
+    for (int r = 0; r < num_labeled_arcs; ++r) {
+      AD3::BinaryVariable* variable = factor_graph->CreateBinaryVariable();
+      variable->SetLogPotential(scores[offset_labeled_arcs + r]);
+      variables.push_back(variable);
+      part_indices_.push_back(offset_labeled_arcs + r);
+    }
+  }
+
   // Build basic semantic graph factor.
   vector<AD3::BinaryVariable*> local_variables(num_predicate_parts + num_arcs);
   vector<SemanticPartPredicate*> predicate_parts(num_predicate_parts);
@@ -1004,19 +1073,25 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   factor_graph->DeclareFactor(factor, local_variables, true);
   factor_part_indices_.push_back(-1);
 
-#if 0
-  // Build the "single parent" factors.
-  for (int m = 1; m < sentence->size(); ++m) {
-    vector<AD3::BinaryVariable*> local_variables;
-    for (int h = 0; h < sentence->size(); ++h) {
-      int r = semantic_parts->FindArc(h, m);
-      if (r < 0) continue;
-      local_variables.push_back(variables[r]);
+  if (labeled_decoding) {
+    // Build XOR-OUT factors to impose that each arc has a unique label.
+    for (int r = 0; r < num_arcs; ++r) {
+      const vector<int> &index_labeled_parts =
+        semantic_parts->GetLabeledParts(r);
+      vector<AD3::BinaryVariable*>
+        local_variables(index_labeled_parts.size() + 1);
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        local_variables[k] =
+          variables[offset_labeled_arc_variables + index_part];
+      }
+      local_variables[index_labeled_parts.size()] =
+        variables[offset_arc_variables + r];
+      factor_graph->CreateFactorXOROUT(local_variables);
+      factor_part_indices_.push_back(-1);
     }
-    factor_graph->CreateFactorXOR(local_variables);
-    factor_part_indices_.push_back(-1);
   }
-#endif
+
 
   //////////////////////////////////////////////////////////////////////
   // Build sibling factors.
@@ -1039,21 +1114,6 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       local_variables.push_back(variables[r2 - offset_arcs +
                                           offset_arc_variables]);
 
-#if 0
-      SemanticPartArc *arc1 = static_cast<SemanticPartArc*>((*semantic_parts)[r1]);
-      SemanticPartArc *arc2 = static_cast<SemanticPartArc*>((*semantic_parts)[r2]);
-      CHECK_EQ(arc1->predicate(), part->predicate());
-      CHECK_EQ(arc1->sense(), part->sense());
-      CHECK_EQ(arc1->argument(), part->first_argument());
-      CHECK_EQ(arc2->predicate(), part->predicate());
-      CHECK_EQ(arc2->sense(), part->sense());
-      CHECK_EQ(arc2->argument(), part->second_argument());
-      CHECK_EQ(scores[r1],
-               variables[r1 - offset_arcs + offset_arc_variables]->GetLogPotential());
-      CHECK_EQ(scores[r2],
-               variables[r2 - offset_arcs + offset_arc_variables]->GetLogPotential());
-#endif
-
       factor_graph->CreateFactorPAIR(local_variables,
                                      scores[offset_siblings + r]);
       // TODO: set these global indices at the end after all variables/factors
@@ -1061,6 +1121,41 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       //factor->SetGlobalIndex(...);
       additional_part_indices.push_back(offset_siblings + r);
       factor_part_indices_.push_back(offset_siblings + r);
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // Build labeled sibling factors.
+  //////////////////////////////////////////////////////////////////////
+  if (use_labeled_arbitrary_sibling_parts) {
+    CHECK(labeled_decoding);
+    for (int r = 0; r < num_labeled_siblings; ++r) {
+      SemanticPartLabeledSibling *part =
+          static_cast<SemanticPartLabeledSibling*>(
+              (*semantic_parts)[offset_labeled_siblings + r]);
+      int r1 = semantic_parts->FindLabeledArc(part->predicate(),
+                                              part->first_argument(),
+                                              part->sense(),
+                                              part->first_role());
+      int r2 = semantic_parts->FindLabeledArc(part->predicate(),
+                                              part->second_argument(),
+                                              part->sense(),
+                                              part->second_role());
+      CHECK_GE(r1, 0);
+      CHECK_GE(r2, 0);
+      vector<AD3::BinaryVariable*> local_variables;
+      local_variables.push_back(variables[r1 - offset_labeled_arcs +
+                                          offset_labeled_arc_variables]);
+      local_variables.push_back(variables[r2 - offset_labeled_arcs +
+                                          offset_labeled_arc_variables]);
+
+      factor_graph->CreateFactorPAIR(local_variables,
+                                     scores[offset_labeled_siblings + r]);
+      // TODO: set these global indices at the end after all variables/factors
+      // are created.
+      //factor->SetGlobalIndex(...);
+      additional_part_indices.push_back(offset_labeled_siblings + r);
+      factor_part_indices_.push_back(offset_labeled_siblings + r);
     }
   }
 

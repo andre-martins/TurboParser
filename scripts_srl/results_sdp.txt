@@ -2,21 +2,41 @@
 Open, Second-order pruned model, C=0.01, pcedt, best = 0.3/0.7
 ========================================================================================
 
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:16:46.682030 15612 SemanticPipe.h:338] Unlabeled F1: 0.884965
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:16:46.682067 15612 SemanticPipe.h:355] Labeled F1: 0.796111
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:17:53.630915 15634 SemanticPipe.h:338] Unlabeled F1: 0.878931
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:17:53.630954 15634 SemanticPipe.h:355] Labeled F1: 0.782484
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:25:22.980038 15658 SemanticPipe.h:338] Unlabeled F1: 0.992284
-out_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0305 07:25:22.980077 15658 SemanticPipe.h:355] Labeled F1: 0.960236
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:06:08.122335 18227 SemanticPipe.h:338] Unlabeled F1: 0.885009
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:06:08.122372 18227 SemanticPipe.h:355] Labeled F1: 0.79602
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:07:15.536550 18249 SemanticPipe.h:338] Unlabeled F1: 0.879141
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:07:15.536587 18249 SemanticPipe.h:355] Labeled F1: 0.782633
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:14:42.872730 18270 SemanticPipe.h:338] Unlabeled F1: 0.99232
+out_open_af+as+gp+cp_pcedt_0.01_0.3_0.7:I0306 09:14:42.872766 18270 SemanticPipe.h:355] Labeled F1: 0.960268
 
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:14:28.828833 15350 SemanticPipe.h:338] Unlabeled F1: 0.881703
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:14:28.828871 15350 SemanticPipe.h:355] Labeled F1: 0.795505
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:15:37.451458 15371 SemanticPipe.h:338] Unlabeled F1: 0.874395
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:15:37.451495 15371 SemanticPipe.h:355] Labeled F1: 0.783812
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:22:56.172448 15392 SemanticPipe.h:338] Unlabeled F1: 0.991039
-out_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0305 01:22:56.172484 15392 SemanticPipe.h:355] Labeled F1: 0.959626
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:02:44.022511 17723 SemanticPipe.h:338] Unlabeled F1: 0.881796
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:02:44.022620 17723 SemanticPipe.h:355] Labeled F1: 0.795535
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:03:50.146689 17744 SemanticPipe.h:338] Unlabeled F1: 0.874638
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:03:50.146728 17744 SemanticPipe.h:355] Labeled F1: 0.783976
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:11:20.886479 17765 SemanticPipe.h:338] Unlabeled F1: 0.991113
+out_open_af+as+gp+cp_pcedt_0.01_0.4_0.6:I0306 03:11:20.887069 17765 SemanticPipe.h:355] Labeled F1: 0.959685
 
+========================================================================================
+Open, Second-order pruned model, C=0.001, pcedt, best = 0.4/0.6
+========================================================================================
 
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:27:08.347769 19014 SemanticPipe.h:338] Unlabeled F1: 0.871834
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:27:08.347805 19014 SemanticPipe.h:355] Labeled F1: 0.795858
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:28:14.794742 19035 SemanticPipe.h:338] Unlabeled F1: 0.864065
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:28:14.794795 19035 SemanticPipe.h:355] Labeled F1: 0.779847
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:35:47.254722 19056 SemanticPipe.h:338] Unlabeled F1: 0.963501
+out_open_af+as+gp+cp_pcedt_0.001_0.4_0.6:I0306 15:35:47.254768 19056 SemanticPipe.h:355] Labeled F1: 0.910883
+
+========================================================================================
+Open, Second-order pruned model, C=0.1, pcedt, best = 0.4/0.6
+========================================================================================
+
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:27:02.287152 20181 SemanticPipe.h:338] Unlabeled F1: 0.882519
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:27:02.287201 20181 SemanticPipe.h:355] Labeled F1: 0.796267
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:28:10.685369 20203 SemanticPipe.h:338] Unlabeled F1: 0.874106
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:28:10.685406 20203 SemanticPipe.h:355] Labeled F1: 0.782759
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:35:58.935050 20224 SemanticPipe.h:338] Unlabeled F1: 0.991154
+out_open_af+as+gp+cp_pcedt_0.1_0.4_0.6:I0307 05:35:58.935104 20224 SemanticPipe.h:355] Labeled F1: 0.95967
 
 
 

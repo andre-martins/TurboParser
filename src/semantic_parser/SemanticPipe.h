@@ -125,6 +125,9 @@ class SemanticPipe : public Pipe {
   void MakePartsArbitrarySiblings(Instance *instance,
                                   Parts *parts,
                                   vector<double> *gold_outputs);
+  void MakePartsLabeledArbitrarySiblings(Instance *instance,
+                                         Parts *parts,
+                                         vector<double> *gold_outputs);
   void MakePartsGrandparents(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs);

@@ -59,6 +59,7 @@ class SemanticDecoder : public Decoder {
 
   void DecodeFactorGraph(Instance *instance, Parts *parts,
                          const vector<double> &scores,
+                         bool labeled_decoding,
                          bool relax,
                          vector<double> *predicted_output);
 

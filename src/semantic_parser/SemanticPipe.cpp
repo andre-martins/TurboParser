@@ -25,8 +25,13 @@
 
 using namespace std;
 
-DEFINE_bool(use_unlabeled_arc_features, false, //true,
-            "True for using unlabeled arc features in addition to labeled ones.");
+DEFINE_bool(use_only_labeled_arc_features, true,
+            "True for not using unlabeled arc features in addition to labeled ones.");
+DEFINE_bool(use_only_labeled_sibling_features, true,
+            "True for not using unlabeled sibling features in addition to labeled ones.");
+DEFINE_bool(use_labeled_sibling_features, true,
+            "True for using labels in sibling features.");
+
 
 void SemanticPipe::SaveModel(FILE* fs) {
   token_dictionary_->Save(fs);
@@ -95,6 +100,10 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
                                  bool pruner,
                                  vector<double> *scores) {
   Parameters *parameters;
+  SemanticDictionary *semantic_dictionary =
+    static_cast<SemanticDictionary*>(dictionary_);
+  SemanticFeatures *semantic_features =
+    static_cast<SemanticFeatures*>(features);
   if (pruner) {
     parameters = pruner_parameters_;
   } else {
@@ -103,20 +112,31 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
   scores->resize(parts->size());
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   for (int r = 0; r < parts->size(); ++r) {
-    // Labeled arcs will be treated by looking at the unlabeled arcs and
-    // conjoining with the label.
+    bool has_unlabeled_features =
+      (semantic_features->GetNumPartFeatures(r) > 0);
+    bool has_labeled_features =
+      (semantic_features->GetNumLabeledPartFeatures(r) > 0);
+
     if (pruner) CHECK((*parts)[r]->type() == SEMANTICPART_ARC ||
                       (*parts)[r]->type() == SEMANTICPART_PREDICATE);
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
-    const BinaryFeatures &part_features = features->GetPartFeatures(r);
+
+    // Compute scores for the unlabeled features.
+    if (has_unlabeled_features) {
+      const BinaryFeatures &part_features =
+        semantic_features->GetPartFeatures(r);
+      (*scores)[r] = parameters->ComputeScore(part_features);
+    } else {
+      (*scores)[r] = 0.0;
+    }
+
+    // Compute scores for the labeled features.
     if ((*parts)[r]->type() == SEMANTICPART_ARC && !pruner &&
         GetSemanticOptions()->labeled()) {
-      if (FLAGS_use_unlabeled_arc_features) {
-        (*scores)[r] = parameters->ComputeScore(part_features);
-      } else {
-        (*scores)[r] = 0.0;
-      }
+      // Labeled arcs will be treated by looking at the unlabeled arcs and
+      // conjoining with the label.
+      CHECK(has_labeled_features);
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
           semantic_parts->FindLabeledArcs(arc->predicate(),
@@ -133,26 +153,23 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
         allowed_labels[k] = labeled_arc->role();
       }
       vector<double> label_scores;
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
       parameters->ComputeLabelScores(part_features, allowed_labels,
           &label_scores);
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         (*scores)[index_labeled_parts[k]] = label_scores[k];
       }
-      continue;
-    }
-#if 0
-    else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
-               FLAGS_use_labeled_siblings) {
+    } else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
+               has_labeled_features) {
+      // Labeled siblings will be treated by looking at the unlabeled ones and
+      // conjoining with the label.
       CHECK(!pruner);
       CHECK(GetSemanticOptions()->labeled());
       SemanticPartSibling *sibling =
         static_cast<SemanticPartSibling*>((*parts)[r]);
-      // TODO: Implement FindLabeledSiblings.
       const vector<int> &index_labeled_parts =
-          semantic_parts->FindLabeledSiblings(sibling->predicate(),
-                                              sibling->sense(),
-                                              sibling->first_argument(),
-                                              sibling->second_argument());
+        semantic_parts->GetLabeledParts(r);
       vector<int> bigram_labels(index_labeled_parts.size());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         CHECK_GE(index_labeled_parts[k], 0);
@@ -166,15 +183,14 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
                                labeled_sibling->second_role());
       }
       vector<double> label_scores;
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
       parameters->ComputeLabelScores(part_features, bigram_labels,
           &label_scores);
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         (*scores)[index_labeled_parts[k]] = label_scores[k];
       }
-      continue;
     }
-#endif
-    (*scores)[r] = parameters->ComputeScore(part_features);
   }
 }
 
@@ -183,6 +199,8 @@ void SemanticPipe::RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
                                              const vector<bool> &selected_parts,
                                              Features *features) {
   Parameters *parameters;
+  SemanticFeatures *semantic_features =
+    static_cast<SemanticFeatures*>(features);
   if (pruner) {
     parameters = pruner_parameters_;
   } else {
@@ -190,21 +208,50 @@ void SemanticPipe::RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
   }
 
   for (int r = 0; r < parts->size(); ++r) {
+    // TODO: Make sure we can do this continue for the labeled parts...
     if (!selected_parts[r]) continue;
+
+    bool has_unlabeled_features =
+      (semantic_features->GetNumPartFeatures(r) > 0);
+    bool has_labeled_features =
+      (semantic_features->GetNumLabeledPartFeatures(r) > 0);
+
     if (pruner) CHECK((*parts)[r]->type() == SEMANTICPART_ARC ||
                       (*parts)[r]->type() == SEMANTICPART_PREDICATE);
+
+    // TODO(atm): I think this is handling the case there can be labeled
+    // features, but was never tested.
+    CHECK(!has_labeled_features);
+
     // Skip labeled arcs, as they use the features from unlabeled arcs.
     if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
-    BinaryFeatures *part_features =
-      static_cast<SemanticFeatures*>(features)->GetMutablePartFeatures(r);
-    int num_supported = 0;
-    for (int j = 0; j < part_features->size(); ++j) {
-      if (parameters->Exists((*part_features)[j])) {
-        (*part_features)[num_supported] = (*part_features)[j];
-        ++num_supported;
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
+
+    if (has_unlabeled_features) {
+      BinaryFeatures *part_features =
+        semantic_features->GetMutablePartFeatures(r);
+      int num_supported = 0;
+      for (int j = 0; j < part_features->size(); ++j) {
+        if (parameters->Exists((*part_features)[j])) {
+          (*part_features)[num_supported] = (*part_features)[j];
+          ++num_supported;
+        }
       }
+      part_features->resize(num_supported);
     }
-    part_features->resize(num_supported);
+
+    if (has_labeled_features) {
+      BinaryFeatures *part_features =
+        semantic_features->GetMutableLabeledPartFeatures(r);
+      int num_supported = 0;
+      for (int j = 0; j < part_features->size(); ++j) {
+        if (parameters->ExistsLabeled((*part_features)[j])) {
+          (*part_features)[num_supported] = (*part_features)[j];
+          ++num_supported;
+        }
+      }
+      part_features->resize(num_supported);
+    }
   }
 }
 
@@ -215,41 +262,86 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
                                     const vector<double> &gold_output,
                                     const vector<double> &predicted_output) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  SemanticDictionary *semantic_dictionary =
+    static_cast<SemanticDictionary*>(dictionary_);
+  SemanticFeatures *semantic_features =
+    static_cast<SemanticFeatures*>(features);
   Parameters *parameters = GetTrainingParameters();
 
   for (int r = 0; r < parts->size(); ++r) {
-    if (predicted_output[r] == gold_output[r]) continue;
+    bool has_unlabeled_features =
+      (semantic_features->GetNumPartFeatures(r) > 0);
+    bool has_labeled_features =
+      (semantic_features->GetNumLabeledPartFeatures(r) > 0);
 
-    // Labeled arcs will be treated by looking at the unlabeled arcs and
-    // conjoining with the label.
-    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) {
-      SemanticPartLabeledArc *labeled_arc =
-                  static_cast<SemanticPartLabeledArc*>((*parts)[r]);
-      int index_part = semantic_parts->FindArc(labeled_arc->predicate(),
-                                               labeled_arc->argument(),
-                                               labeled_arc->sense());
-      CHECK_GE(index_part, 0);
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
 
-      const BinaryFeatures &part_features =
-          features->GetPartFeatures(index_part);
-
-      parameters->MakeLabelGradientStep(part_features, eta, iteration,
-                                        labeled_arc->role(),
-                                        predicted_output[r] - gold_output[r]);
-    } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
-                GetSemanticOptions()->labeled()) {
-      // To allow having standalone features for unlabeled arcs.
-      if (FLAGS_use_unlabeled_arc_features) {
-        const BinaryFeatures &part_features = features->GetPartFeatures(r);
+    // Make updates for the unlabeled features.
+    if (has_unlabeled_features) {
+      if (predicted_output[r] != gold_output[r]) {
+        const BinaryFeatures &part_features =
+            semantic_features->GetPartFeatures(r);
         parameters->MakeGradientStep(part_features, eta, iteration,
                                      predicted_output[r] - gold_output[r]);
-      } else {
-        continue;
       }
-    } else {
-      const BinaryFeatures &part_features = features->GetPartFeatures(r);
-      parameters->MakeGradientStep(part_features, eta, iteration,
-        predicted_output[r] - gold_output[r]);
+    }
+
+    // Make updates for the labeled features.
+    if ((*parts)[r]->type() == SEMANTICPART_ARC && has_labeled_features) {
+      // Labeled arcs will be treated by looking at the unlabeled arcs and
+      // conjoining with the label.
+      CHECK(has_labeled_features);
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+          semantic_parts->FindLabeledArcs(arc->predicate(),
+                                          arc->argument(),
+                                          arc->sense());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledArc *labeled_arc =
+            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+        CHECK(labeled_arc != NULL);
+        double value = predicted_output[index_part] - gold_output[index_part];
+        if (value != 0.0) {
+          parameters->MakeLabelGradientStep(part_features, eta, iteration,
+                                            labeled_arc->role(),
+                                            value);
+        }
+      }
+    } else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
+               has_labeled_features) {
+      // Labeled siblings will be treated by looking at the unlabeled ones and
+      // conjoining with the label.
+      CHECK(GetSemanticOptions()->labeled());
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartSibling *sibling =
+        static_cast<SemanticPartSibling*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+        semantic_parts->GetLabeledParts(r);
+      vector<int> bigram_labels(index_labeled_parts.size());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledSibling *labeled_sibling =
+            static_cast<SemanticPartLabeledSibling*>(
+                (*parts)[index_part]);
+        CHECK(labeled_sibling != NULL);
+        int bigram_label = semantic_dictionary->GetRoleBigramLabel(
+                               labeled_sibling->first_role(),
+                               labeled_sibling->second_role());
+        double value = predicted_output[index_part] - gold_output[index_part];
+        if (value != 0.0) {
+          parameters->MakeLabelGradientStep(part_features, eta, iteration,
+                                            bigram_label, value);
+        }
+      }
     }
   }
 }
@@ -257,39 +349,79 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
 void SemanticPipe::TouchParameters(Parts *parts, Features *features,
                                    const vector<bool> &selected_parts) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  SemanticDictionary *semantic_dictionary =
+    static_cast<SemanticDictionary*>(dictionary_);
+  SemanticFeatures *semantic_features =
+    static_cast<SemanticFeatures*>(features);
   Parameters *parameters = GetTrainingParameters();
 
   for (int r = 0; r < parts->size(); ++r) {
+    // TODO: Make sure we can do this continue for the labeled parts...
     if (!selected_parts[r]) continue;
 
-    // Labeled arcs will be treated by looking at the unlabeled arcs and
-    // conjoining with the label.
-    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) {
-      SemanticPartLabeledArc *labeled_arc =
-                  static_cast<SemanticPartLabeledArc*>((*parts)[r]);
-      int index_part = semantic_parts->FindArc(labeled_arc->predicate(),
-                                               labeled_arc->argument(),
-                                               labeled_arc->sense());
-      CHECK_GE(index_part, 0);
+    bool has_unlabeled_features =
+      (semantic_features->GetNumPartFeatures(r) > 0);
+    bool has_labeled_features =
+      (semantic_features->GetNumLabeledPartFeatures(r) > 0);
 
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
+
+    // Make updates for the unlabeled features.
+    if (has_unlabeled_features) {
       const BinaryFeatures &part_features =
-          features->GetPartFeatures(index_part);
-
-      parameters->MakeLabelGradientStep(part_features, 0.0, 0,
-                                        labeled_arc->role(),
-                                        0.0);
-    } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
-                GetSemanticOptions()->labeled()) {
-      // To allow having standalone features for unlabeled arcs.
-      if (FLAGS_use_unlabeled_arc_features) {
-        const BinaryFeatures &part_features = features->GetPartFeatures(r);
-        parameters->MakeGradientStep(part_features, 0.0, 0, 0.0);
-      } else {
-        continue;
-      }
-    } else {
-      const BinaryFeatures &part_features = features->GetPartFeatures(r);
+        semantic_features->GetPartFeatures(r);
       parameters->MakeGradientStep(part_features, 0.0, 0, 0.0);
+    }
+
+    // Make updates for the labeled features.
+    if ((*parts)[r]->type() == SEMANTICPART_ARC && has_labeled_features) {
+      // Labeled arcs will be treated by looking at the unlabeled arcs and
+      // conjoining with the label.
+      CHECK(has_labeled_features);
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+          semantic_parts->FindLabeledArcs(arc->predicate(),
+                                          arc->argument(),
+                                          arc->sense());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledArc *labeled_arc =
+            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+        CHECK(labeled_arc != NULL);
+        parameters->MakeLabelGradientStep(part_features, 0.0, 0,
+                                          labeled_arc->role(), 0.0);
+      }
+    } else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
+               has_labeled_features) {
+      // Labeled siblings will be treated by looking at the unlabeled ones and
+      // conjoining with the label.
+      CHECK(GetSemanticOptions()->labeled());
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartSibling *sibling =
+        static_cast<SemanticPartSibling*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+        semantic_parts->GetLabeledParts(r);
+      vector<int> bigram_labels(index_labeled_parts.size());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledSibling *labeled_sibling =
+            static_cast<SemanticPartLabeledSibling*>(
+                (*parts)[index_part]);
+        CHECK(labeled_sibling != NULL);
+        int bigram_label = semantic_dictionary->GetRoleBigramLabel(
+                               labeled_sibling->first_role(),
+                               labeled_sibling->second_role());
+        parameters->MakeLabelGradientStep(part_features, 0.0, 0,
+                                          bigram_label, 0.0);
+      }
     }
   }
 }
@@ -300,44 +432,92 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
                                          const vector<double> &predicted_output,
                                          FeatureVector *difference) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  SemanticDictionary *semantic_dictionary =
+    static_cast<SemanticDictionary*>(dictionary_);
+  SemanticFeatures *semantic_features =
+    static_cast<SemanticFeatures*>(features);
 
   for (int r = 0; r < parts->size(); ++r) {
-    if (predicted_output[r] == gold_output[r]) continue;
+    bool has_unlabeled_features =
+      (semantic_features->GetNumPartFeatures(r) > 0);
+    bool has_labeled_features =
+      (semantic_features->GetNumLabeledPartFeatures(r) > 0);
 
-    // Labeled arcs will be treated by looking at the unlabeled arcs and
-    // conjoining with the label.
-    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) {
-      SemanticPartLabeledArc *labeled_arc =
-                  static_cast<SemanticPartLabeledArc*>((*parts)[r]);
-      int index_part = semantic_parts->FindArc(labeled_arc->predicate(),
-                                               labeled_arc->argument(),
-                                               labeled_arc->sense());
-      CHECK_GE(index_part, 0);
-      const BinaryFeatures &part_features =
-          features->GetPartFeatures(index_part);
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDARC) continue;
+    if ((*parts)[r]->type() == SEMANTICPART_LABELEDSIBLING) continue;
 
-      for (int j = 0; j < part_features.size(); ++j) {
-        difference->mutable_labeled_weights()->Add(part_features[j],
-                                                   labeled_arc->role(),
-                                                   predicted_output[r] - gold_output[r]);
-      }
-    } else if ((*parts)[r]->type() == SEMANTICPART_ARC && !train_pruner_ &&
-                GetSemanticOptions()->labeled()) {
-      // To allow having standalone features for unlabeled arcs.
-      if (FLAGS_use_unlabeled_arc_features) {
-        const BinaryFeatures &part_features = features->GetPartFeatures(r);
+    // Compute feature difference for the unlabeled features.
+    if (has_unlabeled_features) {
+      if (predicted_output[r] != gold_output[r]) {
+        const BinaryFeatures &part_features =
+          semantic_features->GetPartFeatures(r);
         for (int j = 0; j < part_features.size(); ++j) {
           difference->mutable_weights()->Add(part_features[j],
-                                             predicted_output[r] - gold_output[r]);
+                                             predicted_output[r] -
+                                             gold_output[r]);
         }
-      } else {
-        continue;
       }
-    } else {
-      const BinaryFeatures &part_features = features->GetPartFeatures(r);
-      for (int j = 0; j < part_features.size(); ++j) {
-        difference->mutable_weights()->Add(part_features[j],
-                                           predicted_output[r] - gold_output[r]);
+    }
+
+    // Make updates for the labeled features.
+    if ((*parts)[r]->type() == SEMANTICPART_ARC && has_labeled_features) {
+      // Labeled arcs will be treated by looking at the unlabeled arcs and
+      // conjoining with the label.
+      CHECK(has_labeled_features);
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+          semantic_parts->FindLabeledArcs(arc->predicate(),
+                                          arc->argument(),
+                                          arc->sense());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledArc *labeled_arc =
+            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+        CHECK(labeled_arc != NULL);
+        double value = predicted_output[index_part] - gold_output[index_part];
+        if (value != 0.0) {
+          for (int j = 0; j < part_features.size(); ++j) {
+            difference->mutable_labeled_weights()->Add(part_features[j],
+                                                       labeled_arc->role(),
+                                                       value);
+          }
+        }
+      }
+    } else if ((*parts)[r]->type() == SEMANTICPART_SIBLING &&
+               has_labeled_features) {
+      // Labeled siblings will be treated by looking at the unlabeled ones and
+      // conjoining with the label.
+      CHECK(GetSemanticOptions()->labeled());
+      const BinaryFeatures &part_features =
+        semantic_features->GetLabeledPartFeatures(r);
+      SemanticPartSibling *sibling =
+        static_cast<SemanticPartSibling*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+        semantic_parts->GetLabeledParts(r);
+      vector<int> bigram_labels(index_labeled_parts.size());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int index_part = index_labeled_parts[k];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(index_part, parts->size());
+        SemanticPartLabeledSibling *labeled_sibling =
+            static_cast<SemanticPartLabeledSibling*>(
+                (*parts)[index_part]);
+        CHECK(labeled_sibling != NULL);
+        int bigram_label = semantic_dictionary->GetRoleBigramLabel(
+                               labeled_sibling->first_role(),
+                               labeled_sibling->second_role());
+        double value = predicted_output[index_part] - gold_output[index_part];
+        if (value != 0.0) {
+          for (int j = 0; j < part_features.size(); ++j) {
+            difference->mutable_labeled_weights()->Add(part_features[j],
+                                                       bigram_label,
+                                                       value);
+          }
+        }
       }
     }
   }
@@ -442,7 +622,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
       }
       for (int s = 0; s < predicates->size(); ++s) {
         Part *part = semantic_parts->CreatePartPredicate(p, s);
-        semantic_parts->push_back(part);
+        semantic_parts->AddPart(part);
         if (make_gold) {
           bool is_gold = false;
           int k = sentence->FindPredicate(p);
@@ -486,10 +666,12 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
     for (int a = 1; a < sentence_length; ++a) {
       if (!allow_self_loops && p == a) continue;
       for (int s = 0; s < predicates->size(); ++s) {
+        int arc_index = -1;
         if (add_labeled_parts) {
           // If no unlabeled arc is there, just skip it.
           // This happens if that arc was pruned out.
-          if (0 > semantic_parts->FindArc(p, a, s)) {
+          arc_index = semantic_parts->FindArc(p, a, s);
+          if (0 > arc_index) {
             continue;
           }
         } else {
@@ -547,7 +729,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
             int role = allowed_labels[m];
             if (prune_labels) CHECK((*predicates)[s]->HasRole(role));
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
-            semantic_parts->push_back(part);
+            CHECK_GE(arc_index, 0);
+            semantic_parts->AddLabeledPart(part, arc_index);
             if (make_gold) {
               int k = sentence->FindPredicate(p);
               int l = sentence->FindArc(p, a);
@@ -575,7 +758,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
         } else {
           Part *part = semantic_parts->CreatePartArc(p, a, s);
-          semantic_parts->push_back(part);
+          semantic_parts->AddPart(part);
           if (make_gold) {
             int k = sentence->FindPredicate(p);
             int l = sentence->FindArc(p, a);
@@ -646,11 +829,58 @@ void SemanticPipe::MakePartsArbitrarySiblings(Instance *instance,
           int r2 = semantic_parts->FindArc(p, a2, s);
           if (r2 < 0) continue;
           Part *part = semantic_parts->CreatePartSibling(p, s, a1, a2);
-          semantic_parts->push_back(part);
+          semantic_parts->AddPart(part);
           if (make_gold) {
             // Logical AND of the two individual arcs.
             gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
           }
+        }
+      }
+    }
+  }
+}
+
+void SemanticPipe::MakePartsLabeledArbitrarySiblings(Instance *instance,
+                                                     Parts *parts,
+                                                     vector<double> *gold_outputs) {
+  SemanticInstanceNumeric *sentence =
+    static_cast<SemanticInstanceNumeric*>(instance);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  SemanticDictionary *semantic_dictionary = GetSemanticDictionary();
+  SemanticOptions *semantic_options = GetSemanticOptions();
+
+  int offset, size;
+  semantic_parts->GetOffsetSibling(&offset, &size);
+  for (int r = offset; r < offset + size; ++r) {
+    SemanticPartSibling *sibling =
+      static_cast<SemanticPartSibling*>((*semantic_parts)[r]);
+    int p = sibling->predicate();
+    int s = sibling->sense();
+    int a1 = sibling->first_argument();
+    int a2 = sibling->second_argument();
+    const vector<int> &labeled_first_arc_indices =
+      semantic_parts->FindLabeledArcs(p, a1, s);
+    const vector<int> &labeled_second_arc_indices =
+      semantic_parts->FindLabeledArcs(p, a2, s);
+    for (int k = 0; k < labeled_first_arc_indices.size(); ++k) {
+      int r1 = labeled_first_arc_indices[k];
+      SemanticPartLabeledArc *first_labeled_arc =
+        static_cast<SemanticPartLabeledArc*>((*semantic_parts)[r1]);
+      int first_role = first_labeled_arc->role();
+      for (int l = 0; l < labeled_second_arc_indices.size(); ++l) {
+        int r2 = labeled_second_arc_indices[l];
+        SemanticPartLabeledArc *second_labeled_arc =
+          static_cast<SemanticPartLabeledArc*>((*semantic_parts)[r2]);
+        int second_role = second_labeled_arc->role();
+        Part *part = semantic_parts->CreatePartLabeledSibling(p, s, a1, a2,
+                                                              first_role,
+                                                              second_role);
+        semantic_parts->AddLabeledPart(part, r);
+        if (make_gold) {
+          // Logical AND of the two individual labeled arcs.
+          gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
         }
       }
     }
@@ -704,7 +934,7 @@ void SemanticPipe::MakePartsGrandparents(Instance *instance,
             int r2 = semantic_parts->FindArc(p, a, s);
             if (r2 < 0) continue;
             Part *part = semantic_parts->CreatePartGrandparent(g, t, p, s, a);
-            semantic_parts->push_back(part);
+            semantic_parts->AddPart(part);
             if (make_gold) {
               // Logical AND of the two individual arcs.
               gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
@@ -766,7 +996,7 @@ void SemanticPipe::MakePartsCoparents(Instance *instance,
             int r2 = semantic_parts->FindArc(p2, a, s2);
             if (r2 < 0) continue;
             Part *part = semantic_parts->CreatePartCoparent(p1, s1, p2, s2, a);
-            semantic_parts->push_back(part);
+            semantic_parts->AddPart(part);
             if (make_gold) {
               // Logical AND of the two individual arcs.
               gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
@@ -790,6 +1020,14 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   }
   semantic_parts->SetOffsetSibling(num_parts_initial,
                                    semantic_parts->size() - num_parts_initial);
+
+  num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_arbitrary_siblings() &&
+      FLAGS_use_labeled_sibling_features) {
+    MakePartsLabeledArbitrarySiblings(instance, parts, gold_outputs);
+  }
+  semantic_parts->SetOffsetLabeledSibling(
+      num_parts_initial, semantic_parts->size() - num_parts_initial);
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_grandparents()) {
@@ -896,7 +1134,6 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
 
   // Even in the case of labeled parsing, build features for unlabeled arcs
   // only. They will later be conjoined with the labels.
-  // TODO: allow distinguishing between unlabeled/labeled arc features.
   semantic_parts->GetOffsetArc(&offset, &size);
   for (int r = offset; r < offset + size; ++r) {
     if (!selected_parts[r]) continue;
@@ -916,33 +1153,49 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
       predicates = &GetSemanticDictionary()->GetLemmaPredicates(TOKEN_UNKNOWN);
     }
     int predicate_id = (*predicates)[arc->sense()]->id();
-    semantic_features->AddArcFeatures(sentence, r, arc->predicate(),
-                                      arc->argument(),
-                                      predicate_id);
-#if 0
-    if (pruner) {
-      semantic_features->AddArcFeaturesLight(sentence, r, arc->head(),
-                                             arc->modifier());
+    if (!pruner && GetSemanticOptions()->labeled()) {
+      semantic_features->AddLabeledArcFeatures(sentence, r, arc->predicate(),
+                                               arc->argument(), predicate_id);
+      if (!FLAGS_use_only_labeled_arc_features) {
+        semantic_features->AddArcFeatures(sentence, r, arc->predicate(),
+                                          arc->argument(), predicate_id);
+      }
     } else {
-      semantic_features->AddArcFeatures(sentence, r, arc->head(),
-                                        arc->modifier());
+      semantic_features->AddArcFeatures(sentence, r, arc->predicate(),
+                                        arc->argument(), predicate_id);
     }
-#endif
   }
 
   // Build features for arbitrary siblings.
   semantic_parts->GetOffsetSibling(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
   for (int r = offset; r < offset + size; ++r) {
+    CHECK(false);
     if (!selected_parts[r]) continue;
     SemanticPartSibling *part =
       static_cast<SemanticPartSibling*>((*semantic_parts)[r]);
     CHECK_EQ(part->type(), SEMANTICPART_SIBLING);
-    semantic_features->AddArbitrarySiblingFeatures(sentence, r,
-                                                   part->predicate(),
-                                                   part->sense(),
-                                                   part->first_argument(),
-                                                   part->second_argument());
+    if (FLAGS_use_labeled_sibling_features) {
+      semantic_features->
+        AddArbitraryLabeledSiblingFeatures(sentence, r,
+                                           part->predicate(),
+                                           part->sense(),
+                                           part->first_argument(),
+                                           part->second_argument());
+      if (!FLAGS_use_only_labeled_sibling_features) {
+        semantic_features->AddArbitrarySiblingFeatures(sentence, r,
+                                                       part->predicate(),
+                                                       part->sense(),
+                                                       part->first_argument(),
+                                                       part->second_argument());
+      }
+    } else {
+      semantic_features->AddArbitrarySiblingFeatures(sentence, r,
+                                                     part->predicate(),
+                                                     part->sense(),
+                                                     part->first_argument(),
+                                                     part->second_argument());
+    }
   }
 
   // Build features for grandparents.
@@ -1028,7 +1281,7 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
 // Prune basic parts (arcs and labeled arcs) using a first-order model.
 // The vectors of basic parts is given as input, and those elements that are
 // to be pruned are deleted from the vector.
-// If gold_outputs is not NULL, that vector will also be pruned.
+// If gold_outputs is not NULL that vector will also be pruned.
 void SemanticPipe::Prune(Instance *instance, Parts *parts,
                          vector<double> *gold_outputs,
                          bool preserve_gold) {

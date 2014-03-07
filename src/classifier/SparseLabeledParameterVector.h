@@ -292,6 +292,13 @@ class SparseLabeledParameterVector {
   // This is the number of parameters up to different labels.
   int Size() const { return values_.size(); }
 
+  // True if this feature key is already instantiated.
+  bool Exists(uint64_t key) const {
+    LabeledParameterMap::const_iterator iterator = values_.find(key);
+    if (iterator == values_.end()) return false;
+    return true;
+  }
+
   // Get the weights for the specified labels. Returns false if no key was
   // found, in which case weights becomes empty.
   bool Get(uint64_t key, const vector<int> &labels,

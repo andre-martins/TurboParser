@@ -52,7 +52,8 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   input_features_[r] = features;
 
   if (FLAGS_use_predicate_features) {
-    AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::PREDICATE,
+    AddPredicateFeatures(sentence, false,
+                         SemanticFeatureTemplateParts::PREDICATE,
                          r, predicate, predicate_id);
   }
 }
@@ -407,24 +408,45 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
                                       int predicate,
                                       int argument,
                                       int predicate_id) {
+  AddArcFeatures(sentence, false, r, predicate, argument, predicate_id);
+}
+
+void SemanticFeatures::AddLabeledArcFeatures(SemanticInstanceNumeric* sentence,
+                                             int r,
+                                             int predicate,
+                                             int argument,
+                                             int predicate_id) {
+  AddArcFeatures(sentence, true, r, predicate, argument, predicate_id);
+}
+
+void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
+                                      bool labeled,
+                                      int r,
+                                      int predicate,
+                                      int argument,
+                                      int predicate_id) {
   //LOG(INFO) << "Adding arc features";
 
   SemanticOptions *options = static_cast<class SemanticPipe*>(pipe_)->
       GetSemanticOptions();
 
-  CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
-  input_features_[r] = features;
+  if (labeled) {
+    CHECK_GE(r, 0);
+    CHECK_LT(r, input_labeled_features_.size());
+    CHECK(!input_labeled_features_[r]);
+    input_labeled_features_[r] = features;
+  } else {
+    CHECK(!input_features_[r]);
+    input_features_[r] = features;
+  }
 
   // Add arc predicate features.
-  AddPredicateFeatures(sentence, SemanticFeatureTemplateParts::ARC_PREDICATE,
+  AddPredicateFeatures(sentence, labeled,
+                       SemanticFeatureTemplateParts::ARC_PREDICATE,
                        r, predicate, predicate_id);
 
   int sentence_length = sentence->size();
-  // True if labeled semantic parsing.
-  bool labeled =
-      static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
-
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
   bool use_contextual_features = FLAGS_use_contextual_features;
@@ -1015,7 +1037,19 @@ void SemanticFeatures::AddArbitrarySiblingFeatures(
                           int sense,
                           int first_argument,
                           int second_argument) {
-  AddSiblingFeatures(sentence, r, predicate, sense, first_argument,
+  AddSiblingFeatures(sentence, false, r, predicate, sense, first_argument,
+                     second_argument, false);
+}
+
+// Add features for arbitrary labeled siblings.
+void SemanticFeatures::AddArbitraryLabeledSiblingFeatures(
+                          SemanticInstanceNumeric* sentence,
+                          int r,
+                          int predicate,
+                          int sense,
+                          int first_argument,
+                          int second_argument) {
+  AddSiblingFeatures(sentence, true, r, predicate, sense, first_argument,
                      second_argument, false);
 }
 
@@ -1023,27 +1057,34 @@ void SemanticFeatures::AddArbitrarySiblingFeatures(
 // Add features for consecutive siblings.
 void SemanticFeatures::AddConsecutiveSiblingFeatures(
                           SemanticInstanceNumeric* sentence,
+                          bool labeled,
                           int r,
                           int predicate,
                           int sense,
                           int first_argument,
                           int second_argument) {
-  AddSiblingFeatures(sentence, r, predicate, sense, first_argument,
+  AddSiblingFeatures(sentence, labeled, r, predicate, sense, first_argument,
                      second_argument, true);
 }
 #endif
 
 // Add features for siblings.
 void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
+                                          bool labeled,
                                           int r,
                                           int predicate,
                                           int sense,
                                           int first_argument,
                                           int second_argument,
                                           bool consecutive) {
-  CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
-  input_features_[r] = features;
+  if (labeled) {
+    CHECK(!input_labeled_features_[r]);
+    input_labeled_features_[r] = features;
+  } else {
+    CHECK(!input_features_[r]);
+    input_features_[r] = features;
+  }
 
   int sentence_length = sentence->size();
   // Note: unlike the dependency parser case, here the first child
@@ -1871,6 +1912,7 @@ void SemanticFeatures::AddWordPairFeaturesMST(SemanticInstanceNumeric* sentence,
 
 
 void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
+                                            bool labeled,
                                             uint8_t feature_type,
                                             int r,
                                             int predicate,
@@ -1883,13 +1925,14 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   //CHECK(!input_features_[r]);
   //BinaryFeatures *features = new BinaryFeatures;
   //input_features_[r] = features;
-  BinaryFeatures *features = input_features_[r];
+  BinaryFeatures *features = NULL;
+  if (labeled) {
+    features = input_labeled_features_[r];
+  } else {
+    features = input_features_[r];
+  }
 
   int sentence_length = sentence->size();
-  // True if labeled semantic parsing.
-  bool labeled =
-      static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
-
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
   bool use_contextual_features = FLAGS_use_contextual_features;

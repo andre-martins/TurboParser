@@ -260,6 +260,10 @@ class SemanticParts : public Parts {
     for (int i = 0; i < NUM_SEMANTICPARTS; ++i) {
       offsets_[i] = -1;
     }
+    for (int r = 0;r < all_labeled_parts_.size(); ++r) {
+      all_labeled_parts_[r].clear();
+    }
+    all_labeled_parts_.clear();
   }
 
   Part *CreatePartArc(int predicate, int argument, int sense) {
@@ -309,6 +313,26 @@ class SemanticParts : public Parts {
                                           second_role);
   }
 
+  // Append a part to the array of parts. Return the index.
+  int AddPart(Part *part) {
+    int r = size();
+    push_back(part);
+    all_labeled_parts_.push_back(vector<int>(0));
+    CHECK_EQ(size(), all_labeled_parts_.size());
+    return r;
+  }
+
+  // Append a "labeled" part to the array of parts, providing the corresponding
+  // index of the unlabeled version of the part. Return the index.
+  int AddLabeledPart(Part *part, int unlabeled_part_index) {
+    int r = AddPart(part);
+    if (unlabeled_part_index >= 0) {
+      CHECK_LT(unlabeled_part_index, all_labeled_parts_.size());
+      all_labeled_parts_[unlabeled_part_index].push_back(r);
+    }
+    return r;
+  }
+
  public:
   void DeleteAll();
 
@@ -318,6 +342,7 @@ class SemanticParts : public Parts {
   const vector<int> &GetSenses(int predicate) {
     return index_senses_[predicate];
   }
+  // Find an unlabeled arc (fast).
   int FindArc(int predicate, int argument, int sense) {
     CHECK_GE(predicate, 0);
     CHECK_GE(argument, 0);
@@ -329,6 +354,20 @@ class SemanticParts : public Parts {
     }
     return index_[predicate][argument][sense];
   }
+  // Find a labeled arc (this may be rather slow, since we're not indexing the
+  // labels).
+  int FindLabeledArc(int predicate, int argument, int sense, int role) {
+    const vector<int> &index_labeled = FindLabeledArcs(predicate,
+                                                       argument,
+                                                       sense);
+    for (int k = 0; k < index_labeled.size(); ++k) {
+      SemanticPartLabeledArc *labeled_arc =
+        static_cast<SemanticPartLabeledArc*>((*this)[index_labeled[k]]);
+      if (labeled_arc->role() == role) return index_labeled[k];
+    }
+    return -1;
+  }
+  // Find all labeled arcs (fast).
   const vector<int> &FindLabeledArcs(int predicate, int argument, int sense) {
     CHECK_GE(predicate, 0);
     CHECK_GE(argument, 0);
@@ -340,6 +379,17 @@ class SemanticParts : public Parts {
     //  return -1;
     //}
     return index_labeled_[predicate][argument][sense];
+  }
+
+  // Given an "unlabeled" part (indexed by r), get/set the corresponding indices
+  // of the labeled parts.
+  const vector<int> &GetLabeledParts(int r) {
+    CHECK_GE(r, 0);
+    CHECK_LT(r, size());
+    return all_labeled_parts_[r];
+  }
+  void SetLabeledParts(int r, const vector<int> &labeled_parts) {
+    all_labeled_parts_[r] = labeled_parts;
   }
 
   // True is model is arc-factored, i.e., all parts are predicate parts or
@@ -448,7 +498,12 @@ class SemanticParts : public Parts {
   // Maps a triple (p, a, s) to a SemanticPartArc index.
   vector<vector<vector<int> > > index_;
   // Maps a quadruple (p, a, s, r) to a SemanticPartLabeledArc index.
+  // TODO: maybe replace this index by the general all_labeled_parts_ below?
   vector<vector<vector<vector<int> > > > index_labeled_;
+  // Indices of the labeled parts corresponding to each unlabeled part.
+  // This vector should have the same size as the number of parts.
+  vector<vector<int> > all_labeled_parts_;
+  // Offsets for each part type.
   int offsets_[NUM_SEMANTICPARTS];
 };
 
