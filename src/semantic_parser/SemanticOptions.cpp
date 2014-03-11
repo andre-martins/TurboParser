@@ -67,6 +67,10 @@ DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
             "training data.");
+DEFINE_bool(prune_labels_with_relation_paths, true,
+            "True for pruning the set of possible labels taking into account "
+            "the labels that have occured for syntactic dependency relation "
+            "paths in the training data.");
 DEFINE_bool(prune_distances, true,
             "True for pruning the set of possible left/right distances taking "
             "into account the distances that have occured for each pair of POS "
@@ -135,6 +139,8 @@ void SemanticOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, prune_labels_);
   CHECK(success);
+  success = WriteBool(fs, prune_labels_with_relation_paths_);
+  CHECK(success);
   success = WriteBool(fs, prune_distances_);
   CHECK(success);
   success = WriteBool(fs, prune_basic_);
@@ -177,6 +183,10 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
+  success = ReadBool(fs, &FLAGS_prune_labels_with_relation_paths);
+  CHECK(success);
+  LOG(INFO) << "Setting --prune_labels_with_relation_paths="
+            << FLAGS_prune_labels_with_relation_paths;
   success = ReadBool(fs, &FLAGS_prune_distances);
   CHECK(success);
   LOG(INFO) << "Setting --prune_distances=" << FLAGS_prune_distances;
@@ -225,6 +235,7 @@ void SemanticOptions::Initialize() {
   allow_unseen_predicates_ = FLAGS_allow_unseen_predicates;
   use_predicate_senses_ = FLAGS_use_predicate_senses;
   prune_labels_ = FLAGS_prune_labels;
+  prune_labels_with_relation_paths_ = FLAGS_prune_labels_with_relation_paths;
   prune_distances_ = FLAGS_prune_distances;
   prune_basic_ = FLAGS_prune_basic;
   use_pretrained_pruner_ = FLAGS_use_pretrained_pruner;

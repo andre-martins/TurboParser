@@ -159,12 +159,16 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
     pos_path_freqs.push_back(-1);
   }
 
-  // Go through the corpus and build the existing labels for each head-modifier
-  // POS pair.
+  // Go through the corpus and build the existing labels for:
+  // - each head-modifier POS pair,
+  // - each syntactic path (if available).
+  // Keep also the maximum left/right arc lengths for each pair of POS tags.
   existing_roles_.clear();
   existing_roles_.resize(token_dictionary_->GetNumPosTags(),
                          vector<vector<int> >(
                            token_dictionary_->GetNumPosTags()));
+
+  vector<vector<int> > existing_roles_with_relation_path;
 
   maximum_left_distances_.clear();
   maximum_left_distances_.resize(token_dictionary_->GetNumPosTags(),
@@ -192,8 +196,8 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         const string &argument_pos = instance->GetPosTag(a);
         int argument_pos_id = token_dictionary_->GetPosTagId(argument_pos);
         if (argument_pos_id < 0) argument_pos_id = TOKEN_UNKNOWN;
-        int id = role_alphabet_.Lookup(instance->GetArgumentRole(k, l));
-        CHECK_GE(id, 0);
+        int role_id = role_alphabet_.Lookup(instance->GetArgumentRole(k, l));
+        CHECK_GE(role_id, 0);
 
         // Insert new role in the set of existing labels, if it is not there
         // already. NOTE: this is inefficient, maybe we should be using a
@@ -201,9 +205,9 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         vector<int> &roles = existing_roles_[predicate_pos_id][argument_pos_id];
         int j;
         for (j = 0; j < roles.size(); ++j) {
-          if (roles[j] == id) break;
+          if (roles[j] == role_id) break;
         }
-        if (j == roles.size()) roles.push_back(id);
+        if (j == roles.size()) roles.push_back(role_id);
 
         // Update the maximum distances if necessary.
         if (p < a) {
@@ -225,18 +229,31 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         string relation_path;
         string pos_path;
         ComputeDependencyPath(instance, p, a, &relation_path, &pos_path);
-        id = relation_path_alphabet.Insert(relation_path);
-        if (id >= relation_path_freqs.size()) {
-          CHECK_EQ(id, relation_path_freqs.size());
+        int relation_path_id = relation_path_alphabet.Insert(relation_path);
+        if (relation_path_id >= relation_path_freqs.size()) {
+          CHECK_EQ(relation_path_id, relation_path_freqs.size());
           relation_path_freqs.push_back(0);
         }
-        ++relation_path_freqs[id];
-        id = pos_path_alphabet.Insert(pos_path);
-        if (id >= pos_path_freqs.size()) {
-          CHECK_EQ(id, pos_path_freqs.size());
+        ++relation_path_freqs[relation_path_id];
+        int pos_path_id = pos_path_alphabet.Insert(pos_path);
+        if (pos_path_id >= pos_path_freqs.size()) {
+          CHECK_EQ(pos_path_id, pos_path_freqs.size());
           pos_path_freqs.push_back(0);
         }
-        ++pos_path_freqs[id];
+        ++pos_path_freqs[pos_path_id];
+
+        // Insert new role in the set of existing labels with this relation
+        // path, if it is not there already. NOTE: this is inefficient, maybe we
+        // should be using a different data structure.
+        if (relation_path_id >= existing_roles_with_relation_path.size()) {
+          existing_roles_with_relation_path.resize(relation_path_id + 1);
+        }
+        vector<int> &path_roles =
+          existing_roles_with_relation_path[relation_path_id];
+        for (j = 0; j < path_roles.size(); ++j) {
+          if (path_roles[j] == role_id) break;
+        }
+        if (j == path_roles.size()) path_roles.push_back(role_id);
       }
     }
     delete instance;
@@ -248,18 +265,29 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   int relation_path_cutoff = FLAGS_relation_path_cutoff;
   while (true) {
     relation_path_alphabet_.clear();
+    existing_roles_with_relation_path_.clear();
     for (int i = 0; i < NUM_SPECIAL_PATHS; ++i) {
-      relation_path_alphabet_.Insert(special_path_symbols[i]);
+      int relation_path_id =
+        relation_path_alphabet_.Insert(special_path_symbols[i]);
+      vector<int> &roles = existing_roles_with_relation_path[i];
+      CHECK_EQ(roles.size(), 0);
+      existing_roles_with_relation_path_.push_back(roles);
+      //existing_roles_with_relation_path_.push_back(vector<int>(0));
     }
     for (Alphabet::iterator iter = relation_path_alphabet.begin();
          iter != relation_path_alphabet.end();
          ++iter) {
       if (relation_path_freqs[iter->second] > relation_path_cutoff) {
-        relation_path_alphabet_.Insert(iter->first);
+        int relation_path_id = relation_path_alphabet_.Insert(iter->first);
+        vector<int> &roles = existing_roles_with_relation_path[iter->second];
+        existing_roles_with_relation_path_.push_back(roles);
       }
     }
+    CHECK_EQ(relation_path_alphabet_.size(),
+             existing_roles_with_relation_path_.size());
     if (relation_path_alphabet_.size() < kMaxRelationPathAlphabetSize) break;
     ++relation_path_cutoff;
+    CHECK(false); // For now, disallowed: this would mess up the relation path filter.
     LOG(INFO) << "Incrementing relation path cutoff to "
               << relation_path_cutoff << "...";
   }
@@ -289,6 +317,55 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   CHECK_LT(relation_path_alphabet_.size(), kMaxRelationPathAlphabetSize);
   CHECK_LT(pos_path_alphabet_.size(), kMaxPosPathAlphabetSize);
 
+#if 0
+  // Go again through the corpus to build the existing labels for:
+  // - each syntactic path (if available).
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  instance = static_cast<SemanticInstance*>(reader->GetNext());
+  while (instance != NULL) {
+    int instance_length = instance->size();
+    for (int k = 0; k < instance->GetNumPredicates(); ++k) {
+      int p = instance->GetPredicateIndex(k);
+      const string &predicate_pos = instance->GetPosTag(p);
+      int predicate_pos_id = token_dictionary_->GetPosTagId(predicate_pos);
+      if (predicate_pos_id < 0) predicate_pos_id = TOKEN_UNKNOWN;
+
+      // Add semantic roles to alphabet.
+      for (int l = 0; l < instance->GetNumArgumentsPredicate(k); ++l) {
+        int a = instance->GetArgumentIndex(k, l);
+        const string &argument_pos = instance->GetPosTag(a);
+        int argument_pos_id = token_dictionary_->GetPosTagId(argument_pos);
+        if (argument_pos_id < 0) argument_pos_id = TOKEN_UNKNOWN;
+        int role_id = role_alphabet_.Lookup(instance->GetArgumentRole(k, l));
+        CHECK_GE(role_id, 0);
+
+        // Compute the syntactic path between the predicate and the argument and
+        // add it to the dictionary.
+        string relation_path;
+        ComputeDependencyPath(instance, p, a, &relation_path, &pos_path);
+        int relation_path_id = relation_path_alphabet_.Get(relation_path);
+        CHECK_GE(relation_path_id, 0);
+
+        // Insert new role in the set of existing labels with this relation
+        // path, if it is not there already. NOTE: this is inefficient, maybe we
+        // should be using a different data structure.
+        if (relation_path_id >= existing_roles_with_relation_path_.size()) {
+          existing_roles_with_relation_path_.resize(relation_path_id + 1);
+        }
+        vector<int> &path_roles = existing_roles_with_relation_path_[relation_path_id];
+        for (j = 0; j < path_roles.size(); ++j) {
+          if (path_roles[j] == role_id) break;
+        }
+        if (j == path_roles.size()) path_roles.push_back(role_id);
+      }
+    }
+    delete instance;
+    instance = static_cast<SemanticInstance*>(reader->GetNext());
+  }
+  reader->Close();
+#endif
+
+  // Show corpus statistics.
   LOG(INFO) << "Number of predicates: " << predicate_alphabet_.size();
   LOG(INFO) << "Number of roles: " << role_alphabet_.size();
   LOG(INFO) << "Number of relation paths: " << relation_path_alphabet_.size();

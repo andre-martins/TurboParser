@@ -344,8 +344,8 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
   bool labeled_decoding = false;
   // TODO: change this test.
   int offset_labeled_siblings, num_labeled_siblings;
-  semantic_parts->GetOffsetLabeledSiblings(&offset_labeled_siblings,
-                                           &num_labeled_siblings);
+  semantic_parts->GetOffsetLabeledSibling(&offset_labeled_siblings,
+                                          &num_labeled_siblings);
   if (num_labeled_siblings > 0) labeled_decoding = true;
 
   if (labeled_decoding) {
@@ -1019,7 +1019,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   // Create factor graph.
   AD3::FactorGraph *factor_graph = new AD3::FactorGraph;
-  int verbosity = 1;
+  int verbosity = 2; //1;
   if (VLOG_IS_ON(2)) {
     verbosity = 2;
   }
@@ -1043,9 +1043,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     part_indices_.push_back(offset_arcs + r);
   }
 
+  int offset_labeled_arc_variables = variables.size();
   if (labeled_decoding) {
     // Build labeled arc variables.
-    int offset_labeled_arc_variables = variables.size();
     for (int r = 0; r < num_labeled_arcs; ++r) {
       AD3::BinaryVariable* variable = factor_graph->CreateBinaryVariable();
       variable->SetLogPotential(scores[offset_labeled_arcs + r]);
@@ -1077,21 +1077,25 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     // Build XOR-OUT factors to impose that each arc has a unique label.
     for (int r = 0; r < num_arcs; ++r) {
       const vector<int> &index_labeled_parts =
-        semantic_parts->GetLabeledParts(r);
+        semantic_parts->GetLabeledParts(offset_arcs + r);
       vector<AD3::BinaryVariable*>
         local_variables(index_labeled_parts.size() + 1);
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         int index_part = index_labeled_parts[k];
-        local_variables[k] =
-          variables[offset_labeled_arc_variables + index_part];
+        CHECK_GE(index_part, 0);
+        CHECK_LT(offset_labeled_arc_variables + index_part - offset_labeled_arcs,
+                 variables.size());
+        local_variables[k] = variables[offset_labeled_arc_variables +
+                                       index_part - offset_labeled_arcs];
       }
+      CHECK_GE(offset_arc_variables + r, 0);
+      CHECK_LT(offset_arc_variables + r, variables.size());
       local_variables[index_labeled_parts.size()] =
         variables[offset_arc_variables + r];
       factor_graph->CreateFactorXOROUT(local_variables);
       factor_part_indices_.push_back(-1);
     }
   }
-
 
   //////////////////////////////////////////////////////////////////////
   // Build sibling factors.

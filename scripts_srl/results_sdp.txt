@@ -1,4 +1,79 @@
 ========================================================================================
+Open, Second-order pruned model, C=0.01, dm, best = 0.5/0.5
+========================================================================================
+
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:40:46.637729 20654 SemanticPipe.h:338] Unlabeled F1: 0.892066
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:40:46.637784 20654 SemanticPipe.h:355] Labeled F1: 0.88317
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:41:59.870955 20675 SemanticPipe.h:338] Unlabeled F1: 0.887738
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:41:59.870995 20675 SemanticPipe.h:355] Labeled F1: 0.877898
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:51:26.683609 20697 SemanticPipe.h:338] Unlabeled F1: 0.988575
+out_open_af+as+gp+cp_dm_0.01_0.5_0.5:I0307 09:51:26.683678 20697 SemanticPipe.h:355] Labeled F1: 0.985912
+
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:43:32.202755 20094 SemanticPipe.h:338] Unlabeled F1: 0.892399
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:43:32.202790 20094 SemanticPipe.h:355] Labeled F1: 0.883034
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:44:46.377499 20115 SemanticPipe.h:338] Unlabeled F1: 0.889
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:44:46.377537 20115 SemanticPipe.h:355] Labeled F1: 0.878526
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:54:14.583519 20136 SemanticPipe.h:338] Unlabeled F1: 0.98942
+out_open_af+as+gp+cp_dm_0.01_0.4_0.6:I0307 04:54:14.583567 20136 SemanticPipe.h:355] Labeled F1: 0.986641
+
+========================================================================================
+Open, Second-order pruned model, C=0.001, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 00:52:14.729207 21466 SemanticPipe.h:338] Unlabeled F1: 0.887049
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 00:52:14.729244 21466 SemanticPipe.h:355] Labeled F1: 0.87507
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 00:53:29.011469 21508 SemanticPipe.h:338] Unlabeled F1: 0.883722
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 00:53:29.011507 21508 SemanticPipe.h:355] Labeled F1: 0.870393
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 01:03:08.955221 21529 SemanticPipe.h:338] Unlabeled F1: 0.95654
+out_open_af+as+gp+cp_dm_0.001_0.4_0.6:I0308 01:03:08.955258 21529 SemanticPipe.h:355] Labeled F1: 0.9475
+
+========================================================================================
+Open, Second-order pruned model, C=0.1, dm, best = 0.4/0.6
+========================================================================================
+
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:25:00.268812 22734 SemanticPipe.h:338] Unlabeled F1: 0.893059
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:25:00.268848 22734 SemanticPipe.h:355] Labeled F1: 0.883456
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:26:14.144513 22755 SemanticPipe.h:338] Unlabeled F1: 0.88936
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:26:14.144552 22755 SemanticPipe.h:355] Labeled F1: 0.878891
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:35:41.430071 22776 SemanticPipe.h:338] Unlabeled F1: 0.989429
+out_open_af+as+gp+cp_dm_0.1_0.4_0.6:I0308 21:35:41.430124 22776 SemanticPipe.h:355] Labeled F1: 0.986644
+
+
+========================================================================================
+Open, Second-order pruned model, C=0.01, pas, best = 0.5/0.5
+========================================================================================
+
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 00:50:06.858942 21442 SemanticPipe.h:338] Unlabeled F1: 0.913233
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 00:50:06.858978 21442 SemanticPipe.h:355] Labeled F1: 0.905191
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 00:51:12.725618 21464 SemanticPipe.h:338] Unlabeled F1: 0.908851
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 00:51:12.725661 21464 SemanticPipe.h:355] Labeled F1: 0.899543
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 01:00:06.244628 21487 SemanticPipe.h:338] Unlabeled F1: 0.992515
+out_open_af+as+gp+cp_pas_0.01_0.5_0.5:I0308 01:00:06.244667 21487 SemanticPipe.h:355] Labeled F1: 0.98933
+
+========================================================================================
+Open, Second-order pruned model, C=0.001, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:28:24.914151 22367 SemanticPipe.h:338] Unlabeled F1: 0.912316
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:28:24.914190 22367 SemanticPipe.h:355] Labeled F1: 0.903642
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:29:29.264638 22388 SemanticPipe.h:338] Unlabeled F1: 0.908274
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:29:29.264678 22388 SemanticPipe.h:355] Labeled F1: 0.897639
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:38:29.507936 22410 SemanticPipe.h:338] Unlabeled F1: 0.974911
+out_open_af+as+gp+cp_pas_0.001_0.4_0.6:I0308 13:38:29.507974 22410 SemanticPipe.h:355] Labeled F1: 0.967772
+
+========================================================================================
+Open, Second-order pruned model, C=0.1, pas, best = 0.4/0.6
+========================================================================================
+
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:39:37.324110 23198 SemanticPipe.h:338] Unlabeled F1: 0.913338
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:39:37.324147 23198 SemanticPipe.h:355] Labeled F1: 0.90494
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:40:42.743542 23219 SemanticPipe.h:338] Unlabeled F1: 0.909615
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:40:42.743578 23219 SemanticPipe.h:355] Labeled F1: 0.899742
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:49:30.674816 23240 SemanticPipe.h:338] Unlabeled F1: 0.993163
+out_open_af+as+gp+cp_pas_0.1_0.4_0.6:I0309 06:49:30.674852 23240 SemanticPipe.h:355] Labeled F1: 0.989831
+
+
+========================================================================================
 Open, Second-order pruned model, C=0.01, pcedt, best = 0.3/0.7
 ========================================================================================
 

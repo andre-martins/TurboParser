@@ -49,6 +49,9 @@ class SemanticOptions : public Options {
   bool allow_unseen_predicates() { return allow_unseen_predicates_; }
   bool use_predicate_senses() { return use_predicate_senses_; }
   bool prune_labels() { return prune_labels_; }
+  bool prune_labels_with_relation_paths() {
+    return prune_labels_with_relation_paths_;
+  }
   bool prune_distances() { return prune_distances_; }
   bool prune_basic() { return prune_basic_; }
   bool use_pretrained_pruner() { return use_pretrained_pruner_; }
@@ -73,6 +76,7 @@ class SemanticOptions : public Options {
   bool allow_unseen_predicates_;
   bool use_predicate_senses_;
   bool prune_labels_;
+  bool prune_labels_with_relation_paths_;
   bool prune_distances_;
   bool prune_basic_;
   bool use_pretrained_pruner_;

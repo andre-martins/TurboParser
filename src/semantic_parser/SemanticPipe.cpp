@@ -591,6 +591,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   int sentence_length = sentence->size();
   bool make_gold = (gold_outputs != NULL);
   bool prune_labels = semantic_options->prune_labels();
+  bool prune_labels_with_relation_paths =
+    semantic_options->prune_labels_with_relation_paths();
   bool prune_distances = semantic_options->prune_distances();
   bool allow_self_loops = semantic_options->allow_self_loops();
   bool allow_root_predicate = semantic_options->allow_root_predicate();
@@ -690,7 +692,32 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
         }
 
-        if (prune_labels) {
+        if (prune_labels_with_relation_paths) {
+          int relation_path_id = sentence->GetRelationPathId(p, a);
+          allowed_labels.clear();
+          if (relation_path_id >= 0 &&
+              relation_path_id < semantic_dictionary->
+                GetRelationPathAlphabet().size()) {
+            allowed_labels = semantic_dictionary->
+              GetExistingRolesWithRelationPath(relation_path_id);
+            //LOG(INFO) << "Path: " << relation_path_id << " Roles: " << allowed_labels.size();
+          }
+          set<int> label_set;
+          for (int m = 0; m < allowed_labels.size(); ++m) {
+            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
+              label_set.insert(allowed_labels[m]);
+            }
+          }
+          allowed_labels.clear();
+          for (set<int>::iterator it = label_set.begin();
+               it != label_set.end(); ++it) {
+            allowed_labels.push_back(*it);
+          }
+          if (!add_labeled_parts && allowed_labels.empty()) {
+            continue;
+          }
+        } else if (prune_labels) {
+          // TODO: allow both kinds of label pruning simultaneously?
           int predicate_pos_id = sentence->GetPosId(p);
           int argument_pos_id = sentence->GetPosId(a);
           allowed_labels.clear();
@@ -1170,7 +1197,6 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
   semantic_parts->GetOffsetSibling(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
   for (int r = offset; r < offset + size; ++r) {
-    CHECK(false);
     if (!selected_parts[r]) continue;
     SemanticPartSibling *part =
       static_cast<SemanticPartSibling*>((*semantic_parts)[r]);
@@ -1314,6 +1340,8 @@ void SemanticPipe::Prune(Instance *instance, Parts *parts,
     if (predicted_outputs[offset_arcs + r] >= threshold ||
         (preserve_gold && (*gold_outputs)[offset_arcs + r] >= threshold)) {
       (*parts)[r0] = (*parts)[offset_arcs + r];
+      semantic_parts->
+        SetLabeledParts(r0, semantic_parts->GetLabeledParts(offset_arcs + r));
       if (gold_outputs) {
         (*gold_outputs)[r0] = (*gold_outputs)[offset_arcs + r];
       }
@@ -1324,7 +1352,7 @@ void SemanticPipe::Prune(Instance *instance, Parts *parts,
   }
 
   if (gold_outputs) gold_outputs->resize(r0);
-  parts->resize(r0);
+  semantic_parts->Resize(r0);
   semantic_parts->DeleteIndices();
   semantic_parts->SetOffsetArc(offset_arcs,
                                parts->size() - offset_arcs);

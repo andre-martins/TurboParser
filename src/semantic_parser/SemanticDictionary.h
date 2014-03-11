@@ -62,6 +62,7 @@ class SemanticDictionary : public Dictionary {
     relation_path_alphabet_.clear();
     pos_path_alphabet_.clear();
     existing_roles_.clear();
+    existing_roles_with_relation_path_.clear();
     maximum_left_distances_.clear();
     maximum_right_distances_.clear();
   }
@@ -146,6 +147,19 @@ class SemanticDictionary : public Dictionary {
         CHECK(success);
       }
     }
+    length = existing_roles_with_relation_path_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < existing_roles_with_relation_path_.size(); ++i) {
+      length = existing_roles_with_relation_path_[i].size();
+      success = WriteInteger(fs, length);
+      CHECK(success);
+      for (int k = 0; k < existing_roles_with_relation_path_[i].size(); ++k) {
+        int label = existing_roles_with_relation_path_[i][k];
+        success = WriteInteger(fs, label);
+        CHECK(success);
+      }
+    }
   }
 
   void Load(FILE *fs) {
@@ -197,6 +211,20 @@ class SemanticDictionary : public Dictionary {
         maximum_right_distances_[i][j] = distance;
       }
     }
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    existing_roles_with_relation_path_.resize(length);
+    for (int i = 0; i < existing_roles_with_relation_path_.size(); ++i) {
+      success = ReadInteger(fs, &length);
+      CHECK(success);
+      existing_roles_with_relation_path_[i].resize(length);
+      for (int k = 0; k < existing_roles_with_relation_path_[i].size(); ++k) {
+        int label;
+        success = ReadInteger(fs, &label);
+        CHECK(success);
+        existing_roles_with_relation_path_[i][k] = label;
+      }
+    }
     BuildPredicateRoleNames();
   }
 
@@ -218,6 +246,10 @@ class SemanticDictionary : public Dictionary {
 
   const vector<int> &GetExistingRoles(int predicate_pos_id, int argument_pos_id) {
     return existing_roles_[predicate_pos_id][argument_pos_id];
+  }
+
+  const vector<int> &GetExistingRolesWithRelationPath(int relation_path_id) {
+    return existing_roles_with_relation_path_[relation_path_id];
   }
 
   int GetMaximumLeftDistance(int predicate_pos_id, int argument_pos_id) {
@@ -253,6 +285,7 @@ class SemanticDictionary : public Dictionary {
   Alphabet relation_path_alphabet_;
   Alphabet pos_path_alphabet_;
   vector<vector<vector<int> > > existing_roles_;
+  vector<vector<int> > existing_roles_with_relation_path_;
   vector<vector<int> > maximum_left_distances_;
   vector<vector<int> > maximum_right_distances_;
 };

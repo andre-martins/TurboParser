@@ -31,9 +31,9 @@ enum {
   SEMANTICPART_LABELEDARC,
   SEMANTICPART_ARGUMENT,
   SEMANTICPART_SIBLING,
+  SEMANTICPART_LABELEDSIBLING,
   SEMANTICPART_GRANDPARENT,
   SEMANTICPART_COPARENT,
-  SEMANTICPART_LABELEDSIBLING,
   NUM_SEMANTICPARTS
 };
 
@@ -318,6 +318,7 @@ class SemanticParts : public Parts {
     int r = size();
     push_back(part);
     all_labeled_parts_.push_back(vector<int>(0));
+    //LOG(INFO) << "Adding part #" << r << " with type " << part->type();
     CHECK_EQ(size(), all_labeled_parts_.size());
     return r;
   }
@@ -331,6 +332,12 @@ class SemanticParts : public Parts {
       all_labeled_parts_[unlabeled_part_index].push_back(r);
     }
     return r;
+  }
+
+  // Resize (necessary after pruning).
+  void Resize(int num_parts) {
+    resize(num_parts);
+    all_labeled_parts_.resize(num_parts);
   }
 
  public:
@@ -386,6 +393,7 @@ class SemanticParts : public Parts {
   const vector<int> &GetLabeledParts(int r) {
     CHECK_GE(r, 0);
     CHECK_LT(r, size());
+    CHECK_EQ(size(), all_labeled_parts_.size());
     return all_labeled_parts_[r];
   }
   void SetLabeledParts(int r, const vector<int> &labeled_parts) {
