@@ -1019,7 +1019,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   // Create factor graph.
   AD3::FactorGraph *factor_graph = new AD3::FactorGraph;
-  int verbosity = 2; //1;
+  int verbosity = 1;
   if (VLOG_IS_ON(2)) {
     verbosity = 2;
   }

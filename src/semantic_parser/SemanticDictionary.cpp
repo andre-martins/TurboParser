@@ -18,6 +18,7 @@
 
 #include "SemanticDictionary.h"
 #include "SemanticPipe.h"
+#include <algorithm>
 
 // Special symbols.
 const string kPredicateUnknown = "_UNKNOWN_.01"; // Unknown predicate.
@@ -33,6 +34,8 @@ DEFINE_int32(relation_path_cutoff, 0,
              "Ignore relation paths whose frequency is less than this.");
 DEFINE_int32(pos_path_cutoff, 0,
              "Ignore relation paths whose frequency is less than this.");
+DEFINE_int32(num_frequent_role_pairs, 50,
+             "Number of frequent role pairs to use in labeled sibling features");
 
 void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader) {
   LOG(INFO) << "Creating predicate and role dictionaries...";
@@ -169,6 +172,7 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
                            token_dictionary_->GetNumPosTags()));
 
   vector<vector<int> > existing_roles_with_relation_path;
+  vector<int> role_pair_freqs(GetNumRoleBigramLabels(), 0);
 
   maximum_left_distances_.clear();
   maximum_left_distances_.resize(token_dictionary_->GetNumPosTags(),
@@ -198,6 +202,17 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         if (argument_pos_id < 0) argument_pos_id = TOKEN_UNKNOWN;
         int role_id = role_alphabet_.Lookup(instance->GetArgumentRole(k, l));
         CHECK_GE(role_id, 0);
+
+        // Look for possible role pairs.
+        for (int m = l+1; m < instance->GetNumArgumentsPredicate(k); ++m) {
+          int other_role_id =
+            role_alphabet_.Lookup(instance->GetArgumentRole(k, m));
+          CHECK_GE(other_role_id, 0);
+          int bigram_label = GetRoleBigramLabel(role_id, other_role_id);
+          CHECK_GE(bigram_label, 0);
+          CHECK_LT(bigram_label, GetNumRoleBigramLabels());
+          ++role_pair_freqs[bigram_label];
+        }
 
         // Insert new role in the set of existing labels, if it is not there
         // already. NOTE: this is inefficient, maybe we should be using a
@@ -316,6 +331,35 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
 
   CHECK_LT(relation_path_alphabet_.size(), kMaxRelationPathAlphabetSize);
   CHECK_LT(pos_path_alphabet_.size(), kMaxPosPathAlphabetSize);
+
+  // Compute the set of most frequent role pairs.
+  vector<pair<int, int> > freqs_pairs;
+  for (int k = 0; k < role_pair_freqs.size(); ++k) {
+    freqs_pairs.push_back(pair<int,int>(-role_pair_freqs[k], k));
+  }
+  sort(freqs_pairs.begin(), freqs_pairs.end());
+  frequent_role_pairs_.clear();
+  for (int k = 0;
+       k < FLAGS_num_frequent_role_pairs && k < freqs_pairs.size();
+       ++k) {
+    frequent_role_pairs_.insert(freqs_pairs[k].second);
+  }
+
+  // Display information about frequent role pairs.
+  for (Alphabet::iterator it = role_alphabet_.begin();
+       it != role_alphabet_.end(); ++it) {
+    string first_role = it->first;
+    int first_role_id = it->second;
+    for (Alphabet::iterator it2 = role_alphabet_.begin();
+         it2 != role_alphabet_.end(); ++it2) {
+      string second_role = it2->first;
+      int second_role_id = it2->second;
+      if (IsFrequentRolePair(first_role_id, second_role_id)) {
+        LOG(INFO) << "Frequent role pair: "
+                  << first_role << " " << second_role;
+      }
+    }
+  }
 
 #if 0
   // Go again through the corpus to build the existing labels for:

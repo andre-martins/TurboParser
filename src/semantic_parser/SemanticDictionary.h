@@ -92,6 +92,16 @@ class SemanticDictionary : public Dictionary {
     return first_role * role_alphabet_.size() + second_role;
   }
 
+  int GetNumRoleBigramLabels() const {
+    return role_alphabet_.size()*role_alphabet_.size();
+  }
+
+  bool IsFrequentRolePair(int first_role, int second_role) const {
+    int label_bigram = GetRoleBigramLabel(first_role, second_role);
+    return frequent_role_pairs_.find(label_bigram) !=
+      frequent_role_pairs_.end();
+  }
+
   const string &GetRelationPathName(int path) const {
     return relation_path_alphabet_.GetName(path);
   }
@@ -160,6 +170,16 @@ class SemanticDictionary : public Dictionary {
         CHECK(success);
       }
     }
+    length = frequent_role_pairs_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (set<int>::iterator it = frequent_role_pairs_.begin();
+         it != frequent_role_pairs_.end();
+         ++it) {
+      int label_bigram = *it;
+      success = WriteInteger(fs, label_bigram);
+      CHECK(success);
+    }
   }
 
   void Load(FILE *fs) {
@@ -225,6 +245,15 @@ class SemanticDictionary : public Dictionary {
         existing_roles_with_relation_path_[i][k] = label;
       }
     }
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    frequent_role_pairs_.clear();
+    for (int k = 0; k < length; ++k) {
+      int label_bigram;
+      success = ReadInteger(fs, &label_bigram);
+      CHECK(success);
+      frequent_role_pairs_.insert(label_bigram);
+    }
     BuildPredicateRoleNames();
   }
 
@@ -288,6 +317,7 @@ class SemanticDictionary : public Dictionary {
   vector<vector<int> > existing_roles_with_relation_path_;
   vector<vector<int> > maximum_left_distances_;
   vector<vector<int> > maximum_right_distances_;
+  set<int> frequent_role_pairs_;
 };
 
 #endif /* SEMANTICDICTIONARY_H_ */

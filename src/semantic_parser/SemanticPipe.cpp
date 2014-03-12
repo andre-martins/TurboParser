@@ -29,7 +29,7 @@ DEFINE_bool(use_only_labeled_arc_features, true,
             "True for not using unlabeled arc features in addition to labeled ones.");
 DEFINE_bool(use_only_labeled_sibling_features, true,
             "True for not using unlabeled sibling features in addition to labeled ones.");
-DEFINE_bool(use_labeled_sibling_features, false, //true,
+DEFINE_bool(use_labeled_sibling_features, true,
             "True for using labels in sibling features.");
 
 
@@ -901,6 +901,13 @@ void SemanticPipe::MakePartsLabeledArbitrarySiblings(Instance *instance,
         SemanticPartLabeledArc *second_labeled_arc =
           static_cast<SemanticPartLabeledArc*>((*semantic_parts)[r2]);
         int second_role = second_labeled_arc->role();
+        // To keep the number of parts manageable, only create parts for:
+        // - same role (a1 == a2);
+        // - frequent role pairs.
+        if (first_role != second_role &&
+            !semantic_dictionary->IsFrequentRolePair(first_role, second_role)) {
+          continue;
+        }
         Part *part = semantic_parts->CreatePartLabeledSibling(p, s, a1, a2,
                                                               first_role,
                                                               second_role);
@@ -1047,6 +1054,7 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   }
   semantic_parts->SetOffsetSibling(num_parts_initial,
                                    semantic_parts->size() - num_parts_initial);
+  //LOG(INFO) << "Num siblings: " << semantic_parts->size() - num_parts_initial;
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_arbitrary_siblings() &&
@@ -1055,6 +1063,7 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   }
   semantic_parts->SetOffsetLabeledSibling(
       num_parts_initial, semantic_parts->size() - num_parts_initial);
+  //LOG(INFO) << "Num labeled siblings: " << semantic_parts->size() - num_parts_initial;
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_grandparents()) {
