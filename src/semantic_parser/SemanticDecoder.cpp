@@ -430,6 +430,7 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
         for (int r = 0; r < num_labeled_arcs; ++r) {
           copied_scores[offset_labeled_arcs + r] = 0.0;
         }
+        predicted_output->resize(parts->size(), 0.0);
         double value;
         DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
       }
