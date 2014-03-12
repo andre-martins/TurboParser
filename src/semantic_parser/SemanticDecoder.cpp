@@ -380,6 +380,7 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
       }
 
       double value;
+      predicted_output->assign(parts->size(), 0.0);
       DecodeBasic(instance, parts, copied_scores, predicted_output, &value);
 
       // Write the components of the predicted output that
