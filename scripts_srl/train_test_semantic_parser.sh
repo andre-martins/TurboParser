@@ -24,7 +24,7 @@ pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the p
 labeled=true # Output semantic labels.
 use_dependency_syntactic_features=true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
-model_type=af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
+model_type=basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb").
                     # Currently, flags np+dp are not recommended because they

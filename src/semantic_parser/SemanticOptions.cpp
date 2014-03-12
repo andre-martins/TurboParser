@@ -51,6 +51,10 @@ DEFINE_bool(use_dependency_syntactic_features, true,
 DEFINE_bool(labeled, true,
             "True for training a parser with labeled arcs (if false, the "
             "parser outputs just the backbone dependencies.)");
+DEFINE_bool(deterministic_labels, true,
+            "True for forcing a set of labels (found in the training set) to be "
+            "deterministic (i.e. to not occur in more than one argument for the "
+            "same predicate).");
 DEFINE_bool(allow_self_loops, true,
             "True for allowing self-loops (a predicate being its own argument.)");
 DEFINE_bool(allow_root_predicate, false,
@@ -129,6 +133,8 @@ void SemanticOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, labeled_);
   CHECK(success);
+  success = WriteBool(fs, deterministic_labels_);
+  CHECK(success);
   success = WriteBool(fs, allow_self_loops_);
   CHECK(success);
   success = WriteBool(fs, allow_root_predicate_);
@@ -167,6 +173,9 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_labeled);
   CHECK(success);
   LOG(INFO) << "Setting --labeled=" << FLAGS_labeled;
+  success = ReadBool(fs, &FLAGS_deterministic_labels);
+  CHECK(success);
+  LOG(INFO) << "Setting --deterministic_labels=" << FLAGS_deterministic_labels;
   success = ReadBool(fs, &FLAGS_allow_self_loops);
   CHECK(success);
   LOG(INFO) << "Setting --allow_self_loops=" << FLAGS_allow_self_loops;
@@ -221,6 +230,8 @@ void SemanticOptions::CopyPrunerFlags() {
   // General flags.
   FLAGS_model_type = "af"; // A pruner is always a arc-factored model.
   FLAGS_prune_basic = false; // A pruner has no inner basic pruner.
+  // A pruner does not impose deterministic labels.
+  FLAGS_deterministic_labels = false;
 }
 
 void SemanticOptions::Initialize() {
@@ -230,6 +241,7 @@ void SemanticOptions::Initialize() {
   model_type_ = FLAGS_model_type;
   use_dependency_syntactic_features_ = FLAGS_use_dependency_syntactic_features;
   labeled_ = FLAGS_labeled;
+  deterministic_labels_ = FLAGS_deterministic_labels;
   allow_self_loops_ = FLAGS_allow_self_loops;
   allow_root_predicate_ = FLAGS_allow_root_predicate;
   allow_unseen_predicates_ = FLAGS_allow_unseen_predicates;

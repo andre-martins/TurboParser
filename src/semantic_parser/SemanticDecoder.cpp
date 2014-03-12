@@ -347,6 +347,9 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
   semantic_parts->GetOffsetLabeledSibling(&offset_labeled_siblings,
                                           &num_labeled_siblings);
   if (num_labeled_siblings > 0) labeled_decoding = true;
+  if (pipe_->GetSemanticOptions()->deterministic_labels()) {
+    labeled_decoding = true;
+  }
 
   if (labeled_decoding) {
     predicted_output->clear();
@@ -1009,6 +1012,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   if (!labeled_decoding) {
     CHECK_EQ(num_labeled_siblings, 0);
+    CHECK(!pipe_->GetSemanticOptions()->deterministic_labels());
   }
 
   // Variables of the factor graph.
@@ -1096,6 +1100,41 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         variables[offset_arc_variables + r];
       factor_graph->CreateFactorXOROUT(local_variables);
       factor_part_indices_.push_back(-1);
+    }
+
+    // If some labels are deterministic, make sure the same role is not filled
+    // more than once for each predicate.
+    if (pipe_->GetSemanticOptions()->deterministic_labels()) {
+      int sentence_length =
+        static_cast<SemanticInstanceNumeric*>(instance)->size();
+      vector<vector<vector<int> > >
+        labeled_arcs_by_predicate_role(sentence_length);
+      for (int r = 0; r < num_labeled_arcs; ++r) {
+        SemanticPartLabeledArc *labeled_arc =
+          static_cast<SemanticPartLabeledArc*>(
+            (*semantic_parts)[offset_labeled_arcs + r]);
+        int p = labeled_arc->predicate();
+        int l = labeled_arc->role();
+        // TODO: check if role l is deterministic.
+        if (labeled_arcs_by_predicate_role[p].size() <= l) {
+          labeled_arcs_by_predicate_role[p].resize(l+1);
+        }
+        labeled_arcs_by_predicate_role[p][l].push_back(r);
+      }
+      for (int p = 0; p < labeled_arcs_by_predicate_role.size(); ++p) {
+        for (int l = 0; l < labeled_arcs_by_predicate_role[p].size(); ++l) {
+          if (labeled_arcs_by_predicate_role[p][l].size() <= 1) continue;
+          vector<AD3::BinaryVariable*>
+            local_variables(labeled_arcs_by_predicate_role[p][l].size());
+          for (int k = 0; k < labeled_arcs_by_predicate_role[p][l].size();
+               ++k) {
+            int r = labeled_arcs_by_predicate_role[p][l][k];
+            local_variables[k] = variables[offset_labeled_arc_variables + r];
+          }
+          factor_graph->CreateFactorAtMostOne(local_variables);
+          factor_part_indices_.push_back(-1);
+        }
+      }
     }
   }
 
