@@ -34,11 +34,12 @@ DEFINE_string(model_type, "standard",
               "following pieces:"
               "af enables arc-factored parts (required), "
               "+as enables arbitrary sibling parts,"
+              "+cs enables consecutive sibling parts, "
               "+gp enables grandparent parts,"
               "+cp enables co-parent parts,"
+              "+ccp enables consecutive co-parent parts, "
               "+gs enables grandsibling parts,"
               "+ts enables trisibling parts,"
-              "+cs enables consecutive sibling parts, "
               "+gs enables grand-sibling (third-order) parts,"
               "+ts enables tri-sibling (third-order) parts."
               "The following alias are predefined:"
@@ -256,9 +257,10 @@ void SemanticOptions::Initialize() {
   pruner_max_arguments_ = FLAGS_pruner_max_arguments;
 
   use_arbitrary_siblings_ = false;
+  use_consecutive_siblings_ = false;
   use_grandparents_ = false;
   use_coparents_ = false;
-  use_consecutive_siblings_ = false;
+  use_consecutive_coparents_ = false;
   use_grandsiblings_ = false;
   use_trisiblings_ = false;
 
@@ -281,15 +283,18 @@ void SemanticOptions::Initialize() {
     } else if (enabled_parts[i] == "as") {
       use_arbitrary_siblings_ = true;
       LOG(INFO) << "Arbitrary sibling parts enabled.";
+    } else if (enabled_parts[i] == "cs") {
+      use_consecutive_siblings_ = true;
+      LOG(INFO) << "Consecutive sibling parts enabled.";
     } else if (enabled_parts[i] == "gp") {
       use_grandparents_ = true;
       LOG(INFO) << "Grandparent parts enabled.";
     } else if (enabled_parts[i] == "cp") {
       use_coparents_ = true;
       LOG(INFO) << "Co-parent parts enabled.";
-    } else if (enabled_parts[i] == "cs") {
-      use_consecutive_siblings_ = true;
-      LOG(INFO) << "Consecutive sibling parts enabled.";
+    } else if (enabled_parts[i] == "ccp") {
+      use_consecutive_coparents_ = true;
+      LOG(INFO) << "Consecutive co-parent parts enabled.";
     } else if (enabled_parts[i] == "gs") {
       use_grandsiblings_ = true;
       LOG(INFO) << "Grandsibling parts enabled.";

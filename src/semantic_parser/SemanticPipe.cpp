@@ -921,6 +921,55 @@ void SemanticPipe::MakePartsLabeledArbitrarySiblings(Instance *instance,
   }
 }
 
+void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
+                                                Parts *parts,
+                                                vector<double> *gold_outputs) {
+  SemanticInstanceNumeric *sentence =
+    static_cast<SemanticInstanceNumeric*>(instance);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  SemanticDictionary *semantic_dictionary = GetSemanticDictionary();
+  SemanticOptions *semantic_options = GetSemanticOptions();
+  //bool allow_self_loops = semantic_options->allow_self_loops();
+  bool allow_root_predicate = semantic_options->allow_root_predicate();
+  bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
+  bool use_predicate_senses = semantic_options->use_predicate_senses();
+
+  CHECK(false);
+
+  // Siblings: (p,s,a1) and (p,s,a2).
+  for (int p = 0; p < sentence_length; ++p) {
+    if (p == 0 && !allow_root_predicate) continue;
+    int lemma_id = TOKEN_UNKNOWN;
+    if (use_predicate_senses) {
+      lemma_id = sentence->GetLemmaId(p);
+      CHECK_GE(lemma_id, 0);
+    }
+    const vector<SemanticPredicate*> *predicates =
+      &semantic_dictionary->GetLemmaPredicates(lemma_id);
+    if (predicates->size() == 0 && allow_unseen_predicates) {
+      predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
+    for (int s = 0; s < predicates->size(); ++s) {
+      for (int a1 = 1; a1 < sentence_length; ++a1) {
+        int r1 = semantic_parts->FindArc(p, a1, s);
+        if (r1 < 0) continue;
+        for (int a2 = a1+1; a2 < sentence_length; ++a2) {
+          int r2 = semantic_parts->FindArc(p, a2, s);
+          if (r2 < 0) continue;
+          Part *part = semantic_parts->CreatePartSibling(p, s, a1, a2);
+          semantic_parts->AddPart(part);
+          if (make_gold) {
+            // Logical AND of the two individual arcs.
+            gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
+          }
+        }
+      }
+    }
+  }
+}
+
 void SemanticPipe::MakePartsGrandparents(Instance *instance,
                                          Parts *parts,
                                          vector<double> *gold_outputs) {
@@ -1042,6 +1091,70 @@ void SemanticPipe::MakePartsCoparents(Instance *instance,
   }
 }
 
+void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
+                                                 Parts *parts,
+                                                 vector<double> *gold_outputs) {
+  SemanticInstanceNumeric *sentence =
+    static_cast<SemanticInstanceNumeric*>(instance);
+  SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  SemanticDictionary *semantic_dictionary = GetSemanticDictionary();
+  SemanticOptions *semantic_options = GetSemanticOptions();
+  //bool allow_self_loops = semantic_options->allow_self_loops();
+  bool allow_root_predicate = semantic_options->allow_root_predicate();
+  bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
+  bool use_predicate_senses = semantic_options->use_predicate_senses();
+
+  CHECK(false);
+
+  // Co-parents: (p1,s1,a) and (p2,s2,a).
+  // First predicate.
+  for (int p1 = 0; p1 < sentence_length; ++p1) {
+    if (p1 == 0 && !allow_root_predicate) continue;
+    int lemma_id_p1 = TOKEN_UNKNOWN;
+    if (use_predicate_senses) {
+      lemma_id_p1 = sentence->GetLemmaId(p1);
+      CHECK_GE(lemma_id_p1, 0);
+    }
+    const vector<SemanticPredicate*> *predicates_p1 =
+      &semantic_dictionary->GetLemmaPredicates(lemma_id_p1);
+    if (predicates_p1->size() == 0 && allow_unseen_predicates) {
+      predicates_p1 = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+    }
+    for (int s1 = 0; s1 < predicates_p1->size(); ++s1) {
+      // Second predicate.
+      for (int p2 = p1+1; p2 < sentence_length; ++p2) {
+        int lemma_id_p2 = TOKEN_UNKNOWN;
+        if (use_predicate_senses) {
+          lemma_id_p2 = sentence->GetLemmaId(p2);
+          CHECK_GE(lemma_id_p2, 0);
+        }
+        const vector<SemanticPredicate*> *predicates_p2 =
+          &semantic_dictionary->GetLemmaPredicates(lemma_id_p2);
+        if (predicates_p2->size() == 0 && allow_unseen_predicates) {
+          predicates_p2 = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+        }
+        for (int s2 = 0; s2 < predicates_p2->size(); ++s2) {
+          // Common argument.
+          for (int a = 1; a < sentence_length; ++a) {
+            int r1 = semantic_parts->FindArc(p1, a, s1);
+            if (r1 < 0) continue;
+            int r2 = semantic_parts->FindArc(p2, a, s2);
+            if (r2 < 0) continue;
+            Part *part = semantic_parts->CreatePartCoparent(p1, s1, p2, s2, a);
+            semantic_parts->AddPart(part);
+            if (make_gold) {
+              // Logical AND of the two individual arcs.
+              gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 void SemanticPipe::MakePartsGlobal(Instance *instance,
                                    Parts *parts,
                                    vector<double> *gold_outputs) {
@@ -1066,6 +1179,13 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   //LOG(INFO) << "Num labeled siblings: " << semantic_parts->size() - num_parts_initial;
 
   num_parts_initial = semantic_parts->size();
+  if (semantic_options->use_consecutive_siblings()) {
+    MakePartsConsecutiveSiblings(instance, parts, gold_outputs);
+  }
+  semantic_parts->SetOffsetConsecutiveSibling(num_parts_initial,
+      semantic_parts->size() - num_parts_initial);
+
+  num_parts_initial = semantic_parts->size();
   if (semantic_options->use_grandparents()) {
     MakePartsGrandparents(instance, parts, gold_outputs);
   }
@@ -1079,14 +1199,14 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
   semantic_parts->SetOffsetCoparent(num_parts_initial,
       semantic_parts->size() - num_parts_initial);
 
-#if 0
   num_parts_initial = semantic_parts->size();
-  if (semantic_options->use_consecutive_siblings()) {
-    MakePartsConsecutiveSiblings(instance, parts, gold_outputs);
+  if (semantic_options->use_consecutive_coparents()) {
+    MakePartsConsecutiveCoparents(instance, parts, gold_outputs);
   }
-  semantic_parts->SetOffsetNextSibling(num_parts_initial,
+  semantic_parts->SetOffsetConsecutiveCoparent(num_parts_initial,
       semantic_parts->size() - num_parts_initial);
 
+#if 0
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_grandsiblings()) {
     MakePartsGrandSiblings(instance, parts, gold_outputs);
@@ -1233,6 +1353,22 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
     }
   }
 
+  // Build features for consecutive siblings.
+  semantic_parts->GetOffsetConsecutiveSibling(&offset, &size);
+  if (pruner) CHECK_EQ(size, 0);
+  for (int r = offset; r < offset + size; ++r) {
+    if (!selected_parts[r]) continue;
+    SemanticPartConsecutiveSibling *part =
+      static_cast<SemanticPartConsecutiveSibling*>((*semantic_parts)[r]);
+    CHECK_EQ(part->type(), SEMANTICPART_CONSECUTIVESIBLING);
+    semantic_features->AddConsecutiveSiblingFeatures(
+        sentence, r,
+        part->predicate(),
+        part->sense(),
+        part->first_argument(),
+        part->second_argument());
+  }
+
   // Build features for grandparents.
   semantic_parts->GetOffsetGrandparent(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
@@ -1265,19 +1401,24 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
                                            part->argument());
   }
 
-#if 0
-  // Build features for consecutive siblings.
-  dependency_parts->GetOffsetNextSibl(&offset, &size);
+  // Build features for consecutive co-parents.
+  semantic_parts->GetOffsetConsecutiveCoparent(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);
   for (int r = offset; r < offset + size; ++r) {
     if (!selected_parts[r]) continue;
-    SemanticPartNextSibl *part =
-      static_cast<SemanticPartNextSibl*>((*dependency_parts)[r]);
-    CHECK_EQ(part->type(), DEPENDENCYPART_NEXTSIBL);
-    dependency_features->AddConsecutiveSiblingFeatures(sentence, r,
-      part->head(), part->modifier(), part->next_sibling());
+    SemanticPartConsecutiveCoparent *part =
+      static_cast<SemanticPartConsecutiveCoparent*>((*semantic_parts)[r]);
+    CHECK_EQ(part->type(), SEMANTICPART_CONSECUTIVECOPARENT);
+    semantic_features->AddConsecutiveCoparentFeatures(
+        sentence, r,
+        part->first_predicate(),
+        part->first_sense(),
+        part->second_predicate(),
+        part->second_sense(),
+        part->argument());
   }
 
+#if 0
   // Build features for grand-siblings.
   dependency_parts->GetOffsetGrandSibl(&offset, &size);
   if (pruner) CHECK_EQ(size, 0);

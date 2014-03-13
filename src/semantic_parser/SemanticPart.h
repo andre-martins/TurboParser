@@ -32,8 +32,10 @@ enum {
   SEMANTICPART_ARGUMENT,
   SEMANTICPART_SIBLING,
   SEMANTICPART_LABELEDSIBLING,
+  SEMANTICPART_CONSECUTIVESIBLING,
   SEMANTICPART_GRANDPARENT,
   SEMANTICPART_COPARENT,
+  SEMANTICPART_CONSECUTIVECOPARENT,
   NUM_SEMANTICPARTS
 };
 
@@ -152,6 +154,34 @@ class SemanticPartSibling : public Part {
   int a2_; // Index of the second_argument.
 };
 
+class SemanticPartConsecutiveSibling : public Part {
+ public:
+  SemanticPartConsecutiveSibling() { p_ = s_ = a1_ = a2_ = -1; };
+  SemanticPartConsecutiveSibling(int predicate, int sense, int first_argument,
+                                 int second_argument) {
+    p_ = predicate;
+    s_ = sense;
+    a1_ = first_argument;
+    a2_ = second_argument;
+  }
+  virtual ~SemanticPartConsecutiveSibling() {};
+
+ public:
+  int type() { return SEMANTICPART_CONSECUTIVESIBLING; };
+
+ public:
+  int predicate() { return p_; };
+  int sense() { return s_; };
+  int first_argument() { return a1_; };
+  int second_argument() { return a2_; };
+
+ private:
+  int p_; // Index of the predicate.
+  int s_; // Index of the sense.
+  int a1_; // Index of the first argument (or -1 for a2_ being the first child).
+  int a2_; // Index of the second_argument (or -1 for a1_ being the last child).
+};
+
 class SemanticPartGrandparent : public Part {
  public:
   SemanticPartGrandparent() { g_ = t_ = p_ = s_ = a_ = -1; };
@@ -211,6 +241,38 @@ class SemanticPartCoparent : public Part {
   int p1_; // Index of the first predicate.
   int s1_; // Index of the first sense.
   int p2_; // Index of the second predicate.
+  int s2_; // Index of the second sense.
+  int a_; // Index of the argument.
+};
+
+class SemanticPartConsecutiveCoparent : public Part {
+ public:
+  SemanticPartConsecutiveCoparent() { p1_ = s1_ = p2_ = s2_ = a_ = -1; };
+  SemanticPartConsecutiveCoparent(int first_predicate, int first_sense,
+                                  int second_predicate, int second_sense,
+                                  int argument) {
+    p1_ = first_predicate;
+    s1_ = first_sense;
+    p2_ = second_predicate;
+    s2_ = second_sense;
+    a_ = argument;
+  }
+  virtual ~SemanticPartConsecutiveCoparent() {};
+
+ public:
+  int type() { return SEMANTICPART_CONSECUTIVECOPARENT; };
+
+ public:
+  int first_predicate() { return p1_; };
+  int first_sense() { return s1_; };
+  int second_predicate() { return p2_; };
+  int second_sense() { return s2_; };
+  int argument() { return a_; };
+
+ private:
+  int p1_; // Index of the first predicate (or -1 for p2_ being the first).
+  int s1_; // Index of the first sense.
+  int p2_; // Index of the second predicate (or -1 for p1_ being the last).
   int s2_; // Index of the second sense.
   int a_; // Index of the argument.
 };
@@ -451,14 +513,20 @@ class SemanticParts : public Parts {
   void SetOffsetSibling(int offset, int size) {
     SetOffset(SEMANTICPART_SIBLING, offset, size);
   };
+  void SetOffsetLabeledSibling(int offset, int size) {
+    SetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
+  };
+  void SetOffsetConsecutiveSibling(int offset, int size) {
+    SetOffset(SEMANTICPART_CONSECUTIVESIBLING, offset, size);
+  };
   void SetOffsetGrandparent(int offset, int size) {
     SetOffset(SEMANTICPART_GRANDPARENT, offset, size);
   };
   void SetOffsetCoparent(int offset, int size) {
     SetOffset(SEMANTICPART_COPARENT, offset, size);
   };
-  void SetOffsetLabeledSibling(int offset, int size) {
-    SetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
+  void SetOffsetConsecutiveCoparent(int offset, int size) {
+    SetOffset(SEMANTICPART_CONSECUTIVECOPARENT, offset, size);
   };
 
   void GetOffsetLabeledArc(int *offset, int *size) const {
@@ -476,14 +544,20 @@ class SemanticParts : public Parts {
   void GetOffsetSibling(int *offset, int *size) const {
     GetOffset(SEMANTICPART_SIBLING, offset, size);
   };
+  void GetOffsetLabeledSibling(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
+  };
+  void GetOffsetConsecutiveSibling(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_CONSECUTIVESIBLING, offset, size);
+  };
   void GetOffsetGrandparent(int *offset, int *size) const {
     GetOffset(SEMANTICPART_GRANDPARENT, offset, size);
   };
   void GetOffsetCoparent(int *offset, int *size) const {
     GetOffset(SEMANTICPART_COPARENT, offset, size);
   };
-  void GetOffsetLabeledSibling(int *offset, int *size) const {
-    GetOffset(SEMANTICPART_LABELEDSIBLING, offset, size);
+  void GetOffsetConsecutiveCoparent(int *offset, int *size) const {
+    GetOffset(SEMANTICPART_CONSECUTIVECOPARENT, offset, size);
   };
 
  private:

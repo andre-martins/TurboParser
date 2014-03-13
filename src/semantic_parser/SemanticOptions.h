@@ -61,9 +61,10 @@ class SemanticOptions : public Options {
   double GetPrunerMaxArguments() { return pruner_max_arguments_; }
 
   bool use_arbitrary_siblings() { return use_arbitrary_siblings_; }
+  bool use_consecutive_siblings() { return use_consecutive_siblings_; }
   bool use_grandparents() { return use_grandparents_; }
   bool use_coparents() { return use_coparents_; }
-  bool use_consecutive_siblings() { return use_consecutive_siblings_; }
+  bool use_consecutive_coparents() { return use_consecutive_coparents_; }
   bool use_grandsiblings() { return use_grandsiblings_; }
   bool use_trisiblings() { return use_trisiblings_; }
 
@@ -86,9 +87,10 @@ class SemanticOptions : public Options {
   double pruner_posterior_threshold_;
   int pruner_max_arguments_;
   bool use_arbitrary_siblings_;
+  bool use_consecutive_siblings_;
   bool use_grandparents_;
   bool use_coparents_;
-  bool use_consecutive_siblings_;
+  bool use_consecutive_coparents_;
   bool use_grandsiblings_;
   bool use_trisiblings_;
 };

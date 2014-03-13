@@ -28,6 +28,7 @@ struct SemanticFeatureTemplateParts {
     ALLSIBL,
     GRANDPAR,
     COPAR,
+    CONSECUTIVECOPAR,
     NEXTSIBL_M_S,
     ALLSIBL_M_S,
     GRANDPAR_G_M,

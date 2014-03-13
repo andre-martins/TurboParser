@@ -1053,20 +1053,17 @@ void SemanticFeatures::AddArbitraryLabeledSiblingFeatures(
                      second_argument, false);
 }
 
-#if 0
 // Add features for consecutive siblings.
 void SemanticFeatures::AddConsecutiveSiblingFeatures(
                           SemanticInstanceNumeric* sentence,
-                          bool labeled,
                           int r,
                           int predicate,
                           int sense,
                           int first_argument,
                           int second_argument) {
-  AddSiblingFeatures(sentence, labeled, r, predicate, sense, first_argument,
+  AddSiblingFeatures(sentence, false, r, predicate, sense, first_argument,
                      second_argument, true);
 }
-#endif
 
 // Add features for siblings.
 void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
@@ -1248,7 +1245,7 @@ void SemanticFeatures::AddGrandparentFeatures(
                           int sense,
                           int argument) {
   AddSecondOrderFeatures(sentence, r, grandparent_predicate, grandparent_sense,
-                         predicate, sense, argument, false);
+                         predicate, sense, argument, false, false);
 }
 
 // Add features for co-parents.
@@ -1261,7 +1258,20 @@ void SemanticFeatures::AddCoparentFeatures(
                           int second_sense,
                           int argument) {
   AddSecondOrderFeatures(sentence, r, first_predicate, first_sense,
-                         second_predicate, second_sense, argument, true);
+                         second_predicate, second_sense, argument, true, false);
+}
+
+// Add features for co-parents.
+void SemanticFeatures::AddConsecutiveCoparentFeatures(
+                          SemanticInstanceNumeric* sentence,
+                          int r,
+                          int first_predicate,
+                          int first_sense,
+                          int second_predicate,
+                          int second_sense,
+                          int argument) {
+  AddSecondOrderFeatures(sentence, r, first_predicate, first_sense,
+                         second_predicate, second_sense, argument, true, true);
 }
 
 // Add second-order features (grandparents or co-parents).
@@ -1273,12 +1283,19 @@ void SemanticFeatures::AddSecondOrderFeatures(
                           int second_predicate,
                           int second_sense,
                           int argument,
-                          bool coparents) {
+                          bool coparents,
+                          bool consecutive) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
   int sentence_length = sentence->size();
+
+  // Note: the first parent has p1 = -1.
+  bool first_parent = consecutive && (first_predicate < 0);
+  bool last_parent = consecutive &&
+                    (second_predicate == sentence_length ||
+                     second_predicate <= 0);
 
 #if 0
   if (FLAGS_use_pair_features_second_order) {
@@ -1384,19 +1401,22 @@ void SemanticFeatures::AddSecondOrderFeatures(
   uint8_t flags = 0;
 
   // Words/POS.
-  GWID = (*word_ids)[first_predicate];
-  HWID = (*word_ids)[second_predicate];
+  GWID = first_parent? TOKEN_START : (*word_ids)[first_predicate];
+  HWID = last_parent? TOKEN_STOP : (*word_ids)[second_predicate];
   MWID = (*word_ids)[argument];
-  GPID = (*pos_ids)[first_predicate];
-  HPID = (*pos_ids)[second_predicate];
+  GPID = first_parent? TOKEN_START : (*pos_ids)[first_predicate];
+  HPID = last_parent? TOKEN_STOP : (*pos_ids)[second_predicate];
   MPID = (*pos_ids)[argument];
 
   if (coparents) {
-    flags = SemanticFeatureTemplateParts::COPAR;
+    if (consecutive) {
+      flags = SemanticFeatureTemplateParts::CONSECUTIVECOPAR;
+    } else {
+      flags = SemanticFeatureTemplateParts::COPAR;
+    }
   } else {
     flags = SemanticFeatureTemplateParts::GRANDPAR;
   }
-
 
   // Maximum is 255 feature templates.
   CHECK_LT(SemanticFeatureTemplateGrandparent::COUNT, 256);

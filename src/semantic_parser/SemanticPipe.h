@@ -128,12 +128,18 @@ class SemanticPipe : public Pipe {
   void MakePartsLabeledArbitrarySiblings(Instance *instance,
                                          Parts *parts,
                                          vector<double> *gold_outputs);
+  void MakePartsConsecutiveSiblings(Instance *instance,
+                                    Parts *parts,
+                                    vector<double> *gold_outputs);
   void MakePartsGrandparents(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs);
   void MakePartsCoparents(Instance *instance,
                           Parts *parts,
                           vector<double> *gold_outputs);
+  void MakePartsConsecutiveCoparents(Instance *instance,
+                                     Parts *parts,
+                                     vector<double> *gold_outputs);
 
   void MakeFeatures(Instance *instance, Parts *parts, bool pruner,
                     Features *features) {

@@ -147,6 +147,14 @@ class SemanticFeatures: public Features {
                            int second_sense,
                            int argument);
 
+  void AddConsecutiveCoparentFeatures(SemanticInstanceNumeric* sentence,
+                                      int r,
+                                      int first_predicate,
+                                      int first_sense,
+                                      int second_predicate,
+                                      int second_sense,
+                                      int argument);
+
   void AddSecondOrderFeatures(SemanticInstanceNumeric* sentence,
                               int r,
                               int first_predicate,
@@ -154,7 +162,8 @@ class SemanticFeatures: public Features {
                               int second_predicate,
                               int second_sense,
                               int argument,
-                              bool coparents);
+                              bool coparents,
+                              bool consecutive);
 
 #if 0
   void AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence,
