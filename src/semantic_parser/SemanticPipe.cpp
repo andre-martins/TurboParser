@@ -27,9 +27,9 @@ using namespace std;
 
 DEFINE_bool(use_only_labeled_arc_features, true,
             "True for not using unlabeled arc features in addition to labeled ones.");
-DEFINE_bool(use_only_labeled_sibling_features, true,
+DEFINE_bool(use_only_labeled_sibling_features, false, //true,
             "True for not using unlabeled sibling features in addition to labeled ones.");
-DEFINE_bool(use_labeled_sibling_features, true,
+DEFINE_bool(use_labeled_sibling_features, false, //true,
             "True for using labels in sibling features.");
 
 
