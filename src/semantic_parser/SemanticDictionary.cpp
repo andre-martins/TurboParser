@@ -173,6 +173,8 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
 
   vector<vector<int> > existing_roles_with_relation_path;
   vector<int> role_pair_freqs(GetNumRoleBigramLabels(), 0);
+  // Initialize every label as deterministic.
+  deterministic_roles_.assign(GetNumRoles(), true);
 
   maximum_left_distances_.clear();
   maximum_left_distances_.resize(token_dictionary_->GetNumPosTags(),
@@ -212,6 +214,10 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
           CHECK_GE(bigram_label, 0);
           CHECK_LT(bigram_label, GetNumRoleBigramLabels());
           ++role_pair_freqs[bigram_label];
+          if (role_id == other_role_id) {
+            // Role label is not deterministic.
+            deterministic_roles_[role_id] = false;
+          }
         }
 
         // Insert new role in the set of existing labels, if it is not there
@@ -360,6 +366,21 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
       }
     }
   }
+
+  // Display information about deterministic roles.
+  int num_deterministic_roles = 0;
+  for (Alphabet::iterator it = role_alphabet_.begin();
+       it != role_alphabet_.end(); ++it) {
+    string role = it->first;
+    int role_id = it->second;
+    if (IsRoleDeterministic(role_id)) {
+      LOG(INFO) << "Deterministic role: "
+                << role;
+      ++num_deterministic_roles;
+    }
+  }
+  LOG(INFO) << num_deterministic_roles << " out of "
+            << GetNumRoles() << " roles are deterministic.";
 
 #if 0
   // Go again through the corpus to build the existing labels for:

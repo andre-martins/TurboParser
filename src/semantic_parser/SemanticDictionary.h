@@ -96,10 +96,18 @@ class SemanticDictionary : public Dictionary {
     return role_alphabet_.size()*role_alphabet_.size();
   }
 
+  int GetNumRoles() const {
+    return role_alphabet_.size();
+  }
+
   bool IsFrequentRolePair(int first_role, int second_role) const {
     int label_bigram = GetRoleBigramLabel(first_role, second_role);
     return frequent_role_pairs_.find(label_bigram) !=
       frequent_role_pairs_.end();
+  }
+
+  bool IsRoleDeterministic(int role) const {
+    return deterministic_roles_[role];
   }
 
   const string &GetRelationPathName(int path) const {
@@ -131,6 +139,15 @@ class SemanticDictionary : public Dictionary {
       for (int j = 0; j < lemma_predicates_[i].size(); ++j) {
         lemma_predicates_[i][j]->Save(fs);
       }
+    }
+    CHECK_EQ(deterministic_roles_.size(), GetNumRoles());
+    length = deterministic_roles_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < deterministic_roles_.size(); ++i) {
+      bool deterministic = deterministic_roles_[i];
+      success = WriteBool(fs, deterministic);
+      CHECK(success);
     }
     length = existing_roles_.size();
     success = WriteInteger(fs, length);
@@ -200,6 +217,16 @@ class SemanticDictionary : public Dictionary {
         lemma_predicates_[i][j] = new SemanticPredicate();
         lemma_predicates_[i][j]->Load(fs);
       }
+    }
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    deterministic_roles_.resize(length);
+    CHECK_EQ(deterministic_roles_.size(), GetNumRoles());
+    for (int i = 0; i < deterministic_roles_.size(); ++i) {
+      bool deterministic;
+      success = ReadBool(fs, &deterministic);
+      CHECK(success);
+      deterministic_roles_[i] = deterministic;
     }
     success = ReadInteger(fs, &length);
     CHECK(success);
@@ -313,6 +340,7 @@ class SemanticDictionary : public Dictionary {
   Alphabet role_alphabet_;
   Alphabet relation_path_alphabet_;
   Alphabet pos_path_alphabet_;
+  vector<bool> deterministic_roles_;
   vector<vector<vector<int> > > existing_roles_;
   vector<vector<int> > existing_roles_with_relation_path_;
   vector<vector<int> > maximum_left_distances_;

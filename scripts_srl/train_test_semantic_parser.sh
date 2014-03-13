@@ -22,6 +22,7 @@ trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
+deterministic_labels=true # Find and impose deterministic labels.
 use_dependency_syntactic_features=true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
 model_type=basic #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
@@ -124,6 +125,7 @@ then
         --file_train=${file_train} \
         --model_type=basic \
         --labeled=false \
+        --deterministic_labels=false \
         --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
         --prune_labels=${prune_labels} \
         --prune_distances=${prune_distances} \
@@ -193,6 +195,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --deterministic_labels=${deterministic_labels} \
             --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
             --prune_labels=${prune_labels} \
             --prune_distances=${prune_distances} \
@@ -221,6 +224,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --deterministic_labels=${deterministic_labels} \
             --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
             --form_case_sensitive=${case_sensitive} \
             --train_algorithm=${train_algorithm} \

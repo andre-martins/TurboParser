@@ -1115,7 +1115,8 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
             (*semantic_parts)[offset_labeled_arcs + r]);
         int p = labeled_arc->predicate();
         int l = labeled_arc->role();
-        // TODO: check if role l is deterministic.
+        // Skip if role l is not deterministic.
+        if (!pipe_->GetSemanticDictionary()->IsRoleDeterministic(l)) continue;
         if (labeled_arcs_by_predicate_role[p].size() <= l) {
           labeled_arcs_by_predicate_role[p].resize(l+1);
         }
