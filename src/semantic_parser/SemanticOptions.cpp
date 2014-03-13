@@ -71,7 +71,7 @@ DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
             "training data.");
-DEFINE_bool(prune_labels_with_relation_paths, true,
+DEFINE_bool(prune_labels_with_relation_paths, false, //true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for syntactic dependency relation "
             "paths in the training data.");
