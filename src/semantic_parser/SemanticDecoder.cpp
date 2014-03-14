@@ -984,15 +984,18 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   int offset_labeled_siblings, num_labeled_siblings;
   semantic_parts->GetOffsetLabeledSibling(&offset_labeled_siblings,
                                           &num_labeled_siblings);
+  int offset_consecutive_siblings, num_consecutive_siblings;
+  semantic_parts->GetOffsetConsecutiveSibling(&offset_consecutive_siblings,
+                                              &num_consecutive_siblings);
   int offset_grandparents, num_grandparents;
   semantic_parts->GetOffsetGrandparent(&offset_grandparents, &num_grandparents);
   int offset_coparents, num_coparents;
   semantic_parts->GetOffsetCoparent(&offset_coparents, &num_coparents);
+  int offset_consecutive_coparents, num_consecutive_coparents;
+  semantic_parts->GetOffsetConsecutiveCoparent(&offset_consecutive_coparents,
+                                               &num_consecutive_coparents);
 
 #if 0
-  int offset_next_siblings, num_next_siblings;
-  semantic_parts->GetOffsetNextSibling(&offset_next_siblings,
-                                       &num_next_siblings);
   int offset_grandsiblings, num_grandsiblings;
   semantic_parts->GetOffsetGrandSibling(&offset_grandsiblings, &num_grandsiblings);
   int offset_trisiblings, num_trisiblings;
@@ -1002,10 +1005,11 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   // Define what parts are used.
   bool use_arbitrary_sibling_parts = (num_siblings > 0);
   bool use_labeled_arbitrary_sibling_parts = (num_labeled_siblings > 0);
+  bool use_consecutive_sibling_parts = (num_consecutive_siblings > 0);
   bool use_grandparent_parts = (num_grandparents > 0);
   bool use_coparent_parts = (num_coparents > 0);
+  bool use_consecutive_coparent_parts = (num_consecutive_coparents > 0);
 #if 0
-  bool use_next_sibling_parts = (num_next_siblings > 0);
   bool use_grandsibling_parts = (num_grandsiblings > 0);
   bool use_trisibling_parts = (num_trisiblings > 0);
 #endif
@@ -1204,6 +1208,75 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       factor_part_indices_.push_back(offset_labeled_siblings + r);
     }
   }
+
+  //////////////////////////////////////////////////////////////////////
+  // Build consecutive sibling factors.
+  //////////////////////////////////////////////////////////////////////
+#if 0
+  if (use_consecutive_sibling_parts) {
+    // Get all the consecutive siblings, indices, etc.
+    // TODO(atm): index this with the sense too!
+    // TODO(atm): or, create a specialized automaton that selects the best
+    // sense (similar to GrandparentHeadAutomaton).
+    vector<vector<SemanticPartConsecutiveSibling*> >
+      left_siblings(sentence->size());
+    vector<vector<SemanticPartConsecutiveSibling*> >
+      right_siblings(sentence->size());
+    vector<vector<double> > left_scores(sentence->size());
+    vector<vector<double> > right_scores(sentence->size());
+    vector<vector<int> > left_indices(sentence->size());
+    vector<vector<int> > right_indices(sentence->size());
+    for (int r = 0; r < num_consecutive_siblings; ++r) {
+      SemanticPartConsecutiveSibling *sibling =
+          static_cast<SemanticPartConsecutiveSibling*>(
+              (*parts)[offset_consecutive_siblings + r]);
+      if (sibling->predicate() > sibling->second_argument()) {
+        // Left sibling.
+        left_siblings[sibling->predicate()].push_back(sibling);
+        left_scores[sibling->predicate()].push_back(
+            scores[offset_consecutive_siblings + r]);
+        // Save the part index to get the posterior later.
+        left_indices[sibling->predicate()].
+          push_back(offset_consecutive_siblings + r);
+      } else {
+        // Right sibling.
+        right_siblings[sibling->predicate()].push_back(sibling);
+        right_scores[sibling->predicate()].push_back(
+            scores[offset_consecutive_siblings + r]);
+        // Save the part index to get the posterior later.
+        right_indices[sibling->predicate()].
+          push_back(offset_consecutive_siblings + r);
+      }
+    }
+
+    // Now, go through each predicate and create left and right automata.
+    for (int p = 0; p < sentence->size(); ++p) {
+      // Build left head automaton.
+      vector<AD3::BinaryVariable*> local_variables;
+      vector<SemanticPartArc*> arcs;
+      for (int a = p-1; a >= 1; --a) {
+        int r = semantic_parts->FindArc(p, a); // s?
+        if (r < 0) continue;
+        int index = offset_arc_variables + r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        SemanticPartArc *arc =
+            static_cast<SemanticPartArc*>((*parts)[r]);
+        arcs.push_back(arc);
+      }
+
+      AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
+      factor->Initialize(arcs, left_siblings[p]);
+      factor->SetAdditionalLogPotentials(left_scores[p]);
+      factor_graph->DeclareFactor(factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                   left_indices[p].begin(),
+                                   left_indices[p].end());
+
+      // TODO: same thing for right automata.
+    }
+  }
+#endif
 
   //////////////////////////////////////////////////////////////////////
   // Build grandparent factors.
