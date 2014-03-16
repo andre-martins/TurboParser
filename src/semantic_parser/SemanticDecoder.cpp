@@ -25,6 +25,7 @@
 #include "logval.h"
 #include "ad3/FactorGraph.h"
 #include "FactorSemanticGraph.h"
+#include "FactorPredicateAutomaton.h"
 
 // Define a matrix of doubles using Eigen.
 typedef LogVal<double> LogValD;
@@ -106,12 +107,25 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
       output = predicted_output;
     }
     for (int r = 0; r < parts->size(); ++r) {
-      int offset_pred_, offset_arcs_, offset_labeled_arcs_, offset_siblings_, num_;
+      int offset_pred_, offset_arcs_, offset_labeled_arcs_, offset_siblings_,
+        offset_consecutive_siblings_, num_;
       semantic_parts->GetOffsetPredicate(&offset_pred_, &num_);
       semantic_parts->GetOffsetArc(&offset_arcs_, &num_);
       semantic_parts->GetOffsetLabeledArc(&offset_labeled_arcs_, &num_);
       semantic_parts->GetOffsetSibling(&offset_siblings_, &num_);
-      if (r >= offset_siblings_) {
+      semantic_parts->GetOffsetConsecutiveSibling(&offset_consecutive_siblings_, &num_);
+      if (r >= offset_consecutive_siblings_) {
+        SemanticPartConsecutiveSibling *sibling =
+          static_cast<SemanticPartConsecutiveSibling*>((*parts)[r]);
+        if ((*output)[r] > 0) {
+          LOG(INFO) << type << " consec sibling: " << "[" << r << "]" << " "
+                    << sibling->predicate() << " "
+                    << sibling->sense() << " "
+                    << sibling->first_argument() << " "
+                    << sibling->second_argument() << " "
+                    << (*output)[r];
+        }
+      } else if (r >= offset_siblings_) {
         SemanticPartSibling *sibling =
           static_cast<SemanticPartSibling*>((*parts)[r]);
         if ((*output)[r] > 0) {
@@ -1029,7 +1043,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
   // Create factor graph.
   AD3::FactorGraph *factor_graph = new AD3::FactorGraph;
-  int verbosity = 1;
+  int verbosity = 1; //1;
   if (VLOG_IS_ON(2)) {
     verbosity = 2;
   }
@@ -1212,12 +1226,28 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   //////////////////////////////////////////////////////////////////////
   // Build consecutive sibling factors.
   //////////////////////////////////////////////////////////////////////
-#if 0
   if (use_consecutive_sibling_parts) {
     // Get all the consecutive siblings, indices, etc.
-    // TODO(atm): index this with the sense too!
-    // TODO(atm): or, create a specialized automaton that selects the best
-    // sense (similar to GrandparentHeadAutomaton).
+    vector<vector<int> > predicate_part_indices(sentence->size());
+    for (int r = 0; r < num_predicate_parts; ++r) {
+      SemanticPartPredicate* predicate_part =
+        static_cast<SemanticPartPredicate*>(
+          (*parts)[offset_predicate_parts + r]);
+      predicate_part_indices[predicate_part->predicate()].
+        push_back(offset_predicate_parts + r);
+    }
+    vector<vector<int> > left_arc_indices(sentence->size());
+    vector<vector<int> > right_arc_indices(sentence->size());
+    for (int r = 0; r < num_arcs; ++r) {
+      SemanticPartArc* arc =
+        static_cast<SemanticPartArc*>((*parts)[offset_arcs + r]);
+      if (arc->predicate() >= arc->argument()) {
+        left_arc_indices[arc->predicate()].push_back(offset_arcs + r);
+      }
+      if (arc->predicate() <= arc->argument()) {
+        right_arc_indices[arc->predicate()].push_back(offset_arcs + r);
+      }
+    }
     vector<vector<SemanticPartConsecutiveSibling*> >
       left_siblings(sentence->size());
     vector<vector<SemanticPartConsecutiveSibling*> >
@@ -1230,7 +1260,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       SemanticPartConsecutiveSibling *sibling =
           static_cast<SemanticPartConsecutiveSibling*>(
               (*parts)[offset_consecutive_siblings + r]);
-      if (sibling->predicate() > sibling->second_argument()) {
+      if (sibling->predicate() >= sibling->second_argument()) {
         // Left sibling.
         left_siblings[sibling->predicate()].push_back(sibling);
         left_scores[sibling->predicate()].push_back(
@@ -1238,7 +1268,8 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         // Save the part index to get the posterior later.
         left_indices[sibling->predicate()].
           push_back(offset_consecutive_siblings + r);
-      } else {
+      }
+      if (sibling->predicate() <= sibling->second_argument()) {
         // Right sibling.
         right_siblings[sibling->predicate()].push_back(sibling);
         right_scores[sibling->predicate()].push_back(
@@ -1253,30 +1284,65 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     for (int p = 0; p < sentence->size(); ++p) {
       // Build left head automaton.
       vector<AD3::BinaryVariable*> local_variables;
-      vector<SemanticPartArc*> arcs;
-      for (int a = p-1; a >= 1; --a) {
-        int r = semantic_parts->FindArc(p, a); // s?
-        if (r < 0) continue;
+      vector<SemanticPartPredicate*> predicate_senses;
+      vector<SemanticPartArc*> left_arcs;
+      for (int s = 0; s < predicate_part_indices[p].size(); ++s) {
+        int r = predicate_part_indices[p][s];
+        int index = offset_predicate_variables + r - offset_predicate_parts;
+        local_variables.push_back(variables[index]);
+        SemanticPartPredicate *predicate =
+          static_cast<SemanticPartPredicate*>((*parts)[r]);
+        predicate_senses.push_back(predicate);
+      }
+      for (int k = 0; k < left_arc_indices[p].size(); ++k) {
+        int r = left_arc_indices[p][k];
         int index = offset_arc_variables + r - offset_arcs;
         local_variables.push_back(variables[index]);
         SemanticPartArc *arc =
-            static_cast<SemanticPartArc*>((*parts)[r]);
-        arcs.push_back(arc);
+          static_cast<SemanticPartArc*>((*parts)[r]);
+        left_arcs.push_back(arc);
       }
 
-      AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
-      factor->Initialize(arcs, left_siblings[p]);
+      AD3::FactorPredicateAutomaton *factor = new AD3::FactorPredicateAutomaton;
+      factor->Initialize(false, predicate_senses, left_arcs, left_siblings[p]);
       factor->SetAdditionalLogPotentials(left_scores[p]);
       factor_graph->DeclareFactor(factor, local_variables, true);
       factor_part_indices_.push_back(-1);
       additional_part_indices.insert(additional_part_indices.end(),
-                                   left_indices[p].begin(),
-                                   left_indices[p].end());
+                                     left_indices[p].begin(),
+                                     left_indices[p].end());
 
-      // TODO: same thing for right automata.
+      // Build right head automaton.
+      local_variables.clear();
+      predicate_senses.clear();
+      vector<SemanticPartArc*> right_arcs;
+      for (int s = 0; s < predicate_part_indices[p].size(); ++s) {
+        int r = predicate_part_indices[p][s];
+        int index = offset_predicate_variables + r - offset_predicate_parts;
+        local_variables.push_back(variables[index]);
+        SemanticPartPredicate *predicate =
+          static_cast<SemanticPartPredicate*>((*parts)[r]);
+        predicate_senses.push_back(predicate);
+      }
+      for (int k = 0; k < right_arc_indices[p].size(); ++k) {
+        int r = right_arc_indices[p][k];
+        int index = offset_arc_variables + r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        SemanticPartArc *arc =
+          static_cast<SemanticPartArc*>((*parts)[r]);
+        right_arcs.push_back(arc);
+      }
+
+      factor = new AD3::FactorPredicateAutomaton;
+      factor->Initialize(true, predicate_senses, right_arcs, right_siblings[p]);
+      factor->SetAdditionalLogPotentials(right_scores[p]);
+      factor_graph->DeclareFactor(factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     right_indices[p].begin(),
+                                     right_indices[p].end());
     }
   }
-#endif
 
   //////////////////////////////////////////////////////////////////////
   // Build grandparent factors.
@@ -1389,12 +1455,12 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   double value_ref;
   double *value = &value_ref;
 
-  //factor_graph->SetMaxIterationsAD3(2000);
-  factor_graph->SetMaxIterationsAD3(500);
+  factor_graph->SetMaxIterationsAD3(2000);
+  //factor_graph->SetMaxIterationsAD3(500);
   factor_graph->SetEtaAD3(0.05);
   factor_graph->AdaptEtaAD3(true);
-  factor_graph->SetResidualThresholdAD3(1e-3);
-  //factor_graph->SetResidualThresholdAD3(1e-6);
+  //factor_graph->SetResidualThresholdAD3(1e-3);
+  factor_graph->SetResidualThresholdAD3(1e-6);
 
   // Run AD3.
   timeval start, end;

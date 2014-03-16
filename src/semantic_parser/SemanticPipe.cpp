@@ -936,9 +936,20 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
   bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
   bool use_predicate_senses = semantic_options->use_predicate_senses();
 
-  CHECK(false);
+  // Find the predicate parts (necessary to identify the gold predicate senses).
+  // TODO: Replace this by semantic_parts->GetPredicateSenses(p) or something?
+  int offset_predicate_parts, num_predicate_parts;
+  semantic_parts->GetOffsetPredicate(&offset_predicate_parts,
+                                     &num_predicate_parts);
+  vector<vector<int> > predicate_part_indices(sentence_length);
+  for (int r = 0; r < num_predicate_parts; ++r) {
+    SemanticPartPredicate* predicate_part =
+      static_cast<SemanticPartPredicate*>((*parts)[offset_predicate_parts + r]);
+    predicate_part_indices[predicate_part->predicate()].
+      push_back(offset_predicate_parts + r);
+  }
 
-  // Siblings: (p,s,a1) and (p,s,a2).
+  // Consecutive siblings: (p,s,a1) and (p,s,a2).
   for (int p = 0; p < sentence_length; ++p) {
     if (p == 0 && !allow_root_predicate) continue;
     int lemma_id = TOKEN_UNKNOWN;
@@ -951,18 +962,134 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
     if (predicates->size() == 0 && allow_unseen_predicates) {
       predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
     }
+    //const vector<int> &senses = semantic_parts->GetSenses(p);
+    //CHECK_EQ(senses.size(), predicates->size());
     for (int s = 0; s < predicates->size(); ++s) {
-      for (int a1 = 1; a1 < sentence_length; ++a1) {
-        int r1 = semantic_parts->FindArc(p, a1, s);
-        if (r1 < 0) continue;
-        for (int a2 = a1+1; a2 < sentence_length; ++a2) {
-          int r2 = semantic_parts->FindArc(p, a2, s);
-          if (r2 < 0) continue;
-          Part *part = semantic_parts->CreatePartSibling(p, s, a1, a2);
-          semantic_parts->AddPart(part);
+      bool sense_active;
+      bool first_arc_active;
+      bool second_arc_active = false;
+      bool arc_between;
+
+      // Check if this is the correct sense.
+      if (make_gold) {
+        //int r = senses[s];
+        int r = -1;
+        for (int k = 0; k < predicate_part_indices[p].size(); ++k) {
+          r = predicate_part_indices[p][k];
+          SemanticPartPredicate* predicate_part =
+            static_cast<SemanticPartPredicate*>((*parts)[r]);
+          if (predicate_part->sense() == s) break;
+        }
+        CHECK_GE(r, 0);
+        if (r >= 0 && NEARLY_EQ_TOL((*gold_outputs)[r], 1.0, 1e-9)) {
+          sense_active = true;
+        } else {
+          sense_active = false;
+        }
+      }
+
+      // Right side.
+      // Allow self loops (a1 = p). We use a1 = p-1 to denote the special case
+      // in which a2 is the first argument.
+      for (int a1 = p-1; a1 < sentence_length; ++a1) {
+        int r1 = -1;
+        if (a1 >= p) {
+          r1 = semantic_parts->FindArc(p, a1, s);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (a1 < p || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int a2 = a1+1; a2 <= sentence_length; ++a2) {
+          int r2 = -1;
+          if (a2 < sentence_length) {
+            r2 = semantic_parts->FindArc(p, a2, s);
+            if (r2 < 0) continue;
+          }
           if (make_gold) {
-            // Logical AND of the two individual arcs.
-            gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
+            // Check if the second arc is active.
+            if (a2 == sentence_length ||
+                NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+              second_arc_active = true;
+            } else {
+              second_arc_active = false;
+            }
+          }
+
+          Part *part = (a1 >= p)?
+            semantic_parts->CreatePartConsecutiveSibling(p, s, a1, a2) :
+            semantic_parts->CreatePartConsecutiveSibling(p, s, -1, a2);
+          semantic_parts->AddPart(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (sense_active && first_arc_active && second_arc_active &&
+                !arc_between) {
+              value = 1.0;
+              arc_between = true;
+            }
+            gold_outputs->push_back(value);
+          }
+        }
+      }
+
+      // Left side.
+      // Allow self loops (a1 = p). We use a1 = p+1 to denote the special case
+      // in which a2 is the first argument.
+      for (int a1 = p+1; a1 >= 0; --a1) {
+        int r1 = -1;
+        if (a1 <= p) {
+          r1 = semantic_parts->FindArc(p, a1, s);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (a1 > p || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int a2 = a1-1; a2 >= -1; --a2) {
+          int r2 = -1;
+          if (a2 > -1) {
+            r2 = semantic_parts->FindArc(p, a2, s);
+            if (r2 < 0) continue;
+          }
+          if (make_gold) {
+            // Check if the second arc is active.
+            if (a2 == -1 ||
+                NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+              second_arc_active = true;
+            } else {
+              second_arc_active = false;
+            }
+          }
+
+          Part *part = (a1 <= p)?
+            semantic_parts->CreatePartConsecutiveSibling(p, s, a1, a2) :
+            semantic_parts->CreatePartConsecutiveSibling(p, s, -1, a2);
+          semantic_parts->AddPart(part);
+
+          if (make_gold) {
+            double value = 0.0;
+            if (sense_active && first_arc_active && second_arc_active &&
+                !arc_between) {
+              value = 1.0;
+              arc_between = true;
+            }
+            gold_outputs->push_back(value);
           }
         }
       }

@@ -347,6 +347,23 @@ class SemanticParts : public Parts {
     return new SemanticPartSibling(predicate, sense, first_argument,
                                    second_argument);
   }
+  Part *CreatePartLabeledSibling(int predicate,
+                                 int sense,
+                                 int first_argument,
+                                 int second_argument,
+                                 int first_role,
+                                 int second_role) {
+    return new SemanticPartLabeledSibling(predicate, sense, first_argument,
+                                          second_argument, first_role,
+                                          second_role);
+  }
+  Part *CreatePartConsecutiveSibling(int predicate,
+                                     int sense,
+                                     int first_argument,
+                                     int second_argument) {
+    return new SemanticPartConsecutiveSibling(predicate, sense, first_argument,
+                                              second_argument);
+  }
   Part *CreatePartGrandparent(int grandparent_predicate,
                               int grandparent_sense,
                               int predicate,
@@ -364,15 +381,14 @@ class SemanticParts : public Parts {
                                     second_predicate, second_sense,
                                     argument);
   }
-  Part *CreatePartLabeledSibling(int predicate,
-                                 int sense,
-                                 int first_argument,
-                                 int second_argument,
-                                 int first_role,
-                                 int second_role) {
-    return new SemanticPartLabeledSibling(predicate, sense, first_argument,
-                                          second_argument, first_role,
-                                          second_role);
+  Part *CreatePartConsecutiveCoparent(int first_predicate,
+                                      int first_sense,
+                                      int second_predicate,
+                                      int second_sense,
+                                      int argument) {
+    return new SemanticPartConsecutiveCoparent(first_predicate, first_sense,
+                                               second_predicate, second_sense,
+                                               argument);
   }
 
   // Append a part to the array of parts. Return the index.

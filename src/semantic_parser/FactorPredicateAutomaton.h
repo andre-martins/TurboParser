@@ -41,20 +41,69 @@ class FactorPredicateAutomaton : public GenericFactor {
     stream << "PREDICATE_AUTOMATON";
     Factor::Print(stream);
     // Print number of senses.
-    stream << " " << index_senses_.size();
+    stream << " " << GetNumSenses();
     int total = 0; // Delete this later.
-    for (int s = 0; s < index_senses_.size(); ++s) {
+    for (int s = 0; s < GetNumSenses(); ++s) {
       for (int a1 = 0; a1 < index_siblings_[s].size(); ++a1) {
         for (int a2 = a1+1; a2 <= index_siblings_[s][a1].size(); ++a2) {
-        CHECK_GE(index_siblings_[s][a1][a2], 0);
-        int index = index_siblings_[s][a1][a2];
-        ++total;
-        stream << " " << setprecision(9)
-               << additional_log_potentials_[index];
+          CHECK_GE(index_siblings_[s][a1][a2], 0);
+          int index = index_siblings_[s][a1][a2];
+          ++total;
+          stream << " " << setprecision(9)
+                 << additional_log_potentials_[index];
+        }
       }
     }
     stream << endl;
     CHECK_EQ(additional_log_potentials_.size(), total);
+  }
+
+  int GetNumSenses() const { return index_arguments_.size(); }
+  int GetLength(int sense) const { return index_arguments_[sense].size(); }
+  double GetSenseScore(int sense,
+                       const vector<double> &variable_log_potentials,
+                       const vector<double> &additional_log_potentials) const {
+    return variable_log_potentials[sense];
+  }
+  double GetArgumentScore(
+      int sense,
+      int argument,
+      const vector<double> &variable_log_potentials,
+      const vector<double> &additional_log_potentials) const {
+    int index = index_arguments_[sense][argument];
+    return variable_log_potentials[index];
+  }
+  double GetSiblingScore(
+      int sense,
+      int first_argument,
+      int second_argument,
+      const vector<double> &variable_log_potentials,
+      const vector<double> &additional_log_potentials) const {
+    int index = index_siblings_[sense][first_argument][second_argument];
+    return additional_log_potentials[index];
+  }
+  void AddSensePosterior(int sense,
+                         double weight,
+                         vector<double> *variable_posteriors,
+                         vector<double> *additional_posteriors) const {
+    (*variable_posteriors)[sense] += weight;
+  }
+  void AddArgumentPosterior(int sense,
+                            int argument,
+                            double weight,
+                            vector<double> *variable_posteriors,
+                            vector<double> *additional_posteriors) const {
+    int index = index_arguments_[sense][argument];
+    (*variable_posteriors)[index] += weight;
+  }
+  void AddSiblingPosterior(int sense,
+                           int first_argument,
+                           int second_argument,
+                           double weight,
+                           vector<double> *variable_posteriors,
+                           vector<double> *additional_posteriors) const {
+    int index = index_siblings_[sense][first_argument][second_argument];
+    (*additional_posteriors)[index] += weight;
   }
 
   // Compute the score of a given assignment.
@@ -65,24 +114,26 @@ class FactorPredicateAutomaton : public GenericFactor {
     // Decode maximizing over the senses and using the Viterbi algorithm
     // as an inner loop.
     // If sense=-1, the final score is zero (so take the argmax at the end).
-    int num_senses = index_senses_.size();
+    int num_senses = GetNumSenses();
     int best_sense = -1;
+    vector<int> best_path;
     *value = 0.0;
-    int length = length_;
-    vector<vector<double> > values(length);
-    vector<vector<int> > path(length);
-    vector<int> best_path(length);
 
     // Run Viterbi for each possible grandparent.
     for (int s = 0; s < num_senses; ++s) {
-      // The start state is m = 0.
+      int length = GetLength(s);
+      vector<vector<double> > values(length);
+      vector<vector<int> > path(length);
+      CHECK_GE(length, 1);
+
+      // The start state is a1 = 0.
       values[0].resize(1);
       values[0][0] = 0.0;
       path[0].resize(1);
       path[0][0] = 0;
       for (int a = 1; a < length; ++a) {
         // a+1 possible states: either keep the previous state (no arc added)
-        // or transition to a new state (arc between p and a1).
+        // or transition to a new state (arc between p and a).
         values[a].resize(a+1);
         path[a].resize(a+1);
         for (int i = 0; i < a; ++i) {
@@ -94,24 +145,26 @@ class FactorPredicateAutomaton : public GenericFactor {
         path[a][a] = -1;
         for (int j = 0; j < a; ++j) {
           double score = values[a-1][j];
-          int index = index_siblings_[s][j][a];
-          CHECK_GE(index, 0);
-          score += additional_log_potentials[index];
+          score += GetSiblingScore(s, j, a, variable_log_potentials,
+                                   additional_log_potentials);
           if (path[a][a] < 0 || score > values[a][a]) {
             values[a][a] = score;
             path[a][a] = j;
           }
         }
-        values[a][a] += variable_log_potentials[num_senses+a-1]; // FIXME: arcs are also indexed by senses.
+        values[a][a] += GetArgumentScore(s, a, variable_log_potentials,
+                                         additional_log_potentials);
       }
 
-      // The end state is a1 = length.
+      // The end state is a = length.
       int best_last_state = -1;
       double best_score = -1e12;
       for (int j = 0; j < length; ++j) {
         int index = index_siblings_[s][j][length];
         CHECK_GE(index, 0);
-        double score = values[length-1][j] + additional_log_potentials[index];
+        double score = values[length-1][j] +
+          GetSiblingScore(s, j, length, variable_log_potentials,
+                          additional_log_potentials);
         if (best_last_state < 0 || score > best_score) {
           best_score = score;
           best_last_state = j;
@@ -119,13 +172,16 @@ class FactorPredicateAutomaton : public GenericFactor {
       }
 
       // Add the score of the predicate sense s.
-      best_score += variable_log_potentials[s];
+      // Note: we're allowing senses != -1 with no argument frame.
+      best_score += GetSenseScore(s, variable_log_potentials,
+                                  additional_log_potentials);
 
       // Only backtrack if the solution is the best so far.
       if (best_score > *value) {
         // This is the best sense so far.
         best_sense = s;
         *value = best_score;
+        best_path.resize(length);
         best_path[length-1] = best_last_state;
 
         // Backtrack.
@@ -138,7 +194,8 @@ class FactorPredicateAutomaton : public GenericFactor {
     // Now write the configuration.
     vector<int> *sense_arguments =
       static_cast<vector<int>*>(configuration);
-    grandparent_modifiers->push_back(best_sense);
+    sense_arguments->push_back(best_sense);
+    int length = (best_sense >= 0)? GetLength(best_sense) : 0;
     for (int a = 1; a < length; ++a) {
       if (best_path[a] == a) {
         sense_arguments->push_back(a);
@@ -155,28 +212,27 @@ class FactorPredicateAutomaton : public GenericFactor {
       static_cast<const vector<int>*>(configuration);
     // Sense belong to {-1,0,1,...}
     // Modifiers belong to {1,2,...}
+    CHECK_GE(sense_arguments->size(), 1);
     *value = 0.0;
     int s = (*sense_arguments)[0];
-    if (s >= 0) {
-      *value += variable_log_potentials[s];
-    } else {
+    if (s < 0) {
       CHECK_EQ(sense_arguments->size(), 1);
+      return;
     }
-    int num_senses = index_senses_.size();
-    int a1 = 0;
+    *value += GetSenseScore(s, variable_log_potentials,
+                            additional_log_potentials);
+    int a1 = 0; // Start position.
     for (int i = 1; i < sense_arguments->size(); ++i) {
       int a2 = (*sense_arguments)[i];
-      *value += variable_log_potentials[num_senses+a2-1]; // FIXME: arcs are also indexed by senses.
-      int index = index_siblings_[s][a1][a2];
-      CHECK_GE(index, 0);
-      *value += additional_log_potentials[index];
+      *value += GetArgumentScore(s, a2, variable_log_potentials,
+                                 additional_log_potentials);
+      *value += GetSiblingScore(s, a1, a2, variable_log_potentials,
+                                additional_log_potentials);
       a1 = a2;
     }
-    int a2 = index_siblings_.size();
-    int index = index_siblings_[s][a1][a2];
-    CHECK_GE(index, 0);
-    *value += additional_log_potentials[index];
-    //cout << "value = " << *value << endl;
+    int a2 = GetLength(s); // Stop position.
+    *value += GetSiblingScore(s, a1, a2, variable_log_potentials,
+                              additional_log_potentials);
   }
 
   // Given a configuration with a probability (weight),
@@ -188,26 +244,28 @@ class FactorPredicateAutomaton : public GenericFactor {
     vector<double> *additional_posteriors) {
     const vector<int> *sense_arguments =
       static_cast<const vector<int>*>(configuration);
+    // Sense belong to {-1,0,1,...}
+    // Modifiers belong to {1,2,...}
+    CHECK_GE(sense_arguments->size(), 1);
     int s = (*sense_arguments)[0];
-    if (s >= 0) {
-      (*variable_posteriors)[s] += weight;
-    } else {
+    if (s < 0) {
       CHECK_EQ(sense_arguments->size(), 1);
+      return;
     }
-    int num_senses = index_senses_.size();
-    int a1 = 0;
+    AddSensePosterior(s, weight, variable_posteriors,
+                      additional_posteriors);
+    int a1 = 0; // Start position.
     for (int i = 1; i < sense_arguments->size(); ++i) {
       int a2 = (*sense_arguments)[i];
-      (*variable_posteriors)[num_senses+a2-1] += weight; // FIXME: arcs are also indexed by senses.
-      int index = index_siblings_[s][a1][a2];
-      CHECK_GE(index, 0);
-      (*additional_posteriors)[index] += weight;
+      AddArgumentPosterior(s, a2, weight, variable_posteriors,
+                           additional_posteriors);
+      AddSiblingPosterior(s, a1, a2, weight, variable_posteriors,
+                          additional_posteriors);
       a1 = a2;
     }
-    int a2 = index_siblings_.size();
-    int index = index_siblings_[s][a1][a2];
-    CHECK_GE(index, 0);
-    (*additional_posteriors)[index] += weight;
+    int a2 = GetLength(s); // Stop position.
+    AddSiblingPosterior(s, a1, a2, weight, variable_posteriors,
+                        additional_posteriors);
   }
 
   // Count how many common values two configurations have.
@@ -216,7 +274,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     const vector<int> *values1 = static_cast<const vector<int>*>(configuration1);
     const vector<int> *values2 = static_cast<const vector<int>*>(configuration2);
     int count = 0;
-    if ((*values1)[0] > 0 &&
+    if ((*values1)[0] >= 0 &&
         (*values1)[0] == (*values2)[0]) ++count; // Predicate sense matched.
     int j = 1;
     for (int i = 1; i < values1->size(); ++i) {
@@ -269,12 +327,6 @@ class FactorPredicateAutomaton : public GenericFactor {
                   const vector<SemanticPartPredicate*> &predicate_senses,
                   const vector<SemanticPartArc*> &outgoing_arcs,
                   const vector<SemanticPartConsecutiveSibling*> &siblings) {
-
-    // length is relative to the head position.
-    // E.g. for a right automaton with h=3 and instance_length=10,
-    // length = 7. For a left automaton, it would be length = 3.
-    // TODO: maybe change the numbering so that self-loops are allowed.
-
     // Build map of senses.
     HashMapIntInt map_senses;
     int num_senses = predicate_senses.size();
@@ -283,116 +335,91 @@ class FactorPredicateAutomaton : public GenericFactor {
     for (int k = 0; k < predicate_senses.size(); ++k) {
       int s = predicate_senses[k]->sense();
       if (p >= 0) CHECK_EQ(p, predicate_senses[k]->predicate());
+      p = predicate_senses[k]->predicate();
       CHECK(map_senses.find(s) == map_senses.end());
       map_senses[s] = k;
     }
 
-    //int GetNumSenses() const { return index_senses_.size(); }
-
     // Create a temporary list of arguments.
-    vector<vector<int> > sense_arguments(num_senses);
+    // Each argument position will be mapped to a one-based array, in
+    // which sense_arguments[s][1] = p, sense_arguments[s][2] = p+1 (p-1),
+    // etc. for the right (left) automaton case. Self-loops are possible.
+    // The zero position is reserved to denote a a1 = -1 (in a2 will be the
+    // first argument of the predicate).
+    // E.g. for a right automaton with p=3, the argument a1=7 will be stored in
+    // position 7-3+1=5.
+    int offset_outgoing_arcs = num_senses;
+    vector<vector<int> > sense_arguments(num_senses,
+                                         vector<int>(1, -1));
     for (int k = 0; k < outgoing_arcs.size(); ++k) {
-      CHECK_EQ(p == outgoing_arcs[k]->predicate());
+      CHECK_EQ(p, outgoing_arcs[k]->predicate());
       int a = outgoing_arcs[k]->argument();
       int s = outgoing_arcs[k]->sense();
-      // TODO: handle a = -1.
-      if (right) {
-        a = a - p;
-      } else {
-        a = p - a;
-      }
+      int position = (right)? a-p : p-a;
+      ++position; // Position 0 is reserved for the case a1=-1.
+      CHECK_GE(position, 1) << p << " " << a;
       CHECK(map_senses.find(s) != map_senses.end());
       int sense = map_senses[s];
-      if (a >= sense_arguments[sense].size()) {
-        sense_arguments[sense].resize(a+1, -1);
+      if (position >= sense_arguments[sense].size()) {
+        sense_arguments[sense].resize(position+1, -1);
       }
-      sense_arguments[sense][a] = k;
+      // This will be replaced by the index of the argument.
+      sense_arguments[sense][position] = offset_outgoing_arcs + k;
     }
 
     index_arguments_.assign(num_senses, vector<int>(0));
     for (int sense = 0; sense < num_senses; ++sense) {
-      for (int a = 0; a < sense_arguments[sense].size(); ++a) {
-        int k = sense_arguments[sense][a];
-        if (k >= 0) {
-          index_arguments_[sense].push_back(k); // Or: offset_arcs + k.
+      for (int position = 0; position < sense_arguments[sense].size();
+           ++position) {
+        int index = sense_arguments[sense][position];
+        // Always put something in the zero position (which is special).
+        // In this case, index will be -1.
+        if (position == 0 || index >= 0) {
+          // Replace sense_arguments[sense][position] by the index of the
+          // argument.
+          sense_arguments[sense][position] = index_arguments_[sense].size();
+          // Index of outgoing arc in the variables array.
+          index_arguments_[sense].push_back(index);
         }
       }
     }
 
-    //////////////////////////////////////////////////// here.
-
-    length_ = outgoing_arcs.size() + 1;
-    index_arguments_.assign(num_senses, vector<int>(length_, -1));
-    index_siblings_.assign(num_senses,
-                           vector<vector<int> >(length_,
-                                                vector<int>(length_+1, -1)));
-
-    // Create a temporary index of arguments.
-    int p = (outgoing_arcs.size() > 0)? outgoing_arcs[0]->predicate() : -1;
-    int a = (outgoing_arcs.size() > 0)? outgoing_arcs[0]->argument() : -1;
-    vector<int> index_arguments(1, 0);
-    bool right = (p < a)? true : false;
-    for (int k = 0; k < outgoing_arcs.size(); ++k) {
-      int s = outgoing_arcs[k]->sense();
-      
-      int previous_argument = a;
-      CHECK_EQ(h, outgoing_arcs[k]->predicate());
-      a = outgoing_arcs[k]->argument();
-      if (k > 0) CHECK_EQ((a > previous_argument), right);
-
-      int position = right? a - p : p - a;
-      index_arguments.resize(position + 1, -1);
-      index_arguments[position] = k + 1;
-    }
-
-    // Create a temporary index of predicate senses.
-    // Note: outgoing arc variables will start with an offset of num_senses.
-    CHECK_GT(predicate_senses.size(), 0);
-    int sense = (predicate_senses.size() > 0)?
-        predicate_senses[0]->sense() : -1;
-    vector<int> index_senses;
-    for (int k = 0; k < predicate_senses.size(); ++k) {
-      sense = predicate_senses[k]->sense();
-      CHECK_EQ(p, predicate_senses[k]->predicate();
-      index_senses.resize(sense, -1);
-      index_senses[sense] = k;
-    }
-
-
     // Construct index of siblings.
+    index_siblings_.assign(num_senses, vector<vector<int> >(0));
+    for (int sense = 0; sense < num_senses; ++sense) {
+      int length = GetLength(sense);
+      index_siblings_[sense].resize(length, vector<int>(length+1, -1));
+    }
     for (int k = 0; k < siblings.size(); ++k) {
       CHECK_EQ(p, siblings[k]->predicate());
-      p = siblings[k]->predicate();
       int s = siblings[k]->sense();
       int a1 = siblings[k]->first_argument();
       int a2 = siblings[k]->second_argument();
-
-      if (outgoing_arcs.size() > 0) CHECK_EQ(a2 > p, right);
-      right = (a2 > p)? true : false;
-      int position_first_argument = right? a1 - p : p - a1;
-      int position_second_argument = right? a2 - p : p - a2;
-      CHECK_LT(s, index_senses.size());
-      CHECK_LT(position_first_argument, index_arguments.size());
-      int index_sense = index_senses[s];
-      int index_first_argument = index_arguments[position_first_argument];
-      int index_second_argument =
-        (position_second_argument < index_arguments.size())?
-          index_arguments[position_second_argument] : length_;
-      CHECK_GE(index_sense, 0);
-      CHECK_LT(index_sense, num_senses);
-      CHECK_GE(index_first_argument, 0);
-      CHECK_LT(index_first_argument, length_);
-      CHECK_GE(index_second_argument, 1) << p << " " << a1 << " " << a2;
-      CHECK_LT(index_second_argument, length_+1);
-      // Add an offset to save room for the grandparents and siblings.
-      index_siblings_[index_sense][index_first_argument]
-        [index_second_argument] = k;
+      int position1 = right? a1-p : p-a1;
+      int position2 = right? a2-p : p-a2;
+      if (a1 < 0) position1 = -1; // To handle a1=-1.
+      ++position1; // Position 0 is reserved for the case a1=-1.
+      ++position2;
+      CHECK_GE(position1, 0);
+      CHECK_GE(position2, 1);
+      CHECK(map_senses.find(s) != map_senses.end());
+      int sense = map_senses[s];
+      CHECK_LT(position1, sense_arguments[sense].size());
+      //CHECK_LT(position2, sense_arguments[sense].size()+1) << p << " " << a1 << " " << a2 << " " << GetLength(sense);
+      CHECK_EQ(GetLength(sense), index_arguments_[sense].size());
+      int first_argument = sense_arguments[sense][position1];
+      int second_argument = (position2 < sense_arguments[sense].size())?
+        sense_arguments[sense][position2] : GetLength(sense);
+      CHECK_GE(first_argument, 0);
+      CHECK_GE(second_argument, 1);
+      CHECK_LT(first_argument, index_siblings_[sense].size());
+      CHECK_LT(second_argument, index_siblings_[sense][first_argument].size());
+      // Index of siblings in the additional_variables array.
+      index_siblings_[sense][first_argument][second_argument] = k;
     }
   }
 
  private:
-  int length_;
-  vector<int> index_senses_; // Indexed by s.
   vector<vector<int> > index_arguments_; // Indexed by s, a.
   vector<vector<vector<int> > > index_siblings_; // Indexed by s, a1, a2.
 };
