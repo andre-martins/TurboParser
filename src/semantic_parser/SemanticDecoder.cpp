@@ -1455,12 +1455,12 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   double value_ref;
   double *value = &value_ref;
 
-  factor_graph->SetMaxIterationsAD3(2000);
-  //factor_graph->SetMaxIterationsAD3(500);
+  //factor_graph->SetMaxIterationsAD3(2000);
+  factor_graph->SetMaxIterationsAD3(500);
   factor_graph->SetEtaAD3(0.05);
   factor_graph->AdaptEtaAD3(true);
-  //factor_graph->SetResidualThresholdAD3(1e-3);
-  factor_graph->SetResidualThresholdAD3(1e-6);
+  factor_graph->SetResidualThresholdAD3(1e-3);
+  //factor_graph->SetResidualThresholdAD3(1e-6);
 
   // Run AD3.
   timeval start, end;
