@@ -101,17 +101,23 @@ Instance *SemanticReader::GetNext() {
     // No morpho-syntactic information.
     feats[i+1].clear();
 
-    stringstream ss(info[offset]);
-    ++offset;
-    ss >> heads[i+1];
-    deprels[i+1] = info[offset];
-    ++offset;
-
-    if (heads[i+1] < 0 || heads[i+1] > length) {
-      LOG(INFO) << "Invalid value of head (" << heads[i+1]
-                << ") not in range [0.." << length
-                << "] - attaching to the root.";
+    if (!semantic_options->use_dependency_syntactic_features()) {
       heads[i+1] = 0;
+      deprels[i+1] = "NULL";
+      offset += 2;
+    } else {
+      stringstream ss(info[offset]);
+      ++offset;
+      ss >> heads[i+1];
+      deprels[i+1] = info[offset];
+      ++offset;
+
+      if (heads[i+1] < 0 || heads[i+1] > length) {
+        LOG(INFO) << "Invalid value of head (" << heads[i+1]
+                  << ") not in range [0.." << length
+                  << "] - attaching to the root.";
+        heads[i+1] = 0;
+      }
     }
 
     // Semantic role labeling information.

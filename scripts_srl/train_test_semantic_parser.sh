@@ -17,7 +17,7 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true #false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.

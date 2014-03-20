@@ -322,7 +322,7 @@ class FactorPredicateAutomaton : public GenericFactor {
   // Outgoing arcs are of the form (p,s,a) for each s, a.
   // The variables linked to this factor must be in the same order as
   // the predicate senses, followed by the outgoing arcs.
-  // "Right" indicated the attachment direction (if true, then p <= a1 < a2).
+  // "Right" indicates the attachment direction (if true, then p <= a1 < a2).
   void Initialize(bool right,
                   const vector<SemanticPartPredicate*> &predicate_senses,
                   const vector<SemanticPartArc*> &outgoing_arcs,
