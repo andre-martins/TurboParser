@@ -23,7 +23,7 @@ posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
 deterministic_labels=true # Find and impose deterministic labels.
-use_dependency_syntactic_features=true # Must set to false for the SemEval 2014 closed track.
+use_dependency_syntactic_features=$6 #true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
 model_type=$5 #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
@@ -40,7 +40,7 @@ then
     allow_root_predicate=true
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
-    formalism=$6 #pcedt #pas #dm
+    formalism=$7 #pcedt #pas #dm
     subfolder=sdp/${formalism}
 else
     allow_self_loops=true
