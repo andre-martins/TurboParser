@@ -276,6 +276,9 @@ class FactorPredicateAutomaton : public GenericFactor {
     int count = 0;
     if ((*values1)[0] >= 0 &&
         (*values1)[0] == (*values2)[0]) ++count; // Predicate sense matched.
+    // Note: if the predicate sense did not match, shouldn't the final
+    // count be zero (return here)?
+    // TODO: check this.
     int j = 1;
     for (int i = 1; i < values1->size(); ++i) {
       for (; j < values2->size(); ++j) {

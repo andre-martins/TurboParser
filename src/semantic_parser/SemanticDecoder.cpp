@@ -26,6 +26,7 @@
 #include "ad3/FactorGraph.h"
 #include "FactorSemanticGraph.h"
 #include "FactorPredicateAutomaton.h"
+#include "FactorArgumentAutomaton.h"
 
 // Define a matrix of doubles using Eigen.
 typedef LogVal<double> LogValD;
