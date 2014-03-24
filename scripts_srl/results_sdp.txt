@@ -62,6 +62,7 @@ Open, af+cs+as+gp+cp pruned model deterministic, C=0.1, pcedt, best = 0.5/0.5 [p
 
 out_open-true_deterministic_pcedt_0.1_0.5_0.5_af+as+cs+gp+cp:I0323 03:57:48.986974 10282 SemanticPipe.h:347] Unlabeled F1: 0.891179
 out_open-true_deterministic_pcedt_0.1_0.5_0.5_af+as+cs+gp+cp:I0323 03:57:48.986995 10282 SemanticPipe.h:364] Labeled F1: 0.800638
+out_open-true_deterministic_pcedt_0.1_0.5_0.5_af+as+cs+gp+cp:I0323 03:57:48.987010 10282 SemanticPipe.h:380] Speed: 1807.25 tokens per second.
 
 
 ========================================================================================
@@ -70,7 +71,7 @@ Open, af+cs+gp+cp pruned model deterministic, C=0.01, dm, best = 0.4/0.6 [pba28]
 
 out_open-true_deterministic_dm_0.01_0.4_0.6_af+cs+gp+cp:I0322 14:08:23.848956  8519 SemanticPipe.h:347] Unlabeled F1: 0.909488
 out_open-true_deterministic_dm_0.01_0.4_0.6_af+cs+gp+cp:I0322 14:08:23.848979  8519 SemanticPipe.h:364] Labeled F1: 0.898824
-
+out_open-true_deterministic_dm_0.01_0.4_0.6_af+cs+gp+cp:I0322 14:08:23.848994  8519 SemanticPipe.h:380] Speed: 1523.59 tokens per second.
 
 ========================================================================================
 Open, af+cs+gp+cp pruned model deterministic, C=0.001, dm, best = 0.4/0.6 [pba28]
@@ -86,6 +87,51 @@ Open, af+cs+gp+cp pruned model deterministic, C=0.1, dm, best = 0.4/0.6 [pba28]
 out_open-true_deterministic_dm_0.1_0.4_0.6_af+cs+gp+cp:I0323 03:32:22.410461 10236 SemanticPipe.h:347] Unlabeled F1: 0.909531
 out_open-true_deterministic_dm_0.1_0.4_0.6_af+cs+gp+cp:I0323 03:32:22.410485 10236 SemanticPipe.h:364] Labeled F1: 0.898575
 
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.01, pas, best = 0.5/0.5 [pba28] --> best C
+========================================================================================
+
+out_open-true_deterministic_pas_0.01_0.5_0.5_af+cs+gp+cp:I0323 18:32:53.528162 11962 SemanticPipe.h:347] Unlabeled F1: 0.926699
+out_open-true_deterministic_pas_0.01_0.5_0.5_af+cs+gp+cp:I0323 18:32:53.528184 11962 SemanticPipe.h:364] Labeled F1: 0.916624
+out_open-true_deterministic_pas_0.01_0.5_0.5_af+cs+gp+cp:I0323 18:32:53.528199 11962 SemanticPipe.h:380] Speed: 1601.55 tokens per second.
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.001, pas, best = 0.5/0.5 [pba28]
+========================================================================================
+
+out_open-true_deterministic_pas_0.001_0.5_0.5_af+cs+gp+cp:I0324 02:19:43.638890 12786 SemanticPipe.h:347] Unlabeled F1: 0.926069
+out_open-true_deterministic_pas_0.001_0.5_0.5_af+cs+gp+cp:I0324 02:19:43.638912 12786 SemanticPipe.h:364] Labeled F1: 0.915764
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.1, pas, best = 0.5/0.5 [pba28]
+========================================================================================
+
+out_open-true_deterministic_pas_0.1_0.5_0.5_af+cs+gp+cp:I0324 09:46:47.254998 13513 SemanticPipe.h:347] Unlabeled F1: 0.926533
+out_open-true_deterministic_pas_0.1_0.5_0.5_af+cs+gp+cp:I0324 09:46:47.255022 13513 SemanticPipe.h:364] Labeled F1: 0.916375
+
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.01, pcedt, best = 0.5/0.5 [pba28] --> best C
+========================================================================================
+
+out_open-true_deterministic_pcedt_0.01_0.5_0.5_af+cs+gp+cp:I0323 15:23:20.658821 11730 SemanticPipe.h:347] Unlabeled F1: 0.890962
+out_open-true_deterministic_pcedt_0.01_0.5_0.5_af+cs+gp+cp:I0323 15:23:20.658843 11730 SemanticPipe.h:364] Labeled F1: 0.800448
+out_open-true_deterministic_pcedt_0.01_0.5_0.5_af+cs+gp+cp:I0323 15:23:20.658859 11730 SemanticPipe.h:380] Speed: 1958.92 tokens per second.
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.001, pcedt, best = 0.3/0.7 [pba28]
+========================================================================================
+
+out_open-true_deterministic_pcedt_0.001_0.3_0.7_af+cs+gp+cp:I0323 18:35:45.603747 12000 SemanticPipe.h:347] Unlabeled F1: 0.895867
+out_open-true_deterministic_pcedt_0.001_0.3_0.7_af+cs+gp+cp:I0323 18:35:45.603778 12000 SemanticPipe.h:364] Labeled F1: 0.798171
+
+========================================================================================
+Open, af+cs+gp+cp pruned model deterministic, C=0.1, pcedt, best = 0.5/0.5 [pba28]
+========================================================================================
+
+out_open-true_deterministic_pcedt_0.1_0.5_0.5_af+cs+gp+cp:I0324 01:00:50.791736 12718 SemanticPipe.h:347] Unlabeled F1: 0.890019
+out_open-true_deterministic_pcedt_0.1_0.5_0.5_af+cs+gp+cp:I0324 01:00:50.791759 12718 SemanticPipe.h:364] Labeled F1: 0.80025
 
 
 ========================================================================================
