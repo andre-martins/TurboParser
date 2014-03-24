@@ -160,8 +160,8 @@ class FactorPredicateAutomaton : public GenericFactor {
       int best_last_state = -1;
       double best_score = -1e12;
       for (int j = 0; j < length; ++j) {
-        int index = index_siblings_[s][j][length];
-        CHECK_GE(index, 0);
+        //int index = index_siblings_[s][j][length];
+        //CHECK_GE(index, 0);
         double score = values[length-1][j] +
           GetSiblingScore(s, j, length, variable_log_potentials,
                           additional_log_potentials);
