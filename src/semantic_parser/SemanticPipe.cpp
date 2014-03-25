@@ -1233,47 +1233,202 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
   bool allow_unseen_predicates = semantic_options->allow_unseen_predicates();
   bool use_predicate_senses = semantic_options->use_predicate_senses();
 
-  CHECK(false);
+  // Consecutive co-parents: (p1,s1,a) and (p2,s2,a).
+  for (int a = 1; a < sentence_length; ++a) {
+    bool first_arc_active;
+    bool second_arc_active = false;
+    bool arc_between;
 
-  // Co-parents: (p1,s1,a) and (p2,s2,a).
-  // First predicate.
-  for (int p1 = 0; p1 < sentence_length; ++p1) {
-    if (p1 == 0 && !allow_root_predicate) continue;
-    int lemma_id_p1 = TOKEN_UNKNOWN;
-    if (use_predicate_senses) {
-      lemma_id_p1 = sentence->GetLemmaId(p1);
-      CHECK_GE(lemma_id_p1, 0);
-    }
-    const vector<SemanticPredicate*> *predicates_p1 =
-      &semantic_dictionary->GetLemmaPredicates(lemma_id_p1);
-    if (predicates_p1->size() == 0 && allow_unseen_predicates) {
-      predicates_p1 = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
-    }
-    for (int s1 = 0; s1 < predicates_p1->size(); ++s1) {
-      // Second predicate.
-      for (int p2 = p1+1; p2 < sentence_length; ++p2) {
-        int lemma_id_p2 = TOKEN_UNKNOWN;
+    // Right side.
+    // Allow self loops (p1 = a). We use p1 = a-1 to denote the special case
+    // in which p2 is the first predicate.
+    for (int p1 = a-1; p1 < sentence_length; ++p1) {
+      int num_senses1;
+      if (p1 < a) {
+        // If p1 = a-1, pretend there is a single sense (s1=0).
+        num_senses1 = 1;
+      } else {
+        //const vector<int> &senses = semantic_parts->GetSenses(p);
+        //CHECK_EQ(senses.size(), predicates->size());
+        if (p1 == 0 && !allow_root_predicate) continue; // Never happens.
+        int lemma_id = TOKEN_UNKNOWN;
         if (use_predicate_senses) {
-          lemma_id_p2 = sentence->GetLemmaId(p2);
-          CHECK_GE(lemma_id_p2, 0);
+          lemma_id = sentence->GetLemmaId(p1);
+          CHECK_GE(lemma_id, 0);
         }
-        const vector<SemanticPredicate*> *predicates_p2 =
-          &semantic_dictionary->GetLemmaPredicates(lemma_id_p2);
-        if (predicates_p2->size() == 0 && allow_unseen_predicates) {
-          predicates_p2 = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+        const vector<SemanticPredicate*> *predicates =
+          &semantic_dictionary->GetLemmaPredicates(lemma_id);
+        if (predicates->size() == 0 && allow_unseen_predicates) {
+          predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
         }
-        for (int s2 = 0; s2 < predicates_p2->size(); ++s2) {
-          // Common argument.
-          for (int a = 1; a < sentence_length; ++a) {
-            int r1 = semantic_parts->FindArc(p1, a, s1);
-            if (r1 < 0) continue;
-            int r2 = semantic_parts->FindArc(p2, a, s2);
-            if (r2 < 0) continue;
-            Part *part = semantic_parts->CreatePartCoparent(p1, s1, p2, s2, a);
-            semantic_parts->AddPart(part);
+        num_senses1 = predicates->size();
+      }
+
+      for (int s1 = 0; s1 < num_senses1; ++s1) {
+        int r1 = -1;
+        if (p1 >= a) {
+          r1 = semantic_parts->FindArc(p1, a, s1);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (p1 < a || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int p2 = p1+1; p2 <= sentence_length; ++p2) {
+          int num_senses2;
+          if (p2 == sentence_length) {
+            // If p2 = sentence_length, pretend there is a single sense (s2=0).
+            num_senses2 = 1;
+          } else {
+            //const vector<int> &senses = semantic_parts->GetSenses(p);
+            //CHECK_EQ(senses.size(), predicates->size());
+            if (p2 == 0 && !allow_root_predicate) continue; // Never happens.
+            int lemma_id = TOKEN_UNKNOWN;
+            if (use_predicate_senses) {
+              lemma_id = sentence->GetLemmaId(p2);
+              CHECK_GE(lemma_id, 0);
+            }
+            const vector<SemanticPredicate*> *predicates =
+              &semantic_dictionary->GetLemmaPredicates(lemma_id);
+            if (predicates->size() == 0 && allow_unseen_predicates) {
+              predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+            }
+            num_senses2 = predicates->size();
+          }
+
+          for (int s2 = 0; s2 < num_senses2; ++s2) {
+            int r2 = -1;
+            if (p2 < sentence_length) {
+              r2 = semantic_parts->FindArc(p2, a, s2);
+              if (r2 < 0) continue;
+            }
             if (make_gold) {
-              // Logical AND of the two individual arcs.
-              gold_outputs->push_back((*gold_outputs)[r1] * (*gold_outputs)[r2]);
+              // Check if the second arc is active.
+              if (p2 == sentence_length ||
+                  NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+                second_arc_active = true;
+              } else {
+                second_arc_active = false;
+              }
+            }
+
+            Part *part = (p1 >= a)?
+              semantic_parts->CreatePartConsecutiveCoparent(p1, s1, p2, s2, a) :
+              semantic_parts->CreatePartConsecutiveCoparent(-1, 0, p2, s2, a);
+            semantic_parts->AddPart(part);
+
+            if (make_gold) {
+              double value = 0.0;
+              if (first_arc_active && second_arc_active && !arc_between) {
+                value = 1.0;
+                arc_between = true;
+              }
+              gold_outputs->push_back(value);
+            }
+          }
+        }
+      }
+    }
+
+    // Left side.
+    // Allow self loops (p1 = a). We use p1 = a+1 to denote the special case
+    // in which p2 is the first predicate.
+    for (int p1 = a+1; p1 >= 0; --p1) {
+      int num_senses1;
+      if (p1 > a) {
+        // If p1 = a+1, pretend there is a single sense (s1=0).
+        num_senses1 = 1;
+      } else {
+        //const vector<int> &senses = semantic_parts->GetSenses(p);
+        //CHECK_EQ(senses.size(), predicates->size());
+        if (p1 == 0 && !allow_root_predicate) continue;
+        int lemma_id = TOKEN_UNKNOWN;
+        if (use_predicate_senses) {
+          lemma_id = sentence->GetLemmaId(p1);
+          CHECK_GE(lemma_id, 0);
+        }
+        const vector<SemanticPredicate*> *predicates =
+          &semantic_dictionary->GetLemmaPredicates(lemma_id);
+        if (predicates->size() == 0 && allow_unseen_predicates) {
+          predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+        }
+        num_senses1 = predicates->size();
+      }
+
+      for (int s1 = 0; s1 < num_senses1; ++s1) {
+        int r1 = -1;
+        if (p1 <= a) {
+          r1 = semantic_parts->FindArc(p1, a, s1);
+          if (r1 < 0) continue;
+        }
+
+        if (make_gold) {
+          // Check if the first arc is active.
+          if (p1 > a || NEARLY_EQ_TOL((*gold_outputs)[r1], 1.0, 1e-9)) {
+            first_arc_active = true;
+          } else {
+            first_arc_active = false;
+          }
+          arc_between = false;
+        }
+
+        for (int p2 = p1-1; p2 >= -1; --p2) {
+          int num_senses2;
+          if (p2 == -1) {
+            // If p2 = -1, pretend there is a single sense (s2=0).
+            num_senses2 = 1;
+          } else {
+            //const vector<int> &senses = semantic_parts->GetSenses(p);
+            //CHECK_EQ(senses.size(), predicates->size());
+            if (p2 == 0 && !allow_root_predicate) continue;
+            int lemma_id = TOKEN_UNKNOWN;
+            if (use_predicate_senses) {
+              lemma_id = sentence->GetLemmaId(p2);
+              CHECK_GE(lemma_id, 0);
+            }
+            const vector<SemanticPredicate*> *predicates =
+              &semantic_dictionary->GetLemmaPredicates(lemma_id);
+            if (predicates->size() == 0 && allow_unseen_predicates) {
+              predicates = &semantic_dictionary->GetLemmaPredicates(TOKEN_UNKNOWN);
+            }
+            num_senses2 = predicates->size();
+          }
+
+          for (int s2 = 0; s2 < num_senses2; ++s2) {
+            int r2 = -1;
+            if (p2 > -1) {
+              r2 = semantic_parts->FindArc(p2, a, s2);
+              if (r2 < 0) continue;
+            }
+            if (make_gold) {
+              // Check if the second arc is active.
+              if (p2 == -1 ||
+                  NEARLY_EQ_TOL((*gold_outputs)[r2], 1.0, 1e-9)) {
+                second_arc_active = true;
+              } else {
+                second_arc_active = false;
+              }
+            }
+
+            Part *part = (p1 <= a)?
+              semantic_parts->CreatePartConsecutiveCoparent(p1, s1, p2, s2, a) :
+              semantic_parts->CreatePartConsecutiveCoparent(-1, 0, p2, s2, a);
+            semantic_parts->AddPart(part);
+
+            if (make_gold) {
+              double value = 0.0;
+              if (first_arc_active && second_arc_active && !arc_between) {
+                value = 1.0;
+                arc_between = true;
+              }
+              gold_outputs->push_back(value);
             }
           }
         }

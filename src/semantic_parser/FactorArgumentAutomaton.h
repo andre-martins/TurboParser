@@ -149,9 +149,9 @@ class FactorArgumentAutomaton : public GenericFactor {
               path[p][p][s2] = pair<int,int>(j, s1);
             }
           }
-          values[p][p][s2] += GetPredicateScore(p, s2, variable_log_potentials,
-                                                additional_log_potentials);
         }
+        values[p][p][s2] += GetPredicateScore(p, s2, variable_log_potentials,
+                                              additional_log_potentials);
       }
     }
     // The end state is p = length, s2 = 0.
@@ -182,6 +182,18 @@ class FactorArgumentAutomaton : public GenericFactor {
         predicates_senses->push_back(pair<int,int>(p, s));
       }
     }
+
+#if 0
+    double value2;
+    Evaluate(variable_log_potentials,
+             additional_log_potentials,
+             configuration,
+             &value2);
+
+    LOG(INFO) << "Maximize value: " << *value;
+    LOG(INFO) << "Evaluate value: " << value2;
+#endif
+
   }
 
   // Compute the score of a given assignment.
@@ -375,7 +387,7 @@ class FactorArgumentAutomaton : public GenericFactor {
       }
     }
 
-    // Construct index of siblings.
+    // Construct index of coparents.
     int num_predicates = GetLength();
     index_coparents_.assign(num_predicates, vector<vector<vector<int> > >(0));
     for (int i = 0; i < num_predicates; ++i) {
@@ -391,6 +403,7 @@ class FactorArgumentAutomaton : public GenericFactor {
         }
       }
     }
+
     for (int k = 0; k < coparents.size(); ++k) {
       CHECK_EQ(a, coparents[k]->argument());
       int p1 = coparents[k]->first_predicate();
@@ -400,16 +413,20 @@ class FactorArgumentAutomaton : public GenericFactor {
       int position1 = right? p1-a : a-p1;
       int position2 = right? p2-a : a-p2;
       if (p1 < 0) position1 = -1; // To handle p1=-1.
-      CHECK(map_senses[p1].find(s1) != map_senses[p1].end());
-      int sense1 = map_senses[p1][s1];
-      CHECK(map_senses[p2].find(s2) != map_senses[p2].end());
-      int sense2 = map_senses[p2][s2];
       ++position1; // Position 0 is reserved for the case p1=-1.
       ++position2;
       CHECK_GE(position1, 0);
       CHECK_GE(position2, 1);
       CHECK_LT(position1, predicates.size());
-      CHECK_LT(position2, predicates.size()+1); // Was commented?
+      if (position1 > 0) {
+        CHECK(map_senses[position1].find(s1) != map_senses[position1].end());
+      }
+      if (position2 < predicates.size()) {
+        CHECK(map_senses[position2].find(s2) != map_senses[position2].end());
+      }
+      int sense1 = (position1 > 0)? map_senses[position1][s1] : 0;
+      int sense2 = (position2 < predicates.size())?
+        map_senses[position2][s2] : 0;
       int first_predicate = (position1 > 0)?
         predicates[position1][sense1] : 0;
       int second_predicate = (position2 < predicates.size())?
@@ -419,6 +436,11 @@ class FactorArgumentAutomaton : public GenericFactor {
       CHECK_LT(first_predicate, index_coparents_.size());
       CHECK_LT(second_predicate,
                index_coparents_[first_predicate][sense1].size());
+      CHECK_GE(sense1, 0);
+      CHECK_GE(sense2, 0);
+      CHECK_LT(sense1, index_coparents_[first_predicate].size());
+      CHECK_LT(sense2, index_coparents_[first_predicate][sense1]
+               [second_predicate].size());
       // Index of co-parents in the additional_variables array.
       index_coparents_[first_predicate][sense1][second_predicate][sense2] = k;
     }

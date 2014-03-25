@@ -1346,6 +1346,103 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   }
 
   //////////////////////////////////////////////////////////////////////
+  // Build consecutive co-parent factors.
+  //////////////////////////////////////////////////////////////////////
+  if (use_consecutive_coparent_parts) {
+    // Get all the consecutive co-parents, indices, etc.
+    // Note: contrarily to the consecutive siblings, here a left arc is one
+    // whose predicate is on the left of the argument.
+    vector<vector<int> > left_arc_indices(sentence->size());
+    vector<vector<int> > right_arc_indices(sentence->size());
+    for (int r = 0; r < num_arcs; ++r) {
+      SemanticPartArc* arc =
+        static_cast<SemanticPartArc*>((*parts)[offset_arcs + r]);
+      if (arc->predicate() <= arc->argument()) {
+        left_arc_indices[arc->argument()].push_back(offset_arcs + r);
+      }
+      if (arc->predicate() >= arc->argument()) {
+        right_arc_indices[arc->argument()].push_back(offset_arcs + r);
+      }
+    }
+    vector<vector<SemanticPartConsecutiveCoparent*> >
+      left_coparents(sentence->size());
+    vector<vector<SemanticPartConsecutiveCoparent*> >
+      right_coparents(sentence->size());
+    vector<vector<double> > left_scores(sentence->size());
+    vector<vector<double> > right_scores(sentence->size());
+    vector<vector<int> > left_indices(sentence->size());
+    vector<vector<int> > right_indices(sentence->size());
+    for (int r = 0; r < num_consecutive_coparents; ++r) {
+      SemanticPartConsecutiveCoparent *coparent =
+          static_cast<SemanticPartConsecutiveCoparent*>(
+              (*parts)[offset_consecutive_coparents + r]);
+      if (coparent->argument() >= coparent->second_predicate()) {
+        // Left co-parent.
+        left_coparents[coparent->argument()].push_back(coparent);
+        left_scores[coparent->argument()].push_back(
+            scores[offset_consecutive_coparents + r]);
+        // Save the part index to get the posterior later.
+        left_indices[coparent->argument()].
+          push_back(offset_consecutive_coparents + r);
+      }
+      if (coparent->argument() <= coparent->second_predicate()) {
+        // Right co-parent.
+        right_coparents[coparent->argument()].push_back(coparent);
+        right_scores[coparent->argument()].push_back(
+            scores[offset_consecutive_coparents + r]);
+        // Save the part index to get the posterior later.
+        right_indices[coparent->argument()].
+          push_back(offset_consecutive_coparents + r);
+      }
+    }
+
+    // Now, go through each argument and create left and right automata.
+    for (int a = 1; a < sentence->size(); ++a) {
+      // Build left argument automaton.
+      vector<AD3::BinaryVariable*> local_variables;
+      vector<SemanticPartArc*> left_arcs;
+      for (int k = 0; k < left_arc_indices[a].size(); ++k) {
+        int r = left_arc_indices[a][k];
+        int index = offset_arc_variables + r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        SemanticPartArc *arc =
+          static_cast<SemanticPartArc*>((*parts)[r]);
+        left_arcs.push_back(arc);
+      }
+
+      AD3::FactorArgumentAutomaton *factor = new AD3::FactorArgumentAutomaton;
+      factor->Initialize(a, false, left_arcs, left_coparents[a]);
+      factor->SetAdditionalLogPotentials(left_scores[a]);
+      factor_graph->DeclareFactor(factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     left_indices[a].begin(),
+                                     left_indices[a].end());
+
+      // Build right head automaton.
+      local_variables.clear();
+      vector<SemanticPartArc*> right_arcs;
+      for (int k = 0; k < right_arc_indices[a].size(); ++k) {
+        int r = right_arc_indices[a][k];
+        int index = offset_arc_variables + r - offset_arcs;
+        local_variables.push_back(variables[index]);
+        SemanticPartArc *arc =
+          static_cast<SemanticPartArc*>((*parts)[r]);
+        right_arcs.push_back(arc);
+      }
+
+      factor = new AD3::FactorArgumentAutomaton;
+      factor->Initialize(a, true, right_arcs, right_coparents[a]);
+      factor->SetAdditionalLogPotentials(right_scores[a]);
+      factor_graph->DeclareFactor(factor, local_variables, true);
+      factor_part_indices_.push_back(-1);
+      additional_part_indices.insert(additional_part_indices.end(),
+                                     right_indices[a].begin(),
+                                     right_indices[a].end());
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
   // Build grandparent factors.
   //////////////////////////////////////////////////////////////////////
   if (use_grandparent_parts) {
