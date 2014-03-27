@@ -245,6 +245,8 @@ struct SemanticFeatureTemplateArc {
     HP_MW_BP, 				/* head POS, mod word, in-between POS */
     HP_MP_BW, 				/* head POS, mod POS, in-between word */
     HW_MW_BW, 				/* head word, mod word, in-between word */
+    HW_MP_BW, 				/* head word, mod POS, in-between word */
+    HP_MW_BW, 				/* head POS, mod word, in-between word */
     SHAPE,					/* shape features */
 
     COUNT

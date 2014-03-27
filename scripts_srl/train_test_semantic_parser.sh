@@ -17,10 +17,10 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false #true #false # If true, the pruner is trained separately.
+train_external_pruner=true #false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
-pruner_max_arguments=10 #20 # Maximum number of candidate heads allowed by the pruner.
+pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
 deterministic_labels=true # Find and impose deterministic labels.
 use_dependency_syntactic_features=$6 #true # Must set to false for the SemEval 2014 closed track.
@@ -55,6 +55,7 @@ if [ "${model_type}" == "basic" ]
 then
     #echo "Reverting prune to false..."
     prune=false
+    train_external_pruner=false
     #echo "Stupid pruning..."
 fi
 
@@ -85,6 +86,7 @@ then
     then
         file_train=${path_data}/${formalism}_augmented_train+dev0.sdp
         files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
+        files_test[1]=${path_data}/${formalism}_augmented_test_blind.sdp
         #files_test[1]=${path_data}/${formalism}_augmented_train+dev0.sdp
         #files_test[0]=${path_data}/${formalism}_augmented_dev0.sdp
         #files_test[1]=${path_data}/${formalism}_augmented_dev.sdp

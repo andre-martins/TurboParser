@@ -116,7 +116,8 @@ void SemanticWriter::Write(Instance *instance) {
             argument_name = semantic_instance->GetArgumentRole(k, l);
           }
         }
-        os_ << argument_name << "\t";
+        os_ << argument_name;
+        if (k < semantic_instance->GetNumPredicates() - 1) os_<< "\t";
       }
     }
 
