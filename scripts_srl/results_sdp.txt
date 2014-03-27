@@ -260,16 +260,18 @@ out_open-false_deterministic_pas_0.01_0.5_0.5_af+cs+gp+cp:I0324 18:00:09.881584 
 out_open-false_deterministic_pas_0.01_0.5_0.5_af+cs+gp+cp:I0324 18:00:09.881621 54343 SemanticPipe.h:364] Labeled F1: 0.908028
 
 ========================================================================================
-Closed, af+cs+gp+cp pruned model deterministic, C=0.001, pas, best = 0.5/0.5 [hyperv-ubuntu1]
+Closed, af+cs+gp+cp pruned model deterministic, C=0.001, pas, best = 0.4/0.6 [hyperv-ubuntu1]
 ========================================================================================
 
-TODO
+out_open-false_deterministic_pas_0.001_0.4_0.6_af+cs+gp+cp:I0324 23:39:03.657102 54482 SemanticPipe.h:347] Unlabeled F1: 0.915632
+out_open-false_deterministic_pas_0.001_0.4_0.6_af+cs+gp+cp:I0324 23:39:03.657140 54482 SemanticPipe.h:364] Labeled F1: 0.904041
 
 ========================================================================================
-Closed, af+cs+gp+cp pruned model deterministic, C=0.1, pas, best = 0.5/0.5 [hyperv-ubuntu1]
+Closed, af+cs+gp+cp pruned model deterministic, C=0.1, pas, best = 0.3/0.7 [hyperv-ubuntu1] [NOTE: 0.5/0.5 missing]
 ========================================================================================
 
-TODO
+out_open-false_deterministic_pas_0.1_0.3_0.7_af+cs+gp+cp:I0325 22:31:36.968557 55634 SemanticPipe.h:347] Unlabeled F1: 0.918391
+out_open-false_deterministic_pas_0.1_0.3_0.7_af+cs+gp+cp:I0325 22:31:36.968598 55634 SemanticPipe.h:364] Labeled F1: 0.907134
 
 ========================================================================================
 Closed, af+cs+gp+cp pruned model deterministic, C=0.01, pcedt, best = 0.3/0.7 [hyperv-ubuntu1] --> best C
