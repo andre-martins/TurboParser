@@ -460,7 +460,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   CHECK_GE(pair_type, 0);
   uint8_t feature_type = pair_type;
 
-  int max_token_context = 1; //FLAGS_semantic_token_context; // 1.
+  int max_token_context = 2; //1; //FLAGS_semantic_token_context; // 1.
 
   uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
   uint8_t binned_length_code; // Binned arc length.
@@ -522,7 +522,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   }
 
   // Codewords for accommodating word/POS information.
-  uint16_t HWID, MWID;
+  uint16_t HWID, MWID, BWID;
   uint16_t HLID, MLID;
   uint16_t HSID, MSID;
   uint8_t HPID, MPID, BPID;
@@ -1008,7 +1008,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
     set<int> BPIDs;
     set<int> BWIDs;
     for (int i = left_position + 1; i < right_position; ++i) {
-      BPID = sentence->GetCoarsePosId(i);
+      BPID = sentence->GetPosId(i);
       if (BPIDs.find(BPID) == BPIDs.end()) {
         BPIDs.insert(BPID);
 
@@ -1022,8 +1022,26 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
         fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HP_MW_BP, flags, MWID, HPID, BPID);
         AddFeature(fkey, features);
       }
-      BPIDs.clear();
+#if 1
+      BWID = sentence->GetFormId(i);
+      if (BWIDs.find(BWID) == BWIDs.end()) {
+        BWIDs.insert(BWID);
+
+        // Word in the middle (useful for handling prepositions lying between
+        // predicates and arguments).
+        fkey = encoder_.CreateFKey_WPP(SemanticFeatureTemplateArc::HP_MP_BW, flags, BWID, HPID, MPID);
+        AddFeature(fkey, features);
+        //fkey = encoder_.CreateFKey_WWW(SemanticFeatureTemplateArc::HW_MW_BW, flags, HWID, MWID, BWID);
+        //AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(SemanticFeatureTemplateArc::HW_MP_BW, flags, HWID, BWID, MPID);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(SemanticFeatureTemplateArc::HP_MW_BW, flags, MWID, BWID, HPID);
+        AddFeature(fkey, features);
+      }
+#endif
     }
+    BPIDs.clear();
+    BWIDs.clear();
   }
 }
 #endif
