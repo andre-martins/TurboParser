@@ -1,4 +1,63 @@
 ========================================================================================
+FINAL Open, af+cs+as+gp+cp pruned model deterministic, C=0.01, dm, 0.4/0.6 [pba28]
+========================================================================================
+
+out_open-true_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0327 21:04:38.660398  2084 SemanticPipe.h:347] Unlabeled F1: 0.909524
+out_open-true_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0327 21:04:38.660424  2084 SemanticPipe.h:364] Labeled F1: 0.899043
+
+========================================================================================
+FINAL Open, af+cs+as+gp+cp pruned model deterministic, C=0.01, pas, 0.4/0.6 [pba28]
+========================================================================================
+
+I0328 15:41:24.215971  5897 SemanticPipe.h:347] Unlabeled F1: 0.928724
+I0328 15:41:24.215996  5897 SemanticPipe.h:364] Labeled F1: 0.918705
+
+========================================================================================
+FINAL Open, af+cs+as+gp+cp pruned model deterministic, C=0.01, pcedt, 0.4/0.6 [pba28]
+========================================================================================
+
+I0328 18:06:26.412225  6430 SemanticPipe.h:347] Unlabeled F1: 0.901799
+I0328 18:06:26.412255  6430 SemanticPipe.h:364] Labeled F1: 0.800388
+
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, dm, 0.4/0.6 [pba28]
+========================================================================================
+
+out_open-false_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 05:29:58.148488 60490 SemanticPipe.h:347] Unlabeled F1: 0.896626
+out_open-false_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 05:29:58.148524 60490 SemanticPipe.h:364] Labeled F1: 0.886265
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, dm, 0.3/0.7 [pba28] -> best
+========================================================================================
+
+out_open-false_deterministic_dm_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 12:06:31.619197 61040 SemanticPipe.h:347] Unlabeled F1: 0.897936
+out_open-false_deterministic_dm_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 12:06:31.619249 61040 SemanticPipe.h:364] Labeled F1: 0.886946
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, pas, 0.4/0.6 [pba28]
+========================================================================================
+
+out_open-false_deterministic_pas_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 07:42:47.940095 60605 SemanticPipe.h:347] Unlabeled F1: 0.921248
+out_open-false_deterministic_pas_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 07:42:47.940134 60605 SemanticPipe.h:364] Labeled F1: 0.910491
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, pcedt, 0.4/0.6 [pba28]
+========================================================================================
+
+out_open-false_deterministic_pcedt_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 17:28:49.944344 61399 SemanticPipe.h:347] Unlabeled F1: 0.884355
+out_open-false_deterministic_pcedt_0.01_0.4_0.6_af+as+cs+gp+cp+ccp:I0328 17:28:49.944382 61399 SemanticPipe.h:364] Labeled F1: 0.788557
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, pcedt, 0.3/0.7 [pba28] -> best
+========================================================================================
+
+out_open-false_deterministic_pcedt_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 17:24:59.930541 61343 SemanticPipe.h:347] Unlabeled F1: 0.888231
+out_open-false_deterministic_pcedt_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 17:24:59.930579 61343 SemanticPipe.h:364] Labeled F1: 0.788829
+
+
+
+========================================================================================
 Open, af+cs+as+gp+cp pruned model deterministic, C=0.01, dm, best = 0.4/0.6 [pba28]
 ========================================================================================
 
