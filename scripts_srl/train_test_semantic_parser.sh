@@ -17,7 +17,7 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
@@ -60,7 +60,7 @@ then
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}
-suffix=semantic_parser_${formalism}_pruned-${prune}_model-${model_type}_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter}
+suffix=semantic_parser_${formalism}_pruned-${prune}_model-${model_type}_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter}_fp-${train_cost_false_positives}_fn-${train_cost_false_negatives}
 suffix_pruner=semantic_parser_${formalism}_pruner_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter_pruner}
 
 # Set path folders.
@@ -84,7 +84,8 @@ if [ "$language" == "english" ]
 then
     if [ "$file_format" == "sdp" ]
     then
-        file_train=${path_data}/${formalism}_augmented_train+dev0.sdp
+        #file_train=${path_data}/${formalism}_augmented_train+dev0.sdp
+        file_train=${path_data}/${formalism}_augmented_train+dev0+dev.sdp
         files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
         files_test[1]=${path_data}/${formalism}_augmented_test_blind.sdp
         #files_test[1]=${path_data}/${formalism}_augmented_train+dev0.sdp

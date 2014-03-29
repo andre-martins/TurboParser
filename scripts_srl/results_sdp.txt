@@ -35,6 +35,14 @@ out_open-false_deterministic_dm_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 12:06:31.6
 out_open-false_deterministic_dm_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 12:06:31.619249 61040 SemanticPipe.h:364] Labeled F1: 0.886946
 
 ========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.1, dm, 0.4/0.6 [pba28] -> best
+========================================================================================
+
+I0329 00:10:45.247457 62621 SemanticPipe.h:347] Unlabeled F1: 0.897404
+I0329 00:10:45.247494 62621 SemanticPipe.h:364] Labeled F1: 0.886859
+
+
+========================================================================================
 FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, pas, 0.4/0.6 [pba28]
 ========================================================================================
 
@@ -54,6 +62,13 @@ FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.01, pcedt, 0.3/0.7 
 
 out_open-false_deterministic_pcedt_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 17:24:59.930541 61343 SemanticPipe.h:347] Unlabeled F1: 0.888231
 out_open-false_deterministic_pcedt_0.01_0.3_0.7_af+as+cs+gp+cp+ccp:I0328 17:24:59.930579 61343 SemanticPipe.h:364] Labeled F1: 0.788829
+
+========================================================================================
+FINAL Closed, af+cs+as+gp+cp pruned model deterministic, C=0.1, pcedt, 0.5/0.5 [pba28]
+========================================================================================
+
+I0328 22:25:30.789033 62296 SemanticPipe.h:347] Unlabeled F1: 0.878875
+I0328 22:25:30.789072 62296 SemanticPipe.h:364] Labeled F1: 0.786028
 
 
 
