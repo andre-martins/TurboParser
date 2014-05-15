@@ -29,7 +29,7 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
-if [ "$language" == "english_proj" ]
+if [ "$language" == "english_proj" ] || [ "$language" == "spanish_ancora" ] || [ "$language" == "spanish_ancora_nomwe_auto" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.tagging
     files_test[1]=${path_data}/${language}_dev.conll.tagging
