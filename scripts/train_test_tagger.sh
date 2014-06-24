@@ -17,6 +17,7 @@ suffix=tagger
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
+path_scripts=${root_folder}/scripts # Folder containing scripts.
 path_data=${root_folder}/data/${language} # Folder with the data.
 path_models=${root_folder}/models/${language} # Folder where models are stored.
 path_results=${root_folder}/results/${language} # Folder for the results.
@@ -29,7 +30,7 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
-if [ "$language" == "english_proj" ] || [ "$language" == "spanish_ancora" ] || [ "$language" == "spanish_ancora_nomwe_auto" ]
+if [ "$language" == "english_proj" ] || [ "$language" == "spanish_ancora" ] || [ "$language" == "spanish_ancora_nomwe_auto" ] || [ "$language" == "spanish_ancora_finertags" ] || [ "$language" == "spanish_ancora_finertags_nomwe_auto" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.tagging
     files_test[1]=${path_data}/${language}_dev.conll.tagging
@@ -88,6 +89,6 @@ then
 
         echo ""
         echo "Evaluating..."
-        perl eval_predpos.pl ${file_prediction} ${file_test}
+        perl ${path_scripts}/eval_predpos.pl ${file_prediction} ${file_test}
     done
 fi
