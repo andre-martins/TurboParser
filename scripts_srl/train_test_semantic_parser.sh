@@ -41,7 +41,7 @@ then
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
     formalism=$7 #pcedt #pas #dm
-    subfolder=sdp/${formalism}
+    subfolder=semeval2014_data/${formalism}
 else
     allow_self_loops=true
     allow_root_predicate=false
@@ -84,15 +84,10 @@ if [ "$language" == "english" ]
 then
     if [ "$file_format" == "sdp" ]
     then
-        file_train=${path_data}/${formalism}_augmented_train+dev0.sdp
-        #file_train=${path_data}/${formalism}_augmented_train+dev0+dev.sdp
-        files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
-        files_test[1]=${path_data}/${formalism}_augmented_test.sdp
-        #files_test[1]=${path_data}/${formalism}_augmented_test_blind.sdp
-        #files_test[1]=${path_data}/${formalism}_augmented_train+dev0.sdp
-        #files_test[0]=${path_data}/${formalism}_augmented_dev0.sdp
-        #files_test[1]=${path_data}/${formalism}_augmented_dev.sdp
-        #files_test[2]=${path_data}/${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
         files_test[0]=${path_data}/${language}_test.conll2008
