@@ -1,4 +1,4 @@
-model_type=af+as+cs+cp+ccp #af+as+cs+gp+cp+ccp
+model_type=af #af+as+cs+gp+cp+ccp
 open=true #false
 
 formalism=dm
