@@ -26,3 +26,10 @@
   * Introduced third-order parts (as described in our ACL 2013 short paper).
   * Windows-compatible (tested under MSVC; thanks to Afonso Mendes).
   * TurboTagger is now faster.
+
+2014-06-26 TurboParser 2.2.0 afm@cs.cmu.edu
+  New release with some additional features:
+  * Implemented a Python wrapper using Cython.
+  * Added a semantic parser, TurboSemanticParser (as described in our SemEval
+  2014 paper)
+  * Added a tokenizer for Portuguese.
