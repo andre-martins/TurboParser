@@ -85,6 +85,9 @@ class PortugueseWordTokenizer(TokenizerI):
         # Note: the Portuguese sentence tokenizer should also do this!!
         text = re.sub('\xc2\xa0', ' ', text)
 
+        # Replace U+0096 by dashes.
+        text = re.sub('\xc2\x96', ' -- ', text)
+
         if self.replace_parenthesis:
             # Replace all parenthesis by single quotes.
             # This looks a really terrible idea. However, since there are
@@ -109,6 +112,10 @@ class PortugueseWordTokenizer(TokenizerI):
             text = re.sub(r'^\"', r'``', text)
             text = re.sub(r'(``)', r' \1 ', text)
             text = re.sub(r'([ (\[{<])"', r'\1 `` ', text)
+
+            # I added these for single quotes -- to avoid things like
+            # "o 'apartheid social ' "
+            text = re.sub(r'\'', '\' ', text)
 
         #punctuation
         text = re.sub(r'([:,])([^\d])', r' \1 \2', text)
