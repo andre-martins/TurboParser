@@ -4,10 +4,10 @@
 root_folder="`cd $(dirname $0);cd ..;pwd`"
 
 # Lib folder.
-lib_folder = ${root_folder}/libturboparser
+lib_folder=${root_folder}/libturboparser
 
 # Python folder.
-python_folder = ${root_folder}/python
+python_folder=${root_folder}/python
 
 # Make a static lib.
 cd $lib_folder
