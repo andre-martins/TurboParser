@@ -17,8 +17,8 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=true # If true, the pruner is trained separately.
-trained_external_pruner=true #false # If true, loads the external pruner.
+train_external_pruner=false # If true, the pruner is trained separately.
+trained_external_pruner=false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
@@ -41,7 +41,7 @@ then
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
     formalism=$7 #pcedt #pas #dm
-    subfolder=sdp/${formalism}
+    subfolder=semeval2014_data/${formalism}
 else
     allow_self_loops=true
     allow_root_predicate=false
@@ -84,14 +84,10 @@ if [ "$language" == "english" ]
 then
     if [ "$file_format" == "sdp" ]
     then
-        #file_train=${path_data}/${formalism}_augmented_train+dev0.sdp
-        file_train=${path_data}/${formalism}_augmented_train+dev0+dev.sdp
-        files_test[0]=${path_data}/${formalism}_augmented_dev.sdp
-        files_test[1]=${path_data}/${formalism}_augmented_test_blind.sdp
-        #files_test[1]=${path_data}/${formalism}_augmented_train+dev0.sdp
-        #files_test[0]=${path_data}/${formalism}_augmented_dev0.sdp
-        #files_test[1]=${path_data}/${formalism}_augmented_dev.sdp
-        #files_test[2]=${path_data}/${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
         files_test[0]=${path_data}/${language}_test.conll2008
@@ -171,7 +167,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_pruner_prediction} > ${file_pruner_prediction}.unaugmented
-            sh evaluator/run.sh Evaluator ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented \
+            sh evaluator/run.sh Scorer ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented \
                 >> ${file_pruner_results}
             cat ${file_pruner_results}
         else
@@ -289,7 +285,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_prediction} > ${file_prediction}.unaugmented
-            sh evaluator/run.sh Evaluator ${file_test}.unaugmented ${file_prediction}.unaugmented \
+            sh evaluator/run.sh Scorer ${file_test}.unaugmented ${file_prediction}.unaugmented \
                 >> ${file_results}
             cat ${file_results}
         else

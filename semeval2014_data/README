@@ -1,0 +1,37 @@
+To reproduce the SemEval 2014 paper [1]:
+
+1) Place the SemEval 2014 original data in folders "train" and "test".
+The directory contents should be:
+
+train/sb.bn.cpn
+train/dm.sdp
+train/pas.sdp
+train/pcedt.sdp
+train/sb.berkeley.cpn
+
+test/dm.sdp
+test/pas.sdp
+test/pcedt.sdp
+test/sb.berkeley.cpn
+test/sb.bn.cpn
+
+2) Type:
+
+cd scripts
+./generate_all_splits.sh
+
+This will create folders "dm", "pas", "pcedt" where the train/dev/test splits
+will be stored.
+
+3) Type:
+
+cd ../../scripts_srl
+./train_test_submission_closed.sh
+./train_test_submission_open.sh
+
+It should take a few hours to train and run the semantic parsers.
+
+
+[1] André F.T. Martins and Mariana S.C. Almeida (2014).
+"Priberam: A Turbo Semantic Parser with Second Order Features."
+Proc. of SemEval 2014 task 8 (Broad-Coverage Semantic Dependency Parsing).

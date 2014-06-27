@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2012-2013 Andre Martins <atm@priberam.pt> 
+Copyright (c) 2012-2013 Andre Martins <atm@priberam.pt>
 All Rights Reserved.
 
 This file is free software: you can redistribute it and/or modify
@@ -22,11 +22,11 @@ import numpy as np
 def split_clitics(sentence, clitics, suffixes, use_cintil_format=True):
     """
     Split clitics from the verb form (in Portuguese).
-    If use_cintil_format is True, the output is consistent with the 
+    If use_cintil_format is True, the output is consistent with the
     Portuguese CINTIL corpus (e.g.: "fá-lo-ei" ->  "fá#-CL-ei" + "-lo").
 
     :rtype: string with tokens separated by whitespaces.
-    """            
+    """
     toks = sentence.split(' ')
     new_toks = []
     for tok in toks:

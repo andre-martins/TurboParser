@@ -24,7 +24,6 @@
 using namespace std;
 
 Instance *DependencyReader::GetNext() {
-  CHECK(false);
   // Fill all fields for the entire sentence.
   vector<vector<string> > sentence_fields;
   string line;

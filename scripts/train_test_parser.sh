@@ -40,6 +40,7 @@ suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
+path_scripts=${root_folder}/scripts # Folder containing scripts.
 path_data=${root_folder}/data/${language} # Folder with the data.
 path_models=${root_folder}/models/${language} # Folder where models are stored.
 path_results=${root_folder}/results/${language} # Folder for the results.
@@ -158,7 +159,7 @@ then
         echo ""
         echo "Evaluating pruner..."
         touch ${file_pruner_results}
-        perl eval.pl -b -q -g ${file_test} -s ${file_pruner_prediction} | tail -5 \
+        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_pruner_prediction} | tail -5 \
             >> ${file_pruner_results}
         cat ${file_pruner_results}
     done
@@ -246,7 +247,7 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        perl eval.pl -b -q -g ${file_test} -s ${file_prediction} | tail -5 \
+        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_prediction} | tail -5 \
             >> ${file_results}
         cat ${file_results}
     done

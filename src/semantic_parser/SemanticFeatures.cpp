@@ -2084,7 +2084,8 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
         AddFeature(fkey, features);
         fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHP, flags, HWID, bdHPID);
         AddFeature(fkey, features);
-        fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHPID);
+        fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHRID);
+        //fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHPID);
         AddFeature(fkey, features);
         fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_bdHW, flags, bdHWID, HPID);
         AddFeature(fkey, features);

@@ -1,17 +1,31 @@
 import nltk
-import tokenizers.portuguese.cintil_tokenizer as tokenizer_PT
+import tokenizers.portuguese.word_tokenizer as tokenizer_PT
+import lemmatizer
 import turboparser as tp
 import pdb
 
 class NLPPipelineWorker:
     def __init__(self, pipeline, language):
-        self.tagger = pipeline.turbo_interface.create_tagger() 
-        self.parser = pipeline.turbo_interface.create_parser() 
-        if language == 'PT': 
+        self.tagger = pipeline.turbo_interface.create_tagger()
+        self.parser = pipeline.turbo_interface.create_parser()
+        self.lemmatizer = None
+        if language == 'PT':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
+            self.word_tokenizer = tokenizer_PT.PortugueseFlorestaWordTokenizer()
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_parser_pruned-true_model-standard.model')
+            self.lemmatizer = lemmatizer.BasicLemmatizer()
+            self.lemmatizer.load_lemmatizer_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_lemmatizer.model')
+        elif language == 'PT-Cintil':
             self.sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
             self.word_tokenizer = tokenizer_PT.PortugueseCintilWordTokenizer()
             self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_cetem-depbank/portuguese_cetem-depbank_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_cetem-depbank/portuguese_cetem-depbank_parser_pruned-true_model-standard.model')            
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_cetem-depbank/portuguese_cetem-depbank_parser_pruned-true_model-standard.model')
+        elif language == 'ES':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_parser_pruned-true_model-standard.model')
         elif language == 'EN':
             self.sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
             self.word_tokenizer = nltk.TreebankWordTokenizer()
@@ -59,15 +73,22 @@ class NLPPipeline:
             fields = line.split('\t')
             tag = fields[1]
             tags.append(tag)
-        f_tagging_pred.close()        
-        return tags
-        
-    def parse(self, tokenized_sentence, tags, language):
+        f_tagging_pred.close()
+        if worker.lemmatizer != None:
+            lemmas = worker.lemmatizer.lemmatize_sentence(tokenized_sentence,
+                                                          tags)
+        else:
+            lemmas = ['_' for token in tokenized_sentence]
+        return tags, lemmas
+
+    def parse(self, tokenized_sentence, tags, lemmas, language):
         worker = self.get_worker(language)
         f_conll = open('conll.tmp', 'w')
         for i, token in enumerate(tokenized_sentence):
             tag = tags[i]
-            f_conll.write(str(i+1) + '\t' + token + '\t_\t' + tag + '\t' + tag + '\t_\t_\t_\n')
+            lemma = lemmas[i]
+            f_conll.write(str(i+1) + '\t' + token + '\t' + lemma + '\t' +
+                          tag + '\t' + tag + '\t_\t_\t_\n')
         f_conll.close()
         worker.parser.parse('conll.tmp', 'conll.tmp.pred')
         f_conll_pred = open('conll.tmp.pred')
@@ -79,24 +100,25 @@ class NLPPipeline:
             if line == '':
                 continue
             fields = line.split('\t')
+            lemma = fields[2]
             head = int(fields[6])
             deprel = fields[7]
             heads.append(head)
             deprels.append(deprel)
-        f_conll_pred.close()       
+        f_conll_pred.close()
         return heads, deprels
-        
+
     def parse_conll(self, text, language):
         sentences = self.split_sentences(text, language)
         conll_str = ''
         for sentence in sentences:
             tokenized_sentence = self.tokenize(sentence, language)
-            tags = self.tag(tokenized_sentence, language)
-            heads, deprels = self.parse(tokenized_sentence, tags, language)
+            tags, lemmas = self.tag(tokenized_sentence, language)
+            heads, deprels = self.parse(tokenized_sentence, tags, lemmas,
+                                        language)
             for i, token in enumerate(tokenized_sentence):
-                conll_str += str(i+1) + '\t' + token + '\t_\t' + tags[i] + '\t' + tags[i] + '\t_\t' + str(heads[i]) + '\t' + deprels[i] + '\n'
+                conll_str += str(i+1) + '\t' + token + '\t' + lemmas[i] + '\t' + tags[i] + '\t' + tags[i] + '\t_\t' + str(heads[i]) + '\t' + deprels[i] + '\n'
             conll_str += '\n'
-	#print conll_str
         return conll_str
     
         
