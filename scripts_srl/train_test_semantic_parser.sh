@@ -84,9 +84,9 @@ if [ "$language" == "english" ]
 then
     if [ "$file_format" == "sdp" ]
     then
-        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
-        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
-        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        #files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
         files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
