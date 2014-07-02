@@ -16,6 +16,7 @@ SemanticPredicate.h \
 SemanticInstance.h SemanticPart.cpp SemanticReader.h \
 SemanticFeatures.cpp SemanticInstanceNumeric.cpp SemanticPart.h \
 SemanticWriter.cpp \
+SemanticFeatureTemplates.h \
 FactorArgumentAutomaton.h \
 FactorPredicateAutomaton.h \
 FactorSemanticGraph.h \
