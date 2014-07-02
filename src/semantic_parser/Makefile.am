@@ -16,6 +16,9 @@ SemanticPredicate.h \
 SemanticInstance.h SemanticPart.cpp SemanticReader.h \
 SemanticFeatures.cpp SemanticInstanceNumeric.cpp SemanticPart.h \
 SemanticWriter.cpp \
+FactorArgumentAutomaton.h \
+FactorPredicateAutomaton.h \
+FactorSemanticGraph.h \
 $(PARSER)/DependencyInstanceNumeric.cpp \
 $(PARSER)/DependencyInstanceNumeric.h \
 $(PARSER)/DependencyWriter.cpp \
