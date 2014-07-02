@@ -1,0 +1,26 @@
+To install the Python wrapper for Turbo Parser, please follow the instructions
+below. You need to have Cython (at least version 0.19) installed. To install
+Cython, type
+
+easy_install cython
+
+Then run:
+
+./install_wrapper.sh
+
+This should create a file turbo_parser.so in local subfolder build/<something>
+(e.g. build/lib.linux-x86_64-2.7). Create a symbolic link to this file in the
+python folder:
+
+ln -s build/lib.linux-x86_64-2.7/turboparser.so turboparser.so
+
+To test, open a Python shell and type:
+
+>>> import nlp_pipeline
+
+(You may need to add the library path first, e.g.
+
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:<root folder>/deps/local/lib"
+
+where <root folder> is an absolute path to the folder where TurboParser is
+located.)

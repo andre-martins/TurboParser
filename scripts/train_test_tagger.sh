@@ -17,6 +17,7 @@ suffix=tagger
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
+path_scripts=${root_folder}/scripts # Folder containing scripts.
 path_data=${root_folder}/data/${language} # Folder with the data.
 path_models=${root_folder}/models/${language} # Folder where models are stored.
 path_results=${root_folder}/results/${language} # Folder for the results.
@@ -103,6 +104,6 @@ then
 
         echo ""
         echo "Evaluating..."
-        perl eval_predpos.pl ${file_prediction} ${file_test}
+        perl ${path_scripts}/eval_predpos.pl ${file_prediction} ${file_test}
     done
 fi

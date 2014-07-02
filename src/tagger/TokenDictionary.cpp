@@ -132,7 +132,8 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
   // Go through the corpus and build the dictionaries,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SequenceInstance *instance = reader->GetNext();
+  SequenceInstance *instance =
+    static_cast<SequenceInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -159,7 +160,7 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
       id = suffix_alphabet_.Insert(suffix);
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<SequenceInstance*>(reader->GetNext());
   }
   reader->Close();
 
@@ -221,7 +222,7 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
   vector<int> feats_freqs;
   vector<int> pos_freqs;
   vector<int> cpos_freqs;
-  
+
   Alphabet form_alphabet;
   Alphabet lemma_alphabet;
   Alphabet feats_alphabet;
@@ -253,7 +254,8 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
   // Go through the corpus and build the dictionaries,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  DependencyInstance *instance = reader->GetNext();
+  DependencyInstance *instance =
+    static_cast<DependencyInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -315,7 +317,7 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
       }
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<DependencyInstance*>(reader->GetNext());
   }
   reader->Close();
 

@@ -27,7 +27,8 @@ class Instance {
 public:
   Instance() {};
   virtual ~Instance() {};
-  
+
+  virtual Instance* Copy() = 0;
 };
 
 #endif /*INSTANCE_H_*/

@@ -23,7 +23,7 @@
 
 using namespace std;
 
-DependencyInstance *DependencyReader::GetNext() {
+Instance *DependencyReader::GetNext() {
   // Fill all fields for the entire sentence.
   vector<vector<string> > sentence_fields;
   string line;
@@ -76,6 +76,11 @@ DependencyInstance *DependencyReader::GetNext() {
     deprels[i+1] = info[7];
     stringstream ss(info[6]);
     ss >> heads[i+1];
+    if (heads[i+1] < 0 || heads[i+1] > length) {
+      CHECK(false) << "Invalid value of head (" << heads[i+1]
+                   << " not in range [0.." << length
+                   << "]";
+    }
   }
 
   DependencyInstance *instance = NULL;
@@ -84,5 +89,5 @@ DependencyInstance *DependencyReader::GetNext() {
     instance->Initialize(forms, lemmas, cpos, pos, feats, deprels, heads);
   }
 
-  return instance;
+  return static_cast<Instance*>(instance);
 }

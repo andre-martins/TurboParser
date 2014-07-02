@@ -217,7 +217,9 @@ class Pipe {
   // for the predicted and gold parts. Override this function for
   // task-specific evaluation.
   virtual void BeginEvaluation() { num_mistakes_ = 0; num_total_parts_ = 0; }
-  virtual void EvaluateInstance(Instance *instance, Parts *parts,
+  virtual void EvaluateInstance(Instance *instance,
+                                Instance *output_instance,
+                                Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
     for (int r = 0; r < parts->size(); ++r) {
@@ -225,7 +227,7 @@ class Pipe {
         ++num_mistakes_;
       }
       ++num_total_parts_;
-    }      
+    }
   }
   virtual void EndEvaluation() {
     LOG(INFO) << "Accuracy (parts): " << 

@@ -33,6 +33,11 @@ public:
   DependencyInstanceNumeric() {};
   virtual ~DependencyInstanceNumeric() { Clear(); };
 
+  Instance* Copy() {
+    CHECK(false) << "Not implemented.";
+    return NULL;
+  }
+
   int size() { return form_ids_.size(); };
 
   void Clear() {
@@ -113,8 +118,8 @@ public:
   bool IsCoordination(int i) { return is_coord_[i]; };
   int GetHead(int i) { return heads_[i]; };
   int GetRelationId(int i) { return relations_[i]; };
- 
- private:  
+
+ protected:
   vector<int> form_ids_;
   vector<int> lemma_ids_;
   vector<int> prefix_ids_;

@@ -49,14 +49,14 @@ void Pipe::Initialize() {
 
 void Pipe::SaveModelByName(const string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "wb");
-  CHECK(fs) << "Could not open model file for writing: " << model_name; 
+  CHECK(fs) << "Could not open model file for writing: " << model_name;
   SaveModel(fs);
   fclose(fs);
 }
 
 void Pipe::LoadModelByName(const string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "rb");
-  CHECK(fs) << "Could not open model file for reading: " << model_name; 
+  CHECK(fs) << "Could not open model file for reading: " << model_name;
   LoadModel(fs);
   fclose(fs);
 }
@@ -94,7 +94,7 @@ void Pipe::MakeGradientStep(Parts *parts, Features *features, double eta,
   for (int r = 0; r < parts->size(); ++r) {
     if (predicted_output[r] == gold_output[r]) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
-    parameters_->MakeGradientStep(part_features, eta, iteration, 
+    parameters_->MakeGradientStep(part_features, eta, iteration,
       predicted_output[r] - gold_output[r]);
   }
 }
@@ -145,7 +145,7 @@ void Pipe::Train() {
   PreprocessData();
   CreateInstances();
   parameters_->Initialize(options_->use_averaging());
-  
+
   if (options_->only_supported_features()) MakeSupportedParameters();
 
   for (int i = 0; i < options_->GetNumEpochs(); ++i) {
@@ -397,13 +397,15 @@ void Pipe::Run() {
     ComputeScores(formatted_instance, parts, features, &scores);
     decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
 
-    LabelInstance(parts, predicted_outputs, instance);
+    Instance *output_instance = instance->Copy();
+    LabelInstance(parts, predicted_outputs, output_instance);
 
     if (options_->evaluate()) {
-      EvaluateInstance(instance, parts, gold_outputs, predicted_outputs);
+      EvaluateInstance(instance, output_instance,
+                       parts, gold_outputs, predicted_outputs);
     }
 
-    writer_->Write(instance);
+    writer_->Write(output_instance);
 
     if (formatted_instance != instance) delete formatted_instance;
     delete instance;

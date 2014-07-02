@@ -29,7 +29,8 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SequenceInstance *instance = reader->GetNext();
+  SequenceInstance *instance =
+    static_cast<SequenceInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -44,7 +45,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
       ++tag_freqs[id];
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<SequenceInstance*>(reader->GetNext());
   }
   reader->Close();
   tag_alphabet_.StopGrowth();
@@ -55,7 +56,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   word_tags_.resize(token_dictionary_->GetNumForms());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  instance = reader->GetNext();
+  instance = static_cast<SequenceInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -71,7 +72,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
       CHECK_GE(id, 0);
 
       // Insert new tag in the set of word tags, if it is not there
-      // already. NOTE: this is inefficient, maybe we should be using a 
+      // already. NOTE: this is inefficient, maybe we should be using a
       // different data structure.
       if (word_id >= 0) {
         vector<int> &tags = word_tags_[word_id];
@@ -83,7 +84,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
       }
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<SequenceInstance*>(reader->GetNext());
   }
   reader->Close();
 

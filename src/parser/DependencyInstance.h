@@ -28,6 +28,13 @@ class DependencyInstance : public Instance {
   DependencyInstance() {};
   virtual ~DependencyInstance() {};
 
+  Instance* Copy() {
+    DependencyInstance* instance = new DependencyInstance();
+    instance->Initialize(forms_, lemmas_, cpostags_, postags_,
+                         feats_, deprels_, heads_);
+    return static_cast<Instance*>(instance);
+  }
+
   void Initialize(const vector<string> &forms,
                   const vector<string> &lemmas,
                   const vector<string> &cpos, 
@@ -37,6 +44,9 @@ class DependencyInstance : public Instance {
                   const vector<int> &heads);
 
   int size() { return forms_.size(); };
+
+  const vector<int> &GetHeads() { return heads_; }
+  const vector<string> &GetDependencyRelations() { return deprels_; }
 
   const string &GetForm(int i) { return forms_[i]; };
   const string &GetLemma(int i) { return lemmas_[i]; };

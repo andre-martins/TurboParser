@@ -100,6 +100,11 @@ class Parameters {
   // Checks if a feature exists.
   bool Exists(uint64_t key) const { return weights_.Exists(key); }
 
+  // Checks if a labeled feature exists.
+  bool ExistsLabeled(uint64_t key) const {
+    return labeled_weights_.Exists(key);
+  }
+
   // Get the weight of a "simple" feature.
   double Get(uint64_t key) const { return weights_.Get(key); }
 

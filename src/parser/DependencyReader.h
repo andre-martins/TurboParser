@@ -31,7 +31,7 @@ public:
   virtual ~DependencyReader() {};
 
 public:
-  DependencyInstance *GetNext();
+  Instance *GetNext();
 };
 
 #endif /* DEPENDENCYREADER_H_ */

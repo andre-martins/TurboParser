@@ -28,8 +28,8 @@ using namespace std;
 // The reader reads instances from a file.
 class Reader {
 public:
-	Reader() {};
-	virtual ~Reader() {};
+  Reader() {};
+  virtual ~Reader() {};
 
 public:
   void Open(const string &filepath);
@@ -37,7 +37,7 @@ public:
   virtual Instance *GetNext() = 0;
 
 protected:
-	ifstream is_;
+  ifstream is_;
 
 };
 

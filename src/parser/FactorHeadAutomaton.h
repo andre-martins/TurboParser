@@ -43,7 +43,7 @@ class FactorHeadAutomaton : public GenericFactor {
       }
     }
     stream << endl;
-    CHECK_EQ(additional_log_potentials_.size(), total); 
+    CHECK_EQ(additional_log_potentials_.size(), total);
   }
 
   // Compute the score of a given assignment.

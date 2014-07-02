@@ -27,7 +27,8 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  DependencyInstance *instance = reader->GetNext();
+  DependencyInstance *instance =
+    static_cast<DependencyInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 1; i < instance_length; ++i) {
@@ -42,7 +43,7 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
       ++label_freqs[id];
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<DependencyInstance*>(reader->GetNext());
   }
   reader->Close();
   label_alphabet_.StopGrowth();
@@ -65,12 +66,14 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
                                     token_dictionary_->GetNumPosTags(), 0));
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  instance = reader->GetNext();
+  instance = static_cast<DependencyInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 1; i < instance_length; ++i) {
       int id;
       int head = instance->GetHead(i);
+      CHECK_GE(head, 0);
+      CHECK_LT(head, instance_length);
       const string &modifier_pos = instance->GetPosTag(i);
       const string &head_pos = instance->GetPosTag(head);
       int modifier_pos_id = token_dictionary_->GetPosTagId(modifier_pos);
@@ -109,7 +112,7 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
       }
     }
     delete instance;
-    instance = reader->GetNext();
+    instance = static_cast<DependencyInstance*>(reader->GetNext());
   }
   reader->Close();
 

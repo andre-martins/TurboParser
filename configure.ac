@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.59])
-AC_INIT([TurboParser], [2.1.0], [afm@cs.cmu.edu], [TurboParser],
+AC_INIT([TurboParser], [2.2.0], [afm@cs.cmu.edu], [TurboParser],
                        [http://www.ark.cs.cmu.edu/TurboParser/])
 
 AM_INIT_AUTOMAKE([1.10 -Wall no-define])
@@ -55,5 +55,6 @@ AC_CHECK_FUNCS([gettimeofday])
 
 AC_CONFIG_FILES([Makefile
                  src/tagger/Makefile
-                 src/parser/Makefile])
+                 src/parser/Makefile
+                 src/semantic_parser/Makefile])
 AC_OUTPUT
