@@ -1,6 +1,6 @@
 ================================================================================
 TurboParser -- Dependency Parser with Linear Programming Relaxations.
-Version 2.1.x
+Version 2.2.x
 
 Written and maintained by André Martins (afm [at] cs.cmu.edu).
 ================================================================================
@@ -34,6 +34,11 @@ In Empirical Methods in Natural Language Processing (EMNLP).
 Turning on the Turbo: Fast Third-Order Non-Projective Turbo Parsers.
 In Annual Meeting of the Association for Computational Linguistics (ACL).
 
+[6] André F. T. Martins and Mariana S. C. Almeida. 2014.
+Priberam: A Turbo Semantic Parser with Second Order Features.
+In International Workshop on Semantic Evaluation (SemEval), task 8:
+Broad-Coverage Semantic Dependency Parsing. 
+
 This package allows:
 - learning the parser from a treebank,
 - run the parser on new data,
@@ -47,6 +52,10 @@ provided as tarballs in this package.
 
 This package has been tested in several Linux platforms. It has also
 successfully compiled in Mac OS X and MS Windows (using MSVC). 
+
+Since version 2.2.x, the following is also provided:
+- a Python wrapper for the tagger and parser (requires Cython 0.19);
+- a semantic role labeler (TurboSemanticParser) implementing ref. [6] above.
 
 If there are any problems running the parser please email: afm [at] cs.cmu.edu
 I will only respond to questions not answered in this README.
@@ -89,9 +98,13 @@ Contents
    d. Running the trained tagger/parser on new data
    e. Additional options
 
-4. Memory/Disk space and performance issues
+4. Installing the Python wrapper
 
-5. Reproducing results in the ICML, ACL, and EMNLP papers
+5. Memory/Disk space and performance issues
+
+6. Reproducing results in the ICML, ACL, and EMNLP papers
+
+7. Reproducing results in the SemEval 2014 paper (TurboSemanticParser)
 
 
 ================================================================================
@@ -100,8 +113,8 @@ Contents
 
 To compile the code, first unzip/tar the downloaded file:
 
-> tar -zxvf TurboParser-2.1.0.tar.gz
-> cd TurboParser-2.1.0
+> tar -zxvf TurboParser-2.2.0.tar.gz
+> cd TurboParser-2.2.0
 
 Next, run the following command
 
@@ -503,8 +516,17 @@ and
 
 > TurboTagger --help
 
+
 ================================================================================
-4. Memory/Disk space and performance issues
+4. Installing the Python wrapper
+================================================================================
+
+A Python wrapper for the tagger and parser is provided in the folder "python".
+For installation instructions, see the README file in that folder.
+
+
+================================================================================
+5. Memory/Disk space and performance issues
 ================================================================================
 
 This parser is memory and disk space intensive.
@@ -538,11 +560,17 @@ with Intel Core i7 CPU 3.4 GHz and 8GB RAM.
 - full (af+cs+gp+hb+as+gs+ts): 735 tokens per second, accuracy 93.07%.
 
 ================================================================================
-5. Reproducing results in the ICML, ACL, and EMNLP papers
+6. Reproducing results in the ICML, ACL, and EMNLP papers
 ================================================================================
 
-TurboParser 2.1.0 should reproduce the results in reference [5] above.
+TurboParser 2.2.0 should reproduce the results in reference [5] above.
 This software won't allow to reproduce exactly the results in the references 
 [1,2,3,4] above, because a complete refactoring was made, and a different set 
 of features is used.
 
+================================================================================
+7. Reproducing results in the SemEval 2014 paper (TurboSemanticParser)
+================================================================================
+
+Instructions for reproducing the results in [6] are in the README file in 
+folder semeval2014_data.

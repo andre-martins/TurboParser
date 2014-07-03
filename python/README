@@ -24,3 +24,26 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:<root folder>/deps/local/lib"
 
 where <root folder> is an absolute path to the folder where TurboParser is
 located.)
+
+To be able to use this wrapper, you need a pre-trained tagger and a parser. You
+can download these models as follows:
+
+wget http://www.ark.cs.cmu.edu/TurboParser/sample_models/english_proj_tagger.tar.gz
+wget http://www.ark.cs.cmu.edu/TurboParser/sample_models/english_proj_parser.tar.gz
+
+Unzip these files and place them in <root folder>/models/english_proj. 
+You can do the following test in your Python shell:
+
+>>> import nlp_pipeline
+>>> pipe = nlp_pipeline.NLPPipeline()
+>>> print pipe.parse_conll('I solved the problem with statistics.', 'EN')
+
+The result should be:
+
+1   I      _      PRP   PRP     _       2       SUB
+2   solved _      VBD   VBD     _       0       ROOT
+3   the    _      DT    DT      _       4       NMOD
+4   problem       _     NN      NN      _       2       OBJ
+5   with          _     IN      IN      _       2       VMOD
+6   statistics    _     NNS     NNS     _       5       PMOD
+7   .             _     .       .       _       2       P
