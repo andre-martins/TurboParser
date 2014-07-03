@@ -24,8 +24,10 @@ class NLPPipelineWorker:
         elif language == 'ES':
             self.sent_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
             self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
-            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_parser_pruned-true_model-standard.model')
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/spanish_conll2009_v2.0_nomwe_auto/spanish_conll2009_v2.0_nomwe_auto_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/spanish_conll2009_v2.0_nomwe_auto/spanish_conll2009_v2.0_nomwe_auto_parser_pruned-true_model-standard.model')
+            self.lemmatizer = lemmatizer.BasicLemmatizer()
+            self.lemmatizer.load_lemmatizer_model('/home/atm/workspace/CPP/TurboParser/models/spanish_conll2009_v2.0_nomwe_auto/spanish_conll2009_v2.0_nomwe_auto_lemmatizer.model')
         elif language == 'EN':
             self.sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
             self.word_tokenizer = nltk.TreebankWordTokenizer()
