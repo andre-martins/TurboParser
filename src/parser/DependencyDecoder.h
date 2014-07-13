@@ -63,6 +63,12 @@ class DependencyDecoder : public Decoder {
                         vector<int> *heads,
                         double *value);
 
+  void RunEisner(int sentence_length,
+                 const vector<DependencyPartArc*> &arcs,
+                 const vector<double> &scores,
+                 vector<int> *heads,
+                 double *value);
+
  protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const vector<double> &scores,
@@ -95,6 +101,11 @@ class DependencyDecoder : public Decoder {
                                  vector<vector<double> > *candidate_scores,
                                  vector<int> *heads,
                                  double *value);
+
+  void RunEisnerBacktrack(const vector<double> &incomplete_backtrack,
+                          const vector<vector<double> > &complete_backtrack,
+                          const vector<vector<int> > &index_arcs,
+                          int h, int m, bool complete, vector<int> *heads);
 
 #ifdef USE_CPLEX
   void DecodeCPLEX(Instance *instance, Parts *parts,

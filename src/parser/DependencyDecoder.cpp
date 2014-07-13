@@ -365,7 +365,8 @@ void DependencyDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
 }
 
 // Decoder for the basic model; it finds a maximum weighted arborescence
-// using Edmonds' algorithm (which runs in O(n^2)).
+// using Edmonds' algorithm (which runs in O(n^2)) or, if the --projective
+// option is set, Eisner's algorithm (O(n^3)).
 void DependencyDecoder::DecodeBasic(Instance *instance, Parts *parts,
                                     const vector<double> &scores,
                                     vector<double> *predicted_output,
@@ -383,7 +384,11 @@ void DependencyDecoder::DecodeBasic(Instance *instance, Parts *parts,
   }
 
   vector<int> heads;
-  RunChuLiuEdmonds(sentence_length, arcs, scores_arcs, &heads, value);
+  if (pipe_->GetDependencyOptions()->projective()) {
+    RunEisner(sentence_length, arcs, scores_arcs, &heads, value);
+  } else {
+    RunChuLiuEdmonds(sentence_length, arcs, scores_arcs, &heads, value);
+  }
 
   predicted_output->resize(parts->size());
   for (int r = 0; r < num_arcs; ++r) {
@@ -583,6 +588,8 @@ void DependencyDecoder::RunChuLiuEdmondsIteration(
   }
 }
 
+// Run the Chu-Liu-Edmonds algorithm for finding a maximal weighted spanning
+// tree.
 void DependencyDecoder::RunChuLiuEdmonds(int sentence_length,
                                          const vector<DependencyPartArc*> &arcs,
                                          const vector<double> &scores,
@@ -601,6 +608,131 @@ void DependencyDecoder::RunChuLiuEdmonds(int sentence_length,
   heads->assign(sentence_length, -1);
   RunChuLiuEdmondsIteration(&disabled, &candidate_heads,
                             &candidate_scores, heads, value);
+}
+
+// Run Eisner's algorithm for finding a maximal weighted projective dependency
+// tree.
+void DependencyDecoder::RunEisner(int sentence_length,
+                                  const vector<DependencyPartArc*> &arcs,
+                                  const vector<double> &scores,
+                                  vector<int> *heads,
+                                  double *value) {
+  vector<vector<double> > index_arcs(sentence_length,
+                                     vector<int>(sentence_length, -1));
+  int num_arcs = arcs.size();
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = arcs[r]->head();
+    int m = arcs[r]->modifier();
+    index_arcs[h][m] = r;
+  }
+
+  heads->assign(sentence_length, -1);
+
+  // Initialize CKY table.
+  vector<vector<double> > complete_spans(sentence_length, vector<double>(
+    sentence_length, -std::numeric_limits<double>::infinity()));
+  vector<vector<double> > complete_backtrack(sentence_length,
+                                             vector<int>(sentence_length, -1));
+  vector<double> incomplete_spans(num_arcs);
+  vector<int> incomplete_backtrack(num_arcs, -1);
+
+  // Loop from smaller items to larger items.
+  for (int k = 1; k < sentence_length; ++k) {
+    for (int s = 0; s < sentence_length - k; ++s) {
+      int t = s + k;
+
+      // First, create incomplete items.
+      int left_arc_index = index_arcs[t][s];
+      int right_arc_index = index_arcs[s][t];
+      if (left_arc_index >= 0 || right_arc_index >= 0) {
+        double best_value;
+        int best = -1;
+        for (int u = s; u < t; ++u) {
+          double val = complete_spans[s][u] + complete_spans[t][u+1];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+        if (left_arc_index >= 0) {
+          incomplete_spans[left_arc_index] =
+            best_value + scores[left_arc_index];
+          incomplete_backtrack[left_arc_index] = best;
+        }
+        if (right_arc_index >= 0) {
+          incomplete_spans[right_arc_index] =
+            best_value + scores[right_arc_index];
+          incomplete_backtrack[right_arc_index] = best;
+        }
+      }
+
+      // Second, create complete items.
+      // 1) Left complete item.
+      double best_value;
+      int best = -1;
+      for (int u = s; u < t; ++u) {
+        int left_arc_index = index_arcs[t][u];
+        if (left_arc_index >= 0) {
+          double val = complete_spans[u][s] + incomplete_spans[left_arc_index];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+      }
+      if (best >= 0) {
+        complete_spans[t][s] = best_value;
+        complete_backtrack[t][s] = best;
+      }
+
+      // 2) Right complete item.
+      best = -1;
+      for (int u = s; u < t; ++u) {
+        int right_arc_index = index_arcs[s][u];
+        if (right_arc_index >= 0) {
+          double val = complete_spans[u][t] + incomplete_spans[right_arc_index];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+      }
+      if (best >= 0) {
+        complete_spans[s][t] = best_value;
+        complete_backtrack[s][t] = best;
+      }
+    }
+  }
+
+  *value = complete_spans[0][sentence_length-1];
+
+  // Backtrack.
+  RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs, 0,
+                     sentence_length-1, true, heads);
+}
+
+void DependencyDecoder::RunEisnerBacktrack(
+    const vector<double> &incomplete_backtrack,
+    const vector<vector<double> > &complete_backtrack,
+    const vector<vector<int> > &index_arcs,
+    int h, int m, bool complete, vector<int> *heads) {
+  if (h == m) return;
+  if (complete) {
+    int u = complete_backtrack[h][m];
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, h, u, false,
+                       heads);
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, u, m, false,
+                       heads);
+  } else {
+    int r = index_arcs[h][m];
+    CHECK_GE(r, 0);
+    (*heads)[m] = h;
+    int u = incomplete_backtrack[r];
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, h, u, true,
+                       heads);
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, m, u+1, true,
+                       heads);
+  }
 }
 
 // Marginal decoder for the basic model; it invokes the matrix-tree theorem.
@@ -847,7 +979,8 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       arcs[r] = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
     }
     AD3::FactorTree *factor = new AD3::FactorTree;
-    factor->Initialize(sentence->size(), arcs, this);
+    bool projective = pipe_->GetDependencyOptions()->projective();
+    factor->Initialize(projective, sentence->size(), arcs, this);
     factor_graph->DeclareFactor(factor, local_variables, true);
     factor_part_indices_.push_back(-1);
   } else {

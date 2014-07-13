@@ -41,6 +41,7 @@ class DependencyOptions : public Options {
   // Get option values.
   bool large_feature_set() { return large_feature_set_; };
   bool labeled() { return labeled_; }
+  bool projective() { return projective_; }
   bool prune_labels() { return prune_labels_; }
   bool prune_distances() { return prune_distances_; }
   bool prune_basic() { return prune_basic_; }
@@ -63,6 +64,7 @@ class DependencyOptions : public Options {
   string model_type_;
   bool large_feature_set_;
   bool labeled_;
+  bool projective_;
   bool prune_labels_;
   bool prune_distances_;
   bool prune_basic_;
