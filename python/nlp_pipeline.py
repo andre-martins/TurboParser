@@ -33,6 +33,31 @@ class NLPPipelineWorker:
             self.word_tokenizer = nltk.TreebankWordTokenizer()
             self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/english_proj/english_proj_tagger.model')
             self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/english_proj/english_proj_parser_pruned-true_model-standard.model')
+        elif language == 'PT-BR-Universal':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/brazilian_portuguese_universal/brazilian_portuguese_universal_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/brazilian_portuguese_universal/brazilian_portuguese_universal_parser_pruned-true_model-standard.model')
+        elif language == 'ES-Universal':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/spanish_universal/spanish_universal_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/spanish_universal/spanish_universal_parser_pruned-true_model-standard.model')
+        elif language == 'FR-Universal':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/french.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/french_universal/french_universal_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/french_universal/french_universal_parser_pruned-true_model-standard.model')
+        elif language == 'IT-Universal':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/italian.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/italian_universal/italian_universal_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/italian_universal/italian_universal_parser_pruned-true_model-standard.model')
+        elif language == 'DE-Universal':
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/german.pickle')
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/german_universal/german_universal_tagger.model')
+            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/german_universal/german_universal_parser_pruned-true_model-standard.model')
         else:
             raise NotImplementedError
         
