@@ -54,6 +54,8 @@ DEFINE_bool(large_feature_set, true,
 DEFINE_bool(labeled, true,
             "True for training an parser with labeled arcs (if false, the "
             "parser outputs just the backbone dependencies.)");
+DEFINE_bool(projective, false,
+            "True for forcing the parser to output projective trees.");
 DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
@@ -123,6 +125,8 @@ void DependencyOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, labeled_);
   CHECK(success);
+  success = WriteBool(fs, projective_);
+  CHECK(success);
   success = WriteBool(fs, prune_labels_);
   CHECK(success);
   success = WriteBool(fs, prune_distances_);
@@ -150,6 +154,10 @@ void DependencyOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_labeled);
   CHECK(success);
   LOG(INFO) << "Setting --labeled=" << FLAGS_labeled;
+  //success = ReadBool(fs, &FLAGS_projective);
+  //CHECK(success);
+  //LOG(INFO) << "Setting --projective=" << FLAGS_projective;
+  FLAGS_projective = true;
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
@@ -197,6 +205,7 @@ void DependencyOptions::Initialize() {
   model_type_ = FLAGS_model_type;
   large_feature_set_ = FLAGS_large_feature_set;
   labeled_ = FLAGS_labeled;
+  projective_ = FLAGS_projective;
   prune_labels_ = FLAGS_prune_labels;
   prune_distances_ = FLAGS_prune_distances;
   prune_basic_ = FLAGS_prune_basic;

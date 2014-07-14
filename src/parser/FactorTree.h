@@ -56,8 +56,13 @@ class FactorTree : public GenericFactor {
                 Configuration &configuration,
                 double *value) {
     vector<int>* heads = static_cast<vector<int>*>(configuration);
-    decoder_->RunChuLiuEdmonds(length_, arcs_, variable_log_potentials,
-                               heads, value);
+    if (projective_) {
+      decoder_->RunEisner(length_, arcs_, variable_log_potentials,
+                          heads, value);
+    } else {
+      decoder_->RunChuLiuEdmonds(length_, arcs_, variable_log_potentials,
+                                 heads, value);
+    }
   }
 
   // Compute the score of a given assignment.
@@ -132,10 +137,12 @@ class FactorTree : public GenericFactor {
   }
 
  public:
-  void Initialize(int length, const vector<DependencyPartArc*> &arcs,
+  void Initialize(bool projective, int length,
+                  const vector<DependencyPartArc*> &arcs,
                   DependencyDecoder *decoder,
                   bool own_parts = false) {
     own_parts_ = own_parts;
+    projective_ = projective;
     length_ = length;
     arcs_ = arcs;
     decoder_ = decoder;
@@ -149,6 +156,7 @@ class FactorTree : public GenericFactor {
 
  private:
   bool own_parts_;
+  bool projective_; // If true, assume projective trees.
   int length_; // Sentence length (including root symbol).
   vector<vector<int> > index_arcs_;
   vector<DependencyPartArc*> arcs_;
