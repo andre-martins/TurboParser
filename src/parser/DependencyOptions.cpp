@@ -55,7 +55,8 @@ DEFINE_bool(labeled, true,
             "True for training an parser with labeled arcs (if false, the "
             "parser outputs just the backbone dependencies.)");
 DEFINE_bool(projective, false,
-            "True for forcing the parser to output projective trees.");
+            "True for forcing the parser to output single-rooted projective "
+            "trees.");
 DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
@@ -154,10 +155,10 @@ void DependencyOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_labeled);
   CHECK(success);
   LOG(INFO) << "Setting --labeled=" << FLAGS_labeled;
-  //success = ReadBool(fs, &FLAGS_projective);
-  //CHECK(success);
-  //LOG(INFO) << "Setting --projective=" << FLAGS_projective;
-  FLAGS_projective = true;
+  success = ReadBool(fs, &FLAGS_projective);
+  CHECK(success);
+  LOG(INFO) << "Setting --projective=" << FLAGS_projective;
+  //FLAGS_projective = true;
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;

@@ -67,6 +67,15 @@ class DependencyPipe : public Pipe {
     LoadPrunerModelByName(GetDependencyOptions()->GetPrunerModelFilePath());
   }
 
+  // Check if a tree is projective.
+  // TODO(atm): This function should probably be moved to another class.
+  bool IsProjectiveTree(const vector<int> &heads) const {
+    for (int m = 1; m < heads.size(); ++m) {
+      if (!IsProjectiveArc(heads, heads[m], m)) return false;
+    }
+    return true;
+  }
+
  protected:
   void CreateDictionary() { 
     dictionary_ = new DependencyDictionary(this);
@@ -262,11 +271,11 @@ class DependencyPipe : public Pipe {
 
   void GetAllAncestors(const vector<int> &heads,
                        int descend,
-                       vector<int>* ancestors);
+                       vector<int>* ancestors) const;
   bool ExistsPath(const vector<int> &heads,
                   int ancest,
-                  int descend);
-  bool IsProjectiveArc(const vector<int> &heads, int par, int ch);
+                  int descend) const;
+  bool IsProjectiveArc(const vector<int> &heads, int par, int ch) const;
 
  protected:
   TokenDictionary *token_dictionary_;

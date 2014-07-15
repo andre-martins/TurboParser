@@ -1140,7 +1140,7 @@ void DependencyPipe::MakePartsGlobal(Instance *instance,
 
 void DependencyPipe::GetAllAncestors(const vector<int> &heads,
                                     int descend,
-                                    vector<int>* ancestors) {
+                                    vector<int>* ancestors) const {
   ancestors->clear();
   int h = heads[descend];
   while (h >= 0) {
@@ -1151,7 +1151,7 @@ void DependencyPipe::GetAllAncestors(const vector<int> &heads,
 
 bool DependencyPipe::ExistsPath(const vector<int> &heads,
                                 int ancest,
-                                int descend) {
+                                int descend) const {
   int h = heads[descend];
   while (h != ancest && h >= 0) {
     h = heads[h];
@@ -1162,7 +1162,7 @@ bool DependencyPipe::ExistsPath(const vector<int> &heads,
 
 bool DependencyPipe::IsProjectiveArc(const vector<int> &heads,
                                      int par,
-                                     int ch) {
+                                     int ch) const {
   int i0 = par;
   int j0 = ch;
   if (i0 > j0) {

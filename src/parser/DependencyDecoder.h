@@ -102,8 +102,8 @@ class DependencyDecoder : public Decoder {
                                  vector<int> *heads,
                                  double *value);
 
-  void RunEisnerBacktrack(const vector<double> &incomplete_backtrack,
-                          const vector<vector<double> > &complete_backtrack,
+  void RunEisnerBacktrack(const vector<int> &incomplete_backtrack,
+                          const vector<vector<int> > &complete_backtrack,
                           const vector<vector<int> > &index_arcs,
                           int h, int m, bool complete, vector<int> *heads);
 

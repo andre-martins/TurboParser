@@ -617,8 +617,8 @@ void DependencyDecoder::RunEisner(int sentence_length,
                                   const vector<double> &scores,
                                   vector<int> *heads,
                                   double *value) {
-  vector<vector<double> > index_arcs(sentence_length,
-                                     vector<int>(sentence_length, -1));
+  vector<vector<int> > index_arcs(sentence_length,
+                                  vector<int>(sentence_length, -1));
   int num_arcs = arcs.size();
   for (int r = 0; r < num_arcs; ++r) {
     int h = arcs[r]->head();
@@ -630,9 +630,9 @@ void DependencyDecoder::RunEisner(int sentence_length,
 
   // Initialize CKY table.
   vector<vector<double> > complete_spans(sentence_length, vector<double>(
-    sentence_length, -std::numeric_limits<double>::infinity()));
-  vector<vector<double> > complete_backtrack(sentence_length,
-                                             vector<int>(sentence_length, -1));
+    sentence_length, 0.0));
+  vector<vector<int> > complete_backtrack(sentence_length,
+                                          vector<int>(sentence_length, -1));
   vector<double> incomplete_spans(num_arcs);
   vector<int> incomplete_backtrack(num_arcs, -1);
 
@@ -645,7 +645,7 @@ void DependencyDecoder::RunEisner(int sentence_length,
       int left_arc_index = index_arcs[t][s];
       int right_arc_index = index_arcs[s][t];
       if (left_arc_index >= 0 || right_arc_index >= 0) {
-        double best_value;
+        double best_value = -std::numeric_limits<double>::infinity();
         int best = -1;
         for (int u = s; u < t; ++u) {
           double val = complete_spans[s][u] + complete_spans[t][u+1];
@@ -668,7 +668,7 @@ void DependencyDecoder::RunEisner(int sentence_length,
 
       // Second, create complete items.
       // 1) Left complete item.
-      double best_value;
+      double best_value = -std::numeric_limits<double>::infinity();
       int best = -1;
       for (int u = s; u < t; ++u) {
         int left_arc_index = index_arcs[t][u];
@@ -680,14 +680,13 @@ void DependencyDecoder::RunEisner(int sentence_length,
           }
         }
       }
-      if (best >= 0) {
-        complete_spans[t][s] = best_value;
-        complete_backtrack[t][s] = best;
-      }
+      complete_spans[t][s] = best_value;
+      complete_backtrack[t][s] = best;
 
       // 2) Right complete item.
+      best_value = -std::numeric_limits<double>::infinity();
       best = -1;
-      for (int u = s; u < t; ++u) {
+      for (int u = s+1; u <= t; ++u) {
         int right_arc_index = index_arcs[s][u];
         if (right_arc_index >= 0) {
           double val = complete_spans[u][t] + incomplete_spans[right_arc_index];
@@ -697,10 +696,8 @@ void DependencyDecoder::RunEisner(int sentence_length,
           }
         }
       }
-      if (best >= 0) {
-        complete_spans[s][t] = best_value;
-        complete_backtrack[s][t] = best;
-      }
+      complete_spans[s][t] = best_value;
+      complete_backtrack[s][t] = best;
     }
   }
 
@@ -712,26 +709,32 @@ void DependencyDecoder::RunEisner(int sentence_length,
 }
 
 void DependencyDecoder::RunEisnerBacktrack(
-    const vector<double> &incomplete_backtrack,
-    const vector<vector<double> > &complete_backtrack,
+    const vector<int> &incomplete_backtrack,
+    const vector<vector<int> > &complete_backtrack,
     const vector<vector<int> > &index_arcs,
     int h, int m, bool complete, vector<int> *heads) {
   if (h == m) return;
   if (complete) {
     int u = complete_backtrack[h][m];
-    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, h, u, false,
-                       heads);
-    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, u, m, false,
-                       heads);
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                       h, u, false, heads);
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                       u, m, true, heads);
   } else {
     int r = index_arcs[h][m];
-    CHECK_GE(r, 0);
     (*heads)[m] = h;
     int u = incomplete_backtrack[r];
-    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, h, u, true,
-                       heads);
-    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, m, u+1, true,
-                       heads);
+    if (h < m) {
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         h, u, true, heads);
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         m, u+1, true, heads);
+    } else {
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         m, u, true, heads);
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         h, u+1, true, heads);
+    }
   }
 }
 
