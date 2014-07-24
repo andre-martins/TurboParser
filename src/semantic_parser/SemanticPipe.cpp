@@ -1042,7 +1042,8 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
       }
 
       // Left side.
-      // Allow self loops (a1 = p). We use a1 = p+1 to denote the special case
+      // NOTE: Self loops (a1 = p) are disabled on the left side, to prevent
+      // having repeated parts. We use a1 = p+1 to denote the special case
       // in which a2 is the first argument.
       for (int a1 = p+1; a1 >= 0; --a1) {
         int r1 = -1;
@@ -1050,6 +1051,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
           r1 = semantic_parts->FindArc(p, a1, s);
           if (r1 < 0) continue;
         }
+        if (a1 == p) continue; // See NOTE above.
 
         if (make_gold) {
           // Check if the first arc is active.
@@ -1067,6 +1069,8 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
             r2 = semantic_parts->FindArc(p, a2, s);
             if (r2 < 0) continue;
           }
+          if (a2 == p) continue; // See NOTE above.
+
           if (make_gold) {
             // Check if the second arc is active.
             if (a2 == -1 ||
@@ -1338,13 +1342,16 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
     }
 
     // Left side.
-    // Allow self loops (p1 = a). We use p1 = a+1 to denote the special case
+    // NOTE: Self loops (p1 = a) are disabled on the left side, to prevent
+    // having repeated parts. We use p1 = a+1 to denote the special case
     // in which p2 is the first predicate.
     for (int p1 = a+1; p1 >= 0; --p1) {
       int num_senses1;
       if (p1 > a) {
         // If p1 = a+1, pretend there is a single sense (s1=0).
         num_senses1 = 1;
+      } else if (p1 == a) { // See NOTE above.
+        continue;
       } else {
         //const vector<int> &senses = semantic_parts->GetSenses(p);
         //CHECK_EQ(senses.size(), predicates->size());
@@ -1368,6 +1375,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
           r1 = semantic_parts->FindArc(p1, a, s1);
           if (r1 < 0) continue;
         }
+        if (p1 == a) continue; // See NOTE above.
 
         if (make_gold) {
           // Check if the first arc is active.
@@ -1384,6 +1392,8 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
           if (p2 == -1) {
             // If p2 = -1, pretend there is a single sense (s2=0).
             num_senses2 = 1;
+          } else if (p2 == a) { // See NOTE above.
+            continue;
           } else {
             //const vector<int> &senses = semantic_parts->GetSenses(p);
             //CHECK_EQ(senses.size(), predicates->size());
@@ -1407,6 +1417,8 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
               r2 = semantic_parts->FindArc(p2, a, s2);
               if (r2 < 0) continue;
             }
+            if (p2 == a) continue; // See NOTE above.
+
             if (make_gold) {
               // Check if the second arc is active.
               if (p2 == -1 ||

@@ -17,8 +17,8 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
-trained_external_pruner=false # If true, loads the external pruner.
+train_external_pruner=false #false # If true, the pruner is trained separately.
+trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
@@ -32,7 +32,7 @@ model_type=$5 #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+
                     # make the parser a lot slower.
 train_cost_false_positives=$3
 train_cost_false_negatives=$4
-file_format=sdp # conll
+file_format=conll #sdp # conll
 
 if [ "${file_format}" == "sdp" ]
 then
