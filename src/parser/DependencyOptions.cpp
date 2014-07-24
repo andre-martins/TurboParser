@@ -158,7 +158,6 @@ void DependencyOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_projective);
   CHECK(success);
   LOG(INFO) << "Setting --projective=" << FLAGS_projective;
-  //FLAGS_projective = true;
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
@@ -192,6 +191,7 @@ void DependencyOptions::CopyPrunerFlags() {
   // Flags from DependencyOptions.
   CHECK(!FLAGS_pruner_labeled) << "Currently, the flag --pruner_labeled must be false.";
   FLAGS_labeled = FLAGS_pruner_labeled;
+  //FLAGS_projective = false; // Force the pruner to be non-projective. TODO: remove this line.
   FLAGS_large_feature_set = FLAGS_pruner_large_feature_set;
 
   // General flags.

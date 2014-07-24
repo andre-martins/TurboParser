@@ -357,7 +357,7 @@ void DependencyPipe::EnforceConnectedGraph(Instance *instance,
     }
 
     // If there are no more nodes to explore, check if all nodes
-    // were visited and, if not, add a new edge from the node to 
+    // were visited and, if not, add a new edge from the node to
     // the first node that was not visited yet.
     if (nodes_to_explore.empty()) {
       for (int m = 1; m < sentence->size(); ++m) {
@@ -367,7 +367,41 @@ void DependencyPipe::EnforceConnectedGraph(Instance *instance,
           nodes_to_explore.push(m);
           break;
         }
-      }      
+      }
+    }
+  }
+}
+
+// Make sure the graph formed by the unlabeled arc parts admits a projective
+// tree, otherwise there is no feasible solution when --projective=true.
+// If necessary, we add arcs of the form m-1 -> m to make sure the sentence
+// has a projective parse.
+void DependencyPipe::EnforceProjectiveGraph(Instance *instance,
+                                            const vector<Part*> &arcs,
+                                            vector<int> *inserted_heads,
+                                            vector<int> *inserted_modifiers) {
+  DependencyInstanceNumeric *sentence =
+      static_cast<DependencyInstanceNumeric*>(instance);
+  inserted_heads->clear();
+  inserted_modifiers->clear();
+
+  // Create an index of existing arcs.
+  vector<vector<int> > index(sentence->size(),
+                             vector<int>(sentence->size(), -1));
+  for (int r = 0; r < arcs.size(); ++r) {
+    CHECK_EQ(arcs[r]->type(), DEPENDENCYPART_ARC);
+    DependencyPartArc *arc = static_cast<DependencyPartArc*>(arcs[r]);
+    int h = arc->head();
+    int m = arc->modifier();
+    index[h][m] = r;
+  }
+
+  // Insert consecutive right arcs if necessary.
+  for (int m = 1; m < sentence->size(); ++m) {
+    int h = m-1;
+    if (index[h][m] < 0) {
+      inserted_heads->push_back(h);
+      inserted_modifiers->push_back(m);
     }
   }
 }
@@ -475,22 +509,45 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
   // When adding unlabeled arcs, make sure the graph stays connected.
   // Otherwise, enforce connectedness by adding some extra arcs
   // that connect words to the root.
+  // NOTE: if --projective, enforcing connectedness is not enough,
+  // so we add arcs of the form m-1 -> m to make sure the sentence
+  // has a projective parse.
   if (!add_labeled_parts) {
     vector<Part*> arcs(dependency_parts->begin() +
                        num_parts_initial,
                        dependency_parts->end());
-    vector<int> inserted_root_nodes;
-    EnforceConnectedGraph(sentence, arcs, &inserted_root_nodes);
-    for (int k = 0; k < inserted_root_nodes.size(); ++k) {
-      int m = inserted_root_nodes[k];
-      int h = 0;
-      Part *part = dependency_parts->CreatePartArc(h, m);
-      dependency_parts->push_back(part);
-      if (make_gold) {
-        if (sentence->GetHead(m) == h) {
-          gold_outputs->push_back(1.0);
-        } else {
-          gold_outputs->push_back(0.0);
+    if (dependency_options->projective()) {
+      vector<int> inserted_heads;
+      vector<int> inserted_modifiers;
+      EnforceProjectiveGraph(sentence, arcs, &inserted_heads,
+                             &inserted_modifiers);
+      for (int k = 0; k < inserted_modifiers.size(); ++k) {
+        int m = inserted_modifiers[k];
+        int h = inserted_heads[k];
+        Part *part = dependency_parts->CreatePartArc(h, m);
+        dependency_parts->push_back(part);
+        if (make_gold) {
+          if (sentence->GetHead(m) == h) {
+            gold_outputs->push_back(1.0);
+          } else {
+            gold_outputs->push_back(0.0);
+          }
+        }
+      }
+    } else {
+      vector<int> inserted_root_nodes;
+      EnforceConnectedGraph(sentence, arcs, &inserted_root_nodes);
+      for (int k = 0; k < inserted_root_nodes.size(); ++k) {
+        int m = inserted_root_nodes[k];
+        int h = 0;
+        Part *part = dependency_parts->CreatePartArc(h, m);
+        dependency_parts->push_back(part);
+        if (make_gold) {
+          if (sentence->GetHead(m) == h) {
+            gold_outputs->push_back(1.0);
+          } else {
+            gold_outputs->push_back(0.0);
+          }
         }
       }
     }

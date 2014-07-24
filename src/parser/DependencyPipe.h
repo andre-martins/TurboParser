@@ -115,6 +115,10 @@ class DependencyPipe : public Pipe {
   void EnforceConnectedGraph(Instance *instance,
                              const vector<Part*> &arcs,
                              vector<int> *inserted_root_nodes);
+  void EnforceProjectiveGraph(Instance *instance,
+                              const vector<Part*> &arcs,
+                              vector<int> *inserted_heads,
+                              vector<int> *inserted_modifiers);
 
   void MakeParts(Instance *instance, Parts *parts,
                  vector<double> *gold_outputs);
