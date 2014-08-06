@@ -59,10 +59,16 @@ class FactorPredicateAutomaton : public GenericFactor {
   }
 
   int GetNumSenses() const { return index_arguments_.size(); }
-  int GetLength(int sense) const { return index_arguments_[sense].size(); }
+  int GetLength(int sense) const {
+    CHECK_GE(sense, 0);
+    CHECK_LT(sense, index_arguments_.size());
+    return index_arguments_[sense].size();
+  }
   double GetSenseScore(int sense,
                        const vector<double> &variable_log_potentials,
                        const vector<double> &additional_log_potentials) const {
+    CHECK_GE(sense, 0);
+    CHECK_LT(sense, variable_log_potentials.size());
     return variable_log_potentials[sense];
   }
   double GetArgumentScore(
@@ -70,7 +76,13 @@ class FactorPredicateAutomaton : public GenericFactor {
       int argument,
       const vector<double> &variable_log_potentials,
       const vector<double> &additional_log_potentials) const {
+    CHECK_GE(sense, 0);
+    CHECK_LT(sense, index_arguments_.size());
+    CHECK_GE(argument, 0);
+    CHECK_LT(argument, index_arguments_[sense].size());
     int index = index_arguments_[sense][argument];
+    CHECK_GE(index, 0);
+    CHECK_LT(index, variable_log_potentials.size());
     return variable_log_potentials[index];
   }
   double GetSiblingScore(
@@ -79,7 +91,15 @@ class FactorPredicateAutomaton : public GenericFactor {
       int second_argument,
       const vector<double> &variable_log_potentials,
       const vector<double> &additional_log_potentials) const {
+    CHECK_GE(sense, 0);
+    CHECK_LT(sense, index_siblings_.size());
+    CHECK_GE(first_argument, 0);
+    CHECK_LT(first_argument, index_siblings_[sense].size());
+    CHECK_GE(second_argument, 0);
+    CHECK_LT(second_argument, index_siblings_[sense][first_argument].size());
     int index = index_siblings_[sense][first_argument][second_argument];
+    CHECK_GE(index, 0) << sense << " " << first_argument << " " << second_argument; // This check failed!!!
+    CHECK_LT(index, additional_log_potentials.size());
     return additional_log_potentials[index];
   }
   void AddSensePosterior(int sense,
@@ -111,6 +131,7 @@ class FactorPredicateAutomaton : public GenericFactor {
                 const vector<double> &additional_log_potentials,
                 Configuration &configuration,
                 double *value) {
+    //LOG(INFO) << "Begin Maximize";
     // Decode maximizing over the senses and using the Viterbi algorithm
     // as an inner loop.
     // If sense=-1, the final score is zero (so take the argmax at the end).
@@ -125,6 +146,9 @@ class FactorPredicateAutomaton : public GenericFactor {
       vector<vector<double> > values(length);
       vector<vector<int> > path(length);
       CHECK_GE(length, 1);
+
+      //LOG(INFO) << "Sense " << s << " of " << num_senses;
+      //LOG(INFO) << "length = " << length;
 
       // The start state is a1 = 0.
       values[0].resize(1);
@@ -156,6 +180,8 @@ class FactorPredicateAutomaton : public GenericFactor {
                                          additional_log_potentials);
       }
 
+      //LOG(INFO) << "Terminate";
+
       // The end state is a = length.
       int best_last_state = -1;
       double best_score = -1e12;
@@ -176,20 +202,33 @@ class FactorPredicateAutomaton : public GenericFactor {
       best_score += GetSenseScore(s, variable_log_potentials,
                                   additional_log_potentials);
 
+      //LOG(INFO) << "Backtrack";
+
       // Only backtrack if the solution is the best so far.
       if (best_score > *value) {
         // This is the best sense so far.
         best_sense = s;
         *value = best_score;
+        //LOG(INFO) << length;
         best_path.resize(length);
         best_path[length-1] = best_last_state;
 
         // Backtrack.
         for (int a = length-1; a > 0; --a) {
+          CHECK_GE(a-1, 0);
+          CHECK_LT(a-1, best_path.size());
+          CHECK_GE(a, 0);
+          CHECK_LT(a, best_path.size());
+          CHECK_GE(a, 0);
+          CHECK_LT(a, path.size());
+          CHECK_GE(best_path[a], 0);
+          CHECK_LT(best_path[a], path[a].size());
           best_path[a-1] = path[a][best_path[a]];
         }
       }
     }
+
+    //LOG(INFO) << "Write config";
 
     // Now write the configuration.
     vector<int> *sense_arguments =
@@ -201,6 +240,8 @@ class FactorPredicateAutomaton : public GenericFactor {
         sense_arguments->push_back(a);
       }
     }
+
+    //LOG(INFO) << "End Maximize";
   }
 
   // Compute the score of a given assignment.
@@ -208,6 +249,8 @@ class FactorPredicateAutomaton : public GenericFactor {
                 const vector<double> &additional_log_potentials,
                 const Configuration configuration,
                 double *value) {
+    //LOG(INFO) << "Begin Evaluate";
+
     const vector<int> *sense_arguments =
       static_cast<const vector<int>*>(configuration);
     // Sense belong to {-1,0,1,...}
@@ -233,6 +276,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     int a2 = GetLength(s); // Stop position.
     *value += GetSiblingScore(s, a1, a2, variable_log_potentials,
                               additional_log_potentials);
+    //LOG(INFO) << "End Evaluate";
   }
 
   // Given a configuration with a probability (weight),
@@ -343,6 +387,10 @@ class FactorPredicateAutomaton : public GenericFactor {
       map_senses[s] = k;
     }
 
+    //LOG(INFO) << outgoing_arcs.size() << " outgoing arcs.";
+    //LOG(INFO) << siblings.size() << " siblings.";
+
+
     // Create a temporary list of arguments.
     // Each argument position will be mapped to a one-based array, in
     // which sense_arguments[s][1] = p, sense_arguments[s][2] = p+1 (p-1),
@@ -358,6 +406,7 @@ class FactorPredicateAutomaton : public GenericFactor {
       CHECK_EQ(p, outgoing_arcs[k]->predicate());
       int a = outgoing_arcs[k]->argument();
       int s = outgoing_arcs[k]->sense();
+      //LOG(INFO) << "Arc " << s << " " << p << " " << a; 
       int position = (right)? a-p : p-a;
       ++position; // Position 0 is reserved for the case a1=-1.
       CHECK_GE(position, 1) << p << " " << a;
@@ -398,6 +447,9 @@ class FactorPredicateAutomaton : public GenericFactor {
       int s = siblings[k]->sense();
       int a1 = siblings[k]->first_argument();
       int a2 = siblings[k]->second_argument();
+
+      //LOG(INFO) << "Sibling " << s << " " << p << " " << a1 << " " << a2;
+
       int position1 = right? a1-p : p-a1;
       int position2 = right? a2-p : p-a2;
       if (a1 < 0) position1 = -1; // To handle a1=-1.
@@ -420,6 +472,7 @@ class FactorPredicateAutomaton : public GenericFactor {
       // Index of siblings in the additional_variables array.
       index_siblings_[sense][first_argument][second_argument] = k;
     }
+    CHECK_GE(index_siblings_[0][0][1], 0);
   }
 
  private:
