@@ -153,8 +153,8 @@ void DependencyDecoder::DecodeMarginals(Instance *instance, Parts *parts,
     *loss = 0.0;
   }
 
-  LOG(INFO) << "Loss = " << *loss;
-  LOG(INFO) << "Entropy = " << *entropy;
+  //LOG(INFO) << "Loss = " << *loss;
+  //LOG(INFO) << "Entropy = " << *entropy;
 
 }
 
@@ -848,6 +848,7 @@ void DependencyDecoder::RunEisnerInside(
         }
       }
       (*inside_complete_spans)[t][s] = sum.logabs();
+      //LOG(INFO) << "inside_complete[" << t << "][" << s << "] = " << (*inside_complete_spans)[t][s];
 
       // 2) Right complete item.
       sum = LogValD::Zero();
@@ -860,6 +861,7 @@ void DependencyDecoder::RunEisnerInside(
         }
       }
       (*inside_complete_spans)[s][t] = sum.logabs();
+      //LOG(INFO) << "inside_complete[" << s << "][" << t << "] = " << (*inside_complete_spans)[s][t];
     }
   }
 
@@ -876,6 +878,7 @@ void DependencyDecoder::RunEisnerInside(
     }
   }
   (*inside_complete_spans)[0][sentence_length-1] = sum.logabs();
+  //LOG(INFO) << "inside_complete[" << 0 << "][" << sentence_length-1 << "] = " << (*inside_complete_spans)[0][sentence_length-1];
 
   *log_partition_function = (*inside_complete_spans)[0][sentence_length-1];
 }
@@ -914,7 +917,6 @@ void DependencyDecoder::RunEisnerOutside(
       (*outside_incomplete_spans)[arc_index] =
         (*outside_complete_spans)[0][sentence_length - 1] +
         inside_complete_spans[s][sentence_length - 1];
-      LOG(INFO) << "inside_complete[" << s << "][" << sentence_length - 1 << " = " << inside_complete_spans[s][sentence_length - 1];
     }
   }
 
@@ -993,7 +995,7 @@ void DependencyDecoder::RunEisnerOutside(
       int right_arc_index = index_arcs[s][t];
       if (right_arc_index >= 0) {
         LogValD sum = LogValD::Zero();
-        for (int u = t; u < sentence_length-1; ++u) {
+        for (int u = t; u < sentence_length; ++u) {
           double val =
             (*outside_complete_spans)[s][u] + inside_complete_spans[t][u];
           sum += LogValD(val, false);
@@ -1049,7 +1051,7 @@ void DependencyDecoder::DecodeInsideOutside(Instance *instance, Parts *parts,
   predicted_output->resize(parts->size());
   *entropy = *log_partition_function;
 
-  LOG(INFO) << "logZ = " << *log_partition_function;
+  //LOG(INFO) << "logZ = " << *log_partition_function;
 
   for (int r = 0; r < num_arcs; ++r) {
     int h = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->head();
@@ -1058,10 +1060,10 @@ void DependencyDecoder::DecodeInsideOutside(Instance *instance, Parts *parts,
                        outside_incomplete_spans[r] -
                        (*log_partition_function));
 
-    LOG(INFO) << "inside[" << h << "][" << m << "] = " << inside_incomplete_spans[r];
-    LOG(INFO) << "outside[" << h << "][" << m << "] = " << outside_incomplete_spans[r];
-    LOG(INFO) << "Score arc[" << h << "][" << m << "] = " << scores[offset_arcs + r];
-    LOG(INFO) << "Marginal arc[" << h << "][" << m << "] = " << value;
+    //LOG(INFO) << "inside[" << h << "][" << m << "] = " << inside_incomplete_spans[r];
+    //LOG(INFO) << "outside[" << h << "][" << m << "] = " << outside_incomplete_spans[r];
+    //LOG(INFO) << "Score arc[" << h << "][" << m << "] = " << scores[offset_arcs + r];
+    //LOG(INFO) << "Marginal arc[" << h << "][" << m << "] = " << value;
     if (value > 1.0) {
       if (!NEARLY_ZERO_TOL(value - 1.0, 1e-6)) {
         LOG(INFO) << "Marginals truncated to one (" << value << ")";
@@ -1077,6 +1079,19 @@ void DependencyDecoder::DecodeInsideOutside(Instance *instance, Parts *parts,
     }
     *entropy = 0.0;
   }
+
+#if 0
+  vector<double> sum(sentence_length, 0.0);
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->head();
+    int m = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->modifier();
+    sum[m] += (*predicted_output)[offset_arcs + r];
+    if (h == 0) sum[0] += (*predicted_output)[offset_arcs + r];
+  }
+  for (int m = 1; m < sentence_length; ++m) {
+    LOG(INFO) << "Sum " << m << " = " << sum[m];
+  }
+#endif
 }
 
 // Marginal decoder for the basic model; it invokes the matrix-tree theorem.
