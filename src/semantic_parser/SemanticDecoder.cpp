@@ -1362,8 +1362,6 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     }
   }
 
-  //LOG(INFO) << "Created predicate automata.";
-
   //////////////////////////////////////////////////////////////////////
   // Build consecutive co-parent factors.
   //////////////////////////////////////////////////////////////////////
@@ -1579,8 +1577,6 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   factor_graph->AdaptEtaAD3(true);
   factor_graph->SetResidualThresholdAD3(1e-3);
   //factor_graph->SetResidualThresholdAD3(1e-6);
-
-  //LOG(INFO) << "Running AD3";
 
   // Run AD3.
   timeval start, end;

@@ -131,7 +131,6 @@ class FactorPredicateAutomaton : public GenericFactor {
                 const vector<double> &additional_log_potentials,
                 Configuration &configuration,
                 double *value) {
-    //LOG(INFO) << "Begin Maximize";
     // Decode maximizing over the senses and using the Viterbi algorithm
     // as an inner loop.
     // If sense=-1, the final score is zero (so take the argmax at the end).
@@ -146,9 +145,6 @@ class FactorPredicateAutomaton : public GenericFactor {
       vector<vector<double> > values(length);
       vector<vector<int> > path(length);
       CHECK_GE(length, 1);
-
-      //LOG(INFO) << "Sense " << s << " of " << num_senses;
-      //LOG(INFO) << "length = " << length;
 
       // The start state is a1 = 0.
       values[0].resize(1);
@@ -180,8 +176,6 @@ class FactorPredicateAutomaton : public GenericFactor {
                                          additional_log_potentials);
       }
 
-      //LOG(INFO) << "Terminate";
-
       // The end state is a = length.
       int best_last_state = -1;
       double best_score = -1e12;
@@ -202,14 +196,11 @@ class FactorPredicateAutomaton : public GenericFactor {
       best_score += GetSenseScore(s, variable_log_potentials,
                                   additional_log_potentials);
 
-      //LOG(INFO) << "Backtrack";
-
       // Only backtrack if the solution is the best so far.
       if (best_score > *value) {
         // This is the best sense so far.
         best_sense = s;
         *value = best_score;
-        //LOG(INFO) << length;
         best_path.resize(length);
         best_path[length-1] = best_last_state;
 
@@ -228,8 +219,6 @@ class FactorPredicateAutomaton : public GenericFactor {
       }
     }
 
-    //LOG(INFO) << "Write config";
-
     // Now write the configuration.
     vector<int> *sense_arguments =
       static_cast<vector<int>*>(configuration);
@@ -240,8 +229,6 @@ class FactorPredicateAutomaton : public GenericFactor {
         sense_arguments->push_back(a);
       }
     }
-
-    //LOG(INFO) << "End Maximize";
   }
 
   // Compute the score of a given assignment.
@@ -249,8 +236,6 @@ class FactorPredicateAutomaton : public GenericFactor {
                 const vector<double> &additional_log_potentials,
                 const Configuration configuration,
                 double *value) {
-    //LOG(INFO) << "Begin Evaluate";
-
     const vector<int> *sense_arguments =
       static_cast<const vector<int>*>(configuration);
     // Sense belong to {-1,0,1,...}
@@ -276,7 +261,6 @@ class FactorPredicateAutomaton : public GenericFactor {
     int a2 = GetLength(s); // Stop position.
     *value += GetSiblingScore(s, a1, a2, variable_log_potentials,
                               additional_log_potentials);
-    //LOG(INFO) << "End Evaluate";
   }
 
   // Given a configuration with a probability (weight),
@@ -387,10 +371,6 @@ class FactorPredicateAutomaton : public GenericFactor {
       map_senses[s] = k;
     }
 
-    //LOG(INFO) << outgoing_arcs.size() << " outgoing arcs.";
-    //LOG(INFO) << siblings.size() << " siblings.";
-
-
     // Create a temporary list of arguments.
     // Each argument position will be mapped to a one-based array, in
     // which sense_arguments[s][1] = p, sense_arguments[s][2] = p+1 (p-1),
@@ -406,7 +386,6 @@ class FactorPredicateAutomaton : public GenericFactor {
       CHECK_EQ(p, outgoing_arcs[k]->predicate());
       int a = outgoing_arcs[k]->argument();
       int s = outgoing_arcs[k]->sense();
-      //LOG(INFO) << "Arc " << s << " " << p << " " << a; 
       int position = (right)? a-p : p-a;
       ++position; // Position 0 is reserved for the case a1=-1.
       CHECK_GE(position, 1) << p << " " << a;
@@ -447,8 +426,6 @@ class FactorPredicateAutomaton : public GenericFactor {
       int s = siblings[k]->sense();
       int a1 = siblings[k]->first_argument();
       int a2 = siblings[k]->second_argument();
-
-      //LOG(INFO) << "Sibling " << s << " " << p << " " << a1 << " " << a2;
 
       int position1 = right? a1-p : p-a1;
       int position2 = right? a2-p : p-a2;
