@@ -408,8 +408,9 @@ void Pipe::Run() {
     writer_->Write(output_instance);
 
     if (formatted_instance != instance) delete formatted_instance;
+    delete output_instance;
     delete instance;
-
+  
     instance = reader_->GetNext();
     ++num_instances;
   }
