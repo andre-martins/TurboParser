@@ -2,13 +2,14 @@ UTIL = ../src/util
 CLASSIFIER = ../src/classifier
 TAGGER = ../src/tagger
 PARSER = ../src/parser
+SEMANTICPARSER = ../src/semantic_parser
 AUXLIBS = ../deps/local/lib
 AUXINCLUDES = ../deps/local/include
 
-OBJS = TurboParserInterface.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o SequenceDecoder.o SequenceDictionary.o SequenceFeatures.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
+OBJS = TurboParserInterface.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o SequenceDecoder.o SequenceDictionary.o SequenceFeatures.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
 CC = g++
 DEBUG = -g
-INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(TAGGER) -I$(PARSER) -I$(AUXINCLUDES)
+INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(TAGGER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(AUXINCLUDES)
 LIBS = -L/usr/local/lib/ -L$(AUXLIBS)
 CFLAGS = -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC $(INCLUDES)
 LFLAGS = $(LIBS) -lad3 -lgflags -lglog
@@ -18,8 +19,40 @@ all : libturboparser.a
 libturboparser.a : $(OBJS)
 	ar rcs libturboparser.a $(OBJS)
 
-TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/SequencePipe.h $(PARSER)/DependencyPipe.h $(UTIL)/Utils.h
+TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/SequencePipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(UTIL)/Utils.h
 	$(CC) $(CFLAGS) TurboParserInterface.cpp
+
+#####################
+
+SemanticDecoder.o: $(SEMANTICPARSER)/SemanticDecoder.h $(SEMANTICPARSER)/SemanticDecoder.cpp $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticPipe.h $(PARSER)/FactorTree.h $(SEMANTICPARSER)/FactorPredicateAutomaton.h $(SEMANTICPARSER)/FactorArgumentAutomaton.h $(UTIL)/AlgUtils.h $(UTIL)/logval.h $(CLASSIFIER)/Decoder.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticDecoder.cpp
+
+SemanticDictionary.o: $(SEMANTICPARSER)/SemanticDictionary.h $(SEMANTICPARSER)/SemanticDictionary.cpp $(SEMANTICPARSER)/SemanticPipe.h $(CLASSIFIER)/Dictionary.h $(TAGGER)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticDictionary.cpp
+
+SemanticFeatures.o: $(SEMANTICPARSER)/SemanticFeatures.h $(SEMANTICPARSER)/SemanticFeatures.cpp $(SEMANTICPARSER)/SemanticPipe.h $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticFeatureTemplates.h $(CLASSIFIER)/Features.h $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticFeatures.cpp
+
+SemanticInstance.o: $(SEMANTICPARSER)/SemanticInstance.h $(SEMANTICPARSER)/SemanticInstance.cpp $(CLASSIFIER)/Instance.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticInstance.cpp
+
+SemanticInstanceNumeric.o: $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(SEMANTICPARSER)/SemanticInstanceNumeric.cpp $(SEMANTICPARSER)/SemanticInstance.h  $(SEMANTICPARSER)/SemanticDictionary.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticInstanceNumeric.cpp
+
+SemanticOptions.o: $(SEMANTICPARSER)/SemanticOptions.h $(SEMANTICPARSER)/SemanticOptions.cpp $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Options.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticOptions.cpp
+
+SemanticPart.o: $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticPart.cpp $(CLASSIFIER)/Part.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticPart.cpp
+
+SemanticPipe.o: $(SEMANTICPARSER)/SemanticPipe.h $(SEMANTICPARSER)/SemanticPipe.cpp $(CLASSIFIER)/Pipe.h $(SEMANTICPARSER)/SemanticOptions.h $(SEMANTICPARSER)/SemanticReader.h $(SEMANTICPARSER)/SemanticDictionary.h $(TAGGER)/TokenDictionary.h $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(SEMANTICPARSER)/SemanticWriter.h $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticFeatures.h $(SEMANTICPARSER)/SemanticDecoder.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticPipe.cpp
+
+SemanticReader.o: $(SEMANTICPARSER)/SemanticReader.h $(SEMANTICPARSER)/SemanticReader.cpp $(SEMANTICPARSER)/SemanticInstance.h $(CLASSIFIER)/Reader.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticReader.cpp
+
+SemanticWriter.o: $(SEMANTICPARSER)/SemanticWriter.h $(SEMANTICPARSER)/SemanticWriter.cpp $(SEMANTICPARSER)/SemanticInstance.h $(CLASSIFIER)/Writer.h
+	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticWriter.cpp
 
 #####################
 

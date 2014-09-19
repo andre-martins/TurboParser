@@ -32,7 +32,7 @@ model_type=$5 #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+
                     # make the parser a lot slower.
 train_cost_false_positives=$3
 train_cost_false_negatives=$4
-file_format=conll #sdp # conll
+file_format=$6 # sdp or conll
 
 if [ "${file_format}" == "sdp" ]
 then
@@ -123,24 +123,24 @@ then
         --train_epochs=${num_epochs_pruner} \
         --file_model=${file_pruner_model} \
         --file_train=${file_train} \
-        --model_type=basic \
-        --labeled=false \
-        --deterministic_labels=false \
-        --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
-        --prune_labels=${prune_labels} \
-        --prune_distances=${prune_distances} \
-        --prune_basic=false \
+        --srl_model_type=basic \
+        --srl_labeled=false \
+        --srl_deterministic_labels=false \
+        --srl_use_dependency_syntactic_features=${use_dependency_syntactic_features} \
+        --srl_prune_labels=${prune_labels} \
+        --srl_prune_distances=${prune_distances} \
+        --srl_prune_basic=false \
         --only_supported_features \
         --form_case_sensitive=${case_sensitive} \
         --train_algorithm=${train_algorithm_pruner} \
         --train_regularization_constant=${regularization_parameter_pruner} \
-        --train_cost_false_positives=${train_cost_false_positives} \
-        --train_cost_false_negatives=${train_cost_false_negatives} \
-        --allow_self_loops=${allow_self_loops} \
-        --allow_root_predicate=${allow_root_predicate} \
-        --allow_unseen_predicates=${allow_unseen_predicates} \
-        --use_predicate_senses=${use_predicate_senses} \
-        --file_format=${file_format} \
+        --srl_train_cost_false_positives=${train_cost_false_positives} \
+        --srl_train_cost_false_negatives=${train_cost_false_negatives} \
+        --srl_allow_self_loops=${allow_self_loops} \
+        --srl_allow_root_predicate=${allow_root_predicate} \
+        --srl_allow_unseen_predicates=${allow_unseen_predicates} \
+        --srl_use_predicate_senses=${use_predicate_senses} \
+        --srl_file_format=${file_format} \
         --logtostderr
 
     rm -f ${file_pruner_results}
@@ -157,7 +157,7 @@ then
             --file_model=${file_pruner_model} \
             --file_test=${file_test} \
             --file_prediction=${file_pruner_prediction} \
-            --file_format=${file_format} \
+            --srl_file_format=${file_format} \
             --logtostderr
 
         echo ""
@@ -194,27 +194,27 @@ then
             --train_epochs=${num_epochs} \
             --file_model=${file_model} \
             --file_train=${file_train} \
-            --labeled=${labeled} \
-            --deterministic_labels=${deterministic_labels} \
-            --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
-            --prune_labels=${prune_labels} \
-            --prune_distances=${prune_distances} \
-            --prune_basic=${prune} \
-            --pruner_posterior_threshold=${posterior_threshold} \
-            --pruner_max_arguments=${pruner_max_arguments} \
-            --use_pretrained_pruner \
-            --file_pruner_model=${file_pruner_model} \
+            --srl_labeled=${labeled} \
+            --srl_deterministic_labels=${deterministic_labels} \
+            --srl_use_dependency_syntactic_features=${use_dependency_syntactic_features} \
+            --srl_prune_labels=${prune_labels} \
+            --srl_prune_distances=${prune_distances} \
+            --srl_prune_basic=${prune} \
+            --srl_pruner_posterior_threshold=${posterior_threshold} \
+            --srl_pruner_max_arguments=${pruner_max_arguments} \
+            --srl_use_pretrained_pruner \
+            --srl_file_pruner_model=${file_pruner_model} \
             --form_case_sensitive=${case_sensitive} \
             --train_algorithm=${train_algorithm} \
             --train_regularization_constant=${regularization_parameter} \
-            --train_cost_false_positives=${train_cost_false_positives} \
-            --train_cost_false_negatives=${train_cost_false_negatives} \
-            --model_type=${model_type} \
-            --allow_self_loops=${allow_self_loops} \
-            --allow_root_predicate=${allow_root_predicate} \
-            --allow_unseen_predicates=${allow_unseen_predicates} \
-            --use_predicate_senses=${use_predicate_senses} \
-            --file_format=${file_format} \
+            --srl_train_cost_false_positives=${train_cost_false_positives} \
+            --srl_train_cost_false_negatives=${train_cost_false_negatives} \
+            --srl_model_type=${model_type} \
+            --srl_allow_self_loops=${allow_self_loops} \
+            --srl_allow_root_predicate=${allow_root_predicate} \
+            --srl_allow_unseen_predicates=${allow_unseen_predicates} \
+            --srl_use_predicate_senses=${use_predicate_senses} \
+            --srl_file_format=${file_format} \
             --logtostderr
     else
         # Train a pruner along with the parser.
@@ -223,28 +223,28 @@ then
             --train_epochs=${num_epochs} \
             --file_model=${file_model} \
             --file_train=${file_train} \
-            --labeled=${labeled} \
-            --deterministic_labels=${deterministic_labels} \
-            --use_dependency_syntactic_features=${use_dependency_syntactic_features} \
+            --srl_labeled=${labeled} \
+            --srl_deterministic_labels=${deterministic_labels} \
+            --srl_use_dependency_syntactic_features=${use_dependency_syntactic_features} \
             --form_case_sensitive=${case_sensitive} \
             --train_algorithm=${train_algorithm} \
             --train_regularization_constant=${regularization_parameter} \
-            --train_cost_false_positives=${train_cost_false_positives} \
-            --train_cost_false_negatives=${train_cost_false_negatives} \
-            --model_type=${model_type} \
-            --prune_labels=${prune_labels} \
-            --prune_distances=${prune_distances} \
-            --prune_basic=${prune} \
-            --pruner_posterior_threshold=${posterior_threshold} \
-            --pruner_max_arguments=${pruner_max_arguments} \
-            --pruner_train_epochs=${num_epochs_pruner} \
-            --pruner_train_algorithm=${train_algorithm_pruner} \
-            --pruner_train_regularization_constant=${regularization_parameter_pruner} \
-            --allow_self_loops=${allow_self_loops} \
-            --allow_root_predicate=${allow_root_predicate} \
-            --allow_unseen_predicates=${allow_unseen_predicates} \
-            --use_predicate_senses=${use_predicate_senses} \
-            --file_format=${file_format} \
+            --srl_train_cost_false_positives=${train_cost_false_positives} \
+            --srl_train_cost_false_negatives=${train_cost_false_negatives} \
+            --srl_model_type=${model_type} \
+            --srl_prune_labels=${prune_labels} \
+            --srl_prune_distances=${prune_distances} \
+            --srl_prune_basic=${prune} \
+            --srl_pruner_posterior_threshold=${posterior_threshold} \
+            --srl_pruner_max_arguments=${pruner_max_arguments} \
+            --srl_pruner_train_epochs=${num_epochs_pruner} \
+            --srl_pruner_train_algorithm=${train_algorithm_pruner} \
+            --srl_pruner_train_regularization_constant=${regularization_parameter_pruner} \
+            --srl_allow_self_loops=${allow_self_loops} \
+            --srl_allow_root_predicate=${allow_root_predicate} \
+            --srl_allow_unseen_predicates=${allow_unseen_predicates} \
+            --srl_use_predicate_senses=${use_predicate_senses} \
+            --srl_file_format=${file_format} \
             --logtostderr
     fi
 fi
@@ -275,7 +275,7 @@ then
             --file_model=${file_model} \
             --file_test=${file_test} \
             --file_prediction=${file_prediction} \
-            --file_format=${file_format} \
+            --srl_file_format=${file_format} \
             --logtostderr
 
         echo ""

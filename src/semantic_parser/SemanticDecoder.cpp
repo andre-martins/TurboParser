@@ -36,9 +36,9 @@ typedef Eigen::Matrix<LogValD, Dynamic, Dynamic> MatrixXlogd;
 
 using namespace std;
 
-DEFINE_double(train_cost_false_positives, 1.0,
+DEFINE_double(srl_train_cost_false_positives, 1.0,
               "Cost for predicting false positives.");
-DEFINE_double(train_cost_false_negatives, 1.0,
+DEFINE_double(srl_train_cost_false_negatives, 1.0,
               "Cost for predicting false negatives.");
 
 void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
@@ -69,9 +69,9 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
   ////////////////////////////////////////////////////
 
   // Penalty for predicting 1 when it is 0 (FP).
-  double a = FLAGS_train_cost_false_positives;
+  double a = FLAGS_srl_train_cost_false_positives;
   // Penalty for predicting 0 when it is 1 (FN).
-  double b = FLAGS_train_cost_false_negatives;
+  double b = FLAGS_srl_train_cost_false_negatives;
 
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;

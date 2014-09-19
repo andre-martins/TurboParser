@@ -27,18 +27,18 @@
 // Note 2: these flags don't get saved in the model file!!! So we need to call
 // them at test time too.
 // TODO: deprecate this.
-DEFINE_bool(use_contextual_features, true,
+DEFINE_bool(srl_use_contextual_features, true,
             "True for using contextual arc-factored features.");
-DEFINE_bool(use_predicate_features, true, //false,
+DEFINE_bool(srl_use_predicate_features, true, //false,
             "True for using predicate features.");
-DEFINE_bool(use_pair_features_arbitrary_siblings, false, /*false,*/
+DEFINE_bool(srl_use_pair_features_arbitrary_siblings, false, /*false,*/
             "True for using pair features for arbitrary sibling parts.");
-DEFINE_bool(use_pair_features_second_order, true, /*false,*/
+DEFINE_bool(srl_use_pair_features_second_order, true, /*false,*/
             "True for using pair features for second order parts.");
-DEFINE_bool(use_pair_features_grandsibling_conjunctions, true, /*false,*/
+DEFINE_bool(srl_use_pair_features_grandsibling_conjunctions, true, /*false,*/
             "True for using pair features for grandsiblings that are conjunctions.");
 // TODO: try setting this true.
-DEFINE_bool(use_trilexical_features, false,
+DEFINE_bool(srl_use_trilexical_features, false,
             "True for using trilexical features.");
 
 void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
@@ -51,7 +51,7 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-  if (FLAGS_use_predicate_features) {
+  if (FLAGS_srl_use_predicate_features) {
     AddPredicateFeatures(sentence, false,
                          SemanticFeatureTemplateParts::PREDICATE,
                          r, predicate, predicate_id);
@@ -84,7 +84,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
-  bool use_contextual_features = FLAGS_use_contextual_features;
+  bool use_contextual_features = FLAGS_srl_use_contextual_features;
   bool use_between_features = false; // TODO(atm): change this.
 
   // Only 4 bits are allowed in feature_type.
@@ -449,7 +449,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   int sentence_length = sentence->size();
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
-  bool use_contextual_features = FLAGS_use_contextual_features;
+  bool use_contextual_features = FLAGS_srl_use_contextual_features;
   bool use_lemma_features = true;
   bool use_between_features = true;
 
@@ -1112,7 +1112,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   CHECK_NE(second_argument, 0) << "Currently, last child is encoded as a2 = -1.";
 
 #if 0
-  if (FLAGS_use_pair_features_second_order) {
+  if (FLAGS_srl_use_pair_features_second_order) {
     // Add word pair features for head and modifier, and modifier and sibling.
     if (consecutive) {
       int m = modifier;
@@ -1123,7 +1123,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
       AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::NEXTSIBL_M_S,
                           m, s, true, true, features);
     } else {
-      if (FLAGS_use_pair_features_arbitrary_siblings) {
+      if (FLAGS_srl_use_pair_features_arbitrary_siblings) {
         // Add word pair features for modifier and sibling.
         AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::ALLSIBL_M_S,
                             modifier, sibling, true, true, features);
@@ -1209,7 +1209,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   AddFeature(fkey, features);
 
   // Trilexical features.
-  if (FLAGS_use_trilexical_features) {
+  if (FLAGS_srl_use_trilexical_features) {
     // Triplet trilexical features.
     fkey = encoder_.CreateFKey_WWW(SemanticFeatureTemplateSibling::HW_MW_SW, flags, HWID, MWID, SWID);
     AddFeature(fkey, features);
@@ -1316,8 +1316,8 @@ void SemanticFeatures::AddSecondOrderFeatures(
                      second_predicate <= 0);
 
 #if 0
-  if (FLAGS_use_pair_features_second_order) {
-    if (FLAGS_use_upper_dependencies) {
+  if (FLAGS_srl_use_pair_features_second_order) {
+    if (FLAGS_srl_use_upper_dependencies) {
       AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::GRANDPAR_G_H,
                           grandparent, head, true, true, features);
     }
@@ -1466,7 +1466,7 @@ void SemanticFeatures::AddSecondOrderFeatures(
   fkey = encoder_.CreateFKey_WWP(SemanticFeatureTemplateGrandparent::GP_HW_MW, flags, HWID, MWID, GPID);
   AddFeature(fkey, features);
 
-  if (FLAGS_use_trilexical_features) {
+  if (FLAGS_srl_use_trilexical_features) {
     // Triplet trilexical features.
     fkey = encoder_.CreateFKey_WWW(SemanticFeatureTemplateGrandparent::GW_HW_MW, flags, GWID, HWID, MWID);
     AddFeature(fkey, features);
@@ -1609,7 +1609,7 @@ void SemanticFeatures::AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence
   fkey = encoder_.CreateFKey_WPPP(SemanticFeatureTemplateGrandSibl::GP_HP_MP_SW, flags, SWID, GPID, HPID, MPID);
   AddFeature(fkey, features);
 
-  if (FLAGS_use_pair_features_grandsibling_conjunctions) {
+  if (FLAGS_srl_use_pair_features_grandsibling_conjunctions) {
     if (modifier != head && sentence->IsCoordination(modifier) &&
         sibling > 0 && sibling < sentence->size()) {
       AddWordPairFeatures(sentence, SemanticFeatureTemplateParts::GRANDSIBL_G_S,
@@ -1973,7 +1973,7 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   int sentence_length = sentence->size();
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
-  bool use_contextual_features = FLAGS_use_contextual_features;
+  bool use_contextual_features = FLAGS_srl_use_contextual_features;
 
   // Only 4 bits are allowed in feature_type.
   //uint8_t feature_type = SemanticFeatureTemplateParts::PREDICATE;
@@ -2084,15 +2084,15 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
         AddFeature(fkey, features);
         fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHP, flags, HWID, bdHPID);
         AddFeature(fkey, features);
-        //fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHRID);
-        fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHPID); // Submitted results.
+        fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHRID);
+        //fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HW_bdHR, flags, HWID, bdHPID); // Submitted results.
         AddFeature(fkey, features);
         fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_bdHW, flags, bdHWID, HPID);
         AddFeature(fkey, features);
         fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplatePredicate::HP_bdHP, flags, HPID, bdHPID);
         AddFeature(fkey, features);
-        //fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplatePredicate::HP_bdHR, flags, HPID, bdHRID);
-        fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_bdHR, flags, HWID, bdHRID); // Submitted results.
+        fkey = encoder_.CreateFKey_PP(SemanticFeatureTemplatePredicate::HP_bdHR, flags, HPID, bdHRID);
+        //fkey = encoder_.CreateFKey_WP(SemanticFeatureTemplatePredicate::HP_bdHR, flags, HWID, bdHRID); // Submitted results.
         AddFeature(fkey, features);
       }
     }
