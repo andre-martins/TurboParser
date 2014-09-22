@@ -25,15 +25,37 @@
 
 using namespace std;
 
+// Define the current model version and the oldest back-compatible version.
+// The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
+const uint64_t kParserModelVersion = 200030000;
+const uint64_t kOldestCompatibleParserModelVersion = 200030000;
+const uint64_t kParserModelCheck = 1234567890;
+
 void DependencyPipe::SaveModel(FILE* fs) {
+  bool success;
+  success = WriteUINT64(fs, kParserModelCheck);
+  CHECK(success);
+  success = WriteUINT64(fs, kParserModelVersion);
+  CHECK(success);
   token_dictionary_->Save(fs);
   Pipe::SaveModel(fs);
   pruner_parameters_->Save(fs);
 }
 
 void DependencyPipe::LoadModel(FILE* fs) {
+  bool success;
+  uint64_t model_check;
+  uint64_t model_version;
+  success = ReadUINT64(fs, &model_check);
+  CHECK(success);
+  CHECK_EQ(model_check, kParserModelCheck)
+    << "The model file is too old and not supported anymore.";
+  success = ReadUINT64(fs, &model_version);
+  CHECK(success);
+  CHECK_GE(model_version, kOldestCompatibleParserModelVersion)
+    << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
-  CreateTokenDictionary();  
+  CreateTokenDictionary();
   static_cast<DependencyDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
   token_dictionary_->Load(fs);
