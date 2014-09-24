@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "SequenceOptions.h"
+#include "TaggerOptions.h"
 #include "SerializationUtils.h"
 #include <glog/logging.h>
 
@@ -28,8 +28,8 @@ DEFINE_string(tagger_file_format, "conll",
               "the format used in CONLL-X, and ""text"" for tokenized"
               "sentences (one per line, with tokens separated "
               "by white-spaces.");
-DEFINE_int32(tagger_model_type, 2,
-             "Model type. 1 is a bigram model, 2 is a trigram model.");
+//DEFINE_int32(tagger_model_type, 2,
+//             "Model type. 1 is a bigram model, 2 is a trigram model.");
 DEFINE_bool(tagger_large_feature_set, false,
             "True for using a large feature set. Taggers are usually more "
             "accurate but slower and have a larger memory footprint.");
@@ -40,12 +40,12 @@ DEFINE_string(file_unknown_word_tags, "",
               "to out-of-vocabulary words.");
 
 // Save current option flags to the model file.
-void SequenceOptions::Save(FILE* fs) {
-  Options::Save(fs);
+void TaggerOptions::Save(FILE* fs) {
+  SequenceOptions::Save(fs);
 
   bool success;
-  success = WriteInteger(fs, model_type_);
-  CHECK(success);
+  //success = WriteInteger(fs, model_type_);
+  //CHECK(success);
   success = WriteBool(fs, large_feature_set_);
   CHECK(success);
   success = WriteBool(fs, prune_tags_);
@@ -57,13 +57,13 @@ void SequenceOptions::Save(FILE* fs) {
 
 // Load current option flags to the model file.
 // Note: this will override the user-specified flags.
-void SequenceOptions::Load(FILE* fs) {
-  Options::Load(fs);
+void TaggerOptions::Load(FILE* fs) {
+  SequenceOptions::Load(fs);
 
   bool success;
-  success = ReadInteger(fs, &FLAGS_tagger_model_type);
-  CHECK(success);
-  LOG(INFO) << "Setting --tagger_model_type=" << FLAGS_tagger_model_type;
+  //success = ReadInteger(fs, &FLAGS_tagger_model_type);
+  //CHECK(success);
+  //LOG(INFO) << "Setting --tagger_model_type=" << FLAGS_tagger_model_type;
   success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_large_feature_set="
@@ -78,11 +78,11 @@ void SequenceOptions::Load(FILE* fs) {
   Initialize();
 }
 
-void SequenceOptions::Initialize() {
-  Options::Initialize();
+void TaggerOptions::Initialize() {
+  SequenceOptions::Initialize();
 
   file_format_ = FLAGS_tagger_file_format;
-  model_type_ = FLAGS_tagger_model_type;
+  //model_type_ = FLAGS_tagger_model_type;
   large_feature_set_ = FLAGS_tagger_large_feature_set;
   prune_tags_ = FLAGS_tagger_prune_tags;
   file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;

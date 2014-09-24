@@ -16,47 +16,24 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "SequenceDictionary.h"
-#include "SequencePipe.h"
+#include "TaggerDictionary.h"
+#include "TaggerOptions.h"
+#include "TaggerPipe.h"
 #include <algorithm>
 
-void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
-  LOG(INFO) << "Creating tag dictionary...";
+void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
+  SequenceDictionary::CreateTagDictionary(reader);
+
+  LOG(INFO) << "Creating word-tag dictionary...";
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
-  vector<int> tag_freqs;
-
-  // Go through the corpus and build the label dictionary,
-  // counting the frequencies.
-  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SequenceInstance *instance =
-    static_cast<SequenceInstance*>(reader->GetNext());
-  while (instance != NULL) {
-    int instance_length = instance->size();
-    for (int i = 0; i < instance_length; ++i) {
-      int id;
-
-      // Add tag to alphabet.
-      id = tag_alphabet_.Insert(instance->GetTag(i));
-      if (id >= tag_freqs.size()) {
-        CHECK_EQ(id, tag_freqs.size());
-        tag_freqs.push_back(0);
-      }
-      ++tag_freqs[id];
-    }
-    delete instance;
-    instance = static_cast<SequenceInstance*>(reader->GetNext());
-  }
-  reader->Close();
-  tag_alphabet_.StopGrowth();
-
-  // Go through the corpus and build the existing labels for each head-modifier
-  // POS pair.
+  // Go through the corpus and build the existing tags for each word.
   word_tags_.clear();
   word_tags_.resize(token_dictionary_->GetNumForms());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  instance = static_cast<SequenceInstance*>(reader->GetNext());
+  SequenceInstance *instance =
+    static_cast<SequenceInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -88,11 +65,9 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   }
   reader->Close();
 
-  LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
-
   // If there is a list of possible tags for the unknown words, load it.
-  SequenceOptions *options =
-    static_cast<SequenceOptions*>(pipe_->GetOptions());
+  TaggerOptions *options =
+    static_cast<TaggerOptions*>(pipe_->GetOptions());
   if (options->GetUnknownWordTagsFilePath().size() == 0) {
     for (int i = 0; i < tag_alphabet_.size(); ++i) {
       unknown_word_tags_.push_back(i);
@@ -101,7 +76,7 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
     LOG(INFO) << "Loading file with unknown word tags...";
     std::ifstream is;
     is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
-    CHECK(is.good()) << "Could not open " 
+    CHECK(is.good()) << "Could not open "
                      << options->GetUnknownWordTagsFilePath() << ".";
     vector<vector<string> > sentence_fields;
     string line;

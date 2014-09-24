@@ -383,8 +383,8 @@ void SequenceDecoder::ConvertToFirstOrderModel(
         for (int l = 0; l < node_scores[i+2].size(); ++l, ++t) {
           // Tag l at position i+2.
           CHECK_LT(t, (*transformed_edge_scores)[i].size());
-          CHECK_LT(j, (*transformed_edge_scores)[i][t].size());          
-          (*transformed_edge_scores)[i][t][j] = 
+          CHECK_LT(j, (*transformed_edge_scores)[i][t].size());
+          (*transformed_edge_scores)[i][t][j] =
             std::pair<int, double>(s, triplet_scores[i][j][k][l]);
         }
       }
@@ -489,7 +489,7 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
     int num_current_labels = node_scores[i+1].size();
     deltas[i + 1].resize(num_current_labels);
     backtrack[i + 1].resize(num_current_labels);
-	for (int k = 0; k < num_current_labels; ++k) {
+    for (int k = 0; k < num_current_labels; ++k) {
       double best_value = -1e-12;
       int best = -1;
       // Edges from the previous position.

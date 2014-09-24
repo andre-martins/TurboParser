@@ -9,7 +9,7 @@ language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
 num_epochs=10 # Number of training epochs.
 regularization_parameter=1e12 # The C parameter in MIRA.
-train=true
+train=false #true
 test=true
 model_type=2 # Second-order model (trigrams).
 form_cutoff=1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
@@ -75,7 +75,7 @@ then
         --file_train=${file_train} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
-        --tagger_model_type=${model_type} \
+        --sequence_model_type=${model_type} \
         --form_cutoff=${form_cutoff} \
         --logtostderr
 fi

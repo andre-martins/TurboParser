@@ -35,11 +35,11 @@ void SequencePipe::SaveModel(FILE* fs) {
 
 void SequencePipe::LoadModel(FILE* fs) {
   delete token_dictionary_;
-  CreateTokenDictionary();  
+  CreateTokenDictionary();
   token_dictionary_->Load(fs);
   Pipe::LoadModel(fs);
   static_cast<SequenceDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);  
+    SetTokenDictionary(token_dictionary_);
 }
 
 void SequencePipe::PreprocessData() {
@@ -283,7 +283,6 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
   SequenceOptions *sequence_options = GetSequenceOptions();
   int sentence_length = sentence->size();
   bool make_gold = (gold_outputs != NULL);
-  bool prune_tags = sequence_options->prune_tags();
   vector<int> all_tags;
   vector<int> allowed_tags;
 
@@ -295,14 +294,8 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
   int num_parts_initial = sequence_parts->size();
 
   for (int i = 0; i < sentence_length; ++i) {
-    if (prune_tags) {
-      int word_id = sentence->GetFormId(i);
-      allowed_tags = sequence_dictionary->GetWordTags(word_id);
-      // For unknown words, allow all the tags.
-      if (allowed_tags.empty()) {
-        allowed_tags = all_tags;
-      }
-    } else {
+    GetAllowedTags(instance, i, &allowed_tags);
+    if (allowed_tags.empty()) {
       allowed_tags = all_tags;
     }
 

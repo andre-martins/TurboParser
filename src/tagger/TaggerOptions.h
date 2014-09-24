@@ -16,15 +16,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCE_OPTIONS_H_
-#define SEQUENCE_OPTIONS_H_
+#ifndef TAGGER_OPTIONS_H_
+#define TAGGER_OPTIONS_H_
 
-#include "Options.h"
+#include "SequenceOptions.h"
 
-class SequenceOptions : public Options {
+class TaggerOptions : public SequenceOptions {
  public:
-  SequenceOptions() {};
-  virtual ~SequenceOptions() {};
+  TaggerOptions() {};
+  virtual ~TaggerOptions() {};
 
   // Serialization functions.
   void Load(FILE* fs);
@@ -34,19 +34,17 @@ class SequenceOptions : public Options {
   void Initialize();
 
   // Get option flags.
-  bool large_feature_set() { return large_feature_set_; }
   bool prune_tags() { return prune_tags_; }
-  int markov_order() { return model_type_; }
+  bool large_feature_set() { return large_feature_set_; }
   const string &GetUnknownWordTagsFilePath() {
     return file_unknown_word_tags_;
   }
 
  protected:
-  string file_format_;
-  int model_type_;
-  bool large_feature_set_;
   bool prune_tags_;
+  string file_format_;
+  bool large_feature_set_;
   string file_unknown_word_tags_;
 };
 
-#endif // SEQUENCE_OPTIONS_H_
+#endif // TAGGER_OPTIONS_H_

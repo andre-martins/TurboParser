@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEFEATURETEMPLATES_H_
-#define SEQUENCEFEATURETEMPLATES_H_
+#ifndef TAGGERFEATURETEMPLATES_H_
+#define TAGGERFEATURETEMPLATES_H_
 
-struct SequenceFeatureTemplateParts {
+struct TaggerFeatureTemplateParts {
   enum types {
     UNIGRAM = 0,
     BIGRAM,
@@ -27,9 +27,9 @@ struct SequenceFeatureTemplateParts {
   };
 };
 
-struct SequenceFeatureTemplateUnigram {
+struct TaggerFeatureTemplateUnigram {
   enum types {
-    BIAS = 0,				/* bias */
+    BIAS = 0,       /* bias */
     W,              /* word */
     pW,             /* word on the left */
     nW,             /* word on the right */
@@ -42,16 +42,16 @@ struct SequenceFeatureTemplateUnigram {
   };
 };
 
-struct SequenceFeatureTemplateBigram {
+struct TaggerFeatureTemplateBigram {
   enum types {
     BIAS = 0,       /* bias */
   };
 };
 
-struct SequenceFeatureTemplateTrigram {
+struct TaggerFeatureTemplateTrigram {
   enum types {
     BIAS = 0,       /* bias */
   };
 };
 
-#endif /* SEQUENCEFEATURETEMPLATES_H_ */
+#endif /* TAGGERFEATURETEMPLATES_H_ */

@@ -8,7 +8,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "Utils.h"
-#include "SequencePipe.h"
+#include "TaggerPipe.h"
 //#include "StringUtils.h"
 
 using namespace std;
@@ -43,10 +43,10 @@ void TrainTagger() {
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  SequenceOptions *options = new SequenceOptions;
+  TaggerOptions *options = new TaggerOptions;
   options->Initialize();
 
-  SequencePipe *pipe = new SequencePipe(options);
+  TaggerPipe *pipe = new TaggerPipe(options);
   pipe->Initialize();
   pipe->Train();
   pipe->SaveModelFile();
@@ -66,10 +66,10 @@ void TestTagger() {
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  SequenceOptions *options = new SequenceOptions;
+  TaggerOptions *options = new TaggerOptions;
   options->Initialize();
 
-  SequencePipe *pipe = new SequencePipe(options);
+  TaggerPipe *pipe = new TaggerPipe(options);
   pipe->Initialize();
   pipe->LoadModelFile();
   pipe->Run();
