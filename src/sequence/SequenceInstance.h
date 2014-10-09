@@ -28,25 +28,27 @@ class SequenceInstance : public Instance {
   SequenceInstance() {}
   virtual ~SequenceInstance() {}
 
-  Instance* Copy() {
+  virtual Instance* Copy() {
     SequenceInstance* instance = new SequenceInstance();
     instance->Initialize(forms_, tags_);
     return static_cast<Instance*>(instance);
   }
 
-  void Initialize(const vector<string> &forms,
-                  const vector<string> &tags);
+  virtual void Initialize(const std::vector<std::string> &forms,
+                          const std::vector<std::string> &tags);
 
-  int size() { return forms_.size(); };
+  int size() const { return forms_.size(); };
 
-  const string &GetForm(int i) { return forms_[i]; }
-  const string &GetTag(int i) { return tags_[i]; }
+  const std::string &GetForm(int i) const { return forms_[i]; }
+  const std::string &GetTag(int i) const { return tags_[i]; }
+  const std::vector<std::string> &forms() const { return forms_; }
+  const std::vector<std::string> &tags() const { return tags_; }
 
-  void SetTag(int i, const string &tag) { tags_[i] = tag; }
+  void SetTag(int i, const std::string &tag) { tags_[i] = tag; }
 
  protected:
-  vector<string> forms_;
-  vector<string> tags_;
+  std::vector<std::string> forms_;
+  std::vector<std::string> tags_;
 };
 
 #endif /* SEQUENCEINSTANCE_H_*/

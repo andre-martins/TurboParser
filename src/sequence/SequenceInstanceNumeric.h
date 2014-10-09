@@ -24,8 +24,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class SequenceInstanceNumeric : public Instance {
 public:
   SequenceInstanceNumeric() {};
@@ -38,57 +36,69 @@ public:
 
   int size() { return form_ids_.size(); };
 
-  void Clear() {
+  virtual void Clear() {
     form_ids_.clear();
     prefix_ids_.clear();
     suffix_ids_.clear();
+    shape_ids_.clear();
     has_digit_.clear();
     has_upper_.clear();
     has_hyphen_.clear();
+    all_digits_.clear();
+    all_digits_with_punctuation_.clear();
+    all_upper_.clear();
+    first_upper_.clear();
     tag_ids_.clear();
   }
 
-  int Initialize(const SequenceDictionary &dictionary,
-                 SequenceInstance *instance);
+  void Initialize(const SequenceDictionary &dictionary,
+                  SequenceInstance *instance);
 
-  const vector<int> &GetFormIds() const { return form_ids_; }
-  const vector<int> &GetTagIds() const { return tag_ids_; }
+  const std::vector<int> &GetFormIds() const { return form_ids_; }
+  const std::vector<int> &GetTagIds() const { return tag_ids_; }
 
-  int GetFormId(int i) { return form_ids_[i]; };
+  int GetFormId(int i) { return form_ids_[i]; }
   int GetMaxPrefixLength(int i) { return prefix_ids_[i].size(); }
   int GetMaxSuffixLength(int i) { return suffix_ids_[i].size(); }
-  int GetPrefixId(int i, int length) { return prefix_ids_[i][length-1]; };
-  int GetSuffixId(int i, int length) { return suffix_ids_[i][length-1]; };
-  bool HasDigit(int i) { return has_digit_[i]; };
-  bool HasUpper(int i) { return has_upper_[i]; };
-  bool HasHyphen(int i) { return has_hyphen_[i]; };
-  int GetTagId(int i) { return tag_ids_[i]; };
+  int GetPrefixId(int i, int length) { return prefix_ids_[i][length-1]; }
+  int GetSuffixId(int i, int length) { return suffix_ids_[i][length-1]; }
+  int GetShapeId(int i) { return shape_ids_[i]; }
+  bool HasDigit(int i) { return has_digit_[i]; }
+  bool HasUpper(int i) { return has_upper_[i]; }
+  bool HasHyphen(int i) { return has_hyphen_[i]; }
+  bool AllDigits(int i) { return all_digits_[i]; }
+  bool AllDigitsWithPunctuation(int i) {
+    return all_digits_with_punctuation_[i];
+  }
+  bool AllUpper(int i) { return all_upper_[i]; }
+  bool FirstUpper(int i) { return first_upper_[i]; }
+  int GetTagId(int i) { return tag_ids_[i]; }
 
 protected:
   bool IsUpperCase(char c) { return (c >= 'A' && c <= 'Z'); }
   bool IsLowerCase(char c) { return (c >= 'a' && c <= 'z'); }
   bool IsDigit(char c) { return (c >= '0' && c <= '9'); }
   bool IsPeriod(char c) { return (c == '.'); }
-  bool IsPunctuation(char c) { return (c == '\'') || (c == '-') || (c == '&'); }
+  bool IsPunctuation(char c);
 
   bool AllUpperCase(const char* word, int len) {
     for (int i = 0; i < len; ++i) {
       if (!IsUpperCase(word[i])) return false;
     }
     return true;
-  };
+  }
 
   bool AllLowerCase(const char* word, int len) {
     for (int i = 0; i < len; ++i) {
       if (!IsLowerCase(word[i])) return false;
     }
     return true;
-  };
+  }
 
   bool IsCapitalized(const char* word, int len) {
     if (len <= 0) return false;
     return IsUpperCase(word[0]);
-  };
+  }
 
   bool IsMixedCase(const char* word, int len) {
     if (len <= 0) return false;
@@ -97,12 +107,12 @@ protected:
       if (IsUpperCase(word[i])) return true;
     }
     return false;
-  };
+  }
 
   bool EndsWithPeriod(const char* word, int len) {
     if (len <= 0) return false;
     return IsPeriod(word[len-1]);
-  };
+  }
 
   bool HasInternalPeriod(const char* word, int len) {
     if (len <= 0) return false;
@@ -110,7 +120,7 @@ protected:
       if (IsPeriod(word[i])) return true;
     }
     return false;
-  };
+  }
 
   bool HasInternalPunctuation(const char* word, int len) {
     if (len <= 0) return false;
@@ -118,7 +128,7 @@ protected:
       if (IsPunctuation(word[i])) return true;
     }
     return false;
-  };
+  }
 
   int CountDigits(const char* word, int len) {
     int num_digits = 0;
@@ -126,30 +136,57 @@ protected:
       if (IsDigit(word[i])) ++num_digits;
     }
     return num_digits;
-  };
+  }
 
   bool HasUpperCaseLetters(const char* word, int len) {
     for (int i = 0; i < len; ++i) {
       if (IsUpperCase(word[i])) return true;
     }
     return false;
-  };
+  }
 
   bool HasHyphen(const char* word, int len) {
     for (int i = 0; i < len; ++i) {
       if ('-' == word[i]) return true;
     }
     return false;
-  };
+  }
+
+  bool AllDigits(const char* word, int len) {
+    for (int i = 0; i < len; ++i) {
+      if (!IsDigit(word[i])) return false;
+    }
+    return true;
+  }
+
+  bool AllDigitsWithPunctuation(const char* word, int len) {
+    bool has_digits = false;
+    bool has_punctuation = false;
+    for (int i = 0; i < len; ++i) {
+      if (IsDigit(word[i])) {
+        has_digits = true;
+      } else if (IsPunctuation(word[i])) {
+        has_punctuation = true;
+      } else {
+        return false;
+      }
+    }
+    return has_digits && has_punctuation;
+  }
 
 private:
-  vector<int> form_ids_;
-  vector<vector<int> > prefix_ids_;
-  vector<vector<int> > suffix_ids_;
-  vector<bool> has_digit_;
-  vector<bool> has_upper_;
-  vector<bool> has_hyphen_;
-  vector<int> tag_ids_;
+  std::vector<int> form_ids_;
+  std::vector<std::vector<int> > prefix_ids_;
+  std::vector<std::vector<int> > suffix_ids_;
+  std::vector<int> shape_ids_;
+  std::vector<bool> has_digit_;
+  std::vector<bool> has_upper_;
+  std::vector<bool> has_hyphen_;
+  std::vector<bool> all_digits_;
+  std::vector<bool> all_digits_with_punctuation_;
+  std::vector<bool> all_upper_;
+  std::vector<bool> first_upper_;
+  std::vector<int> tag_ids_;
 };
 
 #endif /* SEQUENCEINSTANCENUMERIC_H_ */

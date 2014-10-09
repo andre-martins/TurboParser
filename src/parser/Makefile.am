@@ -1,6 +1,7 @@
 UTIL = ../util
 CLASSIFIER = ../classifier
 SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 
 TurboParserprgdir = ../..
 TurboParserprg_PROGRAMS = TurboParser
@@ -29,6 +30,6 @@ $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 

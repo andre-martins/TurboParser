@@ -58,6 +58,12 @@ class SequenceDictionary : public Dictionary {
     return tag_alphabet_.GetName(tag);
   }
 
+  // By default, all bigrams are allowed. Override this function to
+  // prevent some bigrams to be feasible (e.g. for BIO tagging).
+  virtual bool IsAllowedBigram(int left_tag, int tag) {
+    return true;
+  }
+
   int GetBigramLabel(int left_tag, int tag) {
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
@@ -72,8 +78,24 @@ class SequenceDictionary : public Dictionary {
     //return (left_tag * left_tag * tag_alphabet_.size() + 
     //        left_tag * tag_alphabet_.size() +  tag);
     return ((1 + left_left_tag) * (1 + tag_alphabet_.size()) *
-            (1 + tag_alphabet_.size()) + 
+            (1 + tag_alphabet_.size()) +
             (1 + left_tag) * (1 + tag_alphabet_.size()) + (1 + tag));
+  }
+
+  void GetBigramTags(int bigram_label, int *left_tag, int *tag) {
+    *tag = (bigram_label % (1 + tag_alphabet_.size())) - 1;
+    *left_tag = (bigram_label / (1 + tag_alphabet_.size())) - 1;
+    CHECK_EQ(bigram_label, GetBigramLabel(*left_tag, *tag));
+  }
+
+  // TODO(atm): need to test this.
+  void GetTrigramTags(int trigram_label, int *left_left_tag, int *left_tag,
+                      int *tag) {
+    *tag = (trigram_label % (1 + tag_alphabet_.size())) - 1;
+    int bigram_label = (trigram_label / (1 + tag_alphabet_.size()));
+    *left_tag = (bigram_label % (1 + tag_alphabet_.size())) - 1;
+    *left_left_tag = (bigram_label / (1 + tag_alphabet_.size())) - 1;
+    CHECK_EQ(trigram_label, GetTrigramLabel(*left_left_tag, *left_tag, *tag));
   }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }

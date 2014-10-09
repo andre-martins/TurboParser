@@ -11,7 +11,7 @@ AM_CXXFLAGS = -O2
 endif
 ############################################
 
-SUBDIRS=src/tagger src/parser src/semantic_parser
+SUBDIRS=src/tagger src/parser src/semantic_parser src/entity_recognizer
 EXTRA_DIST=scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \
 scripts/create_conll_predicted_tags_corpus.sh \
@@ -24,6 +24,7 @@ scripts/run_tagger.sh \
 scripts/tokenizer.sed \
 scripts/train_test_parser.sh \
 scripts/train_test_tagger.sh \
+scripts_ner/train_test_entity_recognizer.sh \
 data/sample/sample_train.conll \
 data/sample/sample_test.conll \
 scripts_srl/eval08.pl \

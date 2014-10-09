@@ -56,5 +56,6 @@ AC_CHECK_FUNCS([gettimeofday])
 AC_CONFIG_FILES([Makefile
                  src/tagger/Makefile
                  src/parser/Makefile
-                 src/semantic_parser/Makefile])
+                 src/semantic_parser/Makefile
+                 src/entity_recognizer/Makefile])
 AC_OUTPUT

@@ -16,21 +16,24 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#include "EntityPipe.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
+#ifdef _WIN32
+#include <gettimeofday.h>
+#else
+#include <sys/time.h>
+#endif
 
-#include "SequenceInstance.h"
-#include "Reader.h"
-#include <fstream>
-
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
-
-public:
-  virtual Instance *GetNext();
-};
-
-#endif /* SEQUENCEREADER_H_ */
+void EntityPipe::PreprocessData() {
+  delete token_dictionary_;
+  CreateTokenDictionary();
+  static_cast<SequenceDictionary*>(dictionary_)->
+    SetTokenDictionary(token_dictionary_);
+  // To get the right reader (instead of the default sequence reader).
+  token_dictionary_->InitializeFromEntityReader(GetEntityReader());
+  static_cast<SequenceDictionary*>(dictionary_)->
+    CreateTagDictionary(GetSequenceReader());
+}
 

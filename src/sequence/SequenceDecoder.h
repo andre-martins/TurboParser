@@ -23,6 +23,138 @@
 
 class SequencePipe;
 
+class SequenceDecoderNodeScores {
+ public:
+  SequenceDecoderNodeScores() {}
+  virtual ~SequenceDecoderNodeScores() {}
+
+  // Get the number of states.
+  int GetNumStates() const { return scores_.size(); }
+
+  // Set the number of states.
+  void SetNumStates(int num_states) { scores_.resize(num_states); }
+
+  // Get the score of a state by its zero-based index.
+  double GetScore(int state_index) const { return scores_[state_index].second; }
+
+  // Get a state by its zero-based index.
+  int GetState(int state_index) const { return scores_[state_index].first; }
+
+  // Set the score of a state (assume SetNumStates(...) has been called before).
+  void SetStateScore(int state_index, int state, double score) {
+    scores_[state_index].first = state;
+    scores_[state_index].second = score;
+  }
+
+  // Increment the score of a state by its zero-based index.
+  void IncrementScore(int state_index, double score) {
+    scores_[state_index].second += score;
+  }
+
+  // Add the score of a state.
+  void AddStateScore(int state, double score) {
+    scores_.push_back(std::pair<int, double>(state, score));
+  }
+
+  // Finds the index corresponding to a given state. Returns -1 if not found.
+  // Note: this function is inefficient.
+  int FindState(int state) const {
+    for (int k = 0; k < scores_.size(); ++k) {
+      if (state == scores_[k].first) return k;
+    }
+    return -1;
+  }
+
+ private:
+  std::vector<std::pair<int, double> > scores_;
+};
+
+
+class SequenceDecoderEdgeScores {
+ public:
+  SequenceDecoderEdgeScores() {}
+  virtual ~SequenceDecoderEdgeScores() {}
+
+  // Get/Set the number of states for the current node. The states must be
+  // numbered 0, 1, 2, ...
+  int GetNumCurrentStates() const { return scores_.size(); }
+  void SetNumCurrentStates(int num_current_states) {
+    scores_.resize(num_current_states);
+  }
+
+  // Get/set the number of previous states compatible with the current node.
+  int GetNumPreviousStates(int current_state) const {
+    return scores_[current_state].size();
+  }
+  void SetNumPreviousStates(int current_state, int num_previous_states) {
+    scores_[current_state].resize(num_previous_states);
+  }
+
+  // Finds the index corresponding to a given previous state, with respect to
+  // the current state. Returns -1 if not found.
+  // Note: this function is inefficient.
+  int FindPreviousState(int current_state, int previous_state) const {
+    for (int k = 0; k < scores_[current_state].size(); ++k) {
+      if (previous_state == scores_[current_state][k].first) return k;
+    }
+    return -1;
+  }
+
+  // Set the previous state and the score with respect to the current state.
+  // (Assumes SetNumPreviousStates(...) has been called first.)
+  void SetPreviousStateScore(int current_state, int k, int previous_state,
+                             double score) {
+    scores_[current_state][k] = std::pair<int, double>(previous_state, score);
+  }
+
+  // Add a previous state and a score with respect to the current state.
+  void AddPreviousStateScore(int current_state, int previous_state,
+                             double score) {
+    scores_[current_state].
+      push_back(std::pair<int, double>(previous_state, score));
+  }
+
+  // Increment the score of a previous state by its index.
+  void IncrementScore(int current_state, int k, double score) {
+    scores_[current_state][k].second += score;
+  }
+
+  // Get the previous state and the score with respect to the current state.
+  // (Assumes GetNumPreviousStates(...) has been called first.)
+  const std::pair<int, double> &GetPreviousStateScore(int current_state,
+                                                      int k) const {
+    return scores_[current_state][k];
+  }
+
+  // Get all previous states and their scores with respect to the current state.
+  const std::vector<std::pair<int, double> > &GetAllPreviousStateScores(
+      int current_state) const {
+    return scores_[current_state];
+  }
+
+  // Same, but return a mutable pointer.
+  std::vector<std::pair<int, double> > *GetMutableAllPreviousStateScores(
+      int current_state) {
+    return &scores_[current_state];
+  }
+
+  // Compute bigram index for the state pair.
+  int GetStatePairIndex(int current_state, int k) const {
+    int bigram_index = k;
+    for (int state = 0; state < current_state; ++state) {
+      bigram_index += scores_[state].size();
+    }
+    return bigram_index;
+  }
+
+  // Compute number of bigram indices.
+  int GetNumStatePairs() const { return GetStatePairIndex(scores_.size(), 0); }
+
+ private:
+  std::vector<std::vector<std::pair<int, double> > > scores_;
+};
+
+
 class SequenceDecoder : public Decoder {
  public:
   SequenceDecoder() {};
@@ -51,27 +183,23 @@ class SequenceDecoder : public Decoder {
   }
 
   void ConvertToFirstOrderModel(
-      const vector<vector<double> > &node_scores,
-      const vector<vector<vector<double> > > &edge_scores,
-      const vector<vector<vector<vector<double> > > > &triplet_scores,
-      vector<vector<double> > *transformed_node_scores,
-      vector<vector<vector<std::pair<int, double> > > > *transformed_edge_scores);
-  //vector<vector<vector<double> > > *transformed_edge_scores);
+    const std::vector<SequenceDecoderNodeScores> &node_scores,
+    const std::vector<SequenceDecoderEdgeScores> &edge_scores,
+    const std::vector<SequenceDecoderEdgeScores> &triplet_scores,
+    std::vector<SequenceDecoderNodeScores> *transformed_node_scores,
+    std::vector<SequenceDecoderEdgeScores> *transformed_edge_scores);
 
-  void RecoverBestPath(
-      const vector<int> &best_path,
-      const vector<vector<vector<double> > > &edge_scores,
-      vector<int> *transformed_best_path);
+  void RecoverBestPath(const std::vector<int> &best_path,
+                       std::vector<int> *transformed_best_path);
 
   double RunViterbi(const vector<vector<double> > &node_scores,
                     const vector<vector<vector<double > > >
                      &edge_scores,
                     vector<int> *best_path);
 
-  double RunViterbi(const vector<vector<double> > &node_scores,
-                    const vector<vector<vector<std::pair<int, double> > > >
-                     &edge_scores,
-                    vector<int> *best_path);
+  double RunViterbi(const std::vector<SequenceDecoderNodeScores> &node_scores,
+                    const std::vector<SequenceDecoderEdgeScores> &edge_scores,
+                    std::vector<int> *best_path);
 
 #ifdef USE_CPLEX
   double DecodeCPLEX(Instance *instance, Parts *parts,

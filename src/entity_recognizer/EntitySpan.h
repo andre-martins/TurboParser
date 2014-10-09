@@ -16,21 +16,40 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#ifndef ENTITYSPAN_H_
+#define ENTITYSPAN_H_
 
-#include "SequenceInstance.h"
-#include "Reader.h"
-#include <fstream>
+typedef class NamedSpan EntitySpan;
 
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
+class Span {
+ public:
+  Span() { start_ = -1; end_ = -1; }
+  Span(int start, int end) { start_ = start; end_ = end; }
+  virtual ~Span() {}
 
-public:
-  virtual Instance *GetNext();
+  int start() { return start_; }
+  int end() { return end_; }
+  void set_start(int start) { start_ = start; }
+  void set_end(int end) { end_ = end; }
+
+ protected:
+  int start_;
+  int end_;
 };
 
-#endif /* SEQUENCEREADER_H_ */
+class NamedSpan : public Span {
+ public:
+  NamedSpan() : Span() { name_ = ""; }
+  NamedSpan(int start, int end, std::string &name) : Span(start, end) {
+    name_ = name;
+  }
+  virtual ~NamedSpan() {}
 
+  const std::string &name() { return name_; }
+  void set_name(const std::string &name) { name_ = name; }
+
+ protected:
+  std::string name_;
+};
+
+#endif /* ENTITYSPAN_H_ */

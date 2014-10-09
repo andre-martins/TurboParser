@@ -92,7 +92,7 @@ void DependencyPipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<DependencyDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromReader(GetDependencyReader());
+  token_dictionary_->InitializeFromDependencyReader(GetDependencyReader());
   static_cast<DependencyDictionary*>(dictionary_)->
     CreateLabelDictionary(GetDependencyReader());
 }

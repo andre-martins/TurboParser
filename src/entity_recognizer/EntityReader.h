@@ -16,21 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#ifndef ENTITYREADER_H_
+#define ENTITYREADER_H_
 
-#include "SequenceInstance.h"
-#include "Reader.h"
+#include "EntityInstance.h"
+#include "SequenceReader.h"
+#include "Options.h"
 #include <fstream>
 
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
+class EntityReader : public SequenceReader {
+ public:
+  EntityReader() { options_ = NULL; };
+  EntityReader(Options *options) { options_ = options; };
+  virtual ~EntityReader() {};
 
-public:
-  virtual Instance *GetNext();
+ public:
+  Instance *GetNext();
+
+ protected:
+  Options *options_;
 };
 
-#endif /* SEQUENCEREADER_H_ */
+#endif /* ENTITYREADER_H_ */
 

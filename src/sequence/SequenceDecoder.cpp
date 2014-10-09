@@ -19,6 +19,7 @@
 #include "SequenceDecoder.h"
 #include "SequencePart.h"
 #include "SequencePipe.h"
+#include <iostream> // Remove this.
 
 void SequenceDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                           const vector<double> &scores,
@@ -67,22 +68,94 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   int offset, size;
 
-  vector<vector<int> > node_tags(sentence->size());
-  vector<vector<double> > node_scores(sentence->size());
-  vector<vector<vector<double> > > edge_scores(sentence->size() - 1);
-  vector<vector<vector<vector<double> > > > triplet_scores;
+  vector<SequenceDecoderNodeScores> node_scores(sentence->size());
+  vector<SequenceDecoderEdgeScores> edge_scores(sentence->size() - 1);
+  // The triplets are represented as if they were edges connecting
+  // nodes with bigram states.
+  vector<SequenceDecoderEdgeScores> triplet_scores;
+
+  // Cache previous state positions in SequenceDecoderEdgeScores.
+  // This will avoid expensive FindPreviousState(...) operations
+  // when building the triplet scores, but it may consume
+  // a lot of memory if there are too many tag bigrams.
+  bool cache_edge_previous_states = false;
+  if (pipe_->GetSequenceOptions()->markov_order() >= 1) {
+    cache_edge_previous_states = true;
+  }
 
   // Compute node scores from unigrams.
   sequence_parts->GetOffsetUnigram(&offset, &size);
   for (int r = 0; r < size; ++r) {
     SequencePartUnigram *unigram =
         static_cast<SequencePartUnigram*>((*parts)[offset + r]);
-    node_tags[unigram->position()].push_back(unigram->tag());
-    node_scores[unigram->position()].push_back(scores[offset + r]);
+    node_scores[unigram->position()].AddStateScore(unigram->tag(),
+                                                   scores[offset + r]);
   }
   for (int i = 0; i < sentence->size(); ++i) {
-    CHECK_GE(node_tags[i].size(), 0);
-    CHECK_GE(node_scores[i].size(), 0);
+    CHECK_GE(node_scores[i].GetNumStates(), 0);
+  }
+
+
+  // Initialize the edge scores to zero.
+  // Include all edges allowed by the dictionary that are supported
+  // on the unigram states. Edges that do not have a bigram part
+  // are given zero scores.
+  if (pipe_->GetSequenceOptions()->markov_order() >= 1) {
+    for (int i = 0; i < sentence->size() - 1; ++i) {
+      edge_scores[i].SetNumCurrentStates(node_scores[i + 1].GetNumStates());
+      //LOG(INFO) << "node_scores[" << i + 1  << "].GetNumStates() = " << node_scores[i + 1].GetNumStates();
+      for (int j = 0; j < node_scores[i + 1].GetNumStates(); ++j) {
+        int tag_id = node_scores[i + 1].GetState(j);
+
+        //const std::vector<int> &allowed_left_tags =
+        //  pipe_->GetSequenceDictionary()->GetAllowedPreviousTags(tag);
+
+
+        //edge_scores[i].SetNumPreviousStates(tag_id,
+        //                                    node_scores[i].GetNumStates());
+        for (int k = 0; k < node_scores[i].GetNumStates(); ++k) {
+          int tag_left_id = node_scores[i].GetState(k);
+          if (pipe_->GetSequenceDictionary()->IsAllowedBigram(tag_left_id,
+                                                              tag_id)) {
+            //edge_scores[i].SetPreviousStateScore(tag_id, tag_left_id,
+            //                                     tag_left_id, 0.0);
+            edge_scores[i].AddPreviousStateScore(j, k, 0.0);
+          }
+        }
+      }
+    }
+  }
+
+  // Cache edge previous states.
+  // We just use a vector for fast access. In cases where there are a lot of
+  // bigram tags, a vector<vector<unordered_map<int, pair<int, int > > > > could
+  // be better, but it was slower for POS tagging.
+  // The first element of the pair encodes the index of the previous state;
+  // the second element encodes the bigram index (index of the edge).
+  std::vector<std::vector<std::vector<std::pair<int, int> > > >
+    edge_previous_states;
+  if (cache_edge_previous_states) {
+    edge_previous_states.resize(sentence->size() - 1);
+    for (int i = 0; i < sentence->size() - 1; ++i) {
+      edge_previous_states[i].resize(node_scores[i + 1].GetNumStates());
+      int bigram_index = 0;
+      CHECK_EQ(node_scores[i + 1].GetNumStates(),
+               edge_scores[i].GetNumCurrentStates());
+      for (int tag_id = 0; tag_id < edge_scores[i].GetNumCurrentStates();
+           ++tag_id) {
+        edge_previous_states[i][tag_id].resize(node_scores[i].GetNumStates(),
+                                               std::pair<int, int>(-1, -1));
+        for (int k = 0; k < edge_scores[i].GetNumPreviousStates(tag_id); ++k) {
+          int tag_left_id =
+            edge_scores[i].GetPreviousStateScore(tag_id, k).first;
+          edge_previous_states[i][tag_id][tag_left_id].first = k;
+          edge_previous_states[i][tag_id][tag_left_id].second = bigram_index;
+          //LOG(INFO) << "edge_previous_states[" << i << "][" << tag_id << "]["
+          //          << tag_left_id << "].first = "<<  k;
+          ++bigram_index;
+        }
+      }
+    }
   }
 
   // Compute edge scores from bigrams.
@@ -90,61 +163,55 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   for (int r = 0; r < size; ++r) {
     SequencePartBigram *bigram =
         static_cast<SequencePartBigram*>((*parts)[offset + r]);
-    // Get indices corresponding to tag if and left tag id.
+    // Get indices corresponding to tag id and left tag id.
     // TODO: Make this more efficient.
+    // TODO: Cache node states to avoid many calls to FindState?
     int i = bigram->position();
     int tag_id = -1;
     int tag_left_id = -1;
     if (i < sentence->size()) {
-      for (int k = 0; k < node_tags[i].size(); ++k) {
-        if (node_tags[i][k] == bigram->tag()) {
-          tag_id = k;
-          break;
-        }
-      }
+      tag_id = node_scores[i].FindState(bigram->tag());
     }
     if (i > 0) {
-      for (int k = 0; k < node_tags[i - 1].size(); ++k) {
-        if (node_tags[i - 1][k] == bigram->tag_left()) {
-          tag_left_id = k;
-          break;
-        }
-      }
+      tag_left_id = node_scores[i - 1].FindState(bigram->tag_left());
     }
 
     if (i == 0) {
       CHECK_EQ(bigram->tag_left(), -1);
-      node_scores[i][tag_id] += scores[offset + r];
+      node_scores[i].IncrementScore(tag_id, scores[offset + r]);
     } else if (i == sentence->size()) {
       CHECK_EQ(bigram->tag(), -1);
-      node_scores[i - 1][tag_left_id] += scores[offset + r];
+      node_scores[i - 1].IncrementScore(tag_left_id, scores[offset + r]);
     } else {
-      //LOG(INFO) << node_tags[i - 1].size();
-      //LOG(INFO) << node_tags[i].size();
-      //LOG(INFO) << i << " " << sentence->size();
       CHECK_GE(tag_left_id, 0);
-      CHECK_LT(tag_left_id, node_tags[i - 1].size());
+      CHECK_LT(tag_left_id, node_scores[i - 1].GetNumStates());
       CHECK_GE(tag_id, 0);
-      CHECK_LT(tag_id, node_tags[i].size());
+      CHECK_LT(tag_id, node_scores[i].GetNumStates());
 
-      edge_scores[i - 1].resize(node_tags[i - 1].size());
-      edge_scores[i - 1][tag_left_id].resize(node_tags[i].size(), 0.0);
-      edge_scores[i - 1][tag_left_id][tag_id] = scores[offset + r];
+      int k;
+      if (cache_edge_previous_states) {
+        k = edge_previous_states[i - 1][tag_id][tag_left_id].first;
+      } else {
+        k = edge_scores[i - 1].FindPreviousState(tag_id, tag_left_id);
+      }
+      CHECK_GE(k, 0) << tag_id << " " << tag_left_id << " " << i;
+      edge_scores[i - 1].SetPreviousStateScore(tag_id, k, tag_left_id,
+                                               scores[offset + r]);
     }
   }
 
   // Compute triplet scores from trigrams.
   if (pipe_->GetSequenceOptions()->markov_order() == 2 &&
       sentence->size() > 1) {
-    //transformed_edge_scores.clear();
-    //transformed_edge_scores.resize(sentence->size() - 2);
     triplet_scores.resize(sentence->size() - 2);
     sequence_parts->GetOffsetTrigram(&offset, &size);
 
-    SequencePartTrigram *last_trigram = NULL; // Cache the last trigram to save time.
+    // Cache the last trigram to save time.
+    SequencePartTrigram *last_trigram = NULL;
     int tag_id = -1;
     int tag_left_id = -1;
     int tag_left_left_id = -1;
+    int bigram_index = -1;
     for (int r = 0; r < size; ++r) {
       SequencePartTrigram *trigram =
           static_cast<SequencePartTrigram*>((*parts)[offset + r]);
@@ -155,69 +222,109 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
       if (i < sentence->size()) {
         if (last_trigram == NULL || last_trigram->position() != i ||
             trigram->tag() != last_trigram->tag()) {
-          for (int k = 0; k < node_tags[i].size(); ++k) {
-            if (node_tags[i][k] == trigram->tag()) {
-              tag_id = k;
-              break;
-            }
-          }
+          tag_id = node_scores[i].FindState(trigram->tag());
         }
       }
       if (i > 0) {
         if (last_trigram == NULL || last_trigram->position() != i ||
             trigram->tag() != last_trigram->tag() ||
             trigram->tag_left() != last_trigram->tag_left()) {
-          for (int k = 0; k < node_tags[i - 1].size(); ++k) {
-            if (node_tags[i - 1][k] == trigram->tag_left()) {
-              tag_left_id = k;
-              break;
-            }
-          }
+          tag_left_id = node_scores[i - 1].FindState(trigram->tag_left());
         }
       }
       if (i > 1) {
-        for (int k = 0; k < node_tags[i - 2].size(); ++k) {
-          if (node_tags[i - 2][k] == trigram->tag_left_left()) {
-            tag_left_left_id = k;
-            break;
-          }
-        }
+        tag_left_left_id = node_scores[i - 2].
+          FindState(trigram->tag_left_left());
       }
-
-      last_trigram = trigram;
 
       if (i == 0) {
         // I don't think this ever reaches this point.
+        CHECK_GE(trigram->tag(), 0);
         CHECK_EQ(trigram->tag_left(), -1);
         CHECK_EQ(trigram->tag_left_left(), -1);
       } else if (i == 1) {
+        CHECK_GE(trigram->tag(), 0);
+        CHECK_GE(trigram->tag_left(), 0);
         CHECK_EQ(trigram->tag_left_left(), -1);
-        edge_scores[i - 1][tag_left_id][tag_id] += scores[offset + r];
+        //edge_scores[i - 1][tag_left_id][tag_id] += scores[offset + r];
+        int k;
+        if (cache_edge_previous_states) {
+          k = edge_previous_states[i - 1][tag_id][tag_left_id].first;
+        } else {
+          k = edge_scores[i - 1].FindPreviousState(tag_id,
+                                                   tag_left_id);
+        }
+        CHECK_GE(k, 0);
+        edge_scores[i - 1].IncrementScore(tag_id, k, scores[offset + r]);
       } else if (i == sentence->size()) {
         CHECK_EQ(trigram->tag(), -1);
-        edge_scores[i - 2][tag_left_left_id][tag_left_id] += scores[offset + r];
+        CHECK_GE(trigram->tag_left(), 0);
+        CHECK_GE(trigram->tag_left_left(), 0);
+        int k;
+        if (cache_edge_previous_states) {
+          k = edge_previous_states[i - 2][tag_left_id][tag_left_left_id].first;
+        } else {
+          k = edge_scores[i - 2].FindPreviousState(tag_left_id,
+                                                   tag_left_left_id);
+        }
+        CHECK_GE(k, 0);
+        edge_scores[i - 2].IncrementScore(tag_left_id, k, scores[offset + r]);
       } else {
         CHECK_GE(tag_left_left_id, 0);
-        CHECK_LT(tag_left_left_id, node_tags[i - 2].size());
+        CHECK_LT(tag_left_left_id, node_scores[i - 2].GetNumStates());
         CHECK_GE(tag_left_id, 0);
-        CHECK_LT(tag_left_id, node_tags[i - 1].size());
+        CHECK_LT(tag_left_id, node_scores[i - 1].GetNumStates());
         CHECK_GE(tag_id, 0);
-        CHECK_LT(tag_id, node_tags[i].size());
+        CHECK_LT(tag_id, node_scores[i].GetNumStates());
 
-        /*
-        int s = tag_left_left_id * node_tags[i - 1].size() + tag_left_id;
-        int t = tag_left_id * node_tags[i].size() + tag_id;
-        (transformed_edge_scores)[i-2].resize (node_tags[i-1].size() * node_tags[i].size());
-        (transformed_edge_scores)[i-2][t].push_back(std::pair<int, double> (s, scores[offset + r]));
-        */
+        if (last_trigram == NULL || last_trigram->position() != i ||
+            trigram->tag() != last_trigram->tag() ||
+            trigram->tag_left() != last_trigram->tag_left()) {
+          // Do this in an initialization before.
+          triplet_scores[i - 2].
+            SetNumCurrentStates(edge_scores[i - 1].GetNumStatePairs());
 
-        triplet_scores[i - 2].resize(node_tags[i - 2].size());
-        triplet_scores[i - 2][tag_left_left_id].resize(node_tags[i - 1].size());
-        triplet_scores[i - 2][tag_left_left_id][tag_left_id].resize(
-            node_tags[i].size(), 0.0);
-        triplet_scores[i - 2][tag_left_left_id][tag_left_id][tag_id] =
-            scores[offset + r];
+          if (cache_edge_previous_states) {
+            int k = edge_previous_states[i - 1][tag_id][tag_left_id].first;
+            bigram_index =
+              edge_previous_states[i - 1][tag_id][tag_left_id].second;
+          } else {
+            int k = edge_scores[i - 1].FindPreviousState(tag_id,
+                                                     tag_left_id);
+            CHECK_GE(k, 0);
+            bigram_index = edge_scores[i - 1].GetStatePairIndex(tag_id, k);
+          }
+          CHECK_LT(bigram_index, triplet_scores[i - 2].GetNumCurrentStates());
+        }
+
+        int l;
+        int previous_bigram_index;
+        if (cache_edge_previous_states) {
+          l = edge_previous_states[i - 2][tag_left_id][tag_left_left_id].first;
+          previous_bigram_index =
+            edge_previous_states[i - 2][tag_left_id][tag_left_left_id].second;
+        } else {
+          l = edge_scores[i - 2].FindPreviousState(tag_left_id,
+                                                   tag_left_left_id);
+          CHECK_GE(l, 0);
+          // Not sure we need this; might be fine with just l.
+          previous_bigram_index = edge_scores[i - 2].
+            GetStatePairIndex(tag_left_id, l);
+          CHECK_LT(l, triplet_scores[i - 2].GetNumPreviousStates(bigram_index));
+        }
+
+        // Do this in an initialization before.
+        triplet_scores[i - 2].
+          SetNumPreviousStates(bigram_index, edge_scores[i - 2].
+                                 GetNumPreviousStates(tag_left_id));
+
+        triplet_scores[i - 2].SetPreviousStateScore(bigram_index,
+                                                    l,
+                                                    previous_bigram_index,
+                                                    scores[offset + r]);
       }
+
+      last_trigram = trigram;
     }
   }
 
@@ -225,9 +332,8 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   double value;
   if (pipe_->GetSequenceOptions()->markov_order() == 2 &&
       sentence->size() > 1) {
-    vector<vector<double> > transformed_node_scores;
-    //vector<vector<vector<double> > > transformed_edge_scores;
-    vector<vector<vector<std::pair<int, double> > > > transformed_edge_scores;
+    vector<SequenceDecoderNodeScores> transformed_node_scores;
+    vector<SequenceDecoderEdgeScores> transformed_edge_scores;
 
     // Convert to a first order sequence model.
     ConvertToFirstOrderModel(node_scores,
@@ -238,9 +344,10 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
     vector<int> transformed_best_path;
     value = RunViterbi(transformed_node_scores, transformed_edge_scores,
         &transformed_best_path);
+    //std::cout << "Value = " << value << endl;
 
     // Recover the best path in the original second-order model.
-    RecoverBestPath(transformed_best_path, edge_scores, &best_path);
+    RecoverBestPath(transformed_best_path, &best_path);
   } else {
     value = RunViterbi(node_scores, edge_scores, &best_path);
   }
@@ -250,9 +357,9 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
 
   int active = 0;
   for (int i = 0; i < sentence->size() + 1; ++i) {
-    int tag_id = (i < sentence->size())? node_tags[i][best_path[i]] : -1;
-    int tag_left_id = (i > 0)? node_tags[i - 1][best_path[i - 1]] : -1;
-    int tag_left_left_id = (i > 1)? node_tags[i - 2][best_path[i - 2]] : -1;
+    int tag_id = (i < sentence->size())? best_path[i] : -1;
+    int tag_left_id = (i > 0)? best_path[i - 1] : -1;
+    int tag_left_left_id = (i > 1)? best_path[i - 2] : -1;
 
     if (i < sentence->size()) {
       const vector<int> &index_unigram_parts =
@@ -263,13 +370,15 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
             static_cast<SequencePartUnigram*>((*parts)[r]);
         if (tag_id == unigram->tag()) {
           (*predicted_output)[r] = 1.0;
+          //std::cout << "selected unigram " << i << " " << tag_id
+          //          << " score=" << scores[r] << endl;
           ++active;
         }
       }
     }
 
     if (pipe_->GetSequenceOptions()->markov_order() >= 1) {
-      const vector<int> &index_bigram_parts = 
+      const vector<int> &index_bigram_parts =
         sequence_parts->FindBigramParts(i);
       for (int k = 0; k < index_bigram_parts.size(); ++k) {
         int r = index_bigram_parts[k];
@@ -277,6 +386,9 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
             static_cast<SequencePartBigram*>((*parts)[r]);
         if (tag_id == bigram->tag() && tag_left_id == bigram->tag_left()) {
           (*predicted_output)[r] = 1.0;
+          //std::cout << "selected bigram " << i << " " << tag_id << " "
+          //          << tag_left_id
+          //          << " score=" << scores[r] << endl;
           ++active;
         }
       }
@@ -284,7 +396,7 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
 
     bool found = false;
     if (pipe_->GetSequenceOptions()->markov_order() >= 2 && i > 0) {
-      const vector<int> &index_trigram_parts = 
+      const vector<int> &index_trigram_parts =
         sequence_parts->FindTrigramParts(i);
       for (int k = 0; k < index_trigram_parts.size(); ++k) {
         int r = index_trigram_parts[k];
@@ -293,6 +405,9 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
         if (tag_id == trigram->tag() && tag_left_id == trigram->tag_left()
             && tag_left_left_id == trigram->tag_left_left()) {
           (*predicted_output)[r] = 1.0;
+          //std::cout << "selected trigram " << i << " " << tag_id << " "
+          //          << tag_left_id << " " << tag_left_left_id
+          //          << " score=" << scores[r] << endl;
           ++active;
           found = true;
         }
@@ -302,46 +417,41 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   }
 }
 
-void SequenceDecoder::RecoverBestPath(
-    const vector<int> &best_path,
-    const vector<vector<vector<double> > > &edge_scores,
-    vector<int> *transformed_best_path) {
+// TODO: we need also to specify a map between bigram codes and their two tags.
+void SequenceDecoder::RecoverBestPath(const std::vector<int> &best_path,
+                                      std::vector<int> *transformed_best_path) {
   int length = best_path.size() + 1;
-  //LOG(INFO) << length;
   transformed_best_path->clear();
   transformed_best_path->resize(length, -1);
+
   for (int i = 0; i < length - 1; ++i) {
-    int bigram_tag = best_path[i];
-    bool found = false;
-    int s = 0;
-    for (int j = 0; j < edge_scores[i].size(); ++j) {
-      CHECK_GT(edge_scores[i][j].size(), 0);
-      for (int k = 0; k < edge_scores[i][j].size(); ++k, ++s) {
-        if (s == bigram_tag) {
-          if (i > 0) {
-            CHECK_EQ((*transformed_best_path)[i], j);
-          }
-          (*transformed_best_path)[i] = j;
-          (*transformed_best_path)[i+1] = k;
-          found = true;
-          CHECK_GE(k, 0);
-          break;
-        }
-      }
-      if (found) break;
+    int bigram_label = best_path[i];
+    int left_tag, tag;
+    pipe_->GetSequenceDictionary()->GetBigramTags(bigram_label,
+                                                  &left_tag,
+                                                  &tag);
+    if (i == 0) {
+      (*transformed_best_path)[i] = left_tag;
+    } else {
+      CHECK_EQ((*transformed_best_path)[i], left_tag);
     }
-    CHECK_EQ(s, bigram_tag);
+    (*transformed_best_path)[i+1] = tag;
+
     CHECK_GE((*transformed_best_path)[i+1], 0);
+    //std::cout << (*transformed_best_path)[i] << " ";
   }
+  //std::cout << (*transformed_best_path)[length-1] << std::endl;
 }
 
+// TODO: edge_scores will need to be in the same format as transformed_edge_scores,
+// and we'll also to specify a map between bigram codes and their two tags.
+// TODO: implement a suitable structure for the triplets.
 void SequenceDecoder::ConvertToFirstOrderModel(
-    const vector<vector<double> > &node_scores,
-    const vector<vector<vector<double> > > &edge_scores,
-    const vector<vector<vector<vector<double> > > > &triplet_scores,
-    vector<vector<double> > *transformed_node_scores,
-    //    vector<vector<vector<double> > > *transformed_edge_scores) {
-    vector<vector<vector<std::pair<int, double> > > > *transformed_edge_scores) {
+    const std::vector<SequenceDecoderNodeScores> &node_scores,
+    const std::vector<SequenceDecoderEdgeScores> &edge_scores,
+    const std::vector<SequenceDecoderEdgeScores> &triplet_scores,
+    std::vector<SequenceDecoderNodeScores> *transformed_node_scores,
+    std::vector<SequenceDecoderEdgeScores> *transformed_edge_scores) {
 
   int length = node_scores.size();
 
@@ -349,49 +459,61 @@ void SequenceDecoder::ConvertToFirstOrderModel(
   transformed_node_scores->resize(length - 1);
   for (int i = 0; i < length - 1; ++i) {
     // Position i.
-    for (int j = 0; j < edge_scores[i].size(); ++j) {
-      // Tag j at position i.
-      for (int k = 0; k < edge_scores[i][j].size(); ++k) {
-        // Tag k at position i+1.
+    int num_bigram_states = edge_scores[i].GetNumStatePairs();
+
+    (*transformed_node_scores)[i].SetNumStates(num_bigram_states);
+    int bigram_index = 0;
+    for (int j = 0; j < edge_scores[i].GetNumCurrentStates(); ++j) {
+      // Tag j at position i+1.
+      int tag = node_scores[i + 1].GetState(j);
+      const vector<std::pair<int, double> > &previous_state_scores =
+        edge_scores[i].GetAllPreviousStateScores(j);
+
+      for (int t = 0; t < previous_state_scores.size(); ++t) {
+        // Tag k at position i.
+        int k = previous_state_scores[t].first;
+        double score = previous_state_scores[t].second;
+        int left_tag = node_scores[i].GetState(k);
+        int bigram_label = pipe_->GetSequenceDictionary()->
+          GetBigramLabel(left_tag, tag);
         if (i == length - 2) {
-          (*transformed_node_scores)[i].push_back(edge_scores[i][j][k] +
-                                                  node_scores[i][j] +
-                                                  node_scores[i+1][k]);
+          (*transformed_node_scores)[i].
+            SetStateScore(bigram_index, bigram_label,
+                          score + node_scores[i+1].GetScore(j) +
+                            node_scores[i].GetScore(k));
         } else {
-          (*transformed_node_scores)[i].push_back(edge_scores[i][j][k] +
-                                                  node_scores[i][j]);
+          (*transformed_node_scores)[i].
+            SetStateScore(bigram_index, bigram_label,
+                          score + node_scores[i].GetScore(k));
         }
+        ++bigram_index;
       }
     }
   }
 
   // The transformed edge scores will have one less element.
+  // Just copy the triplet structure and adjust the scores.
   transformed_edge_scores->resize(length - 2);
   for (int i = 0; i < length - 2; ++i) {
     // Position i.
-    (*transformed_edge_scores)[i].resize((*transformed_node_scores)[i+1].size());
-    for (int t = 0; t < (*transformed_edge_scores)[i].size(); ++t) {
-      (*transformed_edge_scores)[i][t].resize(edge_scores[i].size());
-    }
-
-    int s = 0;
-    for (int j = 0; j < edge_scores[i].size(); ++j) {
-      // Tag j at position i.
-      int t = 0;
-      for (int k = 0; k < edge_scores[i][j].size(); ++k, ++s) {
-        // Tag k at position i+1.
-        for (int l = 0; l < node_scores[i+2].size(); ++l, ++t) {
-          // Tag l at position i+2.
-          CHECK_LT(t, (*transformed_edge_scores)[i].size());
-          CHECK_LT(j, (*transformed_edge_scores)[i][t].size());
-          (*transformed_edge_scores)[i][t][j] =
-            std::pair<int, double>(s, triplet_scores[i][j][k][l]);
-        }
+    int num_current_states = triplet_scores[i].GetNumCurrentStates();
+    (*transformed_edge_scores)[i].SetNumCurrentStates(num_current_states);
+    for (int t = 0; t < num_current_states; ++t) {
+      int num_previous_states = triplet_scores[i].GetNumPreviousStates(t);
+      const std::vector<std::pair<int, double> > previous_state_scores =
+        triplet_scores[i].GetAllPreviousStateScores(t);
+      (*transformed_edge_scores)[i].
+        SetNumPreviousStates(t, previous_state_scores.size());
+      for (int j = 0; j < previous_state_scores.size(); ++j) {
+        (*transformed_edge_scores)[i].
+          SetPreviousStateScore(t, j, previous_state_scores[j].first,
+                                previous_state_scores[j].second);
       }
     }
   }
 }
 
+// TODO(atm): adapt description.
 // Computes the Viterbi path of a sequence model.
 // Note: the initial and final transitions are incorporated in the node scores.
 // 1) node_scores is a vector whose size is the length of the sequence, where
@@ -402,100 +524,40 @@ void SequenceDecoder::ConvertToFirstOrderModel(
 // 3) best_path is a vector given as output, containing indices that describe
 // the path maximizing the score.
 // 4) the returned value is the optimal score.
-double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
-                                   const vector<vector<vector<double > > >
+double SequenceDecoder::RunViterbi(const std::vector<SequenceDecoderNodeScores>
+                                     &node_scores,
+                                   const std::vector<SequenceDecoderEdgeScores>
                                      &edge_scores,
-                                   vector<int> *best_path) {
+                                   std::vector<int> *best_path) {
   int length = node_scores.size(); // Length of the sequence.
-  vector<vector<double> > deltas(length); // To accommodate the partial scores.
-  vector<vector<int> > backtrack(length); // To backtrack.
+  // To accommodate the partial scores.
+  std::vector<std::vector<double> > deltas(length);
+  std::vector<std::vector<int> > backtrack(length); // To backtrack.
 
   // Initialization.
-  int num_current_labels = node_scores[0].size();
+  int num_current_labels = node_scores[0].GetNumStates();
   deltas[0].resize(num_current_labels);
   backtrack[0].resize(num_current_labels);
   for (int l = 0; l < num_current_labels; ++l) {
     // The score of the first node absorbs the score of a start transition.
-    deltas[0][l] = node_scores[0][l];
+    deltas[0][l] = node_scores[0].GetScore(l);
     backtrack[0][l] = -1; // This won't be used.
   }
 
   // Recursion.
   for (int i = 0; i < length - 1; ++i) {
-    int num_current_labels = node_scores[i+1].size();
-    deltas[i + 1].resize(num_current_labels);
-    backtrack[i + 1].resize(num_current_labels);
-    for (int k = 0; k < num_current_labels; ++k) {
-      double best_value = -1e-12;
-      int best = -1;
-      for (int l = 0; l < node_scores[i].size(); ++l) {
-        double value = deltas[i][l] + edge_scores[i][l][k];
-        if (best < 0 || value > best_value) {
-          best_value = value;
-          best = l;
-        }
-      }
-      CHECK_GE(best, 0) << node_scores[i].size() << " possible tags.";
-
-      deltas[i+1][k] = best_value + node_scores[i+1][k];
-      backtrack[i+1][k] = best;
-    }
-  }
-
-  // Termination.
-  double best_value = -1e12;
-  int best = -1;
-  for (int l = 0; l < node_scores[length - 1].size(); ++l) {
-    // The score of the last node had already absorbed the score of a final
-    // transition.
-    double value = deltas[length - 1][l];
-    if (best < 0 || value > best_value) {
-      best_value = value;
-      best = l;
-    }
-  }
-  CHECK_GE(best, 0);
-
-  // Path (state sequence) backtracking.
-  best_path->resize(length);
-  (*best_path)[length - 1] = best;
-  for (int i = length - 1; i > 0; --i) {
-    (*best_path)[i - 1] = backtrack[i][(*best_path)[i]];
-  }
-
-  return best_value;
-}
-
-double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
-                                   const vector<vector<vector<std::pair<int, double> > > >
-                                   &edge_scores,
-                                   vector<int> *best_path) {
-  int length = node_scores.size(); // Length of the sequence.
-  vector<vector<double> > deltas(length); // To accommodate the partial scores.
-  vector<vector<int> > backtrack(length); // To backtrack.
-
-  // Initialization.
-  int num_current_labels = node_scores[0].size();
-  deltas[0].resize(num_current_labels);
-  backtrack[0].resize(num_current_labels);
-  for (int l = 0; l < num_current_labels; ++l) {
-    // The score of the first node absorbs the score of a start transition.
-    deltas[0][l] = node_scores[0][l];
-    backtrack[0][l] = -1; // This won't be used.
-  }
-
-  // Recursion.
-  for (int i = 0; i < length - 1; ++i) {
-    int num_current_labels = node_scores[i+1].size();
+    int num_current_labels = node_scores[i+1].GetNumStates();
     deltas[i + 1].resize(num_current_labels);
     backtrack[i + 1].resize(num_current_labels);
     for (int k = 0; k < num_current_labels; ++k) {
       double best_value = -1e-12;
       int best = -1;
       // Edges from the previous position.
-      for (vector<std::pair<int, double> >::const_iterator it =
-             edge_scores[i][k].begin();
-           it != edge_scores[i][k].end();
+      const std::vector<std::pair<int, double> > &previous_state_scores =
+        edge_scores[i].GetAllPreviousStateScores(k);
+      for (std::vector<std::pair<int, double> >::const_iterator it =
+             previous_state_scores.begin();
+           it != previous_state_scores.end();
            ++it) {
         int l = it->first;
         double edge_score = it->second;
@@ -505,9 +567,9 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
           best = l;
         }
       }
-      CHECK_GE(best, 0) << node_scores[i].size() << " possible tags.";
+      CHECK_GE(best, 0) << node_scores[i].GetNumStates() << " possible tags.";
 
-      deltas[i+1][k] = best_value + node_scores[i+1][k];
+      deltas[i+1][k] = best_value + node_scores[i+1].GetScore(k);
       backtrack[i+1][k] = best;
     }
   }
@@ -515,7 +577,7 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
   // Termination.
   double best_value = -1e12;
   int best = -1;
-  for (int l = 0; l < node_scores[length - 1].size(); ++l) {
+  for (int l = 0; l < node_scores[length - 1].GetNumStates(); ++l) {
     // The score of the last node had already absorbed the score of a final
     // transition.
     double value = deltas[length - 1][l];
@@ -531,6 +593,11 @@ double SequenceDecoder::RunViterbi(const vector<vector<double> > &node_scores,
   (*best_path)[length - 1] = best;
   for (int i = length - 1; i > 0; --i) {
     (*best_path)[i - 1] = backtrack[i][(*best_path)[i]];
+  }
+
+  // Convert to the actual node states.
+  for (int i = 0; i < length; ++i) {
+    (*best_path)[i] = node_scores[i].GetState((*best_path)[i]);
   }
 
   return best_value;

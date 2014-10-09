@@ -173,6 +173,7 @@ top_srcdir = @top_srcdir@
 UTIL = ../util
 CLASSIFIER = ../classifier
 SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 PARSER = ../parser
 TurboTaggerprgdir = ../..
 TurboTagger_SOURCES = TaggerFeatures.cpp TaggerFeatures.h \
@@ -205,7 +206,7 @@ $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h \
 TurboTagger.cpp
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(PARSER) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) -I$(PARSER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 all: all-am
 

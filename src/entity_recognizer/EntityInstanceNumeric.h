@@ -16,21 +16,32 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#ifndef ENTITYINSTANCENUMERIC_H_
+#define ENTITYINSTANCENUMERIC_H_
 
-#include "SequenceInstance.h"
-#include "Reader.h"
-#include <fstream>
+#include "SequenceInstanceNumeric.h"
+#include "EntityInstance.h"
+#include "EntityDictionary.h"
 
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
+class EntityInstanceNumeric : public SequenceInstanceNumeric {
+ public:
+  EntityInstanceNumeric() {};
+  virtual ~EntityInstanceNumeric() { Clear(); };
 
-public:
-  virtual Instance *GetNext();
+  void Clear() {
+    SequenceInstanceNumeric::Clear();
+    pos_ids_.clear();
+  }
+
+  void Initialize(const EntityDictionary &dictionary,
+                  EntityInstance *instance);
+
+  const std::vector<int> &GetPosIds() const { return pos_ids_; }
+
+  int GetPosId(int i) { return pos_ids_[i]; };
+
+ private:
+  std::vector<int> pos_ids_;
 };
 
-#endif /* SEQUENCEREADER_H_ */
-
+#endif /* ENTITYINSTANCENUMERIC_H_ */

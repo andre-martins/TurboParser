@@ -172,6 +172,7 @@ top_srcdir = @top_srcdir@
 UTIL = ../util
 CLASSIFIER = ../classifier
 SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 TurboParserprgdir = ../..
 TurboParser_SOURCES = DependencyDecoder.cpp DependencyFeatures.h \
 DependencyInstanceNumeric.h DependencyPipe.cpp DependencyWriter.h \
@@ -198,7 +199,7 @@ $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 all: all-am
 

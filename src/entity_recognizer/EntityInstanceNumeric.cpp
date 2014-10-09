@@ -16,21 +16,22 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#include "EntityInstanceNumeric.h"
+#include <iostream>
+#include <algorithm>
 
-#include "SequenceInstance.h"
-#include "Reader.h"
-#include <fstream>
+void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
+                                       EntityInstance* instance) {
+  SequenceInstanceNumeric::Initialize(dictionary, instance);
 
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
+  TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
+  int length = instance->size();
 
-public:
-  virtual Instance *GetNext();
-};
-
-#endif /* SEQUENCEREADER_H_ */
-
+  pos_ids_.resize(length);
+  for (int i = 0; i < length; i++) {
+    int id = token_dictionary->GetPosTagId(instance->GetPosTag(i));
+    CHECK_LT(id, 0xff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    pos_ids_[i] = id;
+  }
+}

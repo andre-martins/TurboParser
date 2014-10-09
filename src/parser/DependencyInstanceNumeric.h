@@ -50,7 +50,7 @@ public:
     for (int i = 0; i < feats_ids_.size(); i++) {
       feats_ids_[i].clear();
     }
-    shapes_.clear();
+    //shapes_.clear();
     is_noun_.clear();
     is_verb_.clear();
     is_punc_.clear();
@@ -61,6 +61,9 @@ public:
   void Initialize(const DependencyDictionary &dictionary,
                  DependencyInstance *instance);
 
+#if 0
+  // TODO(atm): this is repeated in other tasks. Should move some of these
+  // functions to a common class and use inheritance.
   void GetWordShape(const string &word, string *shape) {
     string type = "";
     char last = '\0';
@@ -95,6 +98,7 @@ public:
     }
     *shape = type;
   }
+#endif
 
   const vector<int> &GetFormIds() const { return form_ids_; }
   const vector<int> &GetLemmaIds() const { return lemma_ids_; }
@@ -111,7 +115,6 @@ public:
   int GetCoarsePosId(int i) { return cpos_ids_[i]; };
   int GetNumMorphFeatures(int i) { return feats_ids_[i].size(); };
   int GetMorphFeature(int i, int j) { return feats_ids_[i][j]; };
-  const string &GetWordShape(int i) { return shapes_[i]; };
   bool IsNoun(int i) { return is_noun_[i]; };
   bool IsVerb(int i) { return is_verb_[i]; };
   bool IsPunctuation(int i) { return is_punc_[i]; };
@@ -127,7 +130,7 @@ public:
   vector<int> pos_ids_;
   vector<int> cpos_ids_;
   vector<vector<int> > feats_ids_;
-  vector<string> shapes_;
+  //vector<string> shapes_;
   vector<bool> is_noun_;
   vector<bool> is_verb_;
   vector<bool> is_punc_;

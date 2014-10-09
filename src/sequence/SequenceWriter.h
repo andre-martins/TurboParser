@@ -21,8 +21,6 @@
 
 #include "Writer.h"
 
-using namespace std;
-
 class SequenceWriter : public Writer {
 public:
   SequenceWriter() {};
