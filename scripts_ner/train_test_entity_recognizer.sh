@@ -14,6 +14,7 @@ test=true
 model_type=2 # Second-order model (trigrams).
 form_cutoff=0 #1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
 tagging_scheme=bilou # bio
+file_gazetteer= # Empty gazetteer file by default.
 suffix=entity_recognizer
 
 # Set path folders.
@@ -36,6 +37,7 @@ if [ "$language" == "english" ] || [ "$language" == "spanish" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
     files_test[1]=${path_data}/${language}_dev.conll.ner
+    file_gazetteer=${path_data}/${language}.list
 else
     files_test[0]=${path_data}/${language}_test.conll.ner
 fi
@@ -65,6 +67,7 @@ then
         --sequence_model_type=${model_type} \
         --form_cutoff=${form_cutoff} \
         --entity_tagging_scheme=${tagging_scheme} \
+        --entity_file_gazetteer=${file_gazetteer} \
         --logtostderr
 fi
 

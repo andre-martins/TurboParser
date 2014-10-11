@@ -121,74 +121,68 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
 
   LOG(INFO) << "Total allowed bigrams: " << num_allowed_bigrams;
 
-#if 0
-  LOG(INFO) << "Creating word-tag dictionary...";
-  bool form_case_sensitive = FLAGS_form_case_sensitive;
+  ReadGazetteerFiles();
+}
 
-  // Go through the corpus and build the existing tags for each word.
-  word_tags_.clear();
-  word_tags_.resize(token_dictionary_->GetNumForms());
+void EntityDictionary::ReadGazetteerFiles() {
+  EntityOptions *options =
+    static_cast<EntityOptions*>(pipe_->GetOptions());
 
-  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SequenceInstance *instance =
-    static_cast<SequenceInstance*>(reader->GetNext());
-  while (instance != NULL) {
-    int instance_length = instance->size();
-    for (int i = 0; i < instance_length; ++i) {
-      int id;
-      string form = instance->GetForm(i);
-      if (!form_case_sensitive) {
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
-      }
-      int word_id = token_dictionary_->GetFormId(form);
-      //CHECK_GE(word_id, 0);
+  gazetteer_word_alphabet_.AllowGrowth();
+  gazetteer_entity_tag_alphabet_.AllowGrowth();
 
-      id = tag_alphabet_.Lookup(instance->GetTag(i));
-      CHECK_GE(id, 0);
-
-      // Insert new tag in the set of word tags, if it is not there
-      // already. NOTE: this is inefficient, maybe we should be using a
-      // different data structure.
-      if (word_id >= 0) {
-        vector<int> &tags = word_tags_[word_id];
-        int j;
-        for (j = 0; j < tags.size(); ++j) {
-          if (tags[j] == id) break;
-        }
-        if (j == tags.size()) tags.push_back(id);
-      }
-    }
-    delete instance;
-    instance = static_cast<SequenceInstance*>(reader->GetNext());
-  }
-  reader->Close();
-
-  // If there is a list of possible tags for the unknown words, load it.
-  TaggerOptions *options =
-    static_cast<TaggerOptions*>(pipe_->GetOptions());
-  if (options->GetUnknownWordTagsFilePath().size() == 0) {
-    for (int i = 0; i < tag_alphabet_.size(); ++i) {
-      unknown_word_tags_.push_back(i);
-    }
-  } else {
-    LOG(INFO) << "Loading file with unknown word tags...";
+  if (options->file_gazetteer() != "") {
+    LOG(INFO) << "Loading gazetteer file "
+              << options->file_gazetteer() << "...";
     std::ifstream is;
-    is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
+    is.open(options->file_gazetteer().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->GetUnknownWordTagsFilePath() << ".";
-    vector<vector<string> > sentence_fields;
-    string line;
+                     << options->file_gazetteer() << ".";
+    std::string line;
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
-        if (line.size() == 0) break;
-        int tagid = tag_alphabet_.Lookup(line);
-        CHECK(tagid >= 0) << "Tag " << line << " does not exist.";
-        unknown_word_tags_.push_back(tagid);
-        LOG(INFO) << "Unknown word tag: " << line;
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        if (fields.size() < 2) continue;
+        const std::string &entity_type = fields[0];
+        int entity_type_begin_id =
+          gazetteer_entity_tag_alphabet_.Insert("B-" + entity_type);
+        int entity_type_inside_id =
+          gazetteer_entity_tag_alphabet_.Insert("I-" + entity_type);
+        int entity_type_last_id =
+          gazetteer_entity_tag_alphabet_.Insert("L-" + entity_type);
+        int entity_type_unique_id =
+          gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
+        for (int k = 1; k < fields.size(); ++k) {
+          const std::string &word = fields[k];
+          int word_id = gazetteer_word_alphabet_.Insert(word);
+          if (gazetteer_word_entity_tags_.size() <= word_id) {
+            gazetteer_word_entity_tags_.resize(word_id+1);
+          }
+          if (fields.size() == 2) {
+            gazetteer_word_entity_tags_[word_id].
+              push_back(entity_type_unique_id);
+          } else if (k == 1) {
+            gazetteer_word_entity_tags_[word_id].
+              push_back(entity_type_begin_id);
+          } else if (k == fields.size() - 1) {
+            gazetteer_word_entity_tags_[word_id].
+              push_back(entity_type_last_id);
+          } else {
+            gazetteer_word_entity_tags_[word_id].
+              push_back(entity_type_inside_id);
+          }
+        }
       }
     }
   }
-  LOG(INFO) << "Number of unknown word tags: " << unknown_word_tags_.size();
-#endif
+
+  gazetteer_word_alphabet_.StopGrowth();
+  gazetteer_entity_tag_alphabet_.StopGrowth();
+  LOG(INFO) << "Number of gazetteer words: "
+            << gazetteer_word_alphabet_.size();
+  LOG(INFO) << "Number of gazetteer entity tags: "
+            << gazetteer_entity_tag_alphabet_.size();
 }

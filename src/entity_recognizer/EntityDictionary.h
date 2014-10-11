@@ -128,6 +128,8 @@ class EntityDictionary : public SequenceDictionary {
 
   void CreateTagDictionary(SequenceReader *reader);
 
+  void ReadGazetteerFiles();
+
   bool IsAllowedBigram(int left_tag, int tag) {
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
@@ -136,6 +138,9 @@ class EntityDictionary : public SequenceDictionary {
 
  protected:
   std::vector<std::vector<bool> > allowed_bigrams_;
+  Alphabet gazetteer_word_alphabet_;
+  Alphabet gazetteer_entity_tag_alphabet_;
+  std::vector<std::vector<int> > gazetteer_word_entity_tags_;
   //vector<vector<int> > word_tags_;
   //vector<int> unknown_word_tags_;
 };
