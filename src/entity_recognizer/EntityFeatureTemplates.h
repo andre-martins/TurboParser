@@ -35,6 +35,11 @@ struct EntityFeatureTemplateUnigram {
     nW,             /* word on the right */
     ppW,            /* word two positions on the left */
     nnW,            /* word two positions on the right */
+    G,              /* gazetteer */
+    pG,             /* gazetteer on the left */
+    nG,             /* gazetteer on the right */
+    ppG,            /* gazetteer two positions on the left */
+    nnG,            /* gazetteer two positions on the right */
     P,              /* POS */
     PpP,            /* POS + POS on the left */
     PnP,            /* POS + POS on the right */

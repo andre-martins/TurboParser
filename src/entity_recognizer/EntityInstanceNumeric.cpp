@@ -28,10 +28,15 @@ void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
   int length = instance->size();
 
   pos_ids_.resize(length);
+  gazetteer_ids_.clear();
+  gazetteer_ids_.resize(length);
   for (int i = 0; i < length; i++) {
     int id = token_dictionary->GetPosTagId(instance->GetPosTag(i));
     CHECK_LT(id, 0xff);
     if (id < 0) id = TOKEN_UNKNOWN;
     pos_ids_[i] = id;
+
+    dictionary.GetWordGazetteerIds(instance->GetForm(i),
+                                   &gazetteer_ids_[i]);
   }
 }

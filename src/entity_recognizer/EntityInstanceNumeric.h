@@ -31,6 +31,7 @@ class EntityInstanceNumeric : public SequenceInstanceNumeric {
   void Clear() {
     SequenceInstanceNumeric::Clear();
     pos_ids_.clear();
+    gazetteer_ids_.clear();
   }
 
   void Initialize(const EntityDictionary &dictionary,
@@ -38,10 +39,15 @@ class EntityInstanceNumeric : public SequenceInstanceNumeric {
 
   const std::vector<int> &GetPosIds() const { return pos_ids_; }
 
-  int GetPosId(int i) { return pos_ids_[i]; };
+  int GetPosId(int i) { return pos_ids_[i]; }
+
+  const std::vector<int> &GetGazetteerIds(int i) {
+    return gazetteer_ids_[i];
+  }
 
  private:
   std::vector<int> pos_ids_;
+  std::vector<vector<int> > gazetteer_ids_;
 };
 
 #endif /* ENTITYINSTANCENUMERIC_H_ */

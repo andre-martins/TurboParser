@@ -48,8 +48,25 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // Word two positions on the left.
   uint16_t ppWID = (position > 1)? (*word_ids)[position - 2] : TOKEN_START;
   // Word two positions on the right.
-  uint16_t nnWID = (position < sentence_length - 2)? 
+  uint16_t nnWID = (position < sentence_length - 2)?
       (*word_ids)[position + 2] : TOKEN_STOP;
+
+  // Gazetteer tags.
+  std::vector<int> empty_GIDs;
+  // Current gazetter tag.
+  const std::vector<int> &GIDs = entity_sentence->GetGazetteerIds(position);
+  // Gazetteer tag on the left.
+  const std::vector<int> &pGIDs = (position > 0)?
+    entity_sentence->GetGazetteerIds(position - 1) : empty_GIDs;
+  // Gazetteer tag on the right.
+  const std::vector<int> &nGIDs = (position < sentence_length - 1)?
+    entity_sentence->GetGazetteerIds(position + 1) : empty_GIDs;
+  // Gazetteer tag two positions on the left.
+  const std::vector<int> &ppGIDs = (position > 1)?
+    entity_sentence->GetGazetteerIds(position - 2) : empty_GIDs;
+  // Gazetteer tag two positions on the right.
+  const std::vector<int> &nnGIDs = (position < sentence_length - 2)?
+    entity_sentence->GetGazetteerIds(position + 2) : empty_GIDs;
 
   // POS tags.
   uint8_t PID = (*pos_ids)[position]; // Current word.
@@ -126,6 +143,35 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnW, flags, nnWID);
   AddFeature(fkey, features);
+
+  // Gazetteer features.
+  for (int k = 0; k < GIDs.size(); ++k) {
+    uint16_t GID = GIDs[k];
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::G, flags, GID);
+    AddFeature(fkey, features);
+  }
+  for (int k = 0; k < pGIDs.size(); ++k) {
+    uint16_t pGID = pGIDs[k];
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::pG, flags, pGID);
+    AddFeature(fkey, features);
+  }
+  for (int k = 0; k < nGIDs.size(); ++k) {
+    uint16_t nGID = nGIDs[k];
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nG, flags, nGID);
+    AddFeature(fkey, features);
+  }
+  for (int k = 0; k < ppGIDs.size(); ++k) {
+    uint16_t ppGID = ppGIDs[k];
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::ppG, flags,
+                                 ppGID);
+    AddFeature(fkey, features);
+  }
+  for (int k = 0; k < nnGIDs.size(); ++k) {
+    uint16_t nnGID = nnGIDs[k];
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnG, flags,
+                                 nnGID);
+    AddFeature(fkey, features);
+  }
 
   // POS features.
   fkey = encoder_.CreateFKey_P(EntityFeatureTemplateUnigram::P, flags, PID);

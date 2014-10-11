@@ -29,14 +29,34 @@ class EntityDictionary : public SequenceDictionary {
 
   void Clear() {
     SequenceDictionary::Clear();
-    //word_tags_.clear();
+
+    gazetteer_word_alphabet_.clear();
+    gazetteer_entity_tag_alphabet_.clear();
+    gazetteer_word_entity_tags_.clear();
   }
 
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
 
+    if (0 > gazetteer_word_alphabet_.Save(fs)) CHECK(false);
+    if (0 > gazetteer_entity_tag_alphabet_.Save(fs)) CHECK(false);
+
     bool success;
-    int length = allowed_bigrams_.size();
+    int length = gazetteer_word_entity_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int j = 0; j < gazetteer_word_entity_tags_.size(); ++j) {
+      length = gazetteer_word_entity_tags_[j].size();
+      success = WriteInteger(fs, length);
+      CHECK(success);
+      for (int k = 0; k < gazetteer_word_entity_tags_[j].size(); ++k) {
+        int id = gazetteer_word_entity_tags_[j][k];
+        success = WriteInteger(fs, id);
+        CHECK(success);
+      }
+    }
+
+    length = allowed_bigrams_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int j = 0; j < allowed_bigrams_.size(); ++j) {
@@ -49,39 +69,30 @@ class EntityDictionary : public SequenceDictionary {
         CHECK(success);
       }
     }
-
-    /*
-    bool success;
-    int length = unknown_word_tags_.size();
-    success = WriteInteger(fs, length);
-    CHECK(success);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
-      int tag = unknown_word_tags_[j];
-      success = WriteInteger(fs, tag);
-      CHECK(success);
-    }
-
-    length = word_tags_.size();
-    success = WriteInteger(fs, length);
-    CHECK(success);
-    for (int i = 0; i < word_tags_.size(); ++i) {
-      length = word_tags_[i].size();
-      success = WriteInteger(fs, length);
-      CHECK(success);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
-        int tag = word_tags_[i][j];
-        success = WriteInteger(fs, tag);
-        CHECK(success);
-      }
-    }
-    */
   }
 
   void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
 
-    bool success;
+    if (0 > gazetteer_word_alphabet_.Load(fs)) CHECK(false);
+    if (0 > gazetteer_entity_tag_alphabet_.Load(fs)) CHECK(false);
+
     int length;
+    bool success = ReadInteger(fs, &length);
+    CHECK(success);
+    gazetteer_word_entity_tags_.resize(length);
+    for (int j = 0; j < gazetteer_word_entity_tags_.size(); ++j) {
+      success = ReadInteger(fs, &length);
+      CHECK(success);
+      gazetteer_word_entity_tags_[j].resize(length);
+      for (int k = 0; k < gazetteer_word_entity_tags_[j].size(); ++k) {
+        int id;
+        success = ReadInteger(fs, &id);
+        CHECK(success);
+        gazetteer_word_entity_tags_[j][k] = id;
+      }
+    }
+
     success = ReadInteger(fs, &length);
     CHECK(success);
     allowed_bigrams_.resize(length);
@@ -96,39 +107,21 @@ class EntityDictionary : public SequenceDictionary {
         allowed_bigrams_[j][k] = allowed;
       }
     }
-
-    /*
-    bool success;
-    int length;
-    success = ReadInteger(fs, &length);
-    CHECK(success);
-    unknown_word_tags_.resize(length);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
-      int tag;
-      success = ReadInteger(fs, &tag);
-      CHECK(success);
-      unknown_word_tags_[j] = tag;
-    }
-    success = ReadInteger(fs, &length);
-    CHECK(success);
-    word_tags_.resize(length);
-    for (int i = 0; i < word_tags_.size(); ++i) {
-      success = ReadInteger(fs, &length);
-      CHECK(success);
-      word_tags_[i].resize(length);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
-        int tag;
-        success = ReadInteger(fs, &tag);
-        CHECK(success);
-        word_tags_[i][j] = tag;
-      }
-    }
-    */
   }
 
   void CreateTagDictionary(SequenceReader *reader);
 
   void ReadGazetteerFiles();
+
+  void GetWordGazetteerIds(const std::string &word,
+                           std::vector<int> *gazetteer_ids) const {
+    gazetteer_ids->clear();
+    int id = gazetteer_word_alphabet_.Lookup(word);
+    if (id >= 0) {
+      gazetteer_ids->assign(gazetteer_word_entity_tags_[id].begin(),
+                           gazetteer_word_entity_tags_[id].end());
+    }
+  }
 
   bool IsAllowedBigram(int left_tag, int tag) {
     CHECK_GE(left_tag, -1);
@@ -141,8 +134,6 @@ class EntityDictionary : public SequenceDictionary {
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
-  //vector<vector<int> > word_tags_;
-  //vector<int> unknown_word_tags_;
 };
 
 #endif /* ENTITYDICTIONARY_H_ */
