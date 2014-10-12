@@ -1,0 +1,300 @@
+Really basic features, BIO tagging.
+
+Spanish
+-------
+test:
+accuracy:  96.87%; precision:  77.50%; recall:  78.00%; FB1:  77.75
+              LOC: precision:  79.55%; recall:  77.86%; FB1:  78.69
+             MISC: precision:  59.62%; recall:  46.47%; FB1:  52.23
+              ORG: precision:  77.14%; recall:  79.79%; FB1:  78.44
+              PER: precision:  81.31%; recall:  89.39%; FB1:  85.16
+
+
+English
+-------
+test:
+accuracy:  86.11%; precision:  80.12%; recall:  79.64%; FB1:  79.88
+              LOC: precision:  83.16%; recall:  87.05%; FB1:  85.06
+             MISC: precision:  73.47%; recall:  76.92%; FB1:  75.16
+              ORG: precision:  79.82%; recall:  63.82%; FB1:  70.93
+              PER: precision:  80.11%; recall:  89.42%; FB1:  84.51
+
+dev:
+accuracy:  87.46%; precision:  88.41%; recall:  87.46%; FB1:  87.94
+              LOC: precision:  91.14%; recall:  91.83%; FB1:  91.49
+             MISC: precision:  86.05%; recall:  82.97%; FB1:  84.48
+              ORG: precision:  85.44%; recall:  79.19%; FB1:  82.20
+              PER: precision:  88.81%; recall:  91.37%; FB1:  90.07
+
+
+=======================================================================
+Not-so-basic unigram features, BIO tagging.
+
+English
+-------
+test:
+accuracy:  86.30%; precision:  81.83%; recall:  82.05%; FB1:  81.94
+              LOC: precision:  85.46%; recall:  87.71%; FB1:  86.57
+             MISC: precision:  77.05%; recall:  75.07%; FB1:  76.05
+              ORG: precision:  79.10%; recall:  70.62%; FB1:  74.62
+              PER: precision:  82.46%; recall:  90.97%; FB1:  86.50
+
+dev:
+accuracy:  87.58%; precision:  88.61%; recall:  87.61%; FB1:  88.11
+              LOC: precision:  91.44%; recall:  91.34%; FB1:  91.39
+             MISC: precision:  86.02%; recall:  83.41%; FB1:  84.69
+              ORG: precision:  85.39%; recall:  80.16%; FB1:  82.69
+              PER: precision:  89.24%; recall:  91.42%; FB1:  90.32
+
+
+
+=======================================================================
+Plus bigram features, BIO tagging.
+
+English
+-------
+test:
+accuracy:  86.41%; precision:  83.04%; recall:  82.95%; FB1:  82.99
+              LOC: precision:  87.82%; recall:  87.71%; FB1:  87.76
+             MISC: precision:  78.14%; recall:  75.36%; FB1:  76.72
+              ORG: precision:  79.77%; recall:  73.57%; FB1:  76.54
+              PER: precision:  83.25%; recall:  90.97%; FB1:  86.94
+
+dev:
+accuracy:  87.66%; precision:  88.92%; recall:  87.90%; FB1:  88.41
+              LOC: precision:  91.73%; recall:  90.58%; FB1:  91.15
+             MISC: precision:  87.47%; recall:  83.30%; FB1:  85.33
+              ORG: precision:  85.94%; recall:  82.92%; FB1:  84.40
+              PER: precision:  88.93%; recall:  91.15%; FB1:  90.03
+
+
+=======================================================================
+Plus shape features, BIO tagging.
+
+English
+-------
+test:
+accuracy:  86.28%; precision:  82.47%; recall:  82.22%; FB1:  82.35
+              LOC: precision:  87.36%; recall:  87.41%; FB1:  87.38
+             MISC: precision:  76.92%; recall:  76.92%; FB1:  76.92
+              ORG: precision:  80.41%; recall:  71.40%; FB1:  75.64
+              PER: precision:  81.79%; recall:  90.29%; FB1:  85.83
+
+dev:
+accuracy:  87.62%; precision:  89.52%; recall:  88.30%; FB1:  88.91
+              LOC: precision:  92.48%; recall:  92.32%; FB1:  92.40
+             MISC: precision:  88.56%; recall:  83.95%; FB1:  86.19
+              ORG: precision:  87.47%; recall:  81.73%; FB1:  84.50
+              PER: precision:  88.47%; recall:  91.26%; FB1:  89.85
+
+
+
+
+=======================================================================
+
+Really basic features, BILOU tagging.
+
+Spanish
+-------
+dev:
+accuracy:  95.24%; precision:  72.37%; recall:  72.75%; FB1:  72.56
+              LOC: precision:  63.59%; recall:  81.93%; FB1:  71.61
+             MISC: precision:  54.94%; recall:  53.71%; FB1:  54.32
+              ORG: precision:  77.63%; recall:  69.82%; FB1:  73.52
+              PER: precision:  81.70%; recall:  76.35%; FB1:  78.93
+
+test:
+accuracy:  96.94%; precision:  78.40%; recall:  78.84%; FB1:  78.62
+              LOC: precision:  79.89%; recall:  79.52%; FB1:  79.70
+             MISC: precision:  64.40%; recall:  47.35%; FB1:  54.58
+              ORG: precision:  77.31%; recall:  80.07%; FB1:  78.67
+              PER: precision:  82.75%; recall:  90.07%; FB1:  86.25
+
+
+
+=======================================================================
+Not-so-basic plus bigram features, BILOU tagging.
+
+English
+-------
+test:
+accuracy:  86.42%; precision:  83.75%; recall:  83.32%; FB1:  83.54
+              LOC: precision:  88.18%; recall:  88.13%; FB1:  88.16
+             MISC: precision:  78.12%; recall:  75.78%; FB1:  76.93
+              ORG: precision:  81.58%; recall:  74.41%; FB1:  77.83
+              PER: precision:  83.60%; recall:  90.79%; FB1:  87.04
+
+dev:
+accuracy:  87.70%; precision:  89.33%; recall:  88.02%; FB1:  88.67
+              LOC: precision:  91.73%; recall:  90.58%; FB1:  91.15
+             MISC: precision:  88.40%; recall:  84.27%; FB1:  86.29
+              ORG: precision:  87.21%; recall:  82.40%; FB1:  84.74
+              PER: precision:  88.87%; recall:  91.42%; FB1:  90.13
+
+
+=======================================================================
+Plus shape features, BILOU tagging.
+
+English
+-------
+test:
+accuracy:  86.32%; precision:  83.36%; recall:  82.84%; FB1:  83.10
+              LOC: precision:  88.31%; recall:  88.31%; FB1:  88.31
+             MISC: precision:  79.10%; recall:  77.64%; FB1:  78.36
+              ORG: precision:  81.34%; recall:  71.64%; FB1:  76.18
+              PER: precision:  82.04%; recall:  90.97%; FB1:  86.28
+
+dev:
+accuracy:  87.68%; precision:  89.49%; recall:  88.14%; FB1:  88.81
+              LOC: precision:  92.13%; recall:  92.38%; FB1:  92.25
+             MISC: precision:  88.38%; recall:  84.16%; FB1:  86.22
+              ORG: precision:  87.76%; recall:  80.76%; FB1:  84.12
+              PER: precision:  88.57%; recall:  91.26%; FB1:  89.89
+
+
+=======================================================================
+Same, but only with bigram features (not trigrams).
+
+English
+-------
+test:
+accuracy:  86.33%; precision:  83.75%; recall:  83.37%; FB1:  83.56
+              LOC: precision:  88.64%; recall:  88.43%; FB1:  88.54
+             MISC: precision:  78.13%; recall:  77.35%; FB1:  77.74
+              ORG: precision:  82.11%; recall:  73.21%; FB1:  77.40
+              PER: precision:  82.73%; recall:  91.22%; FB1:  86.76
+
+dev:
+accuracy:  87.68%; precision:  89.55%; recall:  88.22%; FB1:  88.88
+              LOC: precision:  91.65%; recall:  92.00%; FB1:  91.82
+             MISC: precision:  88.51%; recall:  84.38%; FB1:  86.40
+              ORG: precision:  88.22%; recall:  81.51%; FB1:  84.73
+              PER: precision:  88.85%; recall:  91.26%; FB1:  90.04
+
+=======================================================================
+=======================================================================
+=======================================================================
+=======================================================================
+=======================================================================
+
+BILOU with shapes and bigram features (not trigrams).
+
+English
+-------
+
+test:
+accuracy:  86.30%; precision:  83.39%; recall:  83.02%; FB1:  83.20
+              LOC: precision:  88.26%; recall:  88.37%; FB1:  88.32
+             MISC: precision:  78.32%; recall:  77.21%; FB1:  77.76
+              ORG: precision:  81.37%; recall:  72.31%; FB1:  76.57
+              PER: precision:  82.46%; recall:  91.03%; FB1:  86.54
+
+dev:
+I1002 15:11:34.679632 16061 SequencePipe.h:150] Tagging speed: 23391.4 tokens per second.
+Evaluating...
+processed 51578 tokens with 5942 phrases; found: 5857 phrases; correct: 5237.
+accuracy:  87.68%; precision:  89.41%; recall:  88.14%; FB1:  88.77
+              LOC: precision:  91.61%; recall:  92.11%; FB1:  91.86
+             MISC: precision:  88.08%; recall:  84.16%; FB1:  86.08
+              ORG: precision:  88.36%; recall:  81.51%; FB1:  84.79
+              PER: precision:  88.58%; recall:  90.99%; FB1:  89.77
+
+
+
+
+=======================================================================
+
+BILOU with shapes and bigram features (not trigrams), constrained.
+
+English
+-------
+
+test:
+I1007 16:35:36.559360  8834 SequencePipe.h:150] Tagging speed: 40333.6 tokens per second.
+accuracy:  86.30%; precision:  83.62%; recall:  83.14%; FB1:  83.38
+              LOC: precision:  88.57%; recall:  88.25%; FB1:  88.41
+             MISC: precision:  78.51%; recall:  78.06%; FB1:  78.29
+              ORG: precision:  82.02%; recall:  72.49%; FB1:  76.96
+              PER: precision:  82.33%; recall:  91.03%; FB1:  86.46
+
+dev:
+I1007 16:35:38.630271  8838 SequencePipe.h:150] Tagging speed: 35546.5 tokens per second.
+accuracy:  87.67%; precision:  89.36%; recall:  88.03%; FB1:  88.69
+              LOC: precision:  91.55%; recall:  92.05%; FB1:  91.80
+             MISC: precision:  88.24%; recall:  83.84%; FB1:  85.98
+              ORG: precision:  87.84%; recall:  81.36%; FB1:  84.48
+              PER: precision:  88.72%; recall:  90.99%; FB1:  89.84
+
+
+=======================================================================
+BIO with shapes and trigram features.
+
+English
+-------
+test:
+I1002 15:20:03.167290 16300 SequencePipe.h:150] Tagging speed: 12588.6 tokens per second.
+accuracy:  86.27%; precision:  82.49%; recall:  82.06%; FB1:  82.28
+              LOC: precision:  86.89%; recall:  87.41%; FB1:  87.15
+             MISC: precision:  77.67%; recall:  76.78%; FB1:  77.22
+              ORG: precision:  80.51%; recall:  70.62%; FB1:  75.24
+              PER: precision:  81.84%; recall:  90.60%; FB1:  86.00
+
+dev:
+I1002 15:20:07.836500 16304 SequencePipe.h:150] Tagging speed: 12368.8 tokens per second.
+accuracy:  87.61%; precision:  89.42%; recall:  88.22%; FB1:  88.82
+              LOC: precision:  92.48%; recall:  92.43%; FB1:  92.46
+             MISC: precision:  87.91%; recall:  83.62%; FB1:  85.71
+              ORG: precision:  87.37%; recall:  81.51%; FB1:  84.34
+              PER: precision:  88.51%; recall:  91.21%; FB1:  89.84
+
+
+=======================================================================
+
+BIO with shapes and trigram features, constrained.
+
+English
+-------
+test:
+I1007 15:47:25.464431  8515 SequencePipe.h:150] Tagging speed: 20566.8 tokens per second.
+accuracy:  86.30%; precision:  82.67%; recall:  82.24%; FB1:  82.45
+              LOC: precision:  87.12%; recall:  87.59%; FB1:  87.35
+             MISC: precision:  77.57%; recall:  76.35%; FB1:  76.96
+              ORG: precision:  80.68%; recall:  71.40%; FB1:  75.76
+              PER: precision:  82.09%; recall:  90.41%; FB1:  86.05
+
+dev:
+I1007 15:47:28.462985  8519 SequencePipe.h:150] Tagging speed: 20410.8 tokens per second.
+I1007 15:47:28.463260  8519 TurboEntityRecognizer.cpp:78] Testing took 2.655 sec.
+
+Evaluating...
+processed 51578 tokens with 5942 phrases; found: 5862 phrases; correct: 5247.
+accuracy:  87.61%; precision:  89.51%; recall:  88.30%; FB1:  88.90
+              LOC: precision:  92.23%; recall:  92.38%; FB1:  92.30
+             MISC: precision:  87.98%; recall:  84.16%; FB1:  86.03
+              ORG: precision:  87.89%; recall:  81.21%; FB1:  84.42
+              PER: precision:  88.64%; recall:  91.48%; FB1:  90.03
+
+
+
+=======================================================================
+
+BILOU with shapes and trigram features, constrained.
+
+English
+-------
+test:
+I1007 16:42:25.937391  8882 SequencePipe.h:150] Tagging speed: 12055.3 tokens per second.
+accuracy:  86.31%; precision:  83.50%; recall:  82.88%; FB1:  83.19
+              LOC: precision:  89.00%; recall:  88.25%; FB1:  88.62
+             MISC: precision:  78.73%; recall:  77.49%; FB1:  78.10
+              ORG: precision:  81.61%; recall:  71.88%; FB1:  76.44
+              PER: precision:  81.81%; recall:  90.97%; FB1:  86.15
+
+dev:
+I1007 16:42:30.937916  8886 SequencePipe.h:150] Tagging speed: 11805.4 tokens per second.
+processed 51578 tokens with 5942 phrases; found: 5859 phrases; correct: 5235.
+accuracy:  87.68%; precision:  89.35%; recall:  88.10%; FB1:  88.72
+              LOC: precision:  92.03%; recall:  92.38%; FB1:  92.20
+             MISC: precision:  88.74%; recall:  83.73%; FB1:  86.16
+              ORG: precision:  87.46%; recall:  80.61%; FB1:  83.90
+              PER: precision:  88.27%; recall:  91.48%; FB1:  89.84
