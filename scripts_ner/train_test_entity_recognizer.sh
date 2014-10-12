@@ -37,7 +37,13 @@ if [ "$language" == "english" ] || [ "$language" == "spanish" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
     files_test[1]=${path_data}/${language}_dev.conll.ner
-    file_gazetteer=${path_data}/${language}.list
+    files_test[2]=${path_data}/${language}_train.conll.ner
+    file_gazetteer=${path_data}/${language}_all_gazetteers.txt
+
+    echo "Creating gazetteer file..."
+    python create_gazetteer_file.py ${path_data}/KnownLists $file_gazetteer
+    echo "Done."
+
 else
     files_test[0]=${path_data}/${language}_test.conll.ner
 fi

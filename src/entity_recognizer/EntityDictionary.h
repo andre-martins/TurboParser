@@ -93,6 +93,13 @@ class EntityDictionary : public SequenceDictionary {
       }
     }
 
+    gazetteer_word_alphabet_.StopGrowth();
+    gazetteer_entity_tag_alphabet_.StopGrowth();
+    LOG(INFO) << "Number of gazetteer words: "
+              << gazetteer_word_alphabet_.size();
+    LOG(INFO) << "Number of gazetteer entity tags: "
+              << gazetteer_entity_tag_alphabet_.size();
+
     success = ReadInteger(fs, &length);
     CHECK(success);
     allowed_bigrams_.resize(length);
@@ -119,7 +126,7 @@ class EntityDictionary : public SequenceDictionary {
     int id = gazetteer_word_alphabet_.Lookup(word);
     if (id >= 0) {
       gazetteer_ids->assign(gazetteer_word_entity_tags_[id].begin(),
-                           gazetteer_word_entity_tags_[id].end());
+                            gazetteer_word_entity_tags_[id].end());
     }
   }
 

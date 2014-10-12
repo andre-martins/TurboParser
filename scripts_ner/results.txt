@@ -298,3 +298,48 @@ accuracy:  87.68%; precision:  89.35%; recall:  88.10%; FB1:  88.72
              MISC: precision:  88.74%; recall:  83.73%; FB1:  86.16
               ORG: precision:  87.46%; recall:  80.61%; FB1:  83.90
               PER: precision:  88.27%; recall:  91.48%; FB1:  89.84
+
+=======================================================================
+
+BILOU with shapes and trigram features, constrained, with 1 gazetteer feature [at home].
+
+English
+-------
+test:
+accuracy:  86.60%; precision:  86.93%; recall:  87.02%; FB1:  86.98
+              LOC: precision:  88.58%; recall:  91.19%; FB1:  89.87
+             MISC: precision:  80.56%; recall:  77.92%; FB1:  79.22
+              ORG: precision:  82.92%; recall:  80.37%; FB1:  81.63
+              PER: precision:  91.75%; recall:  93.51%; FB1:  92.62
+
+dev:
+I1012 19:35:20.068308  8257 SequencePipe.h:150] Tagging speed: 9360.8 tokens per second.
+accuracy:  87.74%; precision:  91.56%; recall:  91.06%; FB1:  91.31
+              LOC: precision:  93.75%; recall:  93.96%; FB1:  93.86
+             MISC: precision:  90.00%; recall:  84.92%; FB1:  87.39
+              ORG: precision:  86.98%; recall:  85.16%; FB1:  86.06
+              PER: precision:  93.32%; recall:  95.55%; FB1:  94.42
+
+
+=======================================================================
+
+BILOU with shapes and trigram features, constrained, with 5 gazetteer features [at home].
+
+English
+-------
+test:
+I1012 19:44:18.231323  8402 SequencePipe.h:150] Tagging speed: 9021.07 tokens per second.
+accuracy:  86.62%; precision:  86.45%; recall:  86.07%; FB1:  86.26
+              LOC: precision:  88.30%; recall:  90.53%; FB1:  89.40
+             MISC: precision:  79.43%; recall:  75.93%; FB1:  77.64
+              ORG: precision:  81.67%; recall:  79.41%; FB1:  80.53
+              PER: precision:  92.13%; recall:  92.70%; FB1:  92.42
+
+dev:
+I1012 19:44:25.217227  8406 SequencePipe.h:150] Tagging speed: 8963.85 tokens per second.
+accuracy:  87.67%; precision:  90.85%; recall:  90.04%; FB1:  90.44
+              LOC: precision:  93.88%; recall:  93.52%; FB1:  93.70
+             MISC: precision:  88.26%; recall:  82.32%; FB1:  85.19
+              ORG: precision:  85.47%; recall:  83.37%; FB1:  84.41
+              PER: precision:  92.81%; recall:  95.28%; FB1:  94.03
+

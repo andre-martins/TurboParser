@@ -135,10 +135,13 @@ void EntityDictionary::ReadGazetteerFiles() {
     LOG(INFO) << "Loading gazetteer file "
               << options->file_gazetteer() << "...";
     std::ifstream is;
+    std::string line;
+
+    // Do a first pass just to count the words and create the
+    // dictionaries.
     is.open(options->file_gazetteer().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
                      << options->file_gazetteer() << ".";
-    std::string line;
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
@@ -157,26 +160,64 @@ void EntityDictionary::ReadGazetteerFiles() {
           gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
           const std::string &word = fields[k];
-          int word_id = gazetteer_word_alphabet_.Insert(word);
-          if (gazetteer_word_entity_tags_.size() <= word_id) {
-            gazetteer_word_entity_tags_.resize(word_id+1);
-          }
+          gazetteer_word_alphabet_.Insert(word);
+        }
+      }
+    }
+    is.close();
+
+    // Now do the second pass to actually fill in the data.
+    gazetteer_word_entity_tags_.clear();
+    gazetteer_word_entity_tags_.resize(gazetteer_word_alphabet_.size());
+    is.open(options->file_gazetteer().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_gazetteer() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        if (fields.size() < 2) continue;
+        const std::string &entity_type = fields[0];
+        int entity_type_begin_id =
+          gazetteer_entity_tag_alphabet_.Lookup("B-" + entity_type);
+        int entity_type_inside_id =
+          gazetteer_entity_tag_alphabet_.Lookup("I-" + entity_type);
+        int entity_type_last_id =
+          gazetteer_entity_tag_alphabet_.Lookup("L-" + entity_type);
+        int entity_type_unique_id =
+          gazetteer_entity_tag_alphabet_.Lookup("U-" + entity_type);
+        for (int k = 1; k < fields.size(); ++k) {
+          const std::string &word = fields[k];
+          int word_id = gazetteer_word_alphabet_.Lookup(word);
+          CHECK_GE(word_id, 0);
+          CHECK_LT(word_id, gazetteer_word_entity_tags_.size());
+          int entity_type_id = -1;
           if (fields.size() == 2) {
-            gazetteer_word_entity_tags_[word_id].
-              push_back(entity_type_unique_id);
+            entity_type_id = entity_type_unique_id;
           } else if (k == 1) {
-            gazetteer_word_entity_tags_[word_id].
-              push_back(entity_type_begin_id);
+            entity_type_id = entity_type_begin_id;
           } else if (k == fields.size() - 1) {
-            gazetteer_word_entity_tags_[word_id].
-              push_back(entity_type_last_id);
+            entity_type_id = entity_type_last_id;
           } else {
+            entity_type_id = entity_type_inside_id;
+          }
+          int l = -1;
+          for (l = 0; l < gazetteer_word_entity_tags_[word_id].size();
+               ++l) {
+            if (gazetteer_word_entity_tags_[word_id][l] == entity_type_id) {
+              break;
+            }
+          }
+          if (l == gazetteer_word_entity_tags_[word_id].size()) {
             gazetteer_word_entity_tags_[word_id].
-              push_back(entity_type_inside_id);
+              push_back(entity_type_id);
           }
         }
       }
     }
+    is.close();
   }
 
   gazetteer_word_alphabet_.StopGrowth();
@@ -185,4 +226,5 @@ void EntityDictionary::ReadGazetteerFiles() {
             << gazetteer_word_alphabet_.size();
   LOG(INFO) << "Number of gazetteer entity tags: "
             << gazetteer_entity_tag_alphabet_.size();
+
 }
