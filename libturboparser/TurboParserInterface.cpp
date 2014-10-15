@@ -13,10 +13,10 @@
 namespace TurboParserInterface {
 
 TurboTaggerWorker::TurboTaggerWorker() {
-  tagger_options_ = new SequenceOptions;
+  tagger_options_ = new TaggerOptions;
   tagger_options_->Initialize();
 
-  tagger_pipe_ = new SequencePipe(tagger_options_);
+  tagger_pipe_ = new TaggerPipe(tagger_options_);
   tagger_pipe_->Initialize();
 }
 
@@ -53,6 +53,56 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
   gettimeofday(&start, NULL);
 
   tagger_pipe_->Run();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
+TurboEntityRecognizerWorker::TurboEntityRecognizerWorker() {
+  entity_options_ = new EntityOptions;
+  entity_options_->Initialize();
+
+  entity_pipe_ = new EntityPipe(entity_options_);
+  entity_pipe_->Initialize();
+}
+
+TurboEntityRecognizerWorker::~TurboEntityRecognizerWorker() {
+  LOG(INFO) << "Deleting entity recognizer pipe.";
+  delete entity_pipe_;
+  LOG(INFO) << "Deleting entity recognizer options.";
+  delete entity_options_;
+}
+
+void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
+    const std::string &file_model) {
+  entity_options_->SetModelFilePath(file_model);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  entity_pipe_->LoadModelFile();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
+void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
+                                      const std::string &file_prediction) {
+  entity_options_->SetTestFilePath(file_test);
+  entity_options_->SetOutputFilePath(file_prediction);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  entity_pipe_->Run();
 
   gettimeofday(&end, NULL);
   time = diff_ms(end,start);
@@ -182,6 +232,9 @@ TurboParserInterface::TurboParserInterface() {
 TurboParserInterface::~TurboParserInterface() {
   LOG(INFO) << "Deleting tagger workers.";
   DeleteAllTaggers();
+
+  LOG(INFO) << "Deleting entity recognizer workers.";
+  DeleteAllEntityRecognizers();
 
   LOG(INFO) << "Deleting parser workers.";
   DeleteAllParsers();

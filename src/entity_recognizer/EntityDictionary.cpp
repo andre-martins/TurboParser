@@ -71,7 +71,6 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
       int tag_begin = tag_alphabet_.Lookup("B-" + entity);
       int tag_inside = tag_alphabet_.Lookup("I-" + entity);
       int tag_last = tag_alphabet_.Lookup("L-" + entity);
-      int tag_unique = tag_alphabet_.Lookup("U-" + entity);
       // I-tags and L-tags can only occur after a B-tag or an I-tag of the same
       // entity.
       for (int left_tag = -1; left_tag < tag_alphabet_.size(); ++left_tag) {
@@ -150,14 +149,10 @@ void EntityDictionary::ReadGazetteerFiles() {
         StringSplit(line, " \t", &fields); // Break on tabs or spaces.
         if (fields.size() < 2) continue;
         const std::string &entity_type = fields[0];
-        int entity_type_begin_id =
-          gazetteer_entity_tag_alphabet_.Insert("B-" + entity_type);
-        int entity_type_inside_id =
-          gazetteer_entity_tag_alphabet_.Insert("I-" + entity_type);
-        int entity_type_last_id =
-          gazetteer_entity_tag_alphabet_.Insert("L-" + entity_type);
-        int entity_type_unique_id =
-          gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
+        gazetteer_entity_tag_alphabet_.Insert("B-" + entity_type);
+        gazetteer_entity_tag_alphabet_.Insert("I-" + entity_type);
+        gazetteer_entity_tag_alphabet_.Insert("L-" + entity_type);
+        gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
           const std::string &word = fields[k];
           gazetteer_word_alphabet_.Insert(word);

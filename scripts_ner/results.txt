@@ -343,3 +343,25 @@ accuracy:  87.67%; precision:  90.85%; recall:  90.04%; FB1:  90.44
               ORG: precision:  85.47%; recall:  83.37%; FB1:  84.41
               PER: precision:  92.81%; recall:  95.28%; FB1:  94.03
 
+
+
+=======================================================================
+
+BILOU with shapes and trigram features, constrained
+
+Spanish
+-------
+test:
+accuracy:  97.11%; precision:  78.68%; recall:  78.70%; FB1:  78.69
+              LOC: precision:  80.82%; recall:  80.07%; FB1:  80.44
+             MISC: precision:  65.16%; recall:  46.76%; FB1:  54.45
+              ORG: precision:  77.23%; recall:  79.00%; FB1:  78.11
+              PER: precision:  82.47%; recall:  90.88%; FB1:  86.47
+
+dev:
+I1013 11:09:44.904317 23623 SequencePipe.h:150] Tagging speed: 11134.7 tokens per second.
+accuracy:  96.24%; precision:  74.88%; recall:  74.75%; FB1:  74.82
+              LOC: precision:  63.21%; recall:  83.05%; FB1:  71.79
+             MISC: precision:  64.08%; recall:  53.71%; FB1:  58.44
+              ORG: precision:  80.19%; recall:  73.59%; FB1:  76.75
+              PER: precision:  84.60%; recall:  77.33%; FB1:  80.80

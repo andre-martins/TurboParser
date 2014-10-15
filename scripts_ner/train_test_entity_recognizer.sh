@@ -7,8 +7,8 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
-num_epochs=10 # Number of training epochs.
-regularization_parameter=1e12 # The C parameter in MIRA.
+num_epochs=20 #50 #20 # Number of training epochs.
+regularization_parameter=$2 #1e12 # The C parameter in MIRA.
 train=true
 test=true
 model_type=2 # Second-order model (trigrams).
@@ -33,7 +33,7 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.ner
 
-if [ "$language" == "english" ] || [ "$language" == "spanish" ]
+if [ "$language" == "english" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
     files_test[1]=${path_data}/${language}_dev.conll.ner
@@ -43,7 +43,11 @@ then
     echo "Creating gazetteer file..."
     python create_gazetteer_file.py ${path_data}/KnownLists $file_gazetteer
     echo "Done."
-
+elif [ "$language" == "spanish" ] || [ "$language" == "dutch" ]
+then
+    files_test[0]=${path_data}/${language}_test.conll.ner
+    files_test[1]=${path_data}/${language}_dev.conll.ner
+    files_test[2]=${path_data}/${language}_train.conll.ner
 else
     files_test[0]=${path_data}/${language}_test.conll.ner
 fi

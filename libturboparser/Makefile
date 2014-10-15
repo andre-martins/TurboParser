@@ -1,15 +1,17 @@
 UTIL = ../src/util
 CLASSIFIER = ../src/classifier
+SEQUENCE = ../src/sequence
 TAGGER = ../src/tagger
+ENTITYRECOGNIZER = ../src/entity_recognizer
 PARSER = ../src/parser
 SEMANTICPARSER = ../src/semantic_parser
 AUXLIBS = ../deps/local/lib
 AUXINCLUDES = ../deps/local/include
 
-OBJS = TurboParserInterface.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o SequenceDecoder.o SequenceDictionary.o SequenceFeatures.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
+OBJS = TurboParserInterface.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o TaggerDictionary.o TaggerFeatures.o TaggerOptions.o TaggerPipe.o EntityDictionary.o EntityFeatures.o EntityInstance.o EntityInstanceNumeric.o EntityOptions.o EntityPipe.o EntityReader.o EntityWriter.o SequenceDecoder.o SequenceDictionary.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
 CC = g++
 DEBUG = -g
-INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(TAGGER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(AUXINCLUDES)
+INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(AUXINCLUDES)
 LIBS = -L/usr/local/lib/ -L$(AUXLIBS)
 CFLAGS = -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC $(INCLUDES)
 LFLAGS = $(LIBS) -lad3 -lgflags -lglog
@@ -19,7 +21,7 @@ all : libturboparser.a
 libturboparser.a : $(OBJS)
 	ar rcs libturboparser.a $(OBJS)
 
-TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/SequencePipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(UTIL)/Utils.h
+TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/TaggerPipe.h $(ENTITYRECOGNIZER)/EntityPipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(UTIL)/Utils.h
 	$(CC) $(CFLAGS) TurboParserInterface.cpp
 
 #####################
@@ -27,7 +29,7 @@ TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER
 SemanticDecoder.o: $(SEMANTICPARSER)/SemanticDecoder.h $(SEMANTICPARSER)/SemanticDecoder.cpp $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticPipe.h $(PARSER)/FactorTree.h $(SEMANTICPARSER)/FactorPredicateAutomaton.h $(SEMANTICPARSER)/FactorArgumentAutomaton.h $(UTIL)/AlgUtils.h $(UTIL)/logval.h $(CLASSIFIER)/Decoder.h
 	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticDecoder.cpp
 
-SemanticDictionary.o: $(SEMANTICPARSER)/SemanticDictionary.h $(SEMANTICPARSER)/SemanticDictionary.cpp $(SEMANTICPARSER)/SemanticPipe.h $(CLASSIFIER)/Dictionary.h $(TAGGER)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+SemanticDictionary.o: $(SEMANTICPARSER)/SemanticDictionary.h $(SEMANTICPARSER)/SemanticDictionary.cpp $(SEMANTICPARSER)/SemanticPipe.h $(CLASSIFIER)/Dictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
 	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticDictionary.cpp
 
 SemanticFeatures.o: $(SEMANTICPARSER)/SemanticFeatures.h $(SEMANTICPARSER)/SemanticFeatures.cpp $(SEMANTICPARSER)/SemanticPipe.h $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticFeatureTemplates.h $(CLASSIFIER)/Features.h $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
@@ -45,7 +47,7 @@ SemanticOptions.o: $(SEMANTICPARSER)/SemanticOptions.h $(SEMANTICPARSER)/Semanti
 SemanticPart.o: $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticPart.cpp $(CLASSIFIER)/Part.h
 	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticPart.cpp
 
-SemanticPipe.o: $(SEMANTICPARSER)/SemanticPipe.h $(SEMANTICPARSER)/SemanticPipe.cpp $(CLASSIFIER)/Pipe.h $(SEMANTICPARSER)/SemanticOptions.h $(SEMANTICPARSER)/SemanticReader.h $(SEMANTICPARSER)/SemanticDictionary.h $(TAGGER)/TokenDictionary.h $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(SEMANTICPARSER)/SemanticWriter.h $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticFeatures.h $(SEMANTICPARSER)/SemanticDecoder.h
+SemanticPipe.o: $(SEMANTICPARSER)/SemanticPipe.h $(SEMANTICPARSER)/SemanticPipe.cpp $(CLASSIFIER)/Pipe.h $(SEMANTICPARSER)/SemanticOptions.h $(SEMANTICPARSER)/SemanticReader.h $(SEMANTICPARSER)/SemanticDictionary.h $(SEQUENCE)/TokenDictionary.h $(SEMANTICPARSER)/SemanticInstanceNumeric.h $(SEMANTICPARSER)/SemanticWriter.h $(SEMANTICPARSER)/SemanticPart.h $(SEMANTICPARSER)/SemanticFeatures.h $(SEMANTICPARSER)/SemanticDecoder.h
 	$(CC) $(CFLAGS) $(SEMANTICPARSER)/SemanticPipe.cpp
 
 SemanticReader.o: $(SEMANTICPARSER)/SemanticReader.h $(SEMANTICPARSER)/SemanticReader.cpp $(SEMANTICPARSER)/SemanticInstance.h $(CLASSIFIER)/Reader.h
@@ -59,7 +61,7 @@ SemanticWriter.o: $(SEMANTICPARSER)/SemanticWriter.h $(SEMANTICPARSER)/SemanticW
 DependencyDecoder.o: $(PARSER)/DependencyDecoder.h $(PARSER)/DependencyDecoder.cpp $(PARSER)/DependencyPart.h $(PARSER)/DependencyPipe.h $(PARSER)/FactorTree.h $(PARSER)/FactorHeadAutomaton.h $(PARSER)/FactorGrandparentHeadAutomaton.h $(PARSER)/FactorTrigramHeadAutomaton.h $(PARSER)/FactorSequence.h $(UTIL)/AlgUtils.h $(UTIL)/logval.h $(CLASSIFIER)/Decoder.h
 	$(CC) $(CFLAGS) $(PARSER)/DependencyDecoder.cpp
 
-DependencyDictionary.o: $(PARSER)/DependencyDictionary.h $(PARSER)/DependencyDictionary.cpp $(PARSER)/DependencyPipe.h $(CLASSIFIER)/Dictionary.h $(TAGGER)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+DependencyDictionary.o: $(PARSER)/DependencyDictionary.h $(PARSER)/DependencyDictionary.cpp $(PARSER)/DependencyPipe.h $(CLASSIFIER)/Dictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
 	$(CC) $(CFLAGS) $(PARSER)/DependencyDictionary.cpp
 
 DependencyFeatures.o: $(PARSER)/DependencyFeatures.h $(PARSER)/DependencyFeatures.cpp $(PARSER)/DependencyPipe.h $(PARSER)/DependencyPart.h $(PARSER)/DependencyFeatureTemplates.h $(CLASSIFIER)/Features.h $(PARSER)/DependencyInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
@@ -77,7 +79,7 @@ DependencyOptions.o: $(PARSER)/DependencyOptions.h $(PARSER)/DependencyOptions.c
 DependencyPart.o: $(PARSER)/DependencyPart.h $(PARSER)/DependencyPart.cpp $(CLASSIFIER)/Part.h
 	$(CC) $(CFLAGS) $(PARSER)/DependencyPart.cpp
 
-DependencyPipe.o: $(PARSER)/DependencyPipe.h $(PARSER)/DependencyPipe.cpp $(CLASSIFIER)/Pipe.h $(PARSER)/DependencyOptions.h $(PARSER)/DependencyReader.h $(PARSER)/DependencyDictionary.h $(TAGGER)/TokenDictionary.h $(PARSER)/DependencyInstanceNumeric.h $(PARSER)/DependencyWriter.h $(PARSER)/DependencyPart.h $(PARSER)/DependencyFeatures.h $(PARSER)/DependencyDecoder.h
+DependencyPipe.o: $(PARSER)/DependencyPipe.h $(PARSER)/DependencyPipe.cpp $(CLASSIFIER)/Pipe.h $(PARSER)/DependencyOptions.h $(PARSER)/DependencyReader.h $(PARSER)/DependencyDictionary.h $(SEQUENCE)/TokenDictionary.h $(PARSER)/DependencyInstanceNumeric.h $(PARSER)/DependencyWriter.h $(PARSER)/DependencyPart.h $(PARSER)/DependencyFeatures.h $(PARSER)/DependencyDecoder.h
 	$(CC) $(CFLAGS) $(PARSER)/DependencyPipe.cpp
 
 DependencyReader.o: $(PARSER)/DependencyReader.h $(PARSER)/DependencyReader.cpp $(PARSER)/DependencyInstance.h $(CLASSIFIER)/Reader.h
@@ -88,38 +90,75 @@ DependencyWriter.o: $(PARSER)/DependencyWriter.h $(PARSER)/DependencyWriter.cpp 
 
 #####################
 
-SequenceDecoder.o: $(TAGGER)/SequenceDecoder.h $(TAGGER)/SequenceDecoder.cpp $(TAGGER)/SequencePart.h $(TAGGER)/SequencePipe.h $(CLASSIFIER)/Decoder.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceDecoder.cpp
+TaggerDictionary.o: $(TAGGER)/TaggerDictionary.h $(TAGGER)/TaggerDictionary.cpp $(TAGGER)/TaggerPipe.h $(SEQUENCE)/SequenceDictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+	$(CC) $(CFLAGS) $(TAGGER)/TaggerDictionary.cpp
 
-SequenceDictionary.o: $(TAGGER)/SequenceDictionary.h $(TAGGER)/SequenceDictionary.cpp $(TAGGER)/SequencePipe.h $(CLASSIFIER)/Dictionary.h $(TAGGER)/TokenDictionary.h $(UTIL)/SerializationUtils.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceDictionary.cpp
+TaggerFeatures.o: $(TAGGER)/TaggerFeatures.h $(TAGGER)/TaggerFeatures.cpp $(TAGGER)/TaggerPipe.h $(TAGGER)/TaggerFeatureTemplates.h $(SEQUENCE)/SequenceFeatures.h $(SEQUENCE)/SequenceInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
+	$(CC) $(CFLAGS) $(TAGGER)/TaggerFeatures.cpp
 
-SequenceFeatures.o: $(TAGGER)/SequenceFeatures.h $(TAGGER)/SequenceFeatures.cpp $(TAGGER)/SequencePipe.h $(TAGGER)/SequencePart.h $(TAGGER)/SequenceFeatureTemplates.h $(CLASSIFIER)/Features.h $(TAGGER)/SequenceInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceFeatures.cpp
+TaggerOptions.o: $(TAGGER)/TaggerOptions.h $(TAGGER)/TaggerOptions.cpp $(UTIL)/SerializationUtils.h $(SEQUENCE)/SequenceOptions.h
+	$(CC) $(CFLAGS) $(TAGGER)/TaggerOptions.cpp
 
-SequenceInstance.o: $(TAGGER)/SequenceInstance.h $(TAGGER)/SequenceInstance.cpp $(CLASSIFIER)/Instance.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceInstance.cpp
+TaggerPipe.o: $(TAGGER)/TaggerPipe.h $(TAGGER)/TaggerPipe.cpp $(SEQUENCE)/SequencePipe.h $(TAGGER)/TaggerOptions.h $(TAGGER)/TaggerDictionary.h
+	$(CC) $(CFLAGS) $(TAGGER)/TaggerPipe.cpp
 
-SequenceInstanceNumeric.o: $(TAGGER)/SequenceInstanceNumeric.h $(TAGGER)/SequenceInstanceNumeric.cpp $(TAGGER)/SequenceInstance.h  $(TAGGER)/SequenceDictionary.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceInstanceNumeric.cpp
+#####################
 
-SequenceOptions.o: $(TAGGER)/SequenceOptions.h $(TAGGER)/SequenceOptions.cpp $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Options.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceOptions.cpp
+EntityDictionary.o: $(ENTITYRECOGNIZER)/EntityDictionary.h $(ENTITYRECOGNIZER)/EntityDictionary.cpp $(ENTITYRECOGNIZER)/EntityPipe.h $(SEQUENCE)/SequenceDictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityDictionary.cpp
 
-SequencePart.o: $(TAGGER)/SequencePart.h $(TAGGER)/SequencePart.cpp $(CLASSIFIER)/Part.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequencePart.cpp
+EntityFeatures.o: $(ENTITYRECOGNIZER)/EntityFeatures.h $(ENTITYRECOGNIZER)/EntityFeatures.cpp $(ENTITYRECOGNIZER)/EntityPipe.h $(ENTITYRECOGNIZER)/EntityFeatureTemplates.h $(SEQUENCE)/SequenceFeatures.h $(SEQUENCE)/SequenceInstanceNumeric.h $(CLASSIFIER)/FeatureEncoder.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityFeatures.cpp
 
-SequencePipe.o: $(TAGGER)/SequencePipe.h $(TAGGER)/SequencePipe.cpp $(CLASSIFIER)/Pipe.h $(TAGGER)/SequenceOptions.h $(TAGGER)/SequenceReader.h $(TAGGER)/SequenceDictionary.h $(TAGGER)/TokenDictionary.h $(TAGGER)/SequenceInstanceNumeric.h $(TAGGER)/SequenceWriter.h $(TAGGER)/SequencePart.h $(TAGGER)/SequenceFeatures.h $(TAGGER)/SequenceDecoder.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequencePipe.cpp
+EntityOptions.o: $(ENTITYRECOGNIZER)/EntityOptions.h $(ENTITYRECOGNIZER)/EntityOptions.cpp $(UTIL)/SerializationUtils.h $(SEQUENCE)/SequenceOptions.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityOptions.cpp
 
-SequenceReader.o: $(TAGGER)/SequenceReader.h $(TAGGER)/SequenceReader.cpp $(TAGGER)/SequenceInstance.h $(CLASSIFIER)/Reader.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceReader.cpp
+EntityPipe.o: $(ENTITYRECOGNIZER)/EntityPipe.h $(ENTITYRECOGNIZER)/EntityPipe.cpp $(SEQUENCE)/SequencePipe.h $(ENTITYRECOGNIZER)/EntityOptions.h $(ENTITYRECOGNIZER)/EntityDictionary.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityPipe.cpp
 
-SequenceWriter.o: $(TAGGER)/SequenceWriter.h $(TAGGER)/SequenceWriter.cpp $(TAGGER)/SequenceInstance.h $(CLASSIFIER)/Writer.h
-	$(CC) $(CFLAGS) $(TAGGER)/SequenceWriter.cpp
+EntityReader.o: $(ENTITYRECOGNIZER)/EntityReader.h $(ENTITYRECOGNIZER)/EntityReader.cpp $(ENTITYRECOGNIZER)/EntityInstance.h $(SEQUENCE)/SequenceReader.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityReader.cpp
 
-TokenDictionary.o: $(TAGGER)/TokenDictionary.h $(TAGGER)/TokenDictionary.cpp $(CLASSIFIER)/Pipe.h $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Dictionary.h $(CLASSIFIER)/Alphabet.h $(TAGGER)/SequenceReader.h $(PARSER)/DependencyReader.h
-	$(CC) $(CFLAGS) $(TAGGER)/TokenDictionary.cpp
+EntityWriter.o: $(ENTITYRECOGNIZER)/EntityWriter.h $(ENTITYRECOGNIZER)/EntityWriter.cpp $(ENTITYRECOGNIZER)/EntityInstance.h $(SEQUENCE)/SequenceWriter.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityWriter.cpp
+
+EntityInstance.o: $(ENTITYRECOGNIZER)/EntityInstance.h $(ENTITYRECOGNIZER)/EntityInstance.cpp $(SEQUENCE)/SequenceInstance.h 
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityInstance.cpp
+
+EntityInstanceNumeric.o: $(ENTITYRECOGNIZER)/EntityInstanceNumeric.h $(ENTITYRECOGNIZER)/EntityInstanceNumeric.cpp $(ENTITYRECOGNIZER)/EntityInstance.h $(SEQUENCE)/SequenceInstanceNumeric.h $(ENTITYRECOGNIZER)/EntityDictionary.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityInstanceNumeric.cpp
+
+#####################
+
+SequenceDecoder.o: $(SEQUENCE)/SequenceDecoder.h $(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequencePipe.h $(CLASSIFIER)/Decoder.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceDecoder.cpp
+
+SequenceDictionary.o: $(SEQUENCE)/SequenceDictionary.h $(SEQUENCE)/SequenceDictionary.cpp $(SEQUENCE)/SequencePipe.h $(CLASSIFIER)/Dictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceDictionary.cpp
+
+SequenceInstance.o: $(SEQUENCE)/SequenceInstance.h $(SEQUENCE)/SequenceInstance.cpp $(CLASSIFIER)/Instance.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceInstance.cpp
+
+SequenceInstanceNumeric.o: $(SEQUENCE)/SequenceInstanceNumeric.h $(SEQUENCE)/SequenceInstanceNumeric.cpp $(SEQUENCE)/SequenceInstance.h  $(SEQUENCE)/SequenceDictionary.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceInstanceNumeric.cpp
+
+SequenceOptions.o: $(SEQUENCE)/SequenceOptions.h $(SEQUENCE)/SequenceOptions.cpp $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Options.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceOptions.cpp
+
+SequencePart.o: $(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequencePart.cpp $(CLASSIFIER)/Part.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequencePart.cpp
+
+SequencePipe.o: $(SEQUENCE)/SequencePipe.h $(SEQUENCE)/SequencePipe.cpp $(CLASSIFIER)/Pipe.h $(SEQUENCE)/SequenceOptions.h $(SEQUENCE)/SequenceReader.h $(SEQUENCE)/SequenceDictionary.h $(SEQUENCE)/TokenDictionary.h $(SEQUENCE)/SequenceInstanceNumeric.h $(SEQUENCE)/SequenceWriter.h $(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequenceFeatures.h $(SEQUENCE)/SequenceDecoder.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequencePipe.cpp
+
+SequenceReader.o: $(SEQUENCE)/SequenceReader.h $(SEQUENCE)/SequenceReader.cpp $(SEQUENCE)/SequenceInstance.h $(CLASSIFIER)/Reader.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceReader.cpp
+
+SequenceWriter.o: $(SEQUENCE)/SequenceWriter.h $(SEQUENCE)/SequenceWriter.cpp $(SEQUENCE)/SequenceInstance.h $(CLASSIFIER)/Writer.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/SequenceWriter.cpp
+
+TokenDictionary.o: $(SEQUENCE)/TokenDictionary.h $(SEQUENCE)/TokenDictionary.cpp $(CLASSIFIER)/Pipe.h $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Dictionary.h $(CLASSIFIER)/Alphabet.h $(SEQUENCE)/SequenceReader.h $(PARSER)/DependencyReader.h
+	$(CC) $(CFLAGS) $(SEQUENCE)/TokenDictionary.cpp
 
 #####################
 

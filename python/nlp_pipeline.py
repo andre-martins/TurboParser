@@ -8,6 +8,7 @@ import pdb
 class NLPPipelineWorker:
     def __init__(self, pipeline, language):
         self.tagger = None
+        self.entity_recognizer = None
         self.parser = None
         self.semantic_parser = None
         self.lemmatizer = None
@@ -32,6 +33,9 @@ class NLPPipelineWorker:
         if 'tagger' in pipeline.models[language]:
             self.tagger = pipeline.turbo_interface.create_tagger()
             self.tagger.load_tagger_model(pipeline.models[language]['tagger'])
+        if 'entity_recognizer' in pipeline.models[language]:
+            self.entity_recognizer = pipeline.turbo_interface.create_entity_recognizer()
+            self.entity_recognizer.load_entity_recognizer_model(pipeline.models[language]['entity_recognizer'])
         if 'parser' in pipeline.models[language]:
             self.parser = pipeline.turbo_interface.create_parser()
             self.parser.load_parser_model(pipeline.models[language]['parser'])
@@ -122,6 +126,26 @@ class NLPPipeline:
             lemmas = ['_' for token in tokenized_sentence]
         return tags, lemmas
 
+    def recognize_entities(self, tokenized_sentence, tags, language):
+        worker = self.get_worker(language)
+        f_ner = open('ner.tmp', 'w')
+        for i, token in enumerate(tokenized_sentence):
+            tag = tags[i]
+            f_ner.write(token + '\t' + tag + '\t' + '\t_\n')
+        f_ner.close()
+        worker.entity_recognizer.tag('ner.tmp', 'ner.tmp.pred')
+        f_ner_pred = open('ner.tmp.pred')
+        entity_tags = []
+        for line in f_ner_pred:
+            line = line.rstrip('\n')
+            if line == '':
+                continue
+            fields = line.split('\t')
+            entity_tag = fields[2]
+            entity_tags.append(entity_tag)
+        f_ner_pred.close()
+        return entity_tags
+
     def parse(self, tokenized_sentence, tags, lemmas, language):
         worker = self.get_worker(language)
         f_conll = open('conll.tmp', 'w')
@@ -148,6 +172,10 @@ class NLPPipeline:
             deprels.append(deprel)
         f_conll_pred.close()
         return heads, deprels
+
+    def has_entity_recognizer(self, language):
+        worker = self.get_worker(language)
+        return (worker.entity_recognizer != None)
 
     def has_semantic_parser(self, language):
         worker = self.get_worker(language)
