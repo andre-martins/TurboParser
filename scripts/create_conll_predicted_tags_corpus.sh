@@ -1,3 +1,5 @@
+#!/bin/bash
+
 this_folder="`cd $(dirname $0);pwd`"
 
 file_conll=$1
