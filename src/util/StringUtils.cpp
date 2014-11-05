@@ -57,9 +57,7 @@ void TrimComments(const string &delim, string *line) {
 // non-delimiting character (e.g. whitespaces).
 void TrimLeft(const string &delim, string *line) {
   size_t cutAt = line->find_first_not_of(delim);
-  if (cutAt == line->npos) {
-    *line == "";
-  } else {
+  if (cutAt != line->npos) {
     *line = line->substr(cutAt);
   }
 }
@@ -68,9 +66,7 @@ void TrimLeft(const string &delim, string *line) {
 // non-delimiting character (e.g. whitespaces).
 void TrimRight(const string &delim, string *line) {
   size_t cutAt = line->find_last_not_of(delim);
-  if (cutAt == line->npos) {
-    *line == "";
-  } else {
+  if (cutAt != line->npos) {
     *line = line->substr(0, cutAt+1);
   }
 }
