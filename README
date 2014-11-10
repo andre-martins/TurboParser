@@ -172,7 +172,7 @@ data, and evaluate the output against the gold standard:
 --logtostderr
 
 The results from running the parser are in the file 
-data/samples/sample_test.conll.predicted and the trained model in 
+data/sample/sample_test.conll.predicted and the trained model in 
 models/sample_parser.model.
 
 
