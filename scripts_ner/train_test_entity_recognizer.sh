@@ -33,7 +33,7 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.ner
 
-if [ "$language" == "english" ]
+if [ "$language" == "english" ] || [ "$language" == "english_ontonotes" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
     files_test[1]=${path_data}/${language}_dev.conll.ner
@@ -43,6 +43,12 @@ then
     echo "Creating gazetteer file..."
     python create_gazetteer_file.py ${path_data}/KnownLists $file_gazetteer
     echo "Done."
+
+    if [ "$language" == "english_ontonotes" ]
+    then
+        model_type=1 # First-order model (bigrams).
+    fi
+
 elif [ "$language" == "spanish" ] || [ "$language" == "dutch" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
