@@ -85,6 +85,9 @@ class PortugueseWordTokenizer(TokenizerI):
         # Note: the Portuguese sentence tokenizer should also do this!!
         text = re.sub('\xc2\xa0', ' ', text)
 
+        # Replace tabs by spaces [ATM 3/12/2014].
+        text = re.sub('\t', ' ', text)
+
         # Replace U+0096 by dashes.
         text = re.sub('\xc2\x96', ' -- ', text)
 
