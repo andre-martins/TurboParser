@@ -109,6 +109,8 @@ class DependencyLabelerPipe : public Pipe {
                  std::vector<double> *gold_outputs);
   void MakePartsBasic(Instance *instance, Parts *parts,
                       std::vector<double> *gold_outputs);
+  void MakePartsGlobal(Instance *instance, Parts *parts,
+                       vector<double> *gold_outputs);
   void MakeSelectedFeatures(Instance *instance,
                             Parts *parts,
                             const std::vector<bool>& selected_parts,
