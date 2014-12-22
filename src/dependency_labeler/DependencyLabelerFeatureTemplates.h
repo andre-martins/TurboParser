@@ -22,6 +22,21 @@
 struct DependencyLabelerFeatureTemplateParts {
   enum types {
     ARC = 0,
+    ARC_SIBLINGS
+  };
+};
+
+struct DependencyLabelerFeatureTemplateArcSiblings {
+  enum types {
+    // There is a cross-product between these and direction, distance, {word form}, {pos cpos}
+    // Features for head and modifier [add prefixes and suffixes]
+    BIAS = 0,				/* bias */
+    HD_HMD, /* number of head dependents (left/right), position of this arc */
+    HW_MW_HD_HMD, /* Same, plus head word and modifier word */
+    HW_MP_HD_HMD, /* Same, plus head word and modifier POS */
+    HP_MW_HD_HMD, /* Same, plus head POS and modifier word */
+    HP_MP_HD_HMD, /* Same, plus head POS and modifier POS */
+    COUNT
   };
 };
 

@@ -44,6 +44,151 @@ void DependencyLabelerFeatures::AddArcFeatures(
 
   AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC,
                       head, modifier, true, true, features);
+
+  const std::vector<int> &heads = sentence->GetHeads();
+  std::vector<int> siblings;
+  for (int m = 1; m < heads.size(); ++m) {
+    if (head == heads[m]) {
+      siblings.push_back(m);
+    }
+  }
+
+  AddArcSiblingFeatures(sentence, head, modifier, siblings, features);
+}
+
+// General function to add features for a pair of words (arcs, sibling words,
+// etc.) Can optionally use lemma and morpho-syntactic feature information.
+// The features are very similar to the ones used in Koo et al. EGSTRA.
+void DependencyLabelerFeatures::AddArcSiblingFeatures(
+    DependencyInstanceNumeric* sentence,
+    int head,
+    int modifier,
+    const std::vector<int> &siblings,
+    BinaryFeatures *features) {
+  int sentence_length = sentence->size();
+
+  // Only 4 bits are allowed in feature_type.
+  uint8_t feature_type = DependencyLabelerFeatureTemplateParts::ARC_SIBLINGS;
+  CHECK_LT(feature_type, 16);
+  CHECK_GE(feature_type, 0);
+
+  uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
+  int left_position, right_position;
+  if (modifier < head) {
+    left_position = modifier;
+    right_position = head;
+    direction_code = 0x0;
+  } else {
+    left_position = head;
+    right_position = modifier;
+    direction_code = 0x1;
+  }
+
+  // Codewords for accommodating word/POS information.
+  uint16_t HWID, MWID;
+  uint8_t HPID, MPID;
+
+  // Maximum is 255 feature templates.
+  //LOG(INFO) << DependencyFeatureTemplateArc::COUNT;
+  CHECK_LT(DependencyLabelerFeatureTemplateArcSiblings::COUNT, 256);
+
+  uint64_t fkey;
+  uint8_t flags = 0;
+
+  // Words/POS.
+  HWID = sentence->GetFormId(head);
+  MWID = sentence->GetFormId(modifier);
+  HPID = sentence->GetCoarsePosId(head);
+  MPID = sentence->GetCoarsePosId(modifier);
+
+  // Codeword for number of left and right head dependents (8 bits).
+  uint8_t head_dependents_code = 0;
+  uint8_t index_modifier_code = 0;
+  int num_left_modifiers = 0;
+  int num_right_modifiers = 0;
+  int index_modifier = -1;
+  for (int k = 0; k < siblings.size(); ++k) {
+    int m = siblings[k];
+    if (m == modifier) index_modifier = k;
+    if (m < head) {
+      ++num_left_modifiers;
+    } else {
+      ++num_right_modifiers;
+    }
+  }
+  CHECK_GE(index_modifier, 0);
+  CHECK_EQ(num_left_modifiers + num_right_modifiers, siblings.size());
+
+  // Truncate the number of left/right modifiers to 15 (4 bits).
+  if (num_left_modifiers > 0xf) num_left_modifiers = 0xf;
+  if (num_right_modifiers > 0xf) num_right_modifiers = 0xf;
+
+  // Truncate the index of the modifier to 255 (8 bits).
+  if (index_modifier > 0xff) index_modifier = 0xff;
+
+  head_dependents_code = num_right_modifiers; // 4 bits.
+  head_dependents_code |= (num_left_modifiers << 4); // 4 more bits.
+  index_modifier_code = index_modifier;
+
+  // Code for feature type.
+  flags = feature_type; // 4 bits.
+  flags |= (direction_code << 4); // 1 more bit.
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Dependency features.
+  // Everything goes with direction flags.
+  /////////////////////////////////////////////////////////////////////////////
+  // Head dependent features.
+  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HD_HMD, flags, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+
+  // Head dependent features conjoined with head/modifier word and POS.
+  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_HD_HMD, flags, HWID, MWID, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_HD_HMD, flags, HWID, MPID, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_HD_HMD, flags, MWID, HPID, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_HD_HMD, flags, HPID, MPID, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+
+#if 0
+  // In-between flags.
+  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArc::BFLAG, flags, flag_between_verb);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArc::BFLAG, flags, flag_between_punc);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArc::BFLAG, flags, flag_between_coord);
+  AddFeature(fkey, features);
+
+  // POS features conjoined with in-between flag.
+  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_verb);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_punc);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_BFLAG, flags, HPID, MPID, flag_between_coord);
+  AddFeature(fkey, features);
+
+  set<int> BPIDs;
+  set<int> BWIDs;
+  for (int i = left_position + 1; i < right_position; ++i) {
+    BPID = sentence->GetCoarsePosId(i);
+    if (BPIDs.find(BPID) == BPIDs.end()) {
+      BPIDs.insert(BPID);
+
+      // POS in the middle.
+      fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_BP, flags, HPID, MPID, BPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArc::HW_MW_BP, flags, HWID, MWID, BPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HW_MP_BP, flags, HWID, MPID, BPID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HP_MW_BP, flags, MWID, HPID, BPID);
+      AddFeature(fkey, features);
+    }
+    BPIDs.clear();
+  }
+#endif
 }
 
 // General function to add features for a pair of words (arcs, sibling words,

@@ -78,6 +78,12 @@ class DependencyLabelerFeatures: public Features {
                            bool use_morphological_features,
                            BinaryFeatures *features);
 
+  void AddArcSiblingFeatures(DependencyInstanceNumeric* sentence,
+                             int head,
+                             int modifier,
+                             const std::vector<int> &siblings,
+                             BinaryFeatures *features);
+
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {
     features->push_back(fkey);
   }

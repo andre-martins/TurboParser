@@ -9,7 +9,7 @@ language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
 num_epochs=10 # Number of training epochs.
 regularization_parameter=0.001 # The C parameter in MIRA.
-train=false #true
+train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
@@ -66,6 +66,13 @@ then
         awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
             > ${file_test}
     done
+elif [ "$language" == "english_dep2phrase" ]
+then
+    file_train=${path_data}/${language}_train.conll.predpos
+    files_test[0]=${path_data}/${language}_test.conll
+    files_test[1]=${path_data}/${language}_dev.conll
+
+    suffix_parser=predicted
 elif [ "$language" == "english" ]
 then
     file_train=${path_data}/${language}_train.conll
