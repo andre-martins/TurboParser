@@ -7,8 +7,8 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
-num_epochs=10 # Number of training epochs.
-regularization_parameter=0.001 # The C parameter in MIRA.
+num_epochs=20 #10 # Number of training epochs.
+regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.

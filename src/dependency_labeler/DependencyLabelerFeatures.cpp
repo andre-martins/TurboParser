@@ -103,6 +103,7 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
 
   // Codeword for number of left and right head dependents (8 bits).
   uint8_t head_dependents_code = 0;
+  uint8_t head_other_side_dependents_code = 0;
   uint8_t index_modifier_code = 0;
   int num_left_modifiers = 0;
   int num_right_modifiers = 0;
@@ -118,6 +119,14 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   }
   CHECK_GE(index_modifier, 0);
   CHECK_EQ(num_left_modifiers + num_right_modifiers, siblings.size());
+  if (modifier < head) {
+    // This is a left modifier.
+    index_modifier = num_left_modifiers - index_modifier;
+  } else {
+    // This is a right modifier.
+    index_modifier = index_modifier - num_left_modifiers + 1;
+  }
+  CHECK_GE(index_modifier, 0);
 
   // Truncate the number of left/right modifiers to 15 (4 bits).
   if (num_left_modifiers > 0xf) num_left_modifiers = 0xf;
@@ -128,6 +137,15 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
 
   head_dependents_code = num_right_modifiers; // 4 bits.
   head_dependents_code |= (num_left_modifiers << 4); // 4 more bits.
+
+  if (modifier < head) {
+    // This is a left modifier.
+    head_other_side_dependents_code = num_right_modifiers; // 4 bits.
+  } else {
+    // This is a right modifier.
+    head_other_side_dependents_code = (num_left_modifiers << 4); // 4 bits.
+  }
+
   index_modifier_code = index_modifier;
 
   // Code for feature type.
@@ -139,10 +157,32 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   // Everything goes with direction flags.
   /////////////////////////////////////////////////////////////////////////////
   // Head dependent features.
+  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::HMD, flags, index_modifier_code);
+  AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HD_HMD, flags, head_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HoD_HMD, flags, head_other_side_dependents_code, index_modifier_code);
   AddFeature(fkey, features);
 
   // Head dependent features conjoined with head/modifier word and POS.
+  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_HMD, flags, HWID, MWID, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_HMD, flags, HWID, MPID, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_HMD, flags, MWID, HPID, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_HMD, flags, HPID, MPID, index_modifier_code);
+  AddFeature(fkey, features);
+
+  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_HoD_HMD, flags, HWID, MWID, head_other_side_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_HoD_HMD, flags, HWID, MPID, head_other_side_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_HoD_HMD, flags, MWID, HPID, head_other_side_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_HoD_HMD, flags, HPID, MPID, head_other_side_dependents_code, index_modifier_code);
+  AddFeature(fkey, features);
+
   fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_HD_HMD, flags, HWID, MWID, head_dependents_code, index_modifier_code);
   AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_HD_HMD, flags, HWID, MPID, head_dependents_code, index_modifier_code);

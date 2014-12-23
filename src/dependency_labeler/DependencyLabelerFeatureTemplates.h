@@ -31,6 +31,18 @@ struct DependencyLabelerFeatureTemplateArcSiblings {
     // There is a cross-product between these and direction, distance, {word form}, {pos cpos}
     // Features for head and modifier [add prefixes and suffixes]
     BIAS = 0,				/* bias */
+    HMD, /* position of this arc */
+    HW_MW_HMD, /* Same, plus head word and modifier word */
+    HW_MP_HMD, /* Same, plus head word and modifier POS */
+    HP_MW_HMD, /* Same, plus head POS and modifier word */
+    HP_MP_HMD, /* Same, plus head POS and modifier POS */
+
+    HoD_HMD, /* number of other-side head dependents, position of this arc */
+    HW_MW_HoD_HMD, /* Same, plus head word and modifier word */
+    HW_MP_HoD_HMD, /* Same, plus head word and modifier POS */
+    HP_MW_HoD_HMD, /* Same, plus head POS and modifier word */
+    HP_MP_HoD_HMD, /* Same, plus head POS and modifier POS */
+
     HD_HMD, /* number of head dependents (left/right), position of this arc */
     HW_MW_HD_HMD, /* Same, plus head word and modifier word */
     HW_MP_HD_HMD, /* Same, plus head word and modifier POS */
