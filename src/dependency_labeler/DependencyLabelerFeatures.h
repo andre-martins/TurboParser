@@ -65,6 +65,7 @@ class DependencyLabelerFeatures: public Features {
 
  public:
   void AddArcFeatures(DependencyInstanceNumeric *sentence,
+                      const std::vector<std::vector<int> > &descendents,
                       int r,
                       int head,
                       int modifier);
@@ -79,6 +80,7 @@ class DependencyLabelerFeatures: public Features {
                            BinaryFeatures *features);
 
   void AddArcSiblingFeatures(DependencyInstanceNumeric* sentence,
+                             const std::vector<std::vector<int> > &descendents,
                              int head,
                              int modifier,
                              const std::vector<int> &siblings,

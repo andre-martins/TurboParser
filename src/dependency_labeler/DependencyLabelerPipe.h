@@ -164,16 +164,20 @@ class DependencyLabelerPipe : public Pipe {
       int head = -1;
       int num_possible_heads = 0;
       for (int h = 0; h < dependency_instance->size(); ++h) {
-        int r = dependency_parts->FindArc(h, m);
-        if (r < 0) continue;
-        ++num_possible_heads;
-        if (gold_outputs[r] >= 0.5) {
-          CHECK_EQ(gold_outputs[r], 1.0);
-          if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-            ++num_head_mistakes_;
+        const vector<int> &index_labeled_parts =
+          dependency_parts->FindLabeledArcs(h, m);
+        for (int k = 0; k < index_labeled_parts.size(); ++k) {
+          int r = index_labeled_parts[k];
+          if (r < 0) continue;
+          ++num_possible_heads;
+          if (gold_outputs[r] >= 0.5) {
+            CHECK_EQ(gold_outputs[r], 1.0);
+            if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
+              ++num_head_mistakes_;
+            }
+            head = h;
+            //break;
           }
-          head = h;
-          //break;
         }
       }
       if (head < 0) {
@@ -186,7 +190,7 @@ class DependencyLabelerPipe : public Pipe {
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO) << "Parsing accuracy: " <<
+    LOG(INFO) << "Labeling accuracy: " <<
       static_cast<double>(num_tokens_ - num_head_mistakes_) /
         static_cast<double>(num_tokens_);
     LOG(INFO) << "Pruning recall: " <<
@@ -195,19 +199,22 @@ class DependencyLabelerPipe : public Pipe {
     LOG(INFO) << "Pruning efficiency: " <<
       static_cast<double>(num_heads_after_pruning_) /
         static_cast<double>(num_tokens_)
-              << " possible heads per token.";
+              << " possible labels per token.";
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
         static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
-    LOG(INFO) << "Parsing speed: "
+    LOG(INFO) << "Labeling speed: "
               << tokens_per_second << " tokens per second.";
   }
 
-  //void GetAllAncestors(const vector<int> &heads,
-  //                     int descend,
-  //                     vector<int>* ancestors) const;
+  void ComputeDescendents(const std::vector<int> &heads,
+                          std::vector<std::vector<int> >* descendents) const;
+
+  void GetAllAncestors(const std::vector<int> &heads,
+                       int descend,
+                       std::vector<int>* ancestors) const;
   //bool ExistsPath(const vector<int> &heads,
   //                int ancest,
   //                int descend) const;

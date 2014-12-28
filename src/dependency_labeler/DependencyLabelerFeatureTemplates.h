@@ -22,7 +22,9 @@
 struct DependencyLabelerFeatureTemplateParts {
   enum types {
     ARC = 0,
-    ARC_SIBLINGS
+    ARC_SIBLINGS,
+    ARC_PREVIOUS_SIBLING,
+    ARC_NEXT_SIBLING
   };
 };
 
@@ -32,22 +34,123 @@ struct DependencyLabelerFeatureTemplateArcSiblings {
     // Features for head and modifier [add prefixes and suffixes]
     BIAS = 0,				/* bias */
     HMD, /* position of this arc */
+
+    HW_HMD, /* Same, plus head word */
+    MW_HMD, /* Same, plus modifier word */
+    HP_HMD, /* Same, plus head POS */
+    MP_HMD, /* Same, plus modifier POS */
+
     HW_MW_HMD, /* Same, plus head word and modifier word */
     HW_MP_HMD, /* Same, plus head word and modifier POS */
     HP_MW_HMD, /* Same, plus head POS and modifier word */
     HP_MP_HMD, /* Same, plus head POS and modifier POS */
 
     HoD_HMD, /* number of other-side head dependents, position of this arc */
+
+    HW_HoD_HMD, /* Same, plus head word */
+    MW_HoD_HMD, /* Same, plus modifier word */
+    HP_HoD_HMD, /* Same, plus head POS */
+    MP_HoD_HMD, /* Same, plus modifier POS */
+
     HW_MW_HoD_HMD, /* Same, plus head word and modifier word */
     HW_MP_HoD_HMD, /* Same, plus head word and modifier POS */
     HP_MW_HoD_HMD, /* Same, plus head POS and modifier word */
     HP_MP_HoD_HMD, /* Same, plus head POS and modifier POS */
 
     HD_HMD, /* number of head dependents (left/right), position of this arc */
+
+    HW_HD_HMD, /* Same, plus head word */
+    MW_HD_HMD, /* Same, plus modifier word */
+    HP_HD_HMD, /* Same, plus head POS */
+    MP_HD_HMD, /* Same, plus modifier POS */
+
     HW_MW_HD_HMD, /* Same, plus head word and modifier word */
     HW_MP_HD_HMD, /* Same, plus head word and modifier POS */
     HP_MW_HD_HMD, /* Same, plus head POS and modifier word */
     HP_MP_HD_HMD, /* Same, plus head POS and modifier POS */
+
+    HW_MW_pSP_HMD,
+    HW_MP_pSW_HMD,
+    HP_MW_pSW_HMD,
+    HW_MW_nSP_HMD,
+    HW_MP_nSW_HMD,
+    HP_MW_nSW_HMD,
+
+    HW_MP_pSP_HMD,
+    HP_MW_pSP_HMD,
+    HP_MP_pSW_HMD,
+    HW_MP_nSP_HMD,
+    HP_MW_nSP_HMD,
+    HP_MP_nSW_HMD,
+
+    HP_MP_pSP_HMD,
+    HP_MP_nSP_HMD,
+
+    HW_MW_pSP,
+    HW_MP_pSW,
+    HP_MW_pSW,
+    HW_MW_nSP,
+    HW_MP_nSW,
+    HP_MW_nSW,
+
+    HW_MP_pSP,
+    HP_MW_pSP,
+    HP_MP_pSW,
+    HW_MP_nSP,
+    HP_MW_nSP,
+    HP_MP_nSW,
+
+    HP_MP_pSP,
+    HP_MP_nSP,
+
+    HW_MW_GP_HMD,
+    HW_MP_GW_HMD,
+    HP_MW_GW_HMD,
+
+    HW_MP_GP_HMD,
+    HP_MW_GP_HMD,
+    HP_MP_GW_HMD,
+
+    HP_MP_GP_HMD,
+
+    HW_MW_GP,
+    HW_MP_GW,
+    HP_MW_GW,
+
+    HW_MP_GP,
+    HP_MW_GP,
+    HP_MP_GW,
+
+    HP_MP_GP,
+
+    iDW_HMD,
+    iDP_HMD,
+    HW_iDW_HMD, /* Same, plus head word and inside word */
+    HW_iDP_HMD, /* Same, plus head word and inside POS */
+    HP_iDW_HMD, /* Same, plus head POS and inside word */
+    HP_iDP_HMD, /* Same, plus head POS and inside POS */
+
+    oDW_HMD,
+    oDP_HMD,
+    HW_oDW_HMD, /* Same, plus head word and outside word */
+    HW_oDP_HMD, /* Same, plus head word and outside POS */
+    HP_oDW_HMD, /* Same, plus head POS and outside word */
+    HP_oDP_HMD, /* Same, plus head POS and outside POS */
+
+    iDW,
+    iDP,
+    HW_iDW, /* Same, plus head word and inside word */
+    HW_iDP, /* Same, plus head word and inside POS */
+    HP_iDW, /* Same, plus head POS and inside word */
+    HP_iDP, /* Same, plus head POS and inside POS */
+
+    oDW,
+    oDP,
+    HW_oDW, /* Same, plus head word and outside word */
+    HW_oDP, /* Same, plus head word and outside POS */
+    HP_oDW, /* Same, plus head POS and outside word */
+    HP_oDP, /* Same, plus head POS and outside POS */
+
     COUNT
   };
 };

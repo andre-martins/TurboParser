@@ -7,7 +7,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
-num_epochs=20 #10 # Number of training epochs.
+num_epochs=10 #20 # Number of training epochs.
 regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 train=true
 test=true
@@ -20,6 +20,8 @@ lemma_cutoff=0 # Cutoff in lemma occurrence.
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they
                     # make the parser a lot slower.
+delta_encoding=$3
+dependency_to_constituency=true
 
 suffix_parser=parser_pruned-true_model-standard.pred
 suffix=labeler
@@ -71,8 +73,15 @@ then
     file_train=${path_data}/${language}_train.conll.predpos
     files_test[0]=${path_data}/${language}_test.conll
     files_test[1]=${path_data}/${language}_dev.conll
+    if ${delta_encoding}
+    then
+        file_train_transformed=${path_data}/${language}_delta_train.conll.predpos
+        files_test_transformed[0]=${path_data}/${language}_delta_test.conll
+        files_test_transformed[1]=${path_data}/${language}_delta_dev.conll
+    fi
 
     suffix_parser=predicted
+
 elif [ "$language" == "english" ]
 then
     file_train=${path_data}/${language}_train.conll
@@ -112,11 +121,20 @@ done
 
 if $train
 then
+
+    if ${delta_encoding}
+    then
+        python delta_encode_labeling_indices.py ${file_train} > ${file_train_transformed}
+        file_train_actual=${file_train_transformed}
+    else
+        file_train_actual=${file_train}
+    fi
+
     ${path_bin}/TurboDependencyLabeler \
         --train \
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
-        --file_train=${file_train} \
+        --file_train=${file_train_actual} \
         --form_case_sensitive=${case_sensitive} \
         --form_cutoff=${form_cutoff} \
         --lemma_cutoff=${lemma_cutoff} \
@@ -134,14 +152,77 @@ if $test
 then
 
     rm -f ${file_results}
+
+    # Test first with oracle backbone dependencies.
     for (( i=0; i<${#files_test[*]}; i++ ))
     do
-        file_test=${files_test[$i]}
-        file_test_parsed=${file_test}.${suffix_parser}
-        file_prediction=${files_prediction[$i]}
+
+        if ${delta_encoding}
+        then
+            # Convert gold to delta encoding.
+            #python delta_encode_labeling_indices.py ${files_test[$i]} > ${files_test_transformed[$i]}
+            file_test=${files_test_transformed[$i]}
+            file_prediction=${file_test}.${suffix}.pred
+        else
+            file_test=${files_test[$i]}
+            file_prediction=${files_prediction[$i]}
+        fi
 
         echo ""
         echo "Testing on ${file_test}..."
+        ${path_bin}/TurboDependencyLabeler \
+            --test \
+            --evaluate \
+            --file_model=${file_model} \
+            --file_test=${file_test} \
+            --file_prediction=${file_prediction} \
+            --logtostderr
+
+        if ${delta_encoding}
+        then
+            # Convert predicted back from delta encoding.
+            python delta_encode_labeling_indices.py --from_delta=True ${file_prediction} > ${files_prediction[$i]}
+        fi
+
+        echo ""
+        echo "Evaluating..."
+        touch ${file_results}
+        perl ${path_scripts}/eval.pl -b -q -g ${files_test[$i]} -s ${files_prediction[$i]} | tail -5 \
+            >> ${file_results}
+        cat ${file_results}
+
+        if ${dependency_to_constituency}
+        then
+            # Convert gold standard file to phrases.
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]} ${files_test[$i]}.phrases
+            # Convert predicted file to phrases.
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]} ${files_prediction[$i]}.phrases
+            # Run EVALB.
+            EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.phrases ${files_prediction[$i]}.phrases | grep Bracketing | head -3 \
+                >> ${file_results}
+        fi
+
+        cat ${file_results}
+    done
+
+    # Now test with predicted backbone dependencies.
+    for (( i=0; i<${#files_test[*]}; i++ ))
+    do
+        if ${delta_encoding}
+        then
+            # Convert gold to delta encoding.
+            file_test=${files_test_transformed[$i]}
+            file_test_parsed=${files_test[$i]}.${suffix_parser}
+            file_prediction=${file_test}.${suffix}.pred
+            #python delta_encode_labeling_indices.py ${files_test[$i]}.${suffix_parser} > ${file_test_parsed}
+        else
+            file_test=${files_test[$i]}
+            file_test_parsed=${file_test}.${suffix_parser}
+            file_prediction=${files_prediction[$i]}
+        fi
+
+        echo ""
+        echo "Testing on ${file_test_parsed}..."
         ${path_bin}/TurboDependencyLabeler \
             --test \
             --evaluate \
@@ -150,12 +231,30 @@ then
             --file_prediction=${file_prediction} \
             --logtostderr
 
+        if ${delta_encoding}
+        then
+            # Convert back from delta encoding.
+            python delta_encode_labeling_indices.py --from_delta=True ${file_prediction} > ${files_prediction[$i]}
+        fi
+
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-#        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_test_parsed} | tail -5 \
-        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_prediction} | tail -5 \
+        perl ${path_scripts}/eval.pl -b -q -g ${files_test[$i]} -s ${files_prediction[$i]} | tail -5 \
             >> ${file_results}
+
+        if ${dependency_to_constituency}
+        then
+            # Convert gold standard file to phrases.
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]} ${files_test[$i]}.phrases
+            # Convert predicted file to phrases.
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]} ${files_prediction[$i]}.phrases
+            # Run EVALB.
+            EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.phrases ${files_prediction[$i]}.phrases | grep Bracketing | head -3 \
+                >> ${file_results}
+
+        fi
+
         cat ${file_results}
     done
 fi

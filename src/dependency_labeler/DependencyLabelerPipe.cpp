@@ -364,6 +364,11 @@ void DependencyLabelerPipe::MakeSelectedFeatures(
 
   dependency_features->Initialize(instance, parts);
 
+  // TODO(atm): make this computation of descendents be part of
+  // DependencyInstanceNumeric or a class that derives from it.
+  std::vector<std::vector<int> > descendents;
+  ComputeDescendents(sentence->GetHeads(), &descendents);
+
   // Even in the case of labeled parsing, build features for unlabeled arcs
   // only. They will later be conjoined with the labels.
   int offset, size;
@@ -373,7 +378,7 @@ void DependencyLabelerPipe::MakeSelectedFeatures(
     DependencyPartArc *arc =
       static_cast<DependencyPartArc*>((*dependency_parts)[r]);
     CHECK_GE(arc->head(), 0);
-    dependency_features->AddArcFeatures(sentence, r, arc->head(),
+    dependency_features->AddArcFeatures(sentence, descendents, r, arc->head(),
                                         arc->modifier());
   }
 }
@@ -413,3 +418,35 @@ void DependencyLabelerPipe::LabelInstance(Parts *parts,
   }
 }
 
+void DependencyLabelerPipe::ComputeDescendents(
+    const std::vector<int> &heads,
+    std::vector<std::vector<int> >* descendents) const {
+  //LOG(INFO) << "Computing descendents";
+  descendents->resize(heads.size());
+  for (int h = 0; h < descendents->size(); ++h) {
+    (*descendents)[h].clear();
+  }
+  for (int m = 1; m < heads.size(); ++m) {
+    (*descendents)[m].push_back(m);
+    std::vector<int> ancestors;
+    GetAllAncestors(heads, m, &ancestors);
+    for (int k = 0; k < ancestors.size(); ++k) {
+      int h = ancestors[k];
+      if (h < 0) continue;
+      //LOG(INFO) << h << " " << descendents->size();
+      (*descendents)[h].push_back(m);
+    }
+  }
+  //LOG(INFO) << "End computing descendents";
+}
+
+void DependencyLabelerPipe::GetAllAncestors(const std::vector<int> &heads,
+                                            int descend,
+                                            std::vector<int>* ancestors) const {
+  ancestors->clear();
+  int h = heads[descend];
+  while (h >= 0) {
+    h = heads[h];
+    ancestors->push_back(h);
+  }
+}
