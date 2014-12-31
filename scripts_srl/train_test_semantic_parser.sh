@@ -41,7 +41,8 @@ then
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
     formalism=$7 #pcedt #pas #dm
-    subfolder=semeval2014_data/${formalism}
+    subfolder=semeval2015_data/${formalism}
+    #subfolder=semeval2014_data/${formalism}
 else
     allow_self_loops=true
     allow_root_predicate=false
@@ -84,10 +85,10 @@ if [ "$language" == "english" ]
 then
     if [ "$file_format" == "sdp" ]
     then
-        #file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
-        file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
-        #files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
-        files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
         files_test[0]=${path_data}/${language}_test.conll2008
@@ -96,9 +97,17 @@ then
         files_test[3]=${path_data}/${language}_devel.conll2008.MST
     fi
 else
-    file_train=${path_data}/${language}_train.conll2008
-    file_test=${path_data}/${language}_test.conll2008
-    files_test[0]=${file_test}
+    if [ "$file_format" == "sdp" ]
+    then
+        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
+    else
+        file_train=${path_data}/${language}_train.conll2008
+        file_test=${path_data}/${language}_test.conll2008
+        files_test[0]=${file_test}
+    fi
 fi
 
 # Obtain a prediction file path for each test file.
