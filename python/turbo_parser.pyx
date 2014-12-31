@@ -17,10 +17,16 @@ cdef extern from "../libturboparser/TurboParserInterface.h" namespace "TurboPars
         void LoadParserModel(string file_model)
         void Parse(string file_test, string file_prediction)
 
+    cdef cppclass TurboSemanticParserWorker:
+        TurboSemanticParserWorker()
+        void LoadSemanticParserModel(string file_model)
+        void ParseSemanticDependencies(string file_test, string file_prediction)
+
     cdef cppclass TurboParserInterface:
         TurboParserInterface()
         TurboTaggerWorker* CreateTagger()
         TurboParserWorker* CreateParser()
+        TurboSemanticParserWorker* CreateSemanticParser()
 
 
 # Wrap them into python extension types.
@@ -46,6 +52,11 @@ cdef class PTurboParser:
         parser = PTurboParserWorker(allocate=False)
         parser.thisptr = self.thisptr.CreateParser()
         return parser
+
+    def create_semantic_parser(self):
+        semantic_parser = PTurboSemanticParserWorker(allocate=False)
+        semantic_parser.thisptr = self.thisptr.CreateSemanticParser()
+        return semantic_parser
 
 cdef class PTurboTaggerWorker:
     cdef TurboTaggerWorker *thisptr
@@ -82,3 +93,21 @@ cdef class PTurboParserWorker:
 
     def parse(self, file_test, file_prediction):
         self.thisptr.Parse(file_test, file_prediction)
+
+cdef class PTurboSemanticParserWorker:
+    cdef TurboSemanticParserWorker *thisptr
+    cdef bool allocate
+    def __cinit__(self, allocate=False):
+        self.allocate = allocate
+        if allocate:
+            self.thisptr = new TurboSemanticParserWorker()
+
+    def __dealloc__(self):
+        if self.allocate:
+          del self.thisptr
+
+    def load_semantic_parser_model(self, file_model):
+        self.thisptr.LoadSemanticParserModel(file_model)
+
+    def parse_semantic_dependencies(self, file_test, file_prediction):
+        self.thisptr.ParseSemanticDependencies(file_test, file_prediction)

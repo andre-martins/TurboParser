@@ -1,0 +1,15 @@
+Makefile
+TurboParser
+TurboTagger
+autom4te.cache
+compile
+config.h
+config.log
+config.status
+deps/AD3-2.0.2/
+deps/gflags-2.0/
+deps/glog-0.3.2/
+deps/local/
+*.o
+stamp-h1
+.deps

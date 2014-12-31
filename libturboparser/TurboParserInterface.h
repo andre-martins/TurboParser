@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "SequencePipe.h"
 #include "DependencyPipe.h"
+#include "SemanticPipe.h"
 
 namespace TurboParserInterface {
 
@@ -33,6 +34,21 @@ class TurboParserWorker {
  private:
   DependencyOptions *parser_options_;
   DependencyPipe *parser_pipe_;
+};
+
+class TurboSemanticParserWorker {
+ public:
+  TurboSemanticParserWorker();
+  virtual ~TurboSemanticParserWorker();
+
+  void LoadSemanticParserModel(const std::string &file_model);
+
+  void ParseSemanticDependencies(const std::string &file_test,
+                                 const std::string &file_prediction);
+
+ private:
+  SemanticOptions *semantic_options_;
+  SemanticPipe *semantic_pipe_;
 };
 
 class TurboParserInterface {
@@ -67,6 +83,12 @@ class TurboParserInterface {
     return parser;
   }
 
+  TurboSemanticParserWorker *CreateSemanticParser() {
+    TurboSemanticParserWorker *semantic_parser = new TurboSemanticParserWorker();
+    semantic_parsers_.push_back(semantic_parser);
+    return semantic_parser;
+  }
+
   void DeleteAllTaggers() {
     for (int i = 0; i < taggers_.size(); ++i) {
       delete taggers_[i];
@@ -81,11 +103,19 @@ class TurboParserInterface {
     parsers_.clear();
   }
 
+  void DeleteAllSemanticParsers() {
+    for (int i = 0; i < semantic_parsers_.size(); ++i) {
+      delete semantic_parsers_[i];
+    }
+    semantic_parsers_.clear();
+  }
+
  private:
   int argc_;
   char** argv_;
   vector<TurboTaggerWorker*> taggers_;
   vector<TurboParserWorker*> parsers_;
+  vector<TurboSemanticParserWorker*> semantic_parsers_;
 };
 
 } // namespace TurboParserInterface.

@@ -30,7 +30,22 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
-if [ "$language" == "english_proj" ] || [ "$language" == "spanish_ancora" ] || [ "$language" == "spanish_ancora_nomwe_auto" ] || [ "$language" == "spanish_ancora_finertags" ] || [ "$language" == "spanish_ancora_finertags_nomwe_auto" ]
+
+# Create tagging corpus from CoNLL data if it does not yet exist.
+if [ -e "${path_data}/${language}_train.conll" ] && [ ! -e "${path_data}/${language}_train.conll.tagging" ]; 
+then
+    echo "Creating tagging corpus from CoNLL data."
+
+    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_train.conll"
+    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_test.conll"
+
+    if [ "$language" == "english_proj" ]
+    then
+        ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_dev.conll"
+    fi
+fi
+
+if [ "$language" == "english_proj" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.tagging
     files_test[1]=${path_data}/${language}_dev.conll.tagging

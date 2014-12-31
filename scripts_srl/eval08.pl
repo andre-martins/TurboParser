@@ -575,7 +575,8 @@ sub update_srl_scores
     	    if($gold_prop->position() == $sys_prop->position()){
     	    	$counts->{coru_prop} ++;
 		$counts->{coru_prop_per_tag}{$gold_prop->pposs()} ++;
-    	    	if($gold_prop->sense() == $sys_prop->sense()){
+    	    	#if($gold_prop->sense() == $sys_prop->sense()){
+    	    	if($gold_prop->sense() eq $sys_prop->sense()){
     	    	    $counts->{corl_prop} ++;
     	    	    $sent_counts{corl_prop} ++;
 		    $counts->{corl_prop_per_tag}{$gold_prop->pposs()} ++;

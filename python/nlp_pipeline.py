@@ -2,43 +2,84 @@ import nltk
 import tokenizers.portuguese.word_tokenizer as tokenizer_PT
 import lemmatizer
 import turboparser as tp
+import os
 import pdb
 
 class NLPPipelineWorker:
     def __init__(self, pipeline, language):
-        self.tagger = pipeline.turbo_interface.create_tagger()
-        self.parser = pipeline.turbo_interface.create_parser()
+        self.tagger = None
+        self.parser = None
+        self.semantic_parser = None
         self.lemmatizer = None
-        if language == 'PT':
-            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
-            self.word_tokenizer = tokenizer_PT.PortugueseFlorestaWordTokenizer()
-            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_parser_pruned-true_model-standard.model')
-            self.lemmatizer = lemmatizer.BasicLemmatizer()
-            self.lemmatizer.load_lemmatizer_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_floresta_v2.0_nomwe_auto/portuguese_floresta_v2.0_nomwe_auto_lemmatizer.model')
-        elif language == 'PT-Cintil':
-            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
-            self.word_tokenizer = tokenizer_PT.PortugueseCintilWordTokenizer()
-            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_cetem-depbank/portuguese_cetem-depbank_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/portuguese_cetem-depbank/portuguese_cetem-depbank_parser_pruned-true_model-standard.model')
-        elif language == 'ES':
-            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/spanish.pickle')
-            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
-            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/spanish_ancora_finertags_nomwe_auto/spanish_ancora_finertags_nomwe_auto_parser_pruned-true_model-standard.model')
-        elif language == 'EN':
-            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-            self.word_tokenizer = nltk.TreebankWordTokenizer()
-            self.tagger.load_tagger_model('/home/atm/workspace/CPP/TurboParser/models/english_proj/english_proj_tagger.model')
-            self.parser.load_parser_model('/home/atm/workspace/CPP/TurboParser/models/english_proj/english_proj_parser_pruned-true_model-standard.model')
-        else:
+
+        if language not in pipeline.models:
+            print 'Error: no model for language %s.' % language
             raise NotImplementedError
-        
+
+        if 'splitter' in pipeline.models[language]:
+            self.sent_tokenizer = nltk.data.load(pipeline.models[language]['splitter'])
+        else:
+            # If no splitter is specified, use the English model.
+            self.sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+
+        if language == 'PT':
+            self.word_tokenizer = tokenizer_PT.PortugueseFlorestaWordTokenizer()
+        elif language == 'PT-Cintil':
+            self.word_tokenizer = tokenizer_PT.PortugueseCintilWordTokenizer()
+        else:
+            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
+
+        if 'tagger' in pipeline.models[language]:
+            self.tagger = pipeline.turbo_interface.create_tagger()
+            self.tagger.load_tagger_model(pipeline.models[language]['tagger'])
+        if 'parser' in pipeline.models[language]:
+            self.parser = pipeline.turbo_interface.create_parser()
+            self.parser.load_parser_model(pipeline.models[language]['parser'])
+        if 'lemmatizer' in pipeline.models[language]:
+            self.lemmatizer = lemmatizer.BasicLemmatizer()
+            self.lemmatizer.load_lemmatizer_model(pipeline.models[language]['lemmatizer'])
+        if 'semantic_parser' in pipeline.models[language]:
+            self.semantic_parser = pipeline.turbo_interface.create_semantic_parser()
+            self.semantic_parser.load_semantic_parser_model(pipeline.models[language]['semantic_parser'])
+
+
 class NLPPipeline:
     def __init__(self):
+        # Load the initialization file.
+        configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
+            os.sep + 'nlp_pipeline.config'
+        self.models = {}
+        self.load_configuration_file(configuration_filepath)
         self.turbo_interface = tp.PTurboParser()
         self.workers = {}
-            
+
+    def load_configuration_file(self, filepath):
+        f = open(filepath)
+        language = ''
+        for line in f:
+            line = line.rstrip('\r\n')
+            if line == '':
+                language = ''
+                continue
+            # Ignore comments.
+            index = line.find('#')
+            if index >= 0:
+                line = line[:index]
+            line = line.strip()
+            if line == '':
+                continue
+            if language == '':
+                language = line
+                print 'Loading information for %s' % language
+                self.models[language] = {}
+            else:
+                pair = line.split('=')
+                assert len(pair) == 2, pdb.set_trace()
+                name = pair[0]
+                value = pair[1].strip('"')
+                self.models[language][name] = value
+        f.close()
+
     def get_worker(self, language):
         if language in self.workers:
             return self.workers[language]
@@ -46,17 +87,17 @@ class NLPPipeline:
             worker = NLPPipelineWorker(self, language)
             self.workers[language] = worker
             return worker
-                
+
     def split_sentences(self, text, language):
         worker = self.get_worker(language)
         sentences = worker.sent_tokenizer.tokenize(text)
         return sentences
-        
+
     def tokenize(self, sentence, language):
         worker = self.get_worker(language)
         tokenized_sentence = worker.word_tokenizer.tokenize(sentence)
         return tokenized_sentence
-        
+
     def tag(self, tokenized_sentence, language):
         worker = self.get_worker(language)
         f_tagging = open('tagging.tmp', 'w')
@@ -107,6 +148,41 @@ class NLPPipeline:
             deprels.append(deprel)
         f_conll_pred.close()
         return heads, deprels
+
+    def has_semantic_parser(self, language):
+        worker = self.get_worker(language)
+        return (worker.semantic_parser != None)
+
+    def parse_semantic_dependencies(self, tokenized_sentence, tags, lemmas,
+                                    heads, deprels, language):
+        worker = self.get_worker(language)
+        f_conll = open('conll2008.tmp', 'w')
+        for i, token in enumerate(tokenized_sentence):
+            tag = tags[i]
+            lemma = lemmas[i]
+            head = heads[i]
+            deprel = deprels[i]
+            f_conll.write(str(i+1) + '\t_\t_\t_\t_\t' + token + '\t' + lemma + \
+                              '\t' + tag + '\t' + str(head) + '\t' + deprel + \
+                              '\t_\n')
+        f_conll.close()
+        worker.semantic_parser.parse_semantic_dependencies('conll2008.tmp',
+                                                           'conll2008.tmp.pred')
+        f_conll_pred = open('conll2008.tmp.pred')
+        predicates = []
+        argument_lists = []
+        for line in f_conll_pred:
+            line = line.rstrip('\n')
+            line = line.rstrip('\t')
+            if line == '':
+                continue
+            fields = line.split('\t')
+            predicate = fields[10]
+            argument_list = fields[11:]
+            predicates.append(predicate)
+            argument_lists.append(argument_list)
+        f_conll_pred.close()
+        return predicates, argument_lists
 
     def parse_conll(self, text, language):
         sentences = self.split_sentences(text, language)

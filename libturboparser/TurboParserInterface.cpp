@@ -110,6 +110,59 @@ void TurboParserWorker::Parse(const std::string &file_test,
             << " sec." << endl;
 }
 
+TurboSemanticParserWorker::TurboSemanticParserWorker() {
+  semantic_options_ = new SemanticOptions;
+  semantic_options_->Initialize();
+
+  semantic_pipe_ = new SemanticPipe(semantic_options_);
+  semantic_pipe_->Initialize();
+}
+
+TurboSemanticParserWorker::~TurboSemanticParserWorker() {
+  LOG(INFO) << "Deleting semantic pipe.";
+  delete semantic_pipe_;
+  LOG(INFO) << "Deleting semantic options.";
+  delete semantic_options_;
+}
+
+void TurboSemanticParserWorker::LoadSemanticParserModel(
+    const std::string &file_model) {
+  semantic_options_->SetModelFilePath(file_model);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  LOG(INFO) << "Loading model file " << file_model;
+
+  semantic_pipe_->LoadModelFile();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
+void TurboSemanticParserWorker::ParseSemanticDependencies(
+    const std::string &file_test,
+    const std::string &file_prediction) {
+  semantic_options_->SetTestFilePath(file_test);
+  semantic_options_->SetOutputFilePath(file_prediction);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  semantic_pipe_->Run();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
 TurboParserInterface::TurboParserInterface() {
   argc_ = 0;
   argv_ = NULL;
@@ -132,6 +185,9 @@ TurboParserInterface::~TurboParserInterface() {
 
   LOG(INFO) << "Deleting parser workers.";
   DeleteAllParsers();
+
+  LOG(INFO) << "Deleting semantic parser workers.";
+  DeleteAllSemanticParsers();
 
   LOG(INFO) << "Clearing argument list.";
   ClearArgumentList();

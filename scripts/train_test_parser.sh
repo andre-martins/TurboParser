@@ -23,6 +23,7 @@ large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
+projective=false # If true, force single-rooted projective trees.
 model_type=standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
@@ -130,6 +131,7 @@ then
         --file_train=${file_train} \
         --model_type=basic \
         --labeled=false \
+        --projective=${projective} \
         --prune_basic=false \
         --only_supported_features \
         --form_case_sensitive=${case_sensitive} \
@@ -182,6 +184,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --projective=${projective} \
             --prune_basic=${prune} \
             --pruner_posterior_threshold=${posterior_threshold} \
             --pruner_max_heads=${pruner_max_heads} \
@@ -203,6 +206,7 @@ then
             --file_model=${file_model} \
             --file_train=${file_train} \
             --labeled=${labeled} \
+            --projective=${projective} \
             --form_case_sensitive=${case_sensitive} \
             --form_cutoff=${form_cutoff} \
             --lemma_cutoff=${lemma_cutoff} \

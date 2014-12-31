@@ -110,8 +110,13 @@ void DependencyDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   predicted_output->resize(parts->size(), 0.0);
 
   double log_partition_function;
-  DecodeMatrixTree(instance, parts, copied_scores, predicted_output,
-                   &log_partition_function, entropy);
+  if (pipe_->GetDependencyOptions()->projective()) {
+    DecodeInsideOutside(instance, parts, copied_scores, predicted_output,
+                        &log_partition_function, entropy);
+  } else {
+    DecodeMatrixTree(instance, parts, copied_scores, predicted_output,
+                     &log_partition_function, entropy);
+  }
 
   // If labeled parsing, write the components of the predicted output that
   // correspond to the labeled parts.
@@ -147,6 +152,10 @@ void DependencyDecoder::DecodeMarginals(Instance *instance, Parts *parts,
     LOG(INFO) << "Loss truncated to zero (" << *loss << ")";
     *loss = 0.0;
   }
+
+  //LOG(INFO) << "Loss = " << *loss;
+  //LOG(INFO) << "Entropy = " << *entropy;
+
 }
 
 // Decode the best label for each candidate arc. The output vector
@@ -297,8 +306,13 @@ void DependencyDecoder::DecodePruner(Instance *instance, Parts *parts,
   double entropy;
   double log_partition_function;
   vector<double> posteriors;
-  DecodeMatrixTree(instance, parts, scores, &posteriors,
-                   &log_partition_function, &entropy);
+  if (pipe_->GetDependencyOptions()->projective()) {
+    DecodeInsideOutside(instance, parts, scores, &posteriors,
+                        &log_partition_function, &entropy);
+  } else {
+    DecodeMatrixTree(instance, parts, scores, &posteriors,
+                     &log_partition_function, &entropy);
+  }
 
   int num_used_parts = 0;
   for (int m = 1; m < sentence_length; ++m) {
@@ -365,12 +379,13 @@ void DependencyDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
 }
 
 // Decoder for the basic model; it finds a maximum weighted arborescence
-// using Edmonds' algorithm (which runs in O(n^2)).
+// using Edmonds' algorithm (which runs in O(n^2)) or, if the --projective
+// option is set, Eisner's algorithm (O(n^3)).
 void DependencyDecoder::DecodeBasic(Instance *instance, Parts *parts,
                                     const vector<double> &scores,
                                     vector<double> *predicted_output,
                                     double *value) {
-  int sentence_length = 
+  int sentence_length =
     static_cast<DependencyInstanceNumeric*>(instance)->size();
   DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
   int offset_arcs, num_arcs;
@@ -383,7 +398,11 @@ void DependencyDecoder::DecodeBasic(Instance *instance, Parts *parts,
   }
 
   vector<int> heads;
-  RunChuLiuEdmonds(sentence_length, arcs, scores_arcs, &heads, value);
+  if (pipe_->GetDependencyOptions()->projective()) {
+    RunEisner(sentence_length, arcs, scores_arcs, &heads, value);
+  } else {
+    RunChuLiuEdmonds(sentence_length, arcs, scores_arcs, &heads, value);
+  }
 
   predicted_output->resize(parts->size());
   for (int r = 0; r < num_arcs; ++r) {
@@ -583,6 +602,8 @@ void DependencyDecoder::RunChuLiuEdmondsIteration(
   }
 }
 
+// Run the Chu-Liu-Edmonds algorithm for finding a maximal weighted spanning
+// tree.
 void DependencyDecoder::RunChuLiuEdmonds(int sentence_length,
                                          const vector<DependencyPartArc*> &arcs,
                                          const vector<double> &scores,
@@ -601,6 +622,476 @@ void DependencyDecoder::RunChuLiuEdmonds(int sentence_length,
   heads->assign(sentence_length, -1);
   RunChuLiuEdmondsIteration(&disabled, &candidate_heads,
                             &candidate_scores, heads, value);
+}
+
+// Run Eisner's algorithm for finding a maximal weighted projective dependency
+// tree.
+void DependencyDecoder::RunEisner(int sentence_length,
+                                  const vector<DependencyPartArc*> &arcs,
+                                  const vector<double> &scores,
+                                  vector<int> *heads,
+                                  double *value) {
+  vector<vector<int> > index_arcs(sentence_length,
+                                  vector<int>(sentence_length, -1));
+  int num_arcs = arcs.size();
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = arcs[r]->head();
+    int m = arcs[r]->modifier();
+    index_arcs[h][m] = r;
+  }
+
+  heads->assign(sentence_length, -1);
+
+  // Initialize CKY table.
+  vector<vector<double> > complete_spans(sentence_length, vector<double>(
+    sentence_length, 0.0));
+  vector<vector<int> > complete_backtrack(sentence_length,
+                                          vector<int>(sentence_length, -1));
+  vector<double> incomplete_spans(num_arcs);
+  vector<int> incomplete_backtrack(num_arcs, -1);
+
+  // Loop from smaller items to larger items.
+  for (int k = 1; k < sentence_length; ++k) {
+    for (int s = 1; s < sentence_length - k; ++s) {
+      int t = s + k;
+
+      // First, create incomplete items.
+      int left_arc_index = index_arcs[t][s];
+      int right_arc_index = index_arcs[s][t];
+      if (left_arc_index >= 0 || right_arc_index >= 0) {
+        double best_value = -std::numeric_limits<double>::infinity();
+        int best = -1;
+        for (int u = s; u < t; ++u) {
+          double val = complete_spans[s][u] + complete_spans[t][u+1];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+        if (left_arc_index >= 0) {
+          incomplete_spans[left_arc_index] =
+            best_value + scores[left_arc_index];
+          incomplete_backtrack[left_arc_index] = best;
+        }
+        if (right_arc_index >= 0) {
+          incomplete_spans[right_arc_index] =
+            best_value + scores[right_arc_index];
+          incomplete_backtrack[right_arc_index] = best;
+        }
+      }
+
+      // Second, create complete items.
+      // 1) Left complete item.
+      double best_value = -std::numeric_limits<double>::infinity();
+      int best = -1;
+      for (int u = s; u < t; ++u) {
+        int left_arc_index = index_arcs[t][u];
+        if (left_arc_index >= 0) {
+          double val = complete_spans[u][s] + incomplete_spans[left_arc_index];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+      }
+      complete_spans[t][s] = best_value;
+      complete_backtrack[t][s] = best;
+
+      // 2) Right complete item.
+      best_value = -std::numeric_limits<double>::infinity();
+      best = -1;
+      for (int u = s+1; u <= t; ++u) {
+        int right_arc_index = index_arcs[s][u];
+        if (right_arc_index >= 0) {
+          double val = complete_spans[u][t] + incomplete_spans[right_arc_index];
+          if (best < 0 || val > best_value) {
+            best = u;
+            best_value = val;
+          }
+        }
+      }
+      complete_spans[s][t] = best_value;
+      complete_backtrack[s][t] = best;
+    }
+  }
+
+  // Get the optimal (single) root.
+  double best_value = -std::numeric_limits<double>::infinity();
+  int best = -1;
+  for (int s = 1; s < sentence_length; ++s) {
+    int arc_index = index_arcs[0][s];
+    if (arc_index >= 0) {
+      double val = complete_spans[s][1] + complete_spans[s][sentence_length-1] +
+        scores[arc_index];
+      if (best < 0 || val > best_value) {
+        best = s;
+        best_value = val;
+      }
+    }
+  }
+
+  *value = best_value;
+  (*heads)[best] = 0;
+
+  // Backtrack.
+  RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs, best,
+                     1, true, heads);
+  RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs, best,
+                     sentence_length-1, true, heads);
+
+  //*value = complete_spans[0][sentence_length-1];
+  //RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs, 0,
+  //                   sentence_length-1, true, heads);
+}
+
+void DependencyDecoder::RunEisnerBacktrack(
+    const vector<int> &incomplete_backtrack,
+    const vector<vector<int> > &complete_backtrack,
+    const vector<vector<int> > &index_arcs,
+    int h, int m, bool complete, vector<int> *heads) {
+  if (h == m) return;
+  if (complete) {
+    CHECK_GE(h, 0);
+    CHECK_LT(h, complete_backtrack.size());
+    CHECK_GE(m, 0);
+    CHECK_LT(m, complete_backtrack.size());
+    int u = complete_backtrack[h][m];
+    CHECK_GE(u, 0) << h << " " << m;
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                       h, u, false, heads);
+    RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                       u, m, true, heads);
+  } else {
+    int r = index_arcs[h][m];
+    CHECK_GE(r, 0);
+    CHECK_LT(r, incomplete_backtrack.size());
+    CHECK_GE(h, 0);
+    CHECK_LT(h, heads->size());
+    CHECK_GE(m, 0);
+    CHECK_LT(m, heads->size());
+    (*heads)[m] = h;
+    int u = incomplete_backtrack[r];
+    if (h < m) {
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         h, u, true, heads);
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         m, u+1, true, heads);
+    } else {
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         m, u, true, heads);
+      RunEisnerBacktrack(incomplete_backtrack, complete_backtrack, index_arcs,
+                         h, u+1, true, heads);
+    }
+  }
+}
+
+// Run Eisner's inside algorithm (used to evaluate the log-partition function
+// and compute marginals in a projective model).
+void DependencyDecoder::RunEisnerInside(
+    int sentence_length,
+    const vector<DependencyPartArc*> &arcs,
+    const vector<double> &scores,
+    vector<double> *inside_incomplete_spans,
+    vector<vector<double> > *inside_complete_spans,
+    double *log_partition_function) {
+
+  vector<vector<int> > index_arcs(sentence_length,
+                                  vector<int>(sentence_length, -1));
+  int num_arcs = arcs.size();
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = arcs[r]->head();
+    int m = arcs[r]->modifier();
+    index_arcs[h][m] = r;
+  }
+
+  // Initialize CKY table.
+  inside_incomplete_spans->assign(num_arcs, 0.0);
+  inside_complete_spans->resize(sentence_length);
+  for (int s = 0; s < sentence_length; ++s) {
+    (*inside_complete_spans)[s].assign(sentence_length, 0.0);
+  }
+
+  // Loop from smaller items to larger items.
+  for (int k = 1; k < sentence_length; ++k) {
+    for (int s = 1; s < sentence_length - k; ++s) {
+      int t = s + k;
+
+      // First, create incomplete items.
+      int left_arc_index = index_arcs[t][s];
+      int right_arc_index = index_arcs[s][t];
+      if (left_arc_index >= 0 || right_arc_index >= 0) {
+        LogValD sum = LogValD::Zero();
+        for (int u = s; u < t; ++u) {
+          double val =
+            (*inside_complete_spans)[s][u] + (*inside_complete_spans)[t][u+1];
+          sum += LogValD(val, false);
+        }
+        if (left_arc_index >= 0) {
+          (*inside_incomplete_spans)[left_arc_index] =
+            sum.logabs() + scores[left_arc_index];
+        }
+        if (right_arc_index >= 0) {
+          (*inside_incomplete_spans)[right_arc_index] =
+            sum.logabs() + scores[right_arc_index];
+        }
+      }
+
+      // Second, create complete items.
+      // 1) Left complete item.
+      LogValD sum = LogValD::Zero();
+      for (int u = s; u < t; ++u) {
+        int left_arc_index = index_arcs[t][u];
+        if (left_arc_index >= 0) {
+          double val = (*inside_complete_spans)[u][s] +
+            (*inside_incomplete_spans)[left_arc_index];
+          sum += LogValD(val, false);
+        }
+      }
+      (*inside_complete_spans)[t][s] = sum.logabs();
+      //LOG(INFO) << "inside_complete[" << t << "][" << s << "] = " << (*inside_complete_spans)[t][s];
+
+      // 2) Right complete item.
+      sum = LogValD::Zero();
+      for (int u = s+1; u <= t; ++u) {
+        int right_arc_index = index_arcs[s][u];
+        if (right_arc_index >= 0) {
+          double val = (*inside_complete_spans)[u][t] +
+            (*inside_incomplete_spans)[right_arc_index];
+          sum += LogValD(val, false);
+        }
+      }
+      (*inside_complete_spans)[s][t] = sum.logabs();
+      //LOG(INFO) << "inside_complete[" << s << "][" << t << "] = " << (*inside_complete_spans)[s][t];
+    }
+  }
+
+  // Handle the (single) root.
+  LogValD sum = LogValD::Zero();
+  for (int s = 1; s < sentence_length; ++s) {
+    int arc_index = index_arcs[0][s];
+    if (arc_index >= 0) {
+      (*inside_incomplete_spans)[arc_index] = (*inside_complete_spans)[s][1] +
+        scores[arc_index];
+      double val = (*inside_incomplete_spans)[arc_index] +
+        (*inside_complete_spans)[s][sentence_length-1];
+      sum += LogValD(val, false);
+    }
+  }
+  (*inside_complete_spans)[0][sentence_length-1] = sum.logabs();
+  //LOG(INFO) << "inside_complete[" << 0 << "][" << sentence_length-1 << "] = " << (*inside_complete_spans)[0][sentence_length-1];
+
+  *log_partition_function = (*inside_complete_spans)[0][sentence_length-1];
+}
+
+// Run Eisner's inside algorithm (used to evaluate the log-partition function
+// and compute marginals in a projective model).
+void DependencyDecoder::RunEisnerOutside(
+    int sentence_length,
+    const vector<DependencyPartArc*> &arcs,
+    const vector<double> &scores,
+    const vector<double> &inside_incomplete_spans,
+    const vector<vector<double> > &inside_complete_spans,
+    vector<double> *outside_incomplete_spans,
+    vector<vector<double> > *outside_complete_spans) {
+
+  vector<vector<int> > index_arcs(sentence_length,
+                                  vector<int>(sentence_length, -1));
+  int num_arcs = arcs.size();
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = arcs[r]->head();
+    int m = arcs[r]->modifier();
+    index_arcs[h][m] = r;
+  }
+
+  // Initialize CKY table.
+  outside_incomplete_spans->assign(num_arcs, 0.0);
+  outside_complete_spans->resize(sentence_length);
+  for (int s = 0; s < sentence_length; ++s) {
+    (*outside_complete_spans)[s].assign(sentence_length, 0.0);
+  }
+
+  // Handle the root.
+  for (int s = 1; s < sentence_length; ++s) {
+    int arc_index = index_arcs[0][s];
+    if (arc_index >= 0) {
+      (*outside_incomplete_spans)[arc_index] =
+        (*outside_complete_spans)[0][sentence_length - 1] +
+        inside_complete_spans[s][sentence_length - 1];
+    }
+  }
+
+  // Loop from larger items to smaller items.
+  for (int k = sentence_length - 2; k > 0; --k) {
+    for (int s = 1; s < sentence_length - k; ++s) {
+      int t = s + k;
+
+      // First, create complete items.
+      // 1) Left complete item.
+      LogValD sum = LogValD::Zero();
+      for (int u = 0; u < s; ++u) {
+        if (u == 0 && t < sentence_length - 1) continue;
+        int arc_index = index_arcs[u][s];
+        if (arc_index >= 0) {
+          double val = (*outside_complete_spans)[u][t] +
+            inside_incomplete_spans[arc_index];
+          sum += LogValD(val, false);
+        }
+      }
+      for (int u = t+1; u < sentence_length; ++u) {
+        int left_arc_index = index_arcs[u][s];
+        int right_arc_index = index_arcs[s][u];
+        if (right_arc_index >= 0) {
+          double val = (*outside_incomplete_spans)[right_arc_index] +
+            inside_complete_spans[u][t+1] + scores[right_arc_index];
+          sum += LogValD(val, false);
+        }
+        if (left_arc_index >= 0) {
+          double val = (*outside_incomplete_spans)[left_arc_index] +
+            inside_complete_spans[u][t+1] + scores[left_arc_index];
+          sum += LogValD(val, false);
+        }
+      }
+      (*outside_complete_spans)[s][t] = sum.logabs();
+
+      // 2) Right complete item.
+      sum = LogValD::Zero();
+      for (int u = t+1; u < sentence_length; ++u) {
+        int arc_index = index_arcs[u][t];
+        if (arc_index >= 0) {
+          double val = (*outside_complete_spans)[u][s] +
+            inside_incomplete_spans[arc_index];
+          sum += LogValD(val, false);
+        }
+      }
+      for (int u = 0; u < s; ++u) {
+        if (u == 0 && s > 1) continue;
+        if (u == 0) {
+          // Must have s = 1.
+          int right_arc_index = index_arcs[u][t];
+          if (right_arc_index >= 0) {
+            double val = (*outside_incomplete_spans)[right_arc_index] +
+              scores[right_arc_index];
+            sum += LogValD(val, false);
+          }
+        } else {
+          int left_arc_index = index_arcs[t][u];
+          int right_arc_index = index_arcs[u][t];
+          if (right_arc_index >= 0) {
+            double val = (*outside_incomplete_spans)[right_arc_index] +
+              inside_complete_spans[u][s-1] + scores[right_arc_index];
+            sum += LogValD(val, false);
+          }
+          if (left_arc_index >= 0) {
+            double val = (*outside_incomplete_spans)[left_arc_index] +
+              inside_complete_spans[u][s-1] + scores[left_arc_index];
+            sum += LogValD(val, false);
+          }
+        }
+      }
+      (*outside_complete_spans)[t][s] = sum.logabs();
+
+      // Second, create incomplete items.
+      int left_arc_index = index_arcs[t][s];
+      int right_arc_index = index_arcs[s][t];
+      if (right_arc_index >= 0) {
+        LogValD sum = LogValD::Zero();
+        for (int u = t; u < sentence_length; ++u) {
+          double val =
+            (*outside_complete_spans)[s][u] + inside_complete_spans[t][u];
+          sum += LogValD(val, false);
+        }
+        (*outside_incomplete_spans)[right_arc_index] = sum.logabs();
+      }
+      if (left_arc_index >= 0) {
+        LogValD sum = LogValD::Zero();
+        for (int u = 1; u <= s; ++u) {
+          double val =
+            (*outside_complete_spans)[t][u] + inside_complete_spans[s][u];
+          sum += LogValD(val, false);
+        }
+        (*outside_incomplete_spans)[left_arc_index] = sum.logabs();
+      }
+    }
+  }
+}
+
+// Marginal decoder for the projective basic model; it runs Eisner's
+// inside-outside algorithm.
+void DependencyDecoder::DecodeInsideOutside(Instance *instance, Parts *parts,
+                                            const vector<double> &scores,
+                                            vector<double> *predicted_output,
+                                            double *log_partition_function,
+                                            double *entropy) {
+  int sentence_length =
+    static_cast<DependencyInstanceNumeric*>(instance)->size();
+  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+
+  int offset_arcs, num_arcs;
+  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  vector<DependencyPartArc*> arcs(num_arcs);
+  vector<double> scores_arcs(num_arcs);
+  for (int r = 0; r < num_arcs; ++r) {
+    arcs[r] = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
+    scores_arcs[r] = scores[offset_arcs + r];
+  }
+
+  vector<double> inside_incomplete_spans;
+  vector<vector<double> > inside_complete_spans;
+  vector<double> outside_incomplete_spans;
+  vector<vector<double> > outside_complete_spans;
+
+  RunEisnerInside(sentence_length, arcs, scores_arcs, &inside_incomplete_spans,
+                  &inside_complete_spans, log_partition_function);
+
+  RunEisnerOutside(sentence_length, arcs, scores_arcs, inside_incomplete_spans,
+                   inside_complete_spans, &outside_incomplete_spans,
+                   &outside_complete_spans);
+
+  // Compute the marginals and entropy.
+  predicted_output->resize(parts->size());
+  *entropy = *log_partition_function;
+
+  //LOG(INFO) << "logZ = " << *log_partition_function;
+
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->head();
+    int m = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->modifier();
+    double value = exp(inside_incomplete_spans[r] +
+                       outside_incomplete_spans[r] -
+                       (*log_partition_function));
+
+    //LOG(INFO) << "inside[" << h << "][" << m << "] = " << inside_incomplete_spans[r];
+    //LOG(INFO) << "outside[" << h << "][" << m << "] = " << outside_incomplete_spans[r];
+    //LOG(INFO) << "Score arc[" << h << "][" << m << "] = " << scores[offset_arcs + r];
+    //LOG(INFO) << "Marginal arc[" << h << "][" << m << "] = " << value;
+    if (value > 1.0) {
+      if (!NEARLY_ZERO_TOL(value - 1.0, 1e-6)) {
+        LOG(INFO) << "Marginals truncated to one (" << value << ")";
+      }
+    }
+
+    (*predicted_output)[offset_arcs + r] = value;
+    *entropy -= (*predicted_output)[offset_arcs + r] * scores[offset_arcs + r];
+  }
+  if (*entropy < 0.0) {
+    if (!NEARLY_ZERO_TOL(*entropy, 1e-6)) {
+      LOG(INFO) << "Entropy truncated to zero (" << *entropy << ")";
+    }
+    *entropy = 0.0;
+  }
+
+#if 0
+  vector<double> sum(sentence_length, 0.0);
+  for (int r = 0; r < num_arcs; ++r) {
+    int h = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->head();
+    int m = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r])->modifier();
+    sum[m] += (*predicted_output)[offset_arcs + r];
+    if (h == 0) sum[0] += (*predicted_output)[offset_arcs + r];
+  }
+  for (int m = 1; m < sentence_length; ++m) {
+    LOG(INFO) << "Sum " << m << " = " << sum[m];
+  }
+#endif
 }
 
 // Marginal decoder for the basic model; it invokes the matrix-tree theorem.
@@ -666,7 +1157,7 @@ void DependencyDecoder::DecodeMatrixTree(Instance *instance, Parts *parts,
   for (int m = 1; m < sentence_length; ++m) {
     marginals(m, 0) = potentials(m, 0) * inverted_kirchhoff(m-1, m-1);
     for (int h = 1; h < sentence_length; ++h) {
-      marginals(m, h) = potentials(m, h) * 
+      marginals(m, h) = potentials(m, h) *
         (inverted_kirchhoff(m-1, m-1) - inverted_kirchhoff(m-1, h-1));
     }
   }
@@ -847,7 +1338,8 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       arcs[r] = static_cast<DependencyPartArc*>((*parts)[offset_arcs + r]);
     }
     AD3::FactorTree *factor = new AD3::FactorTree;
-    factor->Initialize(sentence->size(), arcs, this);
+    bool projective = pipe_->GetDependencyOptions()->projective();
+    factor->Initialize(projective, sentence->size(), arcs, this);
     factor_graph->DeclareFactor(factor, local_variables, true);
     factor_part_indices_.push_back(-1);
   } else {
@@ -2035,12 +2527,12 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     VLOG(2) << "Number of variables: " << factor_graph->GetNumVariables();
   }
 
-  //#define PRINT_GRAPH
+//#define PRINT_GRAPH
 #ifdef PRINT_GRAPH
     //static int num_inst = 0;
   ofstream stream;
-  stream.open("tmp.fg", ofstream::out | ofstream::app);
-  //stream.open("tmp.fg", ofstream::out);
+  //stream.open("tmp.fg", ofstream::out | ofstream::app);
+  stream.open("tmp.fg", ofstream::out);
   CHECK(stream.good());
   factor_graph->Print(stream);
   stream << endl;
