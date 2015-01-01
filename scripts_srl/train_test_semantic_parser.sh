@@ -23,7 +23,7 @@ posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
 deterministic_labels=true # Find and impose deterministic labels.
-use_dependency_syntactic_features=$6 #true # Must set to false for the SemEval 2014 closed track.
+use_dependency_syntactic_features=$8 #true # Must set to false for the SemEval 2014 closed track.
 case_sensitive=false # Distinguish word upper/lower case.
 model_type=$5 #af+as+gp+cp # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
@@ -83,7 +83,7 @@ file_pruner_results=${path_results}/${language}_${suffix_pruner}.txt
 
 if [ "$language" == "english" ]
 then
-    if [ "$file_format" == "sdp" ]
+    if [ "${file_format}" == "sdp" ]
     then
         file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
         #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
@@ -97,7 +97,7 @@ then
         files_test[3]=${path_data}/${language}_devel.conll2008.MST
     fi
 else
-    if [ "$file_format" == "sdp" ]
+    if [ "${file_format}" == "sdp" ]
     then
         file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
         #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
