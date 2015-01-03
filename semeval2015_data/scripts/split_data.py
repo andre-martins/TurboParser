@@ -20,7 +20,9 @@ selected = False
 word_index = 0
 
 if trim_first_line:
-    f.readline()
+    line = f.readline()
+    line = line.rstrip('\n')
+    print line
 
 for line in f:
     line = line.rstrip('\n')

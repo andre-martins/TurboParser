@@ -2,7 +2,7 @@ import sys
 import pdb
 
 keep_document_names = True
-has_sense = False #True # True for SemEval 2015, False for SemEval 2014.
+has_sense = True # True for SemEval 2015, False for SemEval 2014.
 trim_first_line = True # True for SemEval 2015, False for SemEval 2014.
 
 filepath = sys.argv[1]
@@ -18,7 +18,9 @@ else:
     f_companion = open(filepath_companion)
 
 if trim_first_line:
-    print f.readline()
+    line = f.readline()
+    line = line.rstrip('\n')
+    print line
 
 for line in f:
     line = line.rstrip('\n')
@@ -49,12 +51,10 @@ for line in f:
         if has_sense:
             args = fields[7:]
         else:
-            args = fields[7:]
-            #args = fields[6:]
+            args = fields[6:]
 
         if f_companion != None:
             fields_companion = line_companion.split("\t")
-            #pdb.set_trace()
             predicted_pos = fields_companion[0]
             head = fields_companion[1]
             deprel = fields_companion[2]

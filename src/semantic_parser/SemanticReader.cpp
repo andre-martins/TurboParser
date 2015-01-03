@@ -54,6 +54,9 @@ Instance *SemanticReader::GetNext() {
     }
   }
 
+  bool read_next_sentence = false;
+  if (!is_.eof()) read_next_sentence = true;
+
   // Sentence length.
   int length = sentence_fields.size();
 
@@ -123,20 +126,21 @@ Instance *SemanticReader::GetNext() {
     // Semantic role labeling information.
     if (read_semantic_roles) {
       bool is_top = false; // For sdp format only.
+      bool is_predicate = false;
       if (use_sdp_format_) {
         string top_name = info[offset];
         ++offset;
         CHECK(0 == top_name.compare("-") || 0 == top_name.compare("+"));
         if (0 == top_name.compare("+")) is_top = true;
+        string predicate_flag = info[offset];
+        ++offset;
+        CHECK(0 == predicate_flag.compare("-") ||
+              0 == predicate_flag.compare("+"));
+        if (0 == predicate_flag.compare("+")) is_predicate = true;
       }
       string predicate_name = info[offset];
       ++offset;
-      bool is_predicate = false;
-      if (use_sdp_format_) {
-        CHECK(0 == predicate_name.compare("-") ||
-              0 == predicate_name.compare("+"));
-        if (0 == predicate_name.compare("+")) is_predicate = true;
-      } else {
+      if (!use_sdp_format_) {
         if (0 != predicate_name.compare("_")) is_predicate = true;
       }
       if (!use_sdp_format_) CHECK_EQ(offset, 11);
@@ -188,7 +192,7 @@ Instance *SemanticReader::GetNext() {
   CHECK_EQ(num_predicates, predicate_names.size());
 
   SemanticInstance *instance = NULL;
-  if (length > 0) {
+  if (read_next_sentence && length >= 0) {
     instance = new SemanticInstance;
     instance->Initialize(name, forms, lemmas, cpos, pos, feats, deprels, heads,
                          predicate_names, predicate_indices, argument_roles,

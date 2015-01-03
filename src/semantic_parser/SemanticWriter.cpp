@@ -96,10 +96,11 @@ void SemanticWriter::Write(Instance *instance) {
       }
       if (use_sdp_format_) {
         if (is_predicate_node) {
-          os_ << '+' << "\t";
+          os_ << "+" << "\t";
         } else {
-          os_ << '-' << "\t";
+          os_ << "-" << "\t";
         }
+        os_ << "_" << "\t";
       } else {
         os_ << predicate_name << "\t";
       }

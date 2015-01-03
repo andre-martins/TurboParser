@@ -17,8 +17,8 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
-trained_external_pruner=false # If true, loads the external pruner.
+train_external_pruner=true #false # If true, the pruner is trained separately.
+trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output semantic labels.
@@ -40,7 +40,7 @@ then
     allow_root_predicate=true
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
-    formalism=$7 #pcedt #pas #dm
+    formalism=$7 #psd #pas #dm
     subfolder=semeval2015_data/${formalism}
     #subfolder=semeval2014_data/${formalism}
 else
@@ -81,28 +81,52 @@ file_pruner_model=${path_models}/${language}_${suffix_pruner}.model
 file_results=${path_results}/${language}_${suffix}.txt
 file_pruner_results=${path_results}/${language}_${suffix_pruner}.txt
 
-if [ "$language" == "english" ]
+if [ "${file_format}" == "sdp" ]
 then
-    if [ "${file_format}" == "sdp" ]
+    if [ "$language" == "czech" ]
     then
+        file_train_orig=${path_data}/${language}_${formalism}_augmented_train.sdp
+        #file_train_orig=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test_orig[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        #files_test_orig[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
+
+        file_train=${path_data}/${language}_ctags_${formalism}_augmented_train.sdp
+        #file_train=${path_data}/${language}_ctags_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_ctags_${formalism}_augmented_dev.sdp
+        #files_test[1]=${path_data}/${language}_ctags_${formalism}_augmented_test.sdp
+
+        rm -f ${file_train}
+        awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_train_orig} \
+            > ${file_train}
+        rm -f ${file_train}.unaugmented
+        awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_train_orig}.unaugmented \
+            > ${file_train}.unaugmented
+
+        for (( i=0; i<${#files_test[*]}; i++ ))
+        do
+            file_test_orig=${files_test_orig[$i]}
+            file_test=${files_test[$i]}
+            rm -f ${file_test}
+            awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_test_orig} \
+                > ${file_test}
+            rm -f ${file_test}.unaugmented
+            awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_test_orig}.unaugmented \
+                > ${file_test}.unaugmented
+        done
+    else
         file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
         #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
         files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
         #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
-    else
+    fi
+else
+    if [ "$language" == "english" ]
+    then
         file_train=${path_data}/${language}_train.conll2008
         files_test[0]=${path_data}/${language}_test.conll2008
         files_test[1]=${path_data}/${language}_devel.conll2008
         files_test[2]=${path_data}/${language}_test.conll2008.MST
         files_test[3]=${path_data}/${language}_devel.conll2008.MST
-    fi
-else
-    if [ "${file_format}" == "sdp" ]
-    then
-        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
-        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
-        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
-        #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     else
         file_train=${path_data}/${language}_train.conll2008
         file_test=${path_data}/${language}_test.conll2008
@@ -176,7 +200,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_pruner_prediction} > ${file_pruner_prediction}.unaugmented
-            sh evaluator/run.sh Scorer ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented \
+            sh evaluator/toolkit/run.sh Scorer ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented representation=${formalism} \
                 >> ${file_pruner_results}
             cat ${file_pruner_results}
         else
@@ -294,7 +318,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_prediction} > ${file_prediction}.unaugmented
-            sh evaluator/run.sh Scorer ${file_test}.unaugmented ${file_prediction}.unaugmented \
+            sh evaluator/toolkit/run.sh Scorer ${file_test}.unaugmented ${file_prediction}.unaugmented representation=${formalism} \
                 >> ${file_results}
             cat ${file_results}
         else
