@@ -45,7 +45,11 @@ Instance *SemanticReader::GetNext() {
       if (line.length() <= 0) break;
       if (0 == line.substr(0, 1).compare("#")) {
         //LOG(INFO) << line;
-        name = line;
+	if (name != "") {
+	  name += "\n" + line;
+	} else {
+	  name = line;
+	}
         continue; // Sentence ID.
       }
       vector<string> fields;
