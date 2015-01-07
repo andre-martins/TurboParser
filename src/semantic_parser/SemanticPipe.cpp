@@ -593,6 +593,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   bool prune_labels = semantic_options->prune_labels();
   bool prune_labels_with_relation_paths =
     semantic_options->prune_labels_with_relation_paths();
+  bool prune_labels_with_senses = semantic_options->prune_labels_with_senses();
   bool prune_distances = semantic_options->prune_distances();
   bool allow_self_loops = semantic_options->allow_self_loops();
   bool allow_root_predicate = semantic_options->allow_root_predicate();
@@ -704,7 +705,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
           set<int> label_set;
           for (int m = 0; m < allowed_labels.size(); ++m) {
-            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
+            if (!prune_labels_with_senses ||
+                (*predicates)[s]->HasRole(allowed_labels[m])) {
               label_set.insert(allowed_labels[m]);
             }
           }
@@ -725,7 +727,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
             GetExistingRoles(predicate_pos_id, argument_pos_id);
           set<int> label_set;
           for (int m = 0; m < allowed_labels.size(); ++m) {
-            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
+            if (!prune_labels_with_senses ||
+                (*predicates)[s]->HasRole(allowed_labels[m])) {
               label_set.insert(allowed_labels[m]);
             }
           }
@@ -754,7 +757,9 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
           for (int m = 0; m < allowed_labels.size(); ++m) {
             int role = allowed_labels[m];
-            if (prune_labels) CHECK((*predicates)[s]->HasRole(role));
+            if (prune_labels && prune_labels_with_senses) {
+              CHECK((*predicates)[s]->HasRole(role));
+            }
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
             CHECK_GE(arc_index, 0);
             semantic_parts->AddLabeledPart(part, arc_index);

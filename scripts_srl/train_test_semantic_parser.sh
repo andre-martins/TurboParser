@@ -17,7 +17,7 @@ test=true
 prune=true # This will revert to false if model_type=basic.
 prune_labels=true
 prune_distances=true
-train_external_pruner=false # If true, the pruner is trained separately.
+train_external_pruner=true #false # If true, the pruner is trained separately.
 trained_external_pruner=true #false # If true, loads the external pruner.
 posterior_threshold=0.0001 # Posterior probability threshold for the pruner.
 pruner_max_arguments=20 #10 # Maximum number of candidate heads allowed by the pruner.
@@ -40,6 +40,7 @@ then
     allow_root_predicate=true
     allow_unseen_predicates=false # This should be irrelevant.
     use_predicate_senses=false #true
+    prune_labels_with_senses=true # This should be irrelevant.
     formalism=$7 #psd #pas #dm
     subfolder=semeval2015_data/${formalism}
     #subfolder=semeval2014_data/${formalism}
@@ -48,6 +49,7 @@ else
     allow_root_predicate=false
     allow_unseen_predicates=false
     use_predicate_senses=true
+    prune_labels_with_senses=true
     formalism=conll2008
     subfolder=srl
 fi
@@ -160,6 +162,7 @@ then
         --srl_labeled=false \
         --srl_deterministic_labels=false \
         --srl_use_dependency_syntactic_features=${use_dependency_syntactic_features} \
+        --srl_prune_labels_with_senses=${prune_labels_with_senses} \
         --srl_prune_labels=${prune_labels} \
         --srl_prune_distances=${prune_distances} \
         --srl_prune_basic=false \
@@ -230,6 +233,7 @@ then
             --srl_labeled=${labeled} \
             --srl_deterministic_labels=${deterministic_labels} \
             --srl_use_dependency_syntactic_features=${use_dependency_syntactic_features} \
+            --srl_prune_labels_with_senses=${prune_labels_with_senses} \
             --srl_prune_labels=${prune_labels} \
             --srl_prune_distances=${prune_distances} \
             --srl_prune_basic=${prune} \
@@ -265,6 +269,7 @@ then
             --srl_train_cost_false_positives=${train_cost_false_positives} \
             --srl_train_cost_false_negatives=${train_cost_false_negatives} \
             --srl_model_type=${model_type} \
+            --srl_prune_labels_with_senses=${prune_labels_with_senses} \
             --srl_prune_labels=${prune_labels} \
             --srl_prune_distances=${prune_distances} \
             --srl_prune_basic=${prune} \

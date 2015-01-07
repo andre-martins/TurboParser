@@ -100,6 +100,7 @@ void SemanticWriter::Write(Instance *instance) {
         } else {
           os_ << "-" << "\t";
         }
+        //os_ << predicate_name << "\t";
         os_ << "_" << "\t";
       } else {
         os_ << predicate_name << "\t";
