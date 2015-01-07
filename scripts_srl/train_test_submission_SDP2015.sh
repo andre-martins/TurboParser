@@ -1,4 +1,4 @@
-model_type=af+as+cs #basic #af+as+cs+gp+cp+ccp
+model_type=af+as+cs+gp+cp+ccp #basic #af+as+cs+gp+cp+ccp
 
 language=czech
 open=false
