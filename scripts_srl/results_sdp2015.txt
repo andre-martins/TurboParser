@@ -1,0 +1,88 @@
+out_SDP2015_english_open-true_deterministic_dm_0.01_0.4_0.6_basic
+LF: 0.892042
+LF: 0.891186
+
+out_SDP2015_english_open-true_deterministic_dm_0.01_0.4_0.6_af
+LF: 0.891550
+LF: 0.890716
+
+out_SDP2015_english_open-true_deterministic_dm_0.01_0.4_0.6_af+as+cs
+LF: 0.895297
+LF: 0.894441
+
+out_SDP2015_english_open-true_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.901234
+LF: 0.899980
+
+--
+
+out_SDP2015_english_open-true_deterministic_pas_0.01_0.4_0.6_basic
+LF: 0.915211
+LF: 0.914001
+
+out_SDP2015_english_open-true_deterministic_pas_0.01_0.4_0.6_af
+LF: 0.915405
+LF: 0.914149
+
+out_SDP2015_english_open-true_deterministic_pas_0.01_0.4_0.6_af+as+cs
+LF: 0.915297
+LF: 0.914066
+
+out_SDP2015_english_open-true_deterministic_pas_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.919800
+LF: 0.918419
+
+--
+
+out_SDP2015_english_open-true_deterministic_psd_0.01_0.4_0.6_basic
+LF: 0.796860
+LF: 0.784419
+
+out_SDP2015_english_open-true_deterministic_psd_0.01_0.4_0.6_af
+LF: 0.797259
+LF: 0.784831
+
+out_SDP2015_english_open-true_deterministic_psd_0.01_0.4_0.6_af+as+cs
+LF: 0.798663
+LF: 0.786175
+
+out_SDP2015_english_open-true_deterministic_psd_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.800750
+LF: 0.788655
+
+--
+
+out_SDP2015_czech_open-false_deterministic_psd_0.01_0.4_0.6_basic
+LF: 0.797699
+LF: 0.790508
+
+out_SDP2015_czech_open-false_deterministic_psd_0.01_0.4_0.6_af
+LF: 0.793942
+LF: 0.787069
+
+out_SDP2015_czech_open-false_deterministic_psd_0.01_0.4_0.6_af+as+cs
+LF: 0.804361
+LF: 0.795066
+
+out_SDP2015_czech_open-false_deterministic_psd_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.818203
+LF: 0.808707
+
+--
+
+out_SDP2015_chinese_open-false_deterministic_pas_0.01_0.4_0.6_basic
+LF: 0.794948
+LF: 0.799033
+
+out_SDP2015_chinese_open-false_deterministic_pas_0.01_0.4_0.6_af
+LF: 0.794315
+LF: 0.798501
+
+out_SDP2015_chinese_open-false_deterministic_pas_0.01_0.4_0.6_af+as+cs
+LF: 0.797005
+LF: 0.801338
+
+out_SDP2015_chinese_open-false_deterministic_pas_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.816229
+LF: 0.820392
+
