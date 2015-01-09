@@ -1,3 +1,20 @@
+out_SDP2015_english_open-false_deterministic_dm_0.01_0.4_0.6_af+as+cs+gp+cp+ccp                                          LF: 0.887804                                                                                                             
+LF: 0.886896                                                                                                             
+
+--
+
+out_SDP2015_english_open-false_deterministic_pas_0.01_0.4_0.6_af+as+cs+gp+cp+ccp
+LF: 0.910716
+LF: 0.909802        
+
+--
+
+out_SDP2015_english_open-false_deterministic_psd_0.01_0.3_0.7_af+as+cs+gp+cp+ccp
+LF: 0.788518
+LF: 0.776582
+
+###############################################################
+
 out_SDP2015_english_open-true_deterministic_dm_0.01_0.4_0.6_basic
 LF: 0.892042
 LF: 0.891186
