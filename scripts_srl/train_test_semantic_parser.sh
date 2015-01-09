@@ -63,8 +63,8 @@ then
 fi
 
 #suffix=parser_pruned-${prune}_model-${model_type}
-suffix=semantic_parser_${formalism}_pruned-${prune}_model-${model_type}_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter}_fp-${train_cost_false_positives}_fn-${train_cost_false_negatives}
-suffix_pruner=semantic_parser_${formalism}_pruner_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter_pruner}
+suffix=semantic_parser_train+dev_${formalism}_pruned-${prune}_model-${model_type}_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter}_fp-${train_cost_false_positives}_fn-${train_cost_false_negatives}
+suffix_pruner=semantic_parser_train+dev_${formalism}_pruner_syntax-${use_dependency_syntactic_features}_C-${regularization_parameter_pruner}
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
@@ -87,13 +87,13 @@ if [ "${file_format}" == "sdp" ]
 then
     if [ "$language" == "czech" ]
     then
-        file_train_orig=${path_data}/${language}_${formalism}_augmented_train.sdp
-        #file_train_orig=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        #file_train_orig=${path_data}/${language}_${formalism}_augmented_train.sdp
+        file_train_orig=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
         files_test_orig[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
         #files_test_orig[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
 
-        file_train=${path_data}/${language}_ctags_${formalism}_augmented_train.sdp
-        #file_train=${path_data}/${language}_ctags_${formalism}_augmented_train+dev.sdp
+        #file_train=${path_data}/${language}_ctags_${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_ctags_${formalism}_augmented_train+dev.sdp
         files_test[0]=${path_data}/${language}_ctags_${formalism}_augmented_dev.sdp
         #files_test[1]=${path_data}/${language}_ctags_${formalism}_augmented_test.sdp
 
@@ -116,8 +116,8 @@ then
                 > ${file_test}.unaugmented
         done
     else
-        file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
-        #file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        #file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
         files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
         #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
     fi
