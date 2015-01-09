@@ -58,5 +58,6 @@ AC_CONFIG_FILES([Makefile
                  src/parser/Makefile
                  src/semantic_parser/Makefile
                  src/entity_recognizer/Makefile
-                 src/dependency_labeler/Makefile])
+                 src/dependency_labeler/Makefile
+                 src/constituency_labeler/Makefile])
 AC_OUTPUT

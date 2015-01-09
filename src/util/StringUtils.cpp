@@ -34,6 +34,17 @@ void StringSplit(const string &str,
   if(tmp.length() > 0) results->push_back(tmp);
 }
 
+// Join fields into a single string using a delimiting character.
+void StringJoin(const vector<string> &fields,
+                const char delim,
+                string *result) {
+  *result = "";
+  for (int i = 0; i < fields.size()-1; ++i) {
+    *result += fields[i] + delim;
+  }
+  if (fields.size() > 0) *result += fields.back();
+}
+
 // Extract the file name given the file path and a delimiting character "delim"
 // (typically "/"). The path is provided as input in the string "file_name",
 // which is overwritten with the file name.

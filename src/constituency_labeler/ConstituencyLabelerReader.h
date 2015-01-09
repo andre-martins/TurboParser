@@ -16,32 +16,19 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DEPENDENCY_LABELER_OPTIONS_H_
-#define DEPENDENCY_LABELER_OPTIONS_H_
+#ifndef CONSTITUENCYLABELERREADER_H_
+#define CONSTITUENCYLABELERREADER_H_
 
-#include "Options.h"
+#include "ConstituencyReader.h"
 
-class DependencyLabelerOptions : public Options {
+class ConstituencyLabelerReader : public ConstituencyReader {
  public:
-  DependencyLabelerOptions() {};
-  virtual ~DependencyLabelerOptions() {};
+  ConstituencyLabelerReader() {}
+  virtual ~ConstituencyLabelerReader() {}
 
-  // Serialization functions.
-  void Load(FILE* fs);
-  void Save(FILE* fs);
-
-  // Initialization: set options based on the flags.
-  void Initialize();
-
-  // Get option values.
-  //bool projective() { return projective_; }
-  bool prune_labels() { return prune_labels_; }
-
- protected:
-  std::string file_format_;
-  //string model_type_;
-  //bool projective_;
-  bool prune_labels_;
+ public:
+  virtual Instance *GetNext();
 };
 
-#endif // DEPENDENCY_LABELER_OPTIONS_H_
+#endif /* CONSTITUENCYLABELERREADER_H_ */
+

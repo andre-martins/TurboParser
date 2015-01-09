@@ -16,32 +16,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DEPENDENCY_LABELER_OPTIONS_H_
-#define DEPENDENCY_LABELER_OPTIONS_H_
+#include "ConstituencyWriter.h"
+#include "ConstituencyInstance.h"
+#include <iostream>
+#include <sstream>
 
-#include "Options.h"
-
-class DependencyLabelerOptions : public Options {
- public:
-  DependencyLabelerOptions() {};
-  virtual ~DependencyLabelerOptions() {};
-
-  // Serialization functions.
-  void Load(FILE* fs);
-  void Save(FILE* fs);
-
-  // Initialization: set options based on the flags.
-  void Initialize();
-
-  // Get option values.
-  //bool projective() { return projective_; }
-  bool prune_labels() { return prune_labels_; }
-
- protected:
-  std::string file_format_;
-  //string model_type_;
-  //bool projective_;
-  bool prune_labels_;
-};
-
-#endif // DEPENDENCY_LABELER_OPTIONS_H_
+void ConstituencyWriter::Write(Instance *instance) {
+  ConstituencyInstance *constituency_instance =
+    static_cast<ConstituencyInstance*>(instance);
+  std::string info;
+  constituency_instance->GetParseTree().SaveToString(&info);
+  os_ << info << endl;
+}

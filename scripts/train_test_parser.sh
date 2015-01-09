@@ -10,7 +10,7 @@ train_algorithm=svm_mira # Training algorithm.
 train_algorithm_pruner=crf_mira # Training algorithm for pruner.
 num_epochs=10 # Number of training epochs.
 num_epochs_pruner=10 # Number of training epochs for the pruner.
-regularization_parameter=0.001 # The C parameter in MIRA.
+regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 regularization_parameter_pruner=1e12 # Same for the pruner.
 train=true
 test=true
@@ -24,7 +24,7 @@ case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
 projective=true #false # If true, force single-rooted projective trees.
-model_type=standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
+model_type=full #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they

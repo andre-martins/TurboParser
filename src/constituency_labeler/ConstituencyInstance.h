@@ -16,30 +16,35 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+#ifndef CONSTITUENCYINSTANCE_H_
+#define CONSTITUENCYINSTANCE_H_
 
 #include <string>
 #include <vector>
+#include "SequenceInstance.h"
+#include "ParseTree.h"
 
-using namespace std;
+class ConstituencyInstance : public SequenceInstance {
+ public:
+  ConstituencyInstance() {}
+  virtual ~ConstituencyInstance() {}
 
-extern void StringSplit(const string &str,
-                        const string &delim,
-                        vector<string> *results);
+  virtual Instance* Copy() {
+    ConstituencyInstance* instance = new ConstituencyInstance();
+    instance->Initialize(forms_, tags_, parse_tree_);
+    return static_cast<Instance*>(instance);
+  }
 
-extern void StringJoin(const vector<string> &fields,
-                       const char delim,
-                       string *result);
+  void Initialize(const std::vector<std::string> &forms,
+                  const std::vector<std::string> &tags,
+                  const ParseTree &parse_tree);
 
-extern void GetFileNameFromPath(const string &delim, string *file_name);
+  const ParseTree &GetParseTree() { return parse_tree_; }
 
-extern void TrimComments(const string &delim, string *line);
+  void SetParseTree(const ParseTree &parse_tree) { parse_tree_ = parse_tree; }
 
-extern void TrimLeft(const string &delim, string *line);
+ protected:
+  ParseTree parse_tree_;
+};
 
-extern void TrimRight(const string &delim, string *line);
-
-extern void Trim(const string &delim, string *line);
-
-#endif // STRINGUTILS_H
+#endif /* CONSTITUENCYINSTANCE_H_*/
