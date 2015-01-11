@@ -90,12 +90,14 @@ then
         #file_train_orig=${path_data}/${language}_${formalism}_augmented_train.sdp
         file_train_orig=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
         files_test_orig[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
-        #files_test_orig[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
+        files_test_orig[1]=${path_data}/${language}_id_${formalism}_augmented_test.sdp
+        files_test_orig[2]=${path_data}/${language}_ood_${formalism}_augmented_test.sdp
 
         #file_train=${path_data}/${language}_ctags_${formalism}_augmented_train.sdp
         file_train=${path_data}/${language}_ctags_${formalism}_augmented_train+dev.sdp
         files_test[0]=${path_data}/${language}_ctags_${formalism}_augmented_dev.sdp
-        #files_test[1]=${path_data}/${language}_ctags_${formalism}_augmented_test.sdp
+        files_test[1]=${path_data}/${language}_id_ctags_${formalism}_augmented_test.sdp
+        files_test[2]=${path_data}/${language}_ood_ctags_${formalism}_augmented_test.sdp
 
         rm -f ${file_train}
         awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_train_orig} \
@@ -115,11 +117,18 @@ then
             awk 'NF>0{OFS="\t";$4=substr($4,0,2);print}NF==0{print}' ${file_test_orig}.unaugmented \
                 > ${file_test}.unaugmented
         done
+    elif [ "$language" == "english" ]
+    then
+        #file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
+        file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
+        files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
+        files_test[1]=${path_data}/${language}_id_${formalism}_augmented_test.sdp
+        files_test[2]=${path_data}/${language}_ood_${formalism}_augmented_test.sdp
     else
         #file_train=${path_data}/${language}_${formalism}_augmented_train.sdp
         file_train=${path_data}/${language}_${formalism}_augmented_train+dev.sdp
         files_test[0]=${path_data}/${language}_${formalism}_augmented_dev.sdp
-        #files_test[1]=${path_data}/${language}_${formalism}_augmented_test.sdp
+        files_test[1]=${path_data}/${language}_id_${formalism}_augmented_test.sdp
     fi
 else
     if [ "$language" == "english" ]
@@ -203,6 +212,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_pruner_prediction} > ${file_pruner_prediction}.unaugmented
+            python remove_augmented.py ${file_test} > ${file_test}.unaugmented
             sh evaluator/toolkit/run.sh Scorer ${file_test}.unaugmented ${file_pruner_prediction}.unaugmented representation=${formalism} \
                 >> ${file_pruner_results}
             cat ${file_pruner_results}
@@ -323,6 +333,7 @@ then
         if [ "$file_format" == "sdp" ]
         then
             python remove_augmented.py ${file_prediction} > ${file_prediction}.unaugmented
+            python remove_augmented.py ${file_test} > ${file_test}.unaugmented
             sh evaluator/toolkit/run.sh Scorer ${file_test}.unaugmented ${file_prediction}.unaugmented representation=${formalism} \
                 >> ${file_results}
             cat ${file_results}
