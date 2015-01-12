@@ -130,6 +130,10 @@ class ParseTreeNode : public TreeNode<std::string> {
   // concatenates all the labels (e.g. S|NP|PRP).
   void CollapseSingletonSpines(bool same_label_only, bool append_labels);
 
+  // Expand singleton spines into multiple nodes.
+  // E.g. "S|NP|PRP" becomes "(S (NP (PRP) ) )".
+  void ExpandSingletonSpines();
+
  protected:
   Span span_;
 };
@@ -187,6 +191,13 @@ class ParseTree {
   void CollapseSingletonSpines(bool same_label_only, bool append_labels) {
     root_->CollapseSingletonSpines(same_label_only, append_labels);
     //ComputeSpans();
+    FillNodes();
+  }
+
+  // Expand singleton spines into multiple nodes.
+  // E.g. "S|NP|PRP" becomes "(S (NP (PRP) ) )".
+  void ExpandSingletonSpines() {
+    root_->ExpandSingletonSpines();
     FillNodes();
   }
 

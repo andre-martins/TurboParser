@@ -25,9 +25,9 @@
 // constituent.
 
 // Special symbols.
-const string kConstituentUnknown = "_UNKNOWN_"; // Unknown constituent.
-const string kConstituentStart = "_START_"; // Start symbol.
-const string kConstituentStop = "_STOP_"; // Stop symbol.
+const std::string kConstituentUnknown = "_UNKNOWN_"; // Unknown constituent.
+const std::string kConstituentStart = "_START_"; // Start symbol.
+const std::string kConstituentStop = "_STOP_"; // Stop symbol.
 
 void ConstituencyLabelerDictionary::CreateConstituentDictionary(
     ConstituencyReader *reader) {
@@ -47,6 +47,9 @@ void ConstituencyLabelerDictionary::CreateLabelDictionary(
     ConstituencyLabelerReader *reader) {
   LOG(INFO) << "Creating label dictionary...";
   std::vector<int> label_freqs;
+
+  ConstituencyLabelerOptions *labeler_options =
+    static_cast<ConstituencyLabelerOptions*>(pipe_->GetOptions());
 
   // Go through the corpus and build the existing labels for each constituent.
   constituent_labels_.clear();
@@ -103,6 +106,9 @@ void ConstituencyLabelerDictionary::CreateLabelDictionary(
   }
   reader->Close();
   label_alphabet_.StopGrowth();
+
+  // Set null label.
+  null_label_ = label_alphabet_.Lookup(labeler_options->null_label());
 
   LOG(INFO) << "Number of labels: " << label_alphabet_.size();
   LOG(INFO) << "Labels and their frequencies:";

@@ -42,14 +42,60 @@ class ConstituencyLabelerDictionary : public ConstituencyDictionary {
   void Save(FILE *fs) {
     ConstituencyDictionary::Save(fs);
     if (0 > label_alphabet_.Save(fs)) CHECK(false);
-    // TODO: save constituency labels and frequencies.
+
+    // Save null label.
+    bool success = WriteInteger(fs, null_label_);
+    CHECK(success);
+
+    // Save constituency labels and frequencies.
+    int length = constituent_labels_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int j = 0; j < constituent_labels_.size(); ++j) {
+      length = constituent_labels_[j].size();
+      success = WriteInteger(fs, length);
+      CHECK(success);
+      for (int k = 0; k < constituent_labels_[j].size(); ++k) {
+        int id = constituent_labels_[j][k];
+        success = WriteInteger(fs, id);
+        CHECK(success);
+        int freq = constituent_label_frequencies_[j][k];
+        success = WriteInteger(fs, freq);
+        CHECK(success);
+      }
+    }
   }
 
   void Load(FILE *fs) {
     ConstituencyDictionary::Load(fs);
     if (0 > label_alphabet_.Load(fs)) CHECK(false);
     label_alphabet_.BuildNames();
-    // TODO: load constituency labels and frequencies.
+
+    // Load null label.
+    bool success = ReadInteger(fs, &null_label_);
+
+    // Load constituency labels and frequencies.
+    int length;
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    constituent_labels_.resize(length);
+    constituent_label_frequencies_.resize(length);
+    for (int j = 0; j < constituent_labels_.size(); ++j) {
+      success = ReadInteger(fs, &length);
+      CHECK(success);
+      constituent_labels_[j].resize(length);
+      constituent_label_frequencies_[j].resize(length);
+      for (int k = 0; k < constituent_labels_[j].size(); ++k) {
+        int id;
+        success = ReadInteger(fs, &id);
+        CHECK(success);
+        constituent_labels_[j][k] = id;
+        int freq;
+        success = ReadInteger(fs, &freq);
+        CHECK(success);
+        constituent_label_frequencies_[j][k] = freq;
+      }
+    }
   }
 
   void AllowGrowth() {
@@ -78,8 +124,11 @@ class ConstituencyLabelerDictionary : public ConstituencyDictionary {
     return constituent_labels_[constituent_id];
   }
 
+  int null_label() { return null_label_; }
+
  protected:
   Alphabet label_alphabet_;
+  int null_label_;
   std::vector<std::vector<int> > constituent_labels_;
   std::vector<std::vector<int> > constituent_label_frequencies_;
 };

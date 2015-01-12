@@ -28,6 +28,11 @@ DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each constituent node in the "
             "training data.");
+DEFINE_string(null_label, "",
+              "NULL label (can be treated in a special way, e.g. designing a "
+              "suitable cost function or when --ignore_null_label=true.");
+DEFINE_bool(ignore_null_labels, false,
+            "If true, do not create parts for NULL labels.");
 
 // Save current option flags to the model file.
 void ConstituencyLabelerOptions::Save(FILE* fs) {
@@ -35,6 +40,10 @@ void ConstituencyLabelerOptions::Save(FILE* fs) {
 
   bool success;
   success = WriteBool(fs, prune_labels_);
+  CHECK(success);
+  success = WriteString(fs, null_label_);
+  CHECK(success);
+  success = WriteBool(fs, ignore_null_labels_);
   CHECK(success);
 }
 
@@ -47,6 +56,12 @@ void ConstituencyLabelerOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
+  success = ReadString(fs, &FLAGS_null_label);
+  CHECK(success);
+  LOG(INFO) << "Setting --null_label=" << FLAGS_null_label;
+  success = ReadBool(fs, &FLAGS_ignore_null_labels);
+  CHECK(success);
+  LOG(INFO) << "Setting --ignore_null_labels=" << FLAGS_ignore_null_labels;
 
   Initialize();
 }
@@ -56,5 +71,7 @@ void ConstituencyLabelerOptions::Initialize() {
 
   file_format_ = FLAGS_file_format;
   prune_labels_ = FLAGS_prune_labels;
+  null_label_ = FLAGS_null_label;
+  ignore_null_labels_ = FLAGS_ignore_null_labels;
 }
 

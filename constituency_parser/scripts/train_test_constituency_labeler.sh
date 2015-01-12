@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Root folder where TurboParser is installed.
-root_folder="`cd $(dirname $0);cd ..;pwd`"
+root_folder="`cd $(dirname $0);cd ../..;pwd`"
+task_folder="`cd $(dirname $0);cd ..;pwd`"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 
 # Set options.
@@ -10,7 +11,7 @@ train_algorithm=svm_mira # Training algorithm.
 num_epochs=10 #20 # Number of training epochs.
 regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 train=true
-test=false #true
+test=true
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
@@ -20,10 +21,10 @@ suffix=constituency_labeler
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
-path_scripts=${root_folder}/scripts # Folder containing scripts.
-path_data=${root_folder}/data/${language} # Folder with the data.
-path_models=${root_folder}/models/${language} # Folder where models are stored.
-path_results=${root_folder}/results/${language} # Folder for the results.
+path_scripts=${task_folder}/scripts # Folder containing scripts.
+path_data=${task_folder}/data/${language} # Folder with the data.
+path_models=${task_folder}/models/${language} # Folder where models are stored.
+path_results=${task_folder}/results/${language} # Folder for the results.
 
 # Create folders if they don't exist.
 mkdir -p ${path_data}
@@ -34,17 +35,11 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 file_results=${path_results}/${language}_${suffix}.txt
 
-if [ "$language" == "english_proj" ] || [ "$language" == "english_proj_stanford" ]
+if [ "$language" == "english_ptb" ]
 then
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
     files_test[1]=${path_data}/${language}_dev.trees
-elif [ "$language" == "english_dep2phrase" ]
-then
-    file_train=${path_data}/${language}_train.trees
-    files_test[0]=${path_data}/${language}_test.trees
-    files_test[1]=${path_data}/${language}_dev.trees
-    #suffix_parser=predicted
 else
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
@@ -75,7 +70,7 @@ then
         --lemma_cutoff=${lemma_cutoff} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
-        --logtostderr > log_constituency.txt
+        --logtostderr
 fi
 
 

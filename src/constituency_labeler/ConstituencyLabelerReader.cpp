@@ -36,7 +36,7 @@ Instance *ConstituencyLabelerReader::GetNext() {
       tree.ExtractWordsAndTags(&words, &tags);
       tree.CollapseSingletonSpines(false, true);
 
-      std::cout << line << std::endl;
+      //std::cout << line << std::endl;
 
       const std::vector<ParseTreeNode*> &terminals = tree.terminals();
       const std::vector<ParseTreeNode*> &non_terminals = tree.non_terminals();
@@ -60,6 +60,9 @@ Instance *ConstituencyLabelerReader::GetNext() {
       instance = new ConstituencyLabelerInstance;
       instance->Initialize(words, tags, tree, constituent_labels);
 
+      CHECK_EQ(terminals.size(), instance->size());
+
+#if 0
       std::string info;
       instance->GetParseTree().SaveToString(&info);
       std::cout << info << std::endl;
@@ -91,8 +94,9 @@ Instance *ConstituencyLabelerReader::GetNext() {
         }
         std::cout << " -> " << instance->GetConstituentLabels()[i] << endl;
       }
+#endif
+
     }
   }
-
   return static_cast<Instance*>(instance);
 }

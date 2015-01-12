@@ -203,6 +203,10 @@ void ConstituencyLabelerPipe::MakeNodeParts(Instance *instance,
     CHECK_GE(allowed_labels.size(), 0);
     for (int k = 0; k < allowed_labels.size(); ++k) {
       int label = allowed_labels[k];
+      if (labeler_options->ignore_null_labels() &&
+          label == labeler_dictionary->null_label()) {
+        continue;
+      }
       // TODO: force the NULL label in some cases.
       Part *part = labeler_parts->CreatePartNode(i, label);
       labeler_parts->push_back(part);

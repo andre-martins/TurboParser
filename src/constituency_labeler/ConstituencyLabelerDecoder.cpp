@@ -26,6 +26,11 @@
 // Define a matrix of doubles using Eigen.
 typedef LogVal<double> LogValD;
 
+DEFINE_double(constituency_labeler_train_cost_false_positives, 1.0,
+              "Cost for predicting false positives.");
+DEFINE_double(constituency_labeler_train_cost_false_negatives, 1.0,
+              "Cost for predicting false negatives.");
+
 void ConstituencyLabelerDecoder::DecodeCostAugmented(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
@@ -43,15 +48,30 @@ void ConstituencyLabelerDecoder::DecodeCostAugmented(
   labeler_parts->GetOffsetNode(&offset_labeled_nodes,
                                &num_labeled_nodes);
 
+  ////////////////////////////////////////////////////
+  // F1: a = 0.5, b = 0.5.
+  // Recall: a = 0, b = 1.
+  // In general:
+  // p = a - (a+b)*z0
+  // q = b*sum(z0)
+  // p'*z + q = a*sum(z) - (a+b)*z0'*z + b*sum(z0)
+  //          = a*(1-z0)'*z + b*(1-z)'*z0.
+  ////////////////////////////////////////////////////
+
+  // Penalty for predicting 1 when it is 0 (FP).
+  double a = FLAGS_constituency_labeler_train_cost_false_positives;
+  // Penalty for predicting 0 when it is 1 (FN).
+  double b = FLAGS_constituency_labeler_train_cost_false_negatives;
+
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;
   std::vector<double> p(num_labeled_nodes, 0.0);
 
   std::vector<double> scores_cost = scores;
   for (int r = 0; r < num_labeled_nodes; ++r) {
-    p[r] = 0.5 - gold_output[offset_labeled_nodes + r];
+    p[r] = a - (a+b) * gold_output[offset_labeled_nodes + r];
     scores_cost[offset_labeled_nodes + r] += p[r];
-    q += 0.5*gold_output[offset_labeled_nodes + r];
+    q += b*gold_output[offset_labeled_nodes + r];
   }
 
   Decode(instance, parts, scores_cost, predicted_output);
@@ -82,9 +102,6 @@ void ConstituencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
 
   // Decode the labels and update the scores.
   DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
-  for (int i = 0; i < best_labeled_parts.size(); ++i) {
-    copied_scores[i] += copied_scores[best_labeled_parts[i]];
-  }
 
   predicted_output->clear();
   predicted_output->resize(parts->size(), 0.0);
@@ -92,10 +109,12 @@ void ConstituencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
   // Write the components of the predicted output that
   // correspond to the labeled parts.
   for (int i = 0; i < num_nodes; ++i) {
+    if (best_labeled_parts[i] < 0) continue;
     (*predicted_output)[best_labeled_parts[i]] = 1.0;
   }
 }
 
+// TODO(atm): handle ignore_null_labels() here.
 void ConstituencyLabelerDecoder::DecodeMarginals(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
@@ -169,6 +188,8 @@ void ConstituencyLabelerDecoder::DecodeLabels(
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeled_parts =
     static_cast<ConstituencyLabelerParts*>(parts);
+  ConstituencyLabelerOptions *labeler_options =
+    static_cast<ConstituencyLabelerOptions*>(pipe_->GetOptions());
   int num_nodes = sentence->GetNumConstituents();
 
   best_labeled_parts->resize(num_nodes);
@@ -186,6 +207,11 @@ void ConstituencyLabelerDecoder::DecodeLabels(
       }
     }
     (*best_labeled_parts)[i] = best_label;
+    if (labeler_options->ignore_null_labels()) {
+      if (best_score <= 0.0) {
+        (*best_labeled_parts)[i] = -1;
+      }
+    }
   }
 }
 

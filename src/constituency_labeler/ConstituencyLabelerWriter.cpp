@@ -33,7 +33,8 @@ void ConstituencyLabelerWriter::Write(Instance *instance) {
       node->set_label(label + kParseTreeLabelSeparator + node->label());
     }
   }
-  // TODO(atm): expand unary spines.
+  // Expand unary spines.
+  parse_tree->ExpandSingletonSpines();
   parse_tree->SaveToString(&info);
   os_ << info << endl;
 }

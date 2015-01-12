@@ -17,6 +17,7 @@
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParseTree.h"
+#include "StringUtils.h"
 #include <stack>
 #include <glog/logging.h>
 
@@ -87,6 +88,43 @@ void ParseTreeNode::CollapseSingletonSpines(bool same_label_only,
         children_[i]->set_parent(this);
       }
     }
+  }
+}
+
+void ParseTreeNode::ExpandSingletonSpines() {
+  for (int i = 0; i < children_.size(); ++i) {
+    GetChild(i)->ExpandSingletonSpines();
+  }
+
+  std::vector<std::string> labels;
+  std::string delim = "";
+  delim += kParseTreeLabelSeparator;
+  StringSplit(label_, delim, &labels);
+  if (labels.size() > 1) {
+    // Bottom node.
+    ParseTreeNode *child = new ParseTreeNode();
+    child->label_ = labels.back();
+    child->children_ = children_;
+    for (int i = 0; i < children_.size(); ++i) {
+      child->GetChild(i)->set_parent(child);
+    }
+    child->set_span(span_);
+    // Middle nodes.
+    labels.pop_back();
+    while (labels.size() > 1) {
+      ParseTreeNode *node = new ParseTreeNode();
+      node->label_ = labels.back();
+      node->AddChild(child);
+      child->set_parent(node);
+      node->set_span(span_);
+      child = node;
+      labels.pop_back();
+    }
+    // Top node (this node).
+    label_ = labels[0];
+    children_.clear();
+    AddChild(child);
+    child->set_parent(this);
   }
 }
 
