@@ -23,8 +23,12 @@
 
 void ConstituencyDictionary::CreateConstituentDictionary(
     ConstituencyReader *reader) {
+  // Create tag dictionary.
+  CreateTagDictionary(reader);
+
+  // Create constituent dictionary.
   LOG(INFO) << "Creating constituent dictionary...";
-  vector<int> label_freqs;
+  std::vector<int> label_freqs(constituent_alphabet_.size(), -1);
 
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.

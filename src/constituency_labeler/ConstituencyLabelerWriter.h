@@ -16,40 +16,19 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ENTITYSPAN_H_
-#define ENTITYSPAN_H_
+#ifndef CONSTITUENCYLABELERWRITER_H_
+#define CONSTITUENCYLABELERWRITER_H_
 
-typedef class NamedSpan EntitySpan;
+#include "ConstituencyWriter.h"
 
-class Span {
- public:
-  Span() { start_ = -1; end_ = -1; }
-  Span(int start, int end) { start_ = start; end_ = end; }
-  virtual ~Span() {}
+class ConstituencyLabelerWriter : public ConstituencyWriter {
+public:
+  ConstituencyLabelerWriter() {};
+  virtual ~ConstituencyLabelerWriter() {};
 
-  int start() const { return start_; }
-  int end() const { return end_; }
-  void set_start(int start) { start_ = start; }
-  void set_end(int end) { end_ = end; }
-
- protected:
-  int start_;
-  int end_;
+public:
+  void Write(Instance *instance);
 };
 
-class NamedSpan : public Span {
- public:
-  NamedSpan() : Span() { name_ = ""; }
-  NamedSpan(int start, int end, std::string &name) : Span(start, end) {
-    name_ = name;
-  }
-  virtual ~NamedSpan() {}
+#endif /* CONSTITUENCYLABELERWRITER_H_ */
 
-  const std::string &name() { return name_; }
-  void set_name(const std::string &name) { name_ = name; }
-
- protected:
-  std::string name_;
-};
-
-#endif /* ENTITYSPAN_H_ */

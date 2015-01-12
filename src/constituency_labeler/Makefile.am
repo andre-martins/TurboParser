@@ -11,6 +11,7 @@ ConstituencyLabelerDecoder.cpp \
 ConstituencyLabelerDecoder.h \
 ConstituencyLabelerFeatures.cpp \
 ConstituencyLabelerFeatures.h \
+ConstituencyLabelerFeatureTemplates.h \
 ConstituencyLabelerPipe.cpp \
 ConstituencyLabelerPipe.h \
 ConstituencyLabelerOptions.cpp \
@@ -21,8 +22,12 @@ ConstituencyLabelerPart.cpp \
 ConstituencyLabelerPart.h \
 ConstituencyLabelerReader.cpp \
 ConstituencyLabelerReader.h \
+ConstituencyLabelerWriter.cpp \
+ConstituencyLabelerWriter.h \
 ConstituencyLabelerInstance.cpp \
 ConstituencyLabelerInstance.h \
+ConstituencyLabelerInstanceNumeric.cpp \
+ConstituencyLabelerInstanceNumeric.h \
 ConstituencyDictionary.cpp \
 ConstituencyDictionary.h \
 ConstituencyReader.cpp \
@@ -31,10 +36,14 @@ ConstituencyWriter.cpp \
 ConstituencyWriter.h \
 ConstituencyInstance.cpp \
 ConstituencyInstance.h \
+ConstituencyInstanceNumeric.cpp \
+ConstituencyInstanceNumeric.h \
 ParseTree.cpp \
 ParseTree.h \
 Span.h \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
+$(SEQUENCE)/SequenceDictionary.cpp $(SEQUENCE)/SequenceDictionary.h \
+$(SEQUENCE)/SequenceInstanceNumeric.cpp $(SEQUENCE)/SequenceInstanceNumeric.h \
 $(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceInstance.h \
 $(SEQUENCE)/SequenceReader.cpp $(SEQUENCE)/SequenceReader.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \

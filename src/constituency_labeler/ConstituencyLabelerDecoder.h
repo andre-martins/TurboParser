@@ -32,31 +32,31 @@ class ConstituencyLabelerDecoder : public Decoder {
 
   void Decode(Instance *instance, Parts *parts,
               const std::vector<double> &scores,
-              std::vector<double> *predicted_output) {};
+              std::vector<double> *predicted_output);
 
   void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const std::vector<double> &scores,
                            const std::vector<double> &gold_output,
                            std::vector<double> *predicted_output,
                            double *cost,
-                           double *loss) {};
+                           double *loss);
 
   void DecodeMarginals(Instance *instance, Parts *parts,
                        const std::vector<double> &scores,
                        const std::vector<double> &gold_output,
                        std::vector<double> *predicted_output,
                        double *entropy,
-                       double *loss) {};
+                       double *loss);
 
  protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const std::vector<double> &scores,
-                    std::vector<int> *best_labeled_parts) {};
+                    std::vector<int> *best_labeled_parts);
 
   void DecodeLabelMarginals(Instance *instance, Parts *parts,
                             const std::vector<double> &scores,
                             std::vector<double> *total_scores,
-                            std::vector<double> *label_marginals) {};
+                            std::vector<double> *label_marginals);
 
  protected:
   ConstituencyLabelerPipe *pipe_;

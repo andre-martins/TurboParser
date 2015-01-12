@@ -23,38 +23,42 @@
 #include <iostream>
 #include "logval.h"
 
-#if 0
 // Define a matrix of doubles using Eigen.
 typedef LogVal<double> LogValD;
 
-void DependencyLabelerDecoder::DecodeCostAugmented(
+void ConstituencyLabelerDecoder::DecodeCostAugmented(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
     const std::vector<double> &gold_output,
     std::vector<double> *predicted_output,
     double *cost,
     double *loss) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-  int offset_arcs, num_arcs;
+  ConstituencyLabelerInstanceNumeric *sentence =
+    static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+  ConstituencyLabelerParts *labeler_parts =
+    static_cast<ConstituencyLabelerParts*>(parts);
+  int num_nodes = sentence->GetNumConstituents();
 
-  dependency_parts->GetOffsetLabeledArc(&offset_arcs, &num_arcs);
+  int offset_labeled_nodes, num_labeled_nodes;
+  labeler_parts->GetOffsetNode(&offset_labeled_nodes,
+                               &num_labeled_nodes);
 
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;
-  vector<double> p(num_arcs, 0.0);
+  std::vector<double> p(num_labeled_nodes, 0.0);
 
-  vector<double> scores_cost = scores;
-  for (int r = 0; r < num_arcs; ++r) {
-    p[r] = 0.5 - gold_output[offset_arcs + r];
-    scores_cost[offset_arcs + r] += p[r];
-    q += 0.5*gold_output[offset_arcs + r];
+  std::vector<double> scores_cost = scores;
+  for (int r = 0; r < num_labeled_nodes; ++r) {
+    p[r] = 0.5 - gold_output[offset_labeled_nodes + r];
+    scores_cost[offset_labeled_nodes + r] += p[r];
+    q += 0.5*gold_output[offset_labeled_nodes + r];
   }
 
   Decode(instance, parts, scores_cost, predicted_output);
 
   *cost = q;
-  for (int r = 0; r < num_arcs; ++r) {
-    *cost += p[r] * (*predicted_output)[offset_arcs + r];
+  for (int r = 0; r < num_labeled_nodes; ++r) {
+    *cost += p[r] * (*predicted_output)[offset_labeled_nodes + r];
   }
 
   *loss = *cost;
@@ -63,21 +67,23 @@ void DependencyLabelerDecoder::DecodeCostAugmented(
   }
 }
 
-void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
-                                      const std::vector<double> &scores,
-                                      std::vector<double> *predicted_output) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+void ConstituencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
+                                        const std::vector<double> &scores,
+                                        std::vector<double> *predicted_output) {
+  ConstituencyLabelerInstanceNumeric *sentence =
+    static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+  ConstituencyLabelerParts *labeler_parts =
+    static_cast<ConstituencyLabelerParts*>(parts);
+  int num_nodes = sentence->GetNumConstituents();
 
   // Create copy of the scores.
-  vector<double> copied_scores(scores);
-  vector<int> best_labeled_parts;
-  int offset_arcs, num_arcs;
-  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
+  std::vector<double> copied_scores(scores);
+  std::vector<int> best_labeled_parts;
 
-  // If labeled parsing, decode the labels and update the scores.
+  // Decode the labels and update the scores.
   DecodeLabels(instance, parts, copied_scores, &best_labeled_parts);
-  for (int r = 0; r < best_labeled_parts.size(); ++r) {
-    copied_scores[offset_arcs + r] += copied_scores[best_labeled_parts[r]];
+  for (int i = 0; i < best_labeled_parts.size(); ++i) {
+    copied_scores[i] += copied_scores[best_labeled_parts[i]];
   }
 
   predicted_output->clear();
@@ -85,63 +91,57 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
 
   // Write the components of the predicted output that
   // correspond to the labeled parts.
-  for (int r = 0; r < num_arcs; ++r) {
-    (*predicted_output)[offset_arcs + r] = 1.0;
-    (*predicted_output)[best_labeled_parts[r]] = 1.0;
+  for (int i = 0; i < num_nodes; ++i) {
+    (*predicted_output)[best_labeled_parts[i]] = 1.0;
   }
 }
 
-void DependencyLabelerDecoder::DecodeMarginals(
+void ConstituencyLabelerDecoder::DecodeMarginals(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
     const std::vector<double> &gold_output,
     std::vector<double> *predicted_output,
     double *entropy,
     double *loss) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
-  // Right now, only allow marginal inference for arc-factored models.
-  CHECK(dependency_parts->IsArcFactored());
+  ConstituencyLabelerInstanceNumeric *sentence =
+    static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+  ConstituencyLabelerParts *labeled_parts =
+    static_cast<ConstituencyLabelerParts*>(parts);
+  int num_nodes = sentence->GetNumConstituents();
 
   // Create copy of the scores.
   std::vector<double> copied_scores(scores);
   std::vector<double> total_scores;
   std::vector<double> label_marginals;
-  int offset_arcs, num_arcs;
-  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
-  int offset_labeled_arcs, num_labeled_arcs;
-  dependency_parts->GetOffsetLabeledArc(&offset_labeled_arcs,
-                                        &num_labeled_arcs);
+  int offset_labeled_nodes, num_labeled_nodes;
+  labeled_parts->GetOffsetNode(&offset_labeled_nodes,
+                               &num_labeled_nodes);
 
   // Decode the labels and update the scores.
   DecodeLabelMarginals(instance, parts, copied_scores, &total_scores,
                        &label_marginals);
   double log_partition_function = 0.0;
-  for (int r = 0; r < total_scores.size(); ++r) {
-    copied_scores[offset_arcs + r] += total_scores[r];
-    log_partition_function += total_scores[r];
+  for (int i = 0; i < total_scores.size(); ++i) {
+    log_partition_function += total_scores[i];
   }
 
   predicted_output->clear();
   predicted_output->resize(parts->size(), 0.0);
 
-  // If labeled parsing, write the components of the predicted output that
+  // Write the components of the predicted output that
   // correspond to the labeled parts.
-  for (int r = 0; r < num_labeled_arcs; ++r) {
-    DependencyPartLabeledArc *labeled_arc =
-      static_cast<DependencyPartLabeledArc*>((*parts)[offset_labeled_arcs + r]);
-    int index_arc = dependency_parts->FindArc(labeled_arc->head(),
-                                              labeled_arc->modifier());
-    CHECK_GE(index_arc, 0);
-    (*predicted_output)[index_arc] = 1.0;
-    (*predicted_output)[offset_labeled_arcs + r] = label_marginals[r];
+  for (int r = 0; r < num_labeled_nodes; ++r) {
+    ConstituencyLabelerPartNode *node =
+      static_cast<ConstituencyLabelerPartNode*>(
+        (*parts)[offset_labeled_nodes + r]);
+    (*predicted_output)[offset_labeled_nodes + r] = label_marginals[r];
   }
 
   // Recompute the entropy.
   *entropy = log_partition_function;
-  for (int r = 0; r < num_labeled_arcs; ++r) {
-    *entropy -= (*predicted_output)[offset_labeled_arcs + r] *
-      scores[offset_labeled_arcs + r];
+  for (int r = 0; r < num_labeled_nodes; ++r) {
+    *entropy -= (*predicted_output)[offset_labeled_nodes + r] *
+      scores[offset_labeled_nodes + r];
   }
   if (*entropy < 0.0) {
     LOG(INFO) << "Entropy truncated to zero (" << *entropy << ")";
@@ -161,69 +161,70 @@ void DependencyLabelerDecoder::DecodeMarginals(
 // Decode the best label for each candidate arc. The output vector
 // best_labeled_parts, indexed by the unlabeled arcs, contains the indices
 // of the best labeled part for each arc.
-void DependencyLabelerDecoder::DecodeLabels(
+void ConstituencyLabelerDecoder::DecodeLabels(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
     std::vector<int> *best_labeled_parts) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  ConstituencyLabelerInstanceNumeric *sentence =
+    static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+  ConstituencyLabelerParts *labeled_parts =
+    static_cast<ConstituencyLabelerParts*>(parts);
+  int num_nodes = sentence->GetNumConstituents();
 
-  int offset, num_arcs;
-  dependency_parts->GetOffsetArc(&offset, &num_arcs);
-  best_labeled_parts->resize(num_arcs);
-  for (int r = 0; r < num_arcs; ++r) {
-    DependencyPartArc *arc =
-        static_cast<DependencyPartArc*>((*parts)[offset + r]);
-    const vector<int> &index_labeled_parts =
-        dependency_parts->FindLabeledArcs(arc->head(), arc->modifier());
-    // Find the best label for each candidate arc.
+  best_labeled_parts->resize(num_nodes);
+  for (int i = 0; i < num_nodes; ++i) {
+    const std::vector<int> &index_node_parts =
+        labeled_parts->FindNodeParts(i);
+    // Find the best label for each node.
     int best_label = -1;
     double best_score;
-    for (int k = 0; k < index_labeled_parts.size(); ++k) {
+    for (int k = 0; k < index_node_parts.size(); ++k) {
       if (best_label < 0 ||
-          scores[index_labeled_parts[k]] > best_score) {
-        best_label = index_labeled_parts[k];
+          scores[index_node_parts[k]] > best_score) {
+        best_label = index_node_parts[k];
         best_score = scores[best_label];
       }
     }
-    (*best_labeled_parts)[r] = best_label;
+    (*best_labeled_parts)[i] = best_label;
   }
 }
 
 // Decode the label marginals for each candidate arc. The output vector
 // total_scores contains the sum of exp-scores (over the labels) for each arc;
 // label_marginals contains those marginals ignoring the tree constraint.
-void DependencyLabelerDecoder::DecodeLabelMarginals(
+void ConstituencyLabelerDecoder::DecodeLabelMarginals(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
     std::vector<double> *total_scores,
     std::vector<double> *label_marginals) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
 
-  int offset, num_arcs;
-  int offset_labeled, num_labeled_arcs;
-  dependency_parts->GetOffsetArc(&offset, &num_arcs);
-  dependency_parts->GetOffsetLabeledArc(&offset_labeled, &num_labeled_arcs);
+  ConstituencyLabelerInstanceNumeric *sentence =
+    static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+  ConstituencyLabelerParts *labeled_parts =
+    static_cast<ConstituencyLabelerParts*>(parts);
+  int num_nodes = sentence->GetNumConstituents();
+
+  int offset_labeled_nodes, num_labeled_nodes;
+  labeled_parts->GetOffsetNode(&offset_labeled_nodes, &num_labeled_nodes);
   total_scores->clear();
-  total_scores->resize(num_arcs, 0.0);
+  total_scores->resize(num_nodes, 0.0);
   label_marginals->clear();
-  label_marginals->resize(num_labeled_arcs, 0.0);
+  label_marginals->resize(num_labeled_nodes, 0.0);
 
-  for (int r = 0; r < num_arcs; ++r) {
-    DependencyPartArc *arc =
-        static_cast<DependencyPartArc*>((*parts)[offset + r]);
-    const vector<int> &index_labeled_parts =
-        dependency_parts->FindLabeledArcs(arc->head(), arc->modifier());
+  for (int i = 0; i < num_nodes; ++i) {
+    const std::vector<int> &index_node_parts =
+        labeled_parts->FindNodeParts(i);
     // Find the best label for each candidate arc.
     LogValD total_score = LogValD::Zero();
-    for (int k = 0; k < index_labeled_parts.size(); ++k) {
-      total_score += LogValD(scores[index_labeled_parts[k]], false);
+    for (int k = 0; k < index_node_parts.size(); ++k) {
+      total_score += LogValD(scores[index_node_parts[k]], false);
     }
-    (*total_scores)[r] = total_score.logabs();
+    (*total_scores)[i] = total_score.logabs();
     double sum = 0.0;
-    for (int k = 0; k < index_labeled_parts.size(); ++k) {
+    for (int k = 0; k < index_node_parts.size(); ++k) {
       LogValD marginal =
-          LogValD(scores[index_labeled_parts[k]], false) / total_score;
-      (*label_marginals)[index_labeled_parts[k] - offset_labeled] =
+          LogValD(scores[index_node_parts[k]], false) / total_score;
+      (*label_marginals)[index_node_parts[k] - offset_labeled_nodes] =
           marginal.as_float();
       sum += marginal.as_float();
     }
@@ -232,5 +233,3 @@ void DependencyLabelerDecoder::DecodeLabelMarginals(
     }
   }
 }
-
-#endif

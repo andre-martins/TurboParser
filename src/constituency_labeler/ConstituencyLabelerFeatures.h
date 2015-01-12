@@ -20,8 +20,8 @@
 #define CONSTITUENCYLABELERFEATURES_H_
 
 #include "Features.h"
-#include "ConstituencyInstance.h" // Remove.
-//#include "ConstituencyInstanceNumeric.h"
+#include "ConstituencyLabelerInstanceNumeric.h"
+#include "FeatureEncoder.h"
 
 class ConstituencyLabelerOptions;
 
@@ -44,44 +44,39 @@ class ConstituencyLabelerFeatures: public Features {
 
   void Initialize(Instance *instance, Parts *parts) {
     Clear();
-#if 0
-    int length = static_cast<SequenceInstanceNumeric*>(instance)->size();
-    input_features_unigrams_.resize(length, static_cast<BinaryFeatures*>(NULL));
-    input_features_bigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
-    // Make this optional?
-    input_features_trigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
-#endif
+    int num_nodes = static_cast<ConstituencyLabelerInstanceNumeric*>(instance)->
+      GetNumConstituents();
+    input_features_nodes_.resize(num_nodes,
+                                 static_cast<BinaryFeatures*>(NULL));
   }
 
   const BinaryFeatures &GetPartFeatures(int r) const {
     CHECK(false) << "All part features are specific to nodes.";
     // Do this to avoid compilation error.
     return *new BinaryFeatures;
-  };
+  }
 
   BinaryFeatures *GetMutablePartFeatures(int r) const {
     CHECK(false) << "All part features are specific to nodes.";
     return NULL;
-  };
+  }
 
   const BinaryFeatures &GetNodeFeatures(int i) const {
     return *(input_features_nodes_[i]);
-  };
+  }
 
- public:
-  //void AddNodeFeatures(ConstituencyInstanceNumeric *sentence,
-  //                     int position) {
-  void AddNodeFeatures(ConstituencyInstance *sentence,
-                       int position) {
-    // Add an empty feature vector.
-    CHECK(!input_features_nodes_[position]);
-    BinaryFeatures *features = new BinaryFeatures;
-    input_features_nodes_[position] = features;
+  void AddNodeFeatures(ConstituencyLabelerInstanceNumeric *sentence,
+                       int position);
+
+ protected:
+  void AddFeature(uint64_t fkey, BinaryFeatures* features) {
+    features->push_back(fkey);
   }
 
  protected:
   // Vectors of input features.
   std::vector<BinaryFeatures*> input_features_nodes_;
+  FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 
 #endif /* CONSTITUENCYLABELERFEATURES_H_ */

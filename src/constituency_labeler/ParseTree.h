@@ -25,15 +25,15 @@
 
 const char kParseTreeLabelSeparator = '|';
 
-class ParseTreeNode {
+template <class T>
+class TreeNode {
  public:
-  ParseTreeNode(class ParseTreeNode *parent) {
-    span_ = NULL;
+  TreeNode() { parent_ = NULL; }
+  TreeNode(class TreeNode<T> *parent) {
     parent_ = parent;
   }
-  virtual ~ParseTreeNode() {
+  virtual ~TreeNode() {
     // Delete all nodes underneath.
-    delete span_;
     for (int i = 0; i < children_.size(); ++i) {
       delete children_[i];
     }
@@ -42,30 +42,18 @@ class ParseTreeNode {
   // True if node is a leaf.
   bool IsLeaf() const { return children_.size() == 0; }
 
-  // True if node is a pre-terminal.
-  bool IsPreTerminal() const {
-    return children_.size() == 1 && children_[0]->IsLeaf();
-  }
-
-  // Get start/end positions.
-  int start() const { return span_->start(); }
-  int end() const { return span_->end(); }
-
-  // Get/set node label.
-  const std::string &label() const { return label_; }
-  void set_label(const std::string &label) { label_ = label; }
-
   // Get/set parent node (NULL if this is the root).
-  ParseTreeNode* parent() const { return parent_; }
-  void set_parent(ParseTreeNode* parent) { parent_ = parent; }
+  TreeNode<T>* parent() const { return parent_; }
+  void set_parent(TreeNode<T>* parent) { parent_ = parent; }
 
   // Get children nodes.
-  const std::vector<class ParseTreeNode*> &children() const {
+  int GetNumChildren() const { return children_.size(); }
+  const std::vector<class TreeNode<T> *> &children() const {
     return children_;
   }
 
   // Append a child node.
-  void AddChild(class ParseTreeNode *node) {
+  void AddChild(TreeNode<T> *node) {
     children_.push_back(node);
   }
 
@@ -75,15 +63,54 @@ class ParseTreeNode {
   }
 
   // Return all the descendent nodes in a post order traversal.
-  void GetPostOrderTraversal(std::vector<ParseTreeNode*> *nodes) {
+  void GetPostOrderTraversal(std::vector<TreeNode<T> *> *nodes) {
     nodes->clear();
     for (int i = 0; i < children_.size(); ++i) {
-      std::vector<ParseTreeNode*> children_nodes;
+      std::vector<TreeNode<T> *> children_nodes;
       children_[i]->GetPostOrderTraversal(&children_nodes);
       nodes->insert(nodes->end(), children_nodes.begin(), children_nodes.end());
     }
     nodes->push_back(this);
   }
+
+ protected:
+  T label_;
+  class TreeNode<T> *parent_;
+  std::vector<class TreeNode<T> *> children_;
+};
+
+class ParseTreeNode : public TreeNode<std::string> {
+ public:
+  ParseTreeNode() {}
+  ParseTreeNode(ParseTreeNode *parent) {
+    parent_ = parent;
+  }
+  virtual ~ParseTreeNode() {}
+
+  // True if node is a pre-terminal.
+  bool IsPreTerminal() const {
+    return children_.size() == 1 && children_[0]->IsLeaf();
+  }
+
+  // Get parent node.
+  ParseTreeNode *parent() { return static_cast<ParseTreeNode*>(parent_); }
+
+  // Get child nodes.
+  ParseTreeNode *GetChild(int i) const {
+    return static_cast<ParseTreeNode*>(children_[i]);
+  }
+
+  // Get start/end positions.
+  int start() const { return span_.start(); }
+  int end() const { return span_.end(); }
+
+  // Get/set node label.
+  const std::string &label() const { return label_; }
+  void set_label(const std::string &label) { label_ = label; }
+
+  // Get/set node span.
+  const Span &span() const { return span_; }
+  void set_span(const Span &span) { span_ = span; }
 
   // Extract words and tags spanned by this node.
   void ExtractWordsAndTags(std::vector<std::string> *words,
@@ -104,10 +131,7 @@ class ParseTreeNode {
   void CollapseSingletonSpines(bool same_label_only, bool append_labels);
 
  protected:
-  std::string label_;
-  Span *span_;
-  class ParseTreeNode *parent_;
-  std::vector<class ParseTreeNode*> children_;
+  Span span_;
 };
 
 class ParseTree {
@@ -136,13 +160,14 @@ class ParseTree {
   void FillNodes() {
     terminals_.clear();
     non_terminals_.clear();
-    std::vector<ParseTreeNode*> nodes;
+    std::vector<TreeNode<std::string> *> nodes;
     root_->GetPostOrderTraversal(&nodes);
     for (int i = 0; i < nodes.size(); ++i) {
-      if (nodes[i]->IsLeaf()) {
-        terminals_.push_back(nodes[i]);
+      ParseTreeNode *node = static_cast<ParseTreeNode*>(nodes[i]);
+      if (node->IsLeaf()) {
+        terminals_.push_back(node);
       } else {
-        non_terminals_.push_back(nodes[i]);
+        non_terminals_.push_back(node);
       }
     }
   }

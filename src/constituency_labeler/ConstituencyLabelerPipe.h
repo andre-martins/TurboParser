@@ -24,8 +24,8 @@
 #include "ConstituencyLabelerReader.h"
 #include "ConstituencyLabelerDictionary.h"
 #include "TokenDictionary.h"
-//#include "ConstituencyInstanceNumeric.h"
-#include "ConstituencyWriter.h"
+#include "ConstituencyLabelerInstanceNumeric.h"
+#include "ConstituencyLabelerWriter.h"
 #include "ConstituencyLabelerPart.h"
 #include "ConstituencyLabelerFeatures.h"
 #include "ConstituencyLabelerDecoder.h"
@@ -53,7 +53,7 @@ class ConstituencyLabelerPipe : public Pipe {
     GetConstituencyLabelerDictionary()->SetTokenDictionary(token_dictionary_);
   }
   void CreateReader() { reader_ = new ConstituencyLabelerReader; }
-  void CreateWriter() { writer_ = new ConstituencyWriter; }
+  void CreateWriter() { writer_ = new ConstituencyLabelerWriter; }
   void CreateDecoder() { decoder_ = new ConstituencyLabelerDecoder(this); };
   Parts *CreateParts() { return new ConstituencyLabelerParts; };
   Features *CreateFeatures() { return new ConstituencyLabelerFeatures(this); };
@@ -65,32 +65,43 @@ class ConstituencyLabelerPipe : public Pipe {
   void PreprocessData();
 
   Instance *GetFormattedInstance(Instance *instance) {
-    return instance->Copy();
-#if 0
-    SequenceInstanceNumeric *instance_numeric =
-          new SequenceInstanceNumeric;
-    instance_numeric->Initialize(*GetSequenceDictionary(),
-                                 static_cast<SequenceInstance*>(instance));
+    ConstituencyLabelerInstanceNumeric *instance_numeric =
+          new ConstituencyLabelerInstanceNumeric;
+    instance_numeric->Initialize(
+        *GetConstituencyLabelerDictionary(),
+        static_cast<ConstituencyLabelerInstance*>(instance));
     return instance_numeric;
-#endif
   }
 
  protected:
   void SaveModel(FILE* fs);
   void LoadModel(FILE* fs);
 
-#if 0
-  // Return the allowed tags for the i-th word. An empty vector means that all
+  // Return the allowed labels for the i-th node. An empty vector means that all
   // tags are allowed.
-  void GetAllowedTags(Instance *instance, int i,
-                      std::vector<int> *allowed_tags) {
-    // By default, allow all tags.
-    allowed_tags->clear();
+  void GetAllowedLabels(Instance *instance, int i,
+                        std::vector<int> *allowed_labels) {
+    // Make constituent-label dictionary pruning.
+    allowed_labels->clear();
+    bool prune_labels = GetConstituencyLabelerOptions()->prune_labels();
+    if (!prune_labels) return;
+
+    ConstituencyLabelerInstanceNumeric *sentence =
+      static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
+    ConstituencyLabelerDictionary *labeler_dictionary =
+      GetConstituencyLabelerDictionary();
+
+    int constituent_id = sentence->GetConstituentId(i);
+    *allowed_labels =
+      labeler_dictionary->GetConstituentLabels(constituent_id);
   }
-#endif
 
   void MakeParts(Instance *instance, Parts *parts,
                  std::vector<double> *gold_outputs);
+
+  void MakeNodeParts(Instance *instance,
+                     Parts *parts,
+                     std::vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
                             const std::vector<bool> &selected_parts,

@@ -30,12 +30,12 @@ void ParseTreeNode::ExtractWordsAndTags(std::vector<std::string> *words,
   tags->clear();
   if (IsPreTerminal()) {
     tags->push_back(label_);
-    words->push_back(children_[0]->label());
+    words->push_back(GetChild(0)->label());
   } else {
     for (int i = 0; i < children_.size(); ++i) {
       std::vector<std::string> child_words;
       std::vector<std::string> child_tags;
-      children_[i]->ExtractWordsAndTags(&child_words, &child_tags);
+      GetChild(i)->ExtractWordsAndTags(&child_words, &child_tags);
       words->insert(words->end(), child_words.begin(), child_words.end());
       tags->insert(tags->end(), child_tags.begin(), child_tags.end());
     }
@@ -43,28 +43,28 @@ void ParseTreeNode::ExtractWordsAndTags(std::vector<std::string> *words,
 }
 
 void ParseTreeNode::ComputeSpans(int start) {
-  delete span_;
   if (IsLeaf()) {
-    span_ = new Span(start, start);
+    span_ = Span(start, start);
   } else {
     int end = start-1;
     for (int i = 0; i < children_.size(); ++i) {
-      children_[i]->ComputeSpans(end+1);
-      end = children_[i]->end();
+      GetChild(i)->ComputeSpans(end+1);
+      end = GetChild(i)->end();
     }
-    span_ = new Span(start, end);
+    span_ = Span(start, end);
   }
 }
 
 void ParseTreeNode::CollapseSingletonSpines(bool same_label_only,
                                             bool append_labels) {
   for (int i = 0; i < children_.size(); ++i) {
-    children_[i]->CollapseSingletonSpines(same_label_only, append_labels);
+    GetChild(i)->CollapseSingletonSpines(same_label_only, append_labels);
   }
   if (children_.size() == 1 && !IsPreTerminal()) {
     if (same_label_only) {
-      if (label_ == children_[0]->label()) {
-        std::vector<ParseTreeNode*> children = children_[0]->children();
+      if (label_ == GetChild(0)->label()) {
+        std::vector<TreeNode<std::string> *> children =
+          children_[0]->children();
         children_[0]->RemoveAllChildren();
         delete children_[0];
         children_ = children;
@@ -75,12 +75,12 @@ void ParseTreeNode::CollapseSingletonSpines(bool same_label_only,
     } else {
       if (label_ != "" && append_labels) {
         label_ += kParseTreeLabelSeparator;
-        label_ += children_[0]->label();
+        label_ += GetChild(0)->label();
       } else {
-        label_ = children_[0]->label();
+        label_ = GetChild(0)->label();
       }
-      std::vector<ParseTreeNode*> children = children_[0]->children();
-      children_[0]->RemoveAllChildren();
+      std::vector<TreeNode<std::string> *> children = children_[0]->children();
+      GetChild(0)->RemoveAllChildren();
       delete children_[0];
       children_ = children;
       for (int i = 0; i < children_.size(); ++i) {
@@ -97,7 +97,7 @@ std::string ParseTreeNode::ToString() const {
   if (!IsLeaf()) {
     for (int i = 0; i < children_.size(); ++i) {
       if (i > 0 || label_ != "") info += kWhitespace;
-      info += children_[i]->ToString();
+      info += GetChild(i)->ToString();
     }
     info += kRightBracket;
   }

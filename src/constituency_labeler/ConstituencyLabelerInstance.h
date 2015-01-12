@@ -41,6 +41,9 @@ class ConstituencyLabelerInstance : public ConstituencyInstance {
   const std::string &GetConstituentLabel(int i) {
     return constituent_labels_[i];
   }
+  void SetConstituentLabel(int i, const std::string& label) {
+    constituent_labels_[i] = label;
+  }
   const std::vector<std::string> &GetConstituentLabels() {
     return constituent_labels_;
   }

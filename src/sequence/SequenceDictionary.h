@@ -40,7 +40,7 @@ class SequenceDictionary : public Dictionary {
     if (0 > tag_alphabet_.Save(fs)) CHECK(false);
   }
 
-  void Load(FILE *fs) {
+  virtual void Load(FILE *fs) {
     if (0 > tag_alphabet_.Load(fs)) CHECK(false);
     tag_alphabet_.BuildNames();
   }

@@ -19,60 +19,56 @@
 #ifndef CONSTITUENCYDICTIONARY_H_
 #define CONSTITUENCYDICTIONARY_H_
 
-#include "Dictionary.h"
-#include "TokenDictionary.h"
-#include "SerializationUtils.h"
+#include "SequenceDictionary.h"
 #include "ConstituencyReader.h"
 
-class Pipe;
-
-class ConstituencyDictionary : public Dictionary {
+class ConstituencyDictionary : public SequenceDictionary {
  public:
   ConstituencyDictionary() {}
-  ConstituencyDictionary(Pipe* pipe) : pipe_(pipe) {}
+  ConstituencyDictionary(Pipe* pipe) { pipe_ = pipe; }
   virtual ~ConstituencyDictionary() { Clear(); }
 
   virtual void Clear() {
     // Don't clear token_dictionary, since this class does not own it.
+    SequenceDictionary::Clear();
     constituent_alphabet_.clear();
   }
 
   virtual void Save(FILE *fs) {
+    SequenceDictionary::Save(fs);
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
   }
 
   virtual void Load(FILE *fs) {
+    SequenceDictionary::Load(fs);
     if (0 > constituent_alphabet_.Load(fs)) CHECK(false);
     constituent_alphabet_.BuildNames();
   }
 
   void AllowGrowth() {
-    token_dictionary_->AllowGrowth();
+    SequenceDictionary::AllowGrowth();
     constituent_alphabet_.AllowGrowth();
   }
   void StopGrowth() {
-    token_dictionary_->StopGrowth();
+    SequenceDictionary::StopGrowth();
     constituent_alphabet_.StopGrowth();
   }
 
-  void CreateConstituentDictionary(ConstituencyReader *reader);
+  virtual void CreateConstituentDictionary(ConstituencyReader *reader);
 
   const string &GetConstituentName(int id) const {
     return constituent_alphabet_.GetName(id);
-  }
-
-  TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
-  void SetTokenDictionary(TokenDictionary *token_dictionary) {
-    token_dictionary_ = token_dictionary;
   }
 
   const Alphabet &GetConstituentAlphabet() const {
     return constituent_alphabet_;
   }
 
+  int GetConstituentId(const std::string &name) const {
+    return constituent_alphabet_.Lookup(name);
+  }
+
  protected:
-  Pipe *pipe_;
-  TokenDictionary *token_dictionary_;
   Alphabet constituent_alphabet_;
 };
 

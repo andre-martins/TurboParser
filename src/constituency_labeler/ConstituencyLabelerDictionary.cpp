@@ -21,6 +21,28 @@
 #include "ConstituencyLabelerInstance.h"
 #include <algorithm>
 
+// TODO(atm): must create a NULL label and add it as an allowed label to every
+// constituent.
+
+// Special symbols.
+const string kConstituentUnknown = "_UNKNOWN_"; // Unknown constituent.
+const string kConstituentStart = "_START_"; // Start symbol.
+const string kConstituentStop = "_STOP_"; // Stop symbol.
+
+void ConstituencyLabelerDictionary::CreateConstituentDictionary(
+    ConstituencyReader *reader) {
+  std::string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kConstituentUnknown;
+  special_symbols[TOKEN_START] = kConstituentStart;
+  special_symbols[TOKEN_STOP] = kConstituentStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    constituent_alphabet_.Insert(special_symbols[i]);
+  }
+
+  ConstituencyDictionary::CreateConstituentDictionary(reader);
+}
+
 void ConstituencyLabelerDictionary::CreateLabelDictionary(
     ConstituencyLabelerReader *reader) {
   LOG(INFO) << "Creating label dictionary...";

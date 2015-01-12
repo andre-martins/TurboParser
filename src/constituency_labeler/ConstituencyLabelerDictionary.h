@@ -61,6 +61,7 @@ class ConstituencyLabelerDictionary : public ConstituencyDictionary {
     label_alphabet_.StopGrowth();
   }
 
+  void CreateConstituentDictionary(ConstituencyReader *reader);
   void CreateLabelDictionary(ConstituencyLabelerReader *reader);
 
   const string &GetLabelName(int label) const {
@@ -68,6 +69,14 @@ class ConstituencyLabelerDictionary : public ConstituencyDictionary {
   }
 
   const Alphabet &GetLabelAlphabet() const { return label_alphabet_; }
+
+  int GetLabelId(const std::string &name) const {
+    return label_alphabet_.Lookup(name);
+  }
+
+  const std::vector<int> &GetConstituentLabels(int constituent_id) {
+    return constituent_labels_[constituent_id];
+  }
 
  protected:
   Alphabet label_alphabet_;

@@ -39,7 +39,8 @@ class ConstituencyInstance : public SequenceInstance {
                   const std::vector<std::string> &tags,
                   const ParseTree &parse_tree);
 
-  const ParseTree &GetParseTree() { return parse_tree_; }
+  const ParseTree &GetParseTree() const { return parse_tree_; }
+  ParseTree *GetMutableParseTree() { return &parse_tree_; }
 
   void SetParseTree(const ParseTree &parse_tree) { parse_tree_ = parse_tree; }
 
