@@ -38,6 +38,7 @@ void ConstituencyLabelerDictionary::CreateConstituentDictionary(
 
   for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
     constituent_alphabet_.Insert(special_symbols[i]);
+    rule_alphabet_.Insert(special_symbols[i]);
   }
 
   ConstituencyDictionary::CreateConstituentDictionary(reader);

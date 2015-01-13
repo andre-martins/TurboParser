@@ -10,6 +10,9 @@ language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
 num_epochs=10 #20 # Number of training epochs.
 regularization_parameter=$2 #0.001 # The C parameter in MIRA.
+train_cost_false_positives=$3
+train_cost_false_negatives=$4
+ignore_null_labels=false #true
 train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.
@@ -70,6 +73,9 @@ then
         --lemma_cutoff=${lemma_cutoff} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
+        --constituency_labeler_train_cost_false_positives=${train_cost_false_positives} \
+        --constituency_labeler_train_cost_false_negatives=${train_cost_false_negatives} \
+        --ignore_null_labels=${ignore_null_labels} \
         --logtostderr
 fi
 

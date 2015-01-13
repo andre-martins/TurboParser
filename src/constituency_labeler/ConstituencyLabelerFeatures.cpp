@@ -61,7 +61,6 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   }
   CHECK_GE(current_index, 0);
 
-  // TODO: add TOKEN_START/STOP labels to the constituent dictionary.
   // Parent node.
   uint16_t PCID = (parent_node)? parent_node->label() : TOKEN_START;
   // Current node.
@@ -75,7 +74,7 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
     TOKEN_STOP;
   // Previous word, if previous node is pre-terminal.
   uint16_t pWID = (left_node && left_node->IsPreTerminal())?
-    sentence->GetFormId(left_node->start()) : TOKEN_STOP;
+    sentence->GetFormId(left_node->start()) : TOKEN_START;
   // Next word, if next node is pre-terminal.
   uint16_t nWID = (right_node && right_node->IsPreTerminal())?
     sentence->GetFormId(right_node->start()) : TOKEN_STOP;

@@ -26,9 +26,9 @@
 // Define a matrix of doubles using Eigen.
 typedef LogVal<double> LogValD;
 
-DEFINE_double(constituency_labeler_train_cost_false_positives, 1.0,
+DEFINE_double(constituency_labeler_train_cost_false_positives, 0.5,
               "Cost for predicting false positives.");
-DEFINE_double(constituency_labeler_train_cost_false_negatives, 1.0,
+DEFINE_double(constituency_labeler_train_cost_false_negatives, 0.5,
               "Cost for predicting false negatives.");
 
 void ConstituencyLabelerDecoder::DecodeCostAugmented(
@@ -114,7 +114,6 @@ void ConstituencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
   }
 }
 
-// TODO(atm): handle ignore_null_labels() here.
 void ConstituencyLabelerDecoder::DecodeMarginals(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
@@ -223,11 +222,12 @@ void ConstituencyLabelerDecoder::DecodeLabelMarginals(
     const std::vector<double> &scores,
     std::vector<double> *total_scores,
     std::vector<double> *label_marginals) {
-
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeled_parts =
     static_cast<ConstituencyLabelerParts*>(parts);
+  ConstituencyLabelerOptions *labeler_options =
+    static_cast<ConstituencyLabelerOptions*>(pipe_->GetOptions());
   int num_nodes = sentence->GetNumConstituents();
 
   int offset_labeled_nodes, num_labeled_nodes;
@@ -240,13 +240,18 @@ void ConstituencyLabelerDecoder::DecodeLabelMarginals(
   for (int i = 0; i < num_nodes; ++i) {
     const std::vector<int> &index_node_parts =
         labeled_parts->FindNodeParts(i);
-    // Find the best label for each candidate arc.
-    LogValD total_score = LogValD::Zero();
+    // If no part for null label, initiliaze log partition to exp(0.0) to
+    // account the null label which has score 0.0.
+    LogValD total_score = (labeler_options->ignore_null_labels())?
+      LogValD::One() : LogValD::Zero();
     for (int k = 0; k < index_node_parts.size(); ++k) {
       total_score += LogValD(scores[index_node_parts[k]], false);
     }
     (*total_scores)[i] = total_score.logabs();
-    double sum = 0.0;
+    // If no part for null label, initiliaze sum to exp(0.0)/Z to
+    // account the null label which has score 0.0.
+    double sum = (labeler_options->ignore_null_labels())?
+      (1.0 / total_score.as_float()) : 0.0;
     for (int k = 0; k < index_node_parts.size(); ++k) {
       LogValD marginal =
           LogValD(scores[index_node_parts[k]], false) / total_score;

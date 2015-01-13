@@ -97,4 +97,24 @@ void ConstituencyInstanceNumeric::Initialize(
   int length = instance->size();
 
   parse_tree_.Initialize(dictionary, instance->GetParseTree());
+
+  const std::vector<ParseTreeNode*> &non_terminals =
+    instance->GetParseTree().non_terminals();
+  int num_nodes = non_terminals.size();
+  for (int i = 0; i < num_nodes; ++i) {
+    ParseTreeNode *node = non_terminals[i];
+    const std::string &label = node->label();
+
+    // Add rule to alphabet.
+    if (!node->IsPreTerminal()) {
+      std::string rule = label + ":";
+      for (int j = 0; j < node->GetNumChildren(); ++j) {
+        rule += " " + node->GetChild(j)->label();
+      }
+      int rule_id = dictionary.GetRuleId(rule);
+      CHECK_LT(rule_id, 0xffff);
+      if (rule_id < 0) rule_id = TOKEN_UNKNOWN;
+      //rules_[i] = rule_id;
+    }
+  }
 }

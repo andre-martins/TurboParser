@@ -27,7 +27,7 @@ void ConstituencyDictionary::CreateConstituentDictionary(
   CreateTagDictionary(reader);
 
   // Create constituent dictionary.
-  LOG(INFO) << "Creating constituent dictionary...";
+  LOG(INFO) << "Creating constituent and rule dictionary...";
   std::vector<int> label_freqs(constituent_alphabet_.size(), -1);
 
   // Go through the corpus and build the label dictionary,
@@ -43,13 +43,22 @@ void ConstituencyDictionary::CreateConstituentDictionary(
       ParseTreeNode *node = non_terminals[i];
       const std::string &label = node->label();
 
-      // Add tag to alphabet.
+      // Add constituent to alphabet.
       int id = constituent_alphabet_.Insert(label);
       if (id >= label_freqs.size()) {
         CHECK_EQ(id, label_freqs.size());
         label_freqs.push_back(0);
       }
       ++label_freqs[id];
+
+      // Add rule to alphabet.
+      if (!node->IsPreTerminal()) {
+        std::string rule = label + ":";
+        for (int j = 0; j < node->GetNumChildren(); ++j) {
+          rule += " " + node->GetChild(j)->label();
+        }
+        int rule_id = rule_alphabet_.Insert(rule);
+      }
     }
     delete instance;
     instance = static_cast<ConstituencyInstance*>(reader->GetNext());
@@ -58,6 +67,7 @@ void ConstituencyDictionary::CreateConstituentDictionary(
   constituent_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of constituent tags: " << constituent_alphabet_.size();
+  LOG(INFO) << "Number of rules: " << rule_alphabet_.size();
   LOG(INFO) << "Constituent tags and their frequencies:";
   for (Alphabet::iterator it = constituent_alphabet_.begin();
        it != constituent_alphabet_.end(); ++it) {

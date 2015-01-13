@@ -32,26 +32,32 @@ class ConstituencyDictionary : public SequenceDictionary {
     // Don't clear token_dictionary, since this class does not own it.
     SequenceDictionary::Clear();
     constituent_alphabet_.clear();
+    rule_alphabet_.clear();
   }
 
   virtual void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
+    if (0 > rule_alphabet_.Save(fs)) CHECK(false);
   }
 
   virtual void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
     if (0 > constituent_alphabet_.Load(fs)) CHECK(false);
     constituent_alphabet_.BuildNames();
+    if (0 > rule_alphabet_.Load(fs)) CHECK(false);
+    rule_alphabet_.BuildNames();
   }
 
   void AllowGrowth() {
     SequenceDictionary::AllowGrowth();
     constituent_alphabet_.AllowGrowth();
+    rule_alphabet_.AllowGrowth();
   }
   void StopGrowth() {
     SequenceDictionary::StopGrowth();
     constituent_alphabet_.StopGrowth();
+    rule_alphabet_.StopGrowth();
   }
 
   virtual void CreateConstituentDictionary(ConstituencyReader *reader);
@@ -68,8 +74,13 @@ class ConstituencyDictionary : public SequenceDictionary {
     return constituent_alphabet_.Lookup(name);
   }
 
+  int GetRuleId(const std::string &name) const {
+    return rule_alphabet_.Lookup(name);
+  }
+
  protected:
   Alphabet constituent_alphabet_;
+  Alphabet rule_alphabet_;
 };
 
 #endif /* CONSTITUENCYDICTIONARY_H_ */
