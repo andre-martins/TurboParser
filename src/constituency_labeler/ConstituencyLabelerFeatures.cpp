@@ -69,6 +69,10 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   uint16_t pCID = (left_node)? left_node->label() : TOKEN_START;
   // Right sibling node.
   uint16_t nCID = (right_node)? right_node->label() : TOKEN_STOP;
+  // Rule below.
+  uint16_t RID = node->rule();
+  // Rule above.
+  uint16_t PRID = (parent_node)? parent_node->rule() : TOKEN_START;
   // Current word, if pre-terminal.
   uint16_t WID = (node->IsPreTerminal())? sentence->GetFormId(node->start()) :
     TOKEN_STOP;
@@ -110,6 +114,12 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   AddFeature(fkey, features);
 
   fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_PCID, flags, CID, PCID);
+  AddFeature(fkey, features);
+
+  fkey = encoder_.CreateFKey_W(ConstituencyLabelerFeatureTemplateNode::RULEDOWN, flags, RID);
+  AddFeature(fkey, features);
+
+  fkey = encoder_.CreateFKey_WP(ConstituencyLabelerFeatureTemplateNode::RULEUP_CHIDX, flags, PRID, current_index_code);
   AddFeature(fkey, features);
 
   fkey = encoder_.CreateFKey_WP(ConstituencyLabelerFeatureTemplateNode::CID_CHIDX, flags, CID, current_index_code);

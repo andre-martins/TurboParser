@@ -59,8 +59,13 @@ class ParseTreeNumericNode : public TreeNode<int> {
   const Span &span() const { return span_; }
   void set_span(const Span &span) { span_ = span; }
 
+  // Get/set production rule.
+  int rule() const { return rule_; }
+  void set_rule(int rule) { rule_ = rule; }
+
  protected:
   Span span_;
+  int rule_; // Production rule whose left side is this node.
 };
 
 class ParseTreeNumeric {

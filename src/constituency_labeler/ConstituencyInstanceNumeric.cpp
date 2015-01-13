@@ -105,7 +105,7 @@ void ConstituencyInstanceNumeric::Initialize(
     ParseTreeNode *node = non_terminals[i];
     const std::string &label = node->label();
 
-    // Add rule to alphabet.
+    // Add rule information to the node.
     if (!node->IsPreTerminal()) {
       std::string rule = label + ":";
       for (int j = 0; j < node->GetNumChildren(); ++j) {
@@ -113,8 +113,12 @@ void ConstituencyInstanceNumeric::Initialize(
       }
       int rule_id = dictionary.GetRuleId(rule);
       CHECK_LT(rule_id, 0xffff);
+      //LOG(INFO) << "Rule " << rule_id << ":" << rule;
       if (rule_id < 0) rule_id = TOKEN_UNKNOWN;
-      //rules_[i] = rule_id;
+      parse_tree_.non_terminals()[i]->set_rule(rule_id);
+    } else {
+      // Pre-terminal nodes do not get rules.
+      parse_tree_.non_terminals()[i]->set_rule(TOKEN_STOP);
     }
   }
 }
