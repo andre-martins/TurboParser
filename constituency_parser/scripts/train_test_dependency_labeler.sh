@@ -49,11 +49,15 @@ then
     file_train=${path_data}/${language}_train.trees.conll
     files_test[0]=${path_data}/${language}_test.trees.conll
     files_test[1]=${path_data}/${language}_dev.trees.conll
+    files_test_parsed[0]=${path_data}/${language}_ftags_test.conll.predpos.${suffix_parser}
+    files_test_parsed[1]=${path_data}/${language}_ftags_dev.conll.predpos.${suffix_parser}
     if ${delta_encoding}
     then
         file_train_transformed=${path_data}/${language}_delta_train.trees.conll
         files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
         files_test_transformed[1]=${path_data}/${language}_delta_dev.trees.conll
+        files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.predpos.${suffix_parser}
+        files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.predpos.${suffix_parser}
     fi
 fi
 
@@ -61,8 +65,11 @@ fi
 for (( i=0; i<${#files_test[*]}; i++ ))
 do
     file_test=${files_test[$i]}
+    file_test_parsed=${files_test_parsed[$i]}
     file_prediction=${file_test}.${suffix}.pred
+    file_prediction_parsed=${file_test_parsed}.${suffix}.pred
     files_prediction[$i]=${file_prediction}
+    files_prediction_parsed[$i]=${file_prediction_parsed}
 done
 
 
@@ -144,9 +151,13 @@ then
         then
             # Convert gold standard file to phrases.
             # NOTE: gold standard files should have index dependencies...
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]} ${files_test[$i]}.conv.trees
+            python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp
+            sed 's/ROOT/TOP/g' ${files_test[$i]}.conv.trees.tmp > ${files_test[$i]}.conv.trees
             # Convert predicted file to phrases.
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]} ${files_prediction[$i]}.conv.trees
+            python escape_parenthesis.py ${files_prediction[$i]} > ${files_prediction[$i]}.escaped
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp
+            sed 's/ROOT/TOP/g' ${files_prediction[$i]}.conv.trees.tmp > ${files_prediction[$i]}.conv.trees
             # Run EVALB.
             ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
@@ -162,13 +173,12 @@ then
         then
             # Convert gold to delta encoding.
             file_test=${files_test_transformed[$i]}
-            file_test_parsed=${files_test[$i]}.${suffix_parser}
-            file_prediction=${file_test}.${suffix}.pred
-            #python delta_encode_labeling_indices.py ${files_test[$i]}.${suffix_parser} > ${file_test_parsed}
+            file_test_parsed=${files_test_parsed_transformed[$i]}
+            file_prediction_parsed=${file_test_parsed}.${suffix}.pred
         else
             file_test=${files_test[$i]}
-            file_test_parsed=${file_test}.${suffix_parser}
-            file_prediction=${files_prediction[$i]}
+            file_test_parsed=${files_test_parsed[$i]}
+            file_prediction_parsed=${files_prediction_parsed[$i]}
         fi
 
         echo ""
@@ -178,30 +188,37 @@ then
             --evaluate \
             --file_model=${file_model} \
             --file_test=${file_test_parsed} \
-            --file_prediction=${file_prediction} \
+            --file_prediction=${file_prediction_parsed} \
             --logtostderr
 
         if ${delta_encoding}
         then
             # Convert back from delta encoding.
-            python delta_encode_labeling_indices.py --from_delta=True ${file_prediction} > ${files_prediction[$i]}
+            python delta_encode_labeling_indices.py --from_delta=True ${file_prediction_parsed} > ${files_prediction_parsed[$i]}
         fi
 
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        perl ${path_scripts_parser}/eval.pl -b -q -g ${files_test[$i]} -s ${files_prediction[$i]} | tail -5 \
+        perl ${path_scripts_parser}/eval.pl -b -q -g ${files_test[$i]} -s ${files_prediction_parsed[$i]} | tail -5 \
             >> ${file_results}
 
         if ${dependency_to_constituency}
         then
             # Convert gold standard file to phrases.
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]} ${files_test[$i]}.conv.trees
+            # TODO: use original .trees files here.
+            python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp
+            sed 's/ROOT/TOP/g' ${files_test[$i]}.conv.trees.tmp > ${files_test[$i]}.conv.trees
             # Convert predicted file to phrases.
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]} ${files_prediction[$i]}.conv.trees
+            python escape_parenthesis.py ${files_prediction_parsed[$i]} > ${files_prediction_parsed[$i]}.escaped
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp
+            sed 's/ROOT/TOP/g' ${files_prediction_parsed[$i]}.conv.trees.tmp > ${files_prediction_parsed[$i]}.conv.trees
             # Run EVALB.
-            ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
+            ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
+
+            echo "UNARY SCORE: `tail -1 ${file_results}`"
 
         fi
 

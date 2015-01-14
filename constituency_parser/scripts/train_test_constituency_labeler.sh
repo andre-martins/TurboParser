@@ -19,7 +19,7 @@ case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
 
-#suffix_parser=parser_pruned-true_model-standard.pred
+suffix_indexer=parser_pruned-true_model-full.pred.labeler.pred.conv.trees
 suffix=constituency_labeler
 
 # Set path folders.
@@ -43,17 +43,23 @@ then
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
     files_test[1]=${path_data}/${language}_dev.trees
+    files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.predpos.${suffix_indexer}
+    files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.predpos.${suffix_indexer}
 else
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
+    files_test_indexed[0]=${path_data}/${language}_test.conll.predpos.${suffix_indexer}
 fi
 
 # Obtain a prediction file path for each test file.
 for (( i=0; i<${#files_test[*]}; i++ ))
 do
     file_test=${files_test[$i]}
+    file_test_indexed=${files_test_indexed[$i]}
     file_prediction=${file_test}.${suffix}.pred
+    file_prediction_indexed=${file_test_indexed}.${suffix}.pred
     files_prediction[$i]=${file_prediction}
+    files_prediction_indexed[$i]=${file_prediction_indexed}
 done
 
 
@@ -89,7 +95,7 @@ then
 
     rm -f ${file_results}
 
-    # Test first with oracle backbone dependencies.
+    # Test first with gold trees with unaries stripped.
     for (( i=0; i<${#files_test[*]}; i++ ))
     do
         file_test=${files_test[$i]}
@@ -111,5 +117,31 @@ then
         EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]} ${files_prediction[$i]} | grep Bracketing | head -3 \
             >> ${file_results}
         cat ${file_results}
+    done
+
+    # Now test on predicted trees with unaries, coming from the pipeline.
+    for (( i=0; i<${#files_test[*]}; i++ ))
+    do
+        file_test=${files_test_indexed[$i]}
+        file_prediction=${files_prediction_indexed[$i]}
+
+        echo ""
+        echo "Testing on ${file_test_indexed}..."
+        ${path_bin}/TurboConstituencyLabeler \
+            --test \
+            --evaluate \
+            --file_model=${file_model} \
+            --file_test=${file_test} \
+            --file_prediction=${file_prediction} \
+            --logtostderr
+
+        echo ""
+        echo "Evaluating..."
+        touch ${file_results}
+        EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
+            >> ${file_results}
+        cat ${file_results}
+
+        echo "FINAL SCORE: `tail -1 ${file_results}`"
     done
 fi
