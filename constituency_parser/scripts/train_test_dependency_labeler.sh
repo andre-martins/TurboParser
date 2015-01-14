@@ -24,7 +24,7 @@ lemma_cutoff=0 # Cutoff in lemma occurrence.
 delta_encoding=$3
 dependency_to_constituency=true
 
-suffix_parser=parser_pruned-true_model-standard.pred
+suffix_parser=parser_pruned-true_model-full.pred
 suffix=labeler
 
 # Set path folders.
@@ -46,30 +46,15 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
-    file_train=${path_data}/${language}_train.conll.predpos
-    files_test[0]=${path_data}/${language}_test.conll
-    files_test[1]=${path_data}/${language}_dev.conll
+    file_train=${path_data}/${language}_train.trees.conll
+    files_test[0]=${path_data}/${language}_test.trees.conll
+    files_test[1]=${path_data}/${language}_dev.trees.conll
     if ${delta_encoding}
     then
-        file_train_transformed=${path_data}/${language}_delta_train.conll.predpos
-        files_test_transformed[0]=${path_data}/${language}_delta_test.conll
-        files_test_transformed[1]=${path_data}/${language}_delta_dev.conll
+        file_train_transformed=${path_data}/${language}_delta_train.trees.conll
+        files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
+        files_test_transformed[1]=${path_data}/${language}_delta_dev.trees.conll
     fi
-
-    suffix_parser=predicted
-else
-    # For all languages except english and dutch,
-    # replace coarse tags by fine tags.
-    file_train_orig=${path_data}/${language}_train.conll
-    file_test_orig=${path_data}/${language}_test.conll
-    file_train=${path_data}/${language}_ftags_train.conll
-    file_test=${path_data}/${language}_ftags_test.conll
-    rm -f file_train file_test
-    awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_train_orig} \
-        > ${file_train}
-    awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
-        > ${file_test}
-    files_test[0]=${file_test}
 fi
 
 # Obtain a prediction file path for each test file.
@@ -158,6 +143,7 @@ then
         if ${dependency_to_constituency}
         then
             # Convert gold standard file to phrases.
+            # NOTE: gold standard files should have index dependencies...
             java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]} ${files_test[$i]}.conv.trees
             # Convert predicted file to phrases.
             java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]} ${files_prediction[$i]}.conv.trees
