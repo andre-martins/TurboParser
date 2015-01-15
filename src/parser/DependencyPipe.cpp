@@ -1223,8 +1223,8 @@ void DependencyPipe::GetAllAncestors(const vector<int> &heads,
   ancestors->clear();
   int h = heads[descend];
   while (h >= 0) {
-    h = heads[h];
     ancestors->push_back(h);
+    h = heads[h];
   }
 }
 

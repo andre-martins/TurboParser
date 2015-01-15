@@ -432,7 +432,7 @@ void DependencyLabelerPipe::ComputeDescendents(
     GetAllAncestors(heads, m, &ancestors);
     for (int k = 0; k < ancestors.size(); ++k) {
       int h = ancestors[k];
-      if (h < 0) continue;
+      CHECK_GE(h, 0);
       //LOG(INFO) << h << " " << descendents->size();
       (*descendents)[h].push_back(m);
     }
@@ -446,7 +446,7 @@ void DependencyLabelerPipe::GetAllAncestors(const std::vector<int> &heads,
   ancestors->clear();
   int h = heads[descend];
   while (h >= 0) {
-    h = heads[h];
     ancestors->push_back(h);
+    h = heads[h];
   }
 }

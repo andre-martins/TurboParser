@@ -24,7 +24,8 @@ struct DependencyLabelerFeatureTemplateParts {
     ARC = 0,
     ARC_SIBLINGS,
     ARC_PREVIOUS_SIBLING,
-    ARC_NEXT_SIBLING
+    ARC_NEXT_SIBLING,
+    ARC_GRANDPARENT
   };
 };
 
@@ -123,33 +124,61 @@ struct DependencyLabelerFeatureTemplateArcSiblings {
 
     HP_MP_GP,
 
-    iDW_HMD,
-    iDP_HMD,
-    HW_iDW_HMD, /* Same, plus head word and inside word */
-    HW_iDP_HMD, /* Same, plus head word and inside POS */
-    HP_iDW_HMD, /* Same, plus head POS and inside word */
-    HP_iDP_HMD, /* Same, plus head POS and inside POS */
+    liDW_HMD,
+    liDP_HMD,
+    HW_liDW_HMD, /* Same, plus head word and inside word */
+    HW_liDP_HMD, /* Same, plus head word and inside POS */
+    HP_liDW_HMD, /* Same, plus head POS and inside word */
+    HP_liDP_HMD, /* Same, plus head POS and inside POS */
 
-    oDW_HMD,
-    oDP_HMD,
-    HW_oDW_HMD, /* Same, plus head word and outside word */
-    HW_oDP_HMD, /* Same, plus head word and outside POS */
-    HP_oDW_HMD, /* Same, plus head POS and outside word */
-    HP_oDP_HMD, /* Same, plus head POS and outside POS */
+    riDW_HMD,
+    riDP_HMD,
+    HW_riDW_HMD, /* Same, plus head word and inside word */
+    HW_riDP_HMD, /* Same, plus head word and inside POS */
+    HP_riDW_HMD, /* Same, plus head POS and inside word */
+    HP_riDP_HMD, /* Same, plus head POS and inside POS */
 
-    iDW,
-    iDP,
-    HW_iDW, /* Same, plus head word and inside word */
-    HW_iDP, /* Same, plus head word and inside POS */
-    HP_iDW, /* Same, plus head POS and inside word */
-    HP_iDP, /* Same, plus head POS and inside POS */
+    loDW_HMD,
+    loDP_HMD,
+    HW_loDW_HMD, /* Same, plus head word and outside word */
+    HW_loDP_HMD, /* Same, plus head word and outside POS */
+    HP_loDW_HMD, /* Same, plus head POS and outside word */
+    HP_loDP_HMD, /* Same, plus head POS and outside POS */
 
-    oDW,
-    oDP,
-    HW_oDW, /* Same, plus head word and outside word */
-    HW_oDP, /* Same, plus head word and outside POS */
-    HP_oDW, /* Same, plus head POS and outside word */
-    HP_oDP, /* Same, plus head POS and outside POS */
+    roDW_HMD,
+    roDP_HMD,
+    HW_roDW_HMD, /* Same, plus head word and outside word */
+    HW_roDP_HMD, /* Same, plus head word and outside POS */
+    HP_roDW_HMD, /* Same, plus head POS and outside word */
+    HP_roDP_HMD, /* Same, plus head POS and outside POS */
+
+    liDW,
+    liDP,
+    HW_liDW, /* Same, plus head word and inside word */
+    HW_liDP, /* Same, plus head word and inside POS */
+    HP_liDW, /* Same, plus head POS and inside word */
+    HP_liDP, /* Same, plus head POS and inside POS */
+
+    riDW,
+    riDP,
+    HW_riDW, /* Same, plus head word and inside word */
+    HW_riDP, /* Same, plus head word and inside POS */
+    HP_riDW, /* Same, plus head POS and inside word */
+    HP_riDP, /* Same, plus head POS and inside POS */
+
+    loDW,
+    loDP,
+    HW_loDW, /* Same, plus head word and outside word */
+    HW_loDP, /* Same, plus head word and outside POS */
+    HP_loDW, /* Same, plus head POS and outside word */
+    HP_loDP, /* Same, plus head POS and outside POS */
+
+    roDW,
+    roDP,
+    HW_roDW, /* Same, plus head word and outside word */
+    HW_roDP, /* Same, plus head word and outside POS */
+    HP_roDW, /* Same, plus head POS and outside word */
+    HP_roDP, /* Same, plus head POS and outside POS */
 
     COUNT
   };

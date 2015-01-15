@@ -79,6 +79,12 @@ class DependencyLabelerFeatures: public Features {
                            bool use_morphological_features,
                            BinaryFeatures *features);
 
+  void AddWordPairFeaturesMST(DependencyInstanceNumeric* sentence,
+                              int pair_type,
+                              int head,
+                              int modifier,
+                              BinaryFeatures *features);
+
   void AddArcSiblingFeatures(DependencyInstanceNumeric* sentence,
                              const std::vector<std::vector<int> > &descendents,
                              int head,

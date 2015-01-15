@@ -52,8 +52,13 @@ void DependencyLabelerFeatures::AddArcFeatures(
   input_features_[r] = features;
 
   if (FLAGS_use_dependency_word_pair_features) {
+#if 0
+    AddWordPairFeaturesMST(sentence, DependencyLabelerFeatureTemplateParts::ARC,
+                           head, modifier, features);
+#else
     AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC,
                         head, modifier, true, true, features);
+#endif
   }
 
   const std::vector<int> &heads = sentence->GetHeads();
@@ -67,6 +72,8 @@ void DependencyLabelerFeatures::AddArcFeatures(
   AddArcSiblingFeatures(sentence, descendents, head, modifier, siblings,
                         features);
 }
+
+//#define PRINT_INFO
 
 // General function to add features for a pair of words (arcs, sibling words,
 // etc.) Can optionally use lemma and morpho-syntactic feature information.
@@ -93,6 +100,19 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   int rightmost_modifier_descendent =
     descendents[modifier][num_modifier_descendents-1];
 
+#ifdef PRINT_INFO
+  TokenDictionary *dictionary = static_cast<DependencyLabelerPipe*>(pipe_)->
+    GetDependencyDictionary()->GetTokenDictionary();
+  std::string span_text = "";
+  for (int i = 0; i < descendents[modifier].size(); ++i) {
+    span_text += dictionary->
+      GetFormName(sentence->GetFormId(descendents[modifier][i])) + " ";
+  }
+  LOG(INFO) << "Span headed by "
+            << dictionary->GetFormName(sentence->GetFormId(modifier))
+            << ": " << span_text;
+#endif
+
   uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
   int left_position, right_position;
   if (modifier < head) {
@@ -112,8 +132,8 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   uint8_t pSPID, nSPID;
   uint16_t GWID;
   uint8_t GPID;
-  uint16_t iDWID, oDWID;
-  uint8_t iDPID, oDPID;
+  uint16_t liDWID, riDWID, loDWID, roDWID;
+  uint8_t liDPID, riDPID, loDPID, roDPID;
 
   // Maximum is 255 feature templates.
   //LOG(INFO) << DependencyFeatureTemplateArc::COUNT;
@@ -167,17 +187,42 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   }
 
   // Get the modifier span left/rightmost positiion.
-  int inside_word = -1;
-  int outside_word = -1;
-  if (modifier < head) {
-    // This is a left modifier.
-    inside_word = leftmost_modifier_descendent;
-    if (inside_word > 1) outside_word = inside_word-1;
-  } else {
-    // This is a right modifier.
-    inside_word = rightmost_modifier_descendent;
-    if (inside_word < sentence_length-1) outside_word = inside_word+1;
+  int left_inside_word = -1;
+  int right_inside_word = -1;
+  int left_outside_word = -1;
+  int right_outside_word = -1;
+
+  left_inside_word = leftmost_modifier_descendent;
+  right_inside_word = rightmost_modifier_descendent;
+  if (left_inside_word > 1) left_outside_word = left_inside_word-1;
+  if (right_inside_word < sentence_length-1) {
+    right_outside_word = right_inside_word+1;
   }
+  // If span touches the head word, mark as such.
+  if (left_outside_word == head) left_outside_word = -1;
+  if (right_outside_word == head) right_outside_word = -1;
+
+#ifdef PRINT_INFO
+  LOG(INFO) << dictionary->GetFormName(sentence->GetFormId(head))
+            << " -> "
+            << dictionary->GetFormName(sentence->GetFormId(modifier));
+  LOG(INFO) << "Left inside word: "
+            << dictionary->GetFormName(sentence->GetFormId(left_inside_word));
+  if (left_outside_word < 0) {
+    LOG(INFO) << "Left outside word: NULL";
+  } else {
+    LOG(INFO) << "Left outside word: "
+              << dictionary->GetFormName(sentence->GetFormId(left_outside_word));
+  }
+  LOG(INFO) << "Right inside word: "
+            << dictionary->GetFormName(sentence->GetFormId(right_inside_word));
+  if (right_outside_word < 0) {
+    LOG(INFO) << "Right outside word: NULL";
+  } else {
+    LOG(INFO) << "Right outside word: "
+              << dictionary->GetFormName(sentence->GetFormId(right_outside_word));
+  }
+#endif
 
   // Array of form/lemma IDs.
   const vector<int>* word_ids = &sentence->GetFormIds();
@@ -191,10 +236,22 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   nSPID = (next_sibling < 0)? TOKEN_STOP : (*pos_ids)[next_sibling];
   GWID = (grandparent < 0)? TOKEN_START : (*word_ids)[grandparent];
   GPID = (grandparent < 0)? TOKEN_START : (*pos_ids)[grandparent];
-  iDWID = (inside_word < 0)? TOKEN_START : (*word_ids)[inside_word];
-  iDPID = (inside_word < 0)? TOKEN_START : (*pos_ids)[inside_word];
-  oDWID = (outside_word < 0)? TOKEN_START : (*word_ids)[outside_word];
-  oDPID = (outside_word < 0)? TOKEN_START : (*pos_ids)[outside_word];
+  liDWID = (left_inside_word < 0)?
+    TOKEN_START : (*word_ids)[left_inside_word];
+  liDPID = (left_inside_word < 0)?
+    TOKEN_START : (*pos_ids)[left_inside_word];
+  loDWID = (left_outside_word < 0)?
+    TOKEN_START : (*word_ids)[left_outside_word];
+  loDPID = (left_outside_word < 0)?
+    TOKEN_START : (*pos_ids)[left_outside_word];
+  riDWID = (right_inside_word < 0)?
+    TOKEN_STOP : (*word_ids)[right_inside_word];
+  riDPID = (right_inside_word < 0)?
+    TOKEN_STOP : (*pos_ids)[right_inside_word];
+  roDWID = (right_outside_word < 0)?
+    TOKEN_STOP : (*word_ids)[right_outside_word];
+  roDPID = (right_outside_word < 0)?
+    TOKEN_STOP : (*pos_ids)[right_outside_word];
 
   CHECK_EQ(num_left_modifiers + num_right_modifiers, siblings.size());
   if (modifier < head) {
@@ -204,7 +261,7 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
     // This is a right modifier.
     index_modifier = index_modifier - num_left_modifiers + 1; // 1, 2, 3,...
   }
-  CHECK_GE(index_modifier, 0);
+  CHECK_GT(index_modifier, 0);
 
   // Truncate the number of left/right modifiers to 15 (4 bits).
   if (num_left_modifiers > 0xf) num_left_modifiers = 0xf;
@@ -216,12 +273,15 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   head_dependents_code = num_right_modifiers; // 4 bits.
   head_dependents_code |= (num_left_modifiers << 4); // 4 more bits.
 
+  uint8_t last_modifier_code = 0x0; // 0x1 if last modifier, 0x0 otherwise.
   if (modifier < head) {
     // This is a left modifier.
     head_other_side_dependents_code = num_right_modifiers; // 4 bits.
+    if (index_modifier == num_left_modifiers) last_modifier_code = 0x1;
   } else {
     // This is a right modifier.
     head_other_side_dependents_code = (num_left_modifiers << 4); // 4 bits.
+    if (index_modifier == num_right_modifiers) last_modifier_code = 0x1;
   }
 
   index_modifier_code = index_modifier;
@@ -229,6 +289,7 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   // Code for feature type.
   flags = feature_type; // 4 bits.
   flags |= (direction_code << 4); // 1 more bit.
+  //flags |= (last_modifier_code << 5); // 1 more bit [Hurts performance].
 
   /////////////////////////////////////////////////////////////////////////////
   // Dependency features.
@@ -297,9 +358,9 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_HD_HMD, flags, HPID, MPID, head_dependents_code, index_modifier_code);
   AddFeature(fkey, features);
 
-  // Previous/next sibling features (conjoined with the modifier index).
-
   if (FLAGS_use_dependency_sibling_features) {
+    // Previous/next sibling features (conjoined with the modifier index).
+
     // Bilexical.
 #if 0
     fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_pSP_HMD, flags, HWID, MWID, pSPID, index_modifier_code);
@@ -393,8 +454,9 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
 #endif
   }
 
-  // Grandparent features (conjoined with the modifier index).
   if (FLAGS_use_dependency_grandparent_features) {
+    // Grandparent features (conjoined with the modifier index).
+
     // Bilexical.
 #if 0
     fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_GP_HMD, flags, HWID, MWID, GPID, index_modifier_code);
@@ -440,61 +502,120 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
     // POS trigram.
     fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GP, flags, HPID, MPID, GPID);
     AddFeature(fkey, features);
+
+#if 0
+    // Previous/next sibling features (pairwise modifier-sibling).
+    //LOG(INFO) << head << " " << modifier << " " << previous_sibling << " " << next_sibling << " " << sentence_length;
+    AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC_GRANDPARENT,
+                        grandparent, modifier, false, false, features);
+#endif
   }
 
   // Span features conjoined with head/modifier word and POS (conjoined with modifier index).
   if (FLAGS_use_dependency_span_features) {
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::iDW_HMD, flags, iDWID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::liDW_HMD, flags, liDWID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::iDP_HMD, flags, iDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::liDP_HMD, flags, liDPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW_HMD, flags, HWID, iDWID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_liDW_HMD, flags, HWID, liDWID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP_HMD, flags, HWID, iDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_liDP_HMD, flags, HWID, liDPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW_HMD, flags, iDWID, HPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_liDW_HMD, flags, liDWID, HPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP_HMD, flags, HPID, iDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_liDP_HMD, flags, HPID, liDPID, index_modifier_code);
     AddFeature(fkey, features);
 
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::oDW_HMD, flags, oDWID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::riDW_HMD, flags, riDWID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::oDP_HMD, flags, oDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::riDP_HMD, flags, riDPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW_HMD, flags, HWID, oDWID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_riDW_HMD, flags, HWID, riDWID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP_HMD, flags, HWID, oDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_riDP_HMD, flags, HWID, riDPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW_HMD, flags, oDWID, HPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_riDW_HMD, flags, riDWID, HPID, index_modifier_code);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP_HMD, flags, HPID, oDPID, index_modifier_code);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_riDP_HMD, flags, HPID, riDPID, index_modifier_code);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::loDW_HMD, flags, loDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::loDP_HMD, flags, loDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_loDW_HMD, flags, HWID, loDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_loDP_HMD, flags, HWID, loDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_loDW_HMD, flags, loDWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_loDP_HMD, flags, HPID, loDPID, index_modifier_code);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::roDW_HMD, flags, roDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::roDP_HMD, flags, roDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_roDW_HMD, flags, HWID, roDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_roDP_HMD, flags, HWID, roDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_roDW_HMD, flags, roDWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_roDP_HMD, flags, HPID, roDPID, index_modifier_code);
     AddFeature(fkey, features);
 
     // Span features conjoined with head/modifier word and POS (not conjoined with modifier index).
-    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::iDW, flags, iDWID);
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::liDW, flags, liDWID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::iDP, flags, iDPID);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::liDP, flags, liDPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW, flags, HWID, iDWID);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_liDW, flags, HWID, liDWID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP, flags, HWID, iDPID);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_liDP, flags, HWID, liDPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW, flags, iDWID, HPID);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_liDW, flags, liDWID, HPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP, flags, HPID, iDPID);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_liDP, flags, HPID, liDPID);
     AddFeature(fkey, features);
 
-    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::oDW, flags, oDWID);
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::riDW, flags, riDWID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::oDP, flags, oDPID);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::riDP, flags, riDPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW, flags, HWID, oDWID);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_riDW, flags, HWID, riDWID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP, flags, HWID, oDPID);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_riDP, flags, HWID, riDPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW, flags, oDWID, HPID);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_riDW, flags, riDWID, HPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP, flags, HPID, oDPID);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_riDP, flags, HPID, riDPID);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::loDW, flags, loDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::loDP, flags, loDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_loDW, flags, HWID, loDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_loDP, flags, HWID, loDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_loDW, flags, loDWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_loDP, flags, HPID, loDPID);
+    AddFeature(fkey, features);
+
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::roDW, flags, roDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::roDP, flags, roDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_roDW, flags, HWID, roDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_roDP, flags, HWID, roDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_roDW, flags, roDWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_roDP, flags, HPID, roDPID);
     AddFeature(fkey, features);
   }
 
@@ -1083,3 +1204,220 @@ void DependencyLabelerFeatures::AddWordPairFeatures(
   }
 }
 
+// General function to add features for a pair of words (arcs, sibling words,
+// etc.) No lemma and morpho-syntactic feature information are used.
+// The features are very similar to the ones used in McDonald et al. MSTParser.
+void DependencyLabelerFeatures::AddWordPairFeaturesMST(
+    DependencyInstanceNumeric* sentence,
+    int pair_type,
+    int head,
+    int modifier,
+    BinaryFeatures *features) {
+  int sentence_length = sentence->size();
+  // True if labeled dependency parsing.
+  bool labeled = true;
+
+  // True if using morpho-syntactic features.
+  bool use_morphological_features = false;
+
+  // Only 4 bits are allowed in feature_type.
+  CHECK_LT(pair_type, 16);
+  CHECK_GE(pair_type, 0);
+  uint8_t feature_type = pair_type;
+
+  int left_position, right_position;
+  int arc_length;
+
+  uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
+  uint8_t binned_length_code; // Binned arc length.
+
+  if (modifier < head) {
+    left_position = modifier;
+    right_position = head;
+    direction_code = 0x0;
+  } else {
+    left_position = head;
+    right_position = modifier;
+    direction_code = 0x1;
+  }
+  arc_length = right_position - left_position;
+
+  // 7 possible values for binned_length_code (3 bits)
+  if (arc_length > 40) {
+    binned_length_code = 0x6;
+  } else if (arc_length > 30) {
+    binned_length_code = 0x5;
+  } else if (arc_length > 20) {
+    binned_length_code = 0x4;
+  } else if (arc_length > 10) {
+    binned_length_code = 0x3;
+  } else if (arc_length > 5) {
+    binned_length_code = 0x2;
+  } else if (arc_length > 2) {
+    binned_length_code = 0x1;
+  } else {
+    binned_length_code = 0x0;
+  }
+
+  // Mode codeword.
+  // mode = 0: no extra info;
+  // mode = 1: direction of attachment.
+  uint8_t mode;
+
+  // Codewords for accommodating word/POS information.
+  // TODO: add morpho-syntactic features!!
+  uint16_t HWID, MWID;
+  uint16_t HFID, MFID;
+  uint8_t HPID, MPID, BPID;
+  uint8_t pHPID, pMPID, nHPID, nMPID;
+
+  // Array of form/lemma IDs.
+  const vector<int>* word_ids = &sentence->GetFormIds();
+  // Array of POS/CPOS IDs.
+  const vector<int>* pos_ids = &sentence->GetPosIds();
+
+  uint64_t fkey;
+  uint8_t flags = 0;
+
+  // Words/POS.
+  HWID = (*word_ids)[head];
+  MWID = (*word_ids)[modifier];
+  HPID = (*pos_ids)[head];
+  MPID = (*pos_ids)[modifier];
+
+  // Contextual information.
+  pHPID = (head > 0)? (*pos_ids)[head - 1] : TOKEN_START;
+  pMPID = (modifier > 0)? (*pos_ids)[modifier - 1] : TOKEN_START;
+  nHPID = (head < sentence_length - 1)? (*pos_ids)[head + 1] : TOKEN_STOP;
+  nMPID = (modifier < sentence_length - 1)?
+    (*pos_ids)[modifier + 1] : TOKEN_STOP;
+
+  // Maximum is 255 feature templates.
+  CHECK_LT(DependencyLabelerFeatureTemplateArc::COUNT, 256);
+
+  for (mode = 0; mode < 2; ++mode) {
+    // Code for feature type, mode and extended mode.
+    flags = feature_type;
+    flags |= (mode << 4); // 1 more bit.
+
+    if (mode == 1) {
+      flags |= (direction_code << 5); // 1 more bit.
+      // NOTE: This will overflow the 8-bit size (it may take 9 bits)!!!!!
+      // TODO(atm): fix this!!!
+      flags |= (binned_length_code << 6); // 3 more bits.
+    }
+
+    // Bias feature.
+    fkey = encoder_.CreateFKey_NONE(DependencyLabelerFeatureTemplateArc::BIAS, flags);
+    AddFeature(fkey, features);
+
+    // POS features.
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArc::HP, flags, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArc::MP, flags, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArc::HP_MP, flags, HPID, MPID);
+    AddFeature(fkey, features);
+
+    // Lexical/Bilexical features.
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArc::HW, flags, HWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArc::MW, flags, MWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArc::HW_MW, flags, HWID, MWID);
+    AddFeature(fkey, features);
+
+    // Features involving words and POS.
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::HWP, flags, HWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::MWP, flags, MWID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::HP_MW, flags, MWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HP_MWP, flags, MWID, MPID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::HW_MP, flags, HWID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HWP_MP, flags, HWID, HPID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArc::HWP_MWP, flags, HWID, MWID, HPID, MPID);
+    AddFeature(fkey, features);
+
+    // Morpho-syntactic features.
+    if (use_morphological_features) {
+      for (int j = 0; j < sentence->GetNumMorphFeatures(head); ++j) {
+        HFID = sentence->GetMorphFeature(head, j);
+        CHECK_LT(HFID, 0xfff);
+        if (j >= 0xf) {
+          LOG(WARNING) << "Too many morphological features (" << j << ")";
+          HFID = (HFID << 4) | ((uint16_t) 0xf);
+        } else {
+          HFID = (HFID << 4) | ((uint16_t) j);
+        }
+        for (int k = 0; k < sentence->GetNumMorphFeatures(modifier); ++k) {
+          MFID = sentence->GetMorphFeature(modifier, k);
+          CHECK_LT(MFID, 0xfff);
+          if (k >= 0xf) {
+            LOG(WARNING) << "Too many morphological features (" << k << ")";
+            MFID = (MFID << 4) | ((uint16_t) 0xf);
+          } else {
+            MFID = (MFID << 4) | ((uint16_t) k);
+          }
+          // Morphological features.
+          fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArc::HF_MF, flags, HFID, MFID);
+          AddFeature(fkey, features);
+
+          // Morphological features conjoined with POS.
+          fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::HF_MP, flags, HFID, MPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArc::HF_MFP, flags, HFID, MFID, MPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArc::HP_MF, flags, MFID, HPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArc::HFP_MF, flags, HFID, MFID, HPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HFP_MP, flags, HFID, HPID, MPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArc::HP_MFP, flags, MFID, HPID, MPID);
+          AddFeature(fkey, features);
+          fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArc::HFP_MFP, flags, HFID, MFID, HPID, MPID);
+          AddFeature(fkey, features);
+        }
+      }
+    }
+
+    // Contextual features.
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_pHP, flags, HPID, MPID, pHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_nHP, flags, HPID, MPID, nHPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_pMP, flags, HPID, MPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_nMP, flags, HPID, MPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArc::HP_MP_pHP_pMP, flags, HPID, MPID, pHPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArc::HP_MP_nHP_nMP, flags, HPID, MPID, nHPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArc::HP_MP_pHP_nMP, flags, HPID, MPID, pHPID, nMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArc::HP_MP_nHP_pMP, flags, HPID, MPID, nHPID, pMPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPPPP(DependencyLabelerFeatureTemplateArc::HP_MP_pHP_nHP_pMP_nMP, flags, HPID, MPID, pHPID, nHPID, pMPID, nMPID);
+    AddFeature(fkey, features);
+
+    // In-between features.
+    set<int> BPIDs;
+    for (int i = left_position + 1; i < right_position; ++i) {
+      BPID = (*pos_ids)[i];
+      if (BPIDs.find(BPID) == BPIDs.end()) {
+        BPIDs.insert(BPID);
+
+        // POS in the middle.
+        fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArc::HP_MP_BP, flags, HPID, MPID, BPID);
+        AddFeature(fkey, features);
+      }
+    }
+    BPIDs.clear();
+  }
+}

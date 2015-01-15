@@ -119,9 +119,11 @@ class TokenDictionary : public Dictionary {
 
   void BuildNames() {
     pos_alphabet_.BuildNames();
+    form_alphabet_.BuildNames();
   }
 
   const string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
+  const string &GetFormName(int id) { return form_alphabet_.GetName(id); }
 
   void GetWordShape(const std::string &word, std::string *shape) {
     string type = "";
