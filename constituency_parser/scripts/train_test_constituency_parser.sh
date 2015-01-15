@@ -5,10 +5,10 @@ root_folder="`cd $(dirname $0);cd ../..;pwd`"
 task_folder="`cd $(dirname $0);cd ..;pwd`"
 
 language=$1 # Example: "english_ptb".
-C_labeler=0.1 #0.01
+C_labeler=0.01
 C_parser=0.001
 C_unary_predictor=1.0
-delta_encoding=false
+delta_encoding=true #false
 parser_model_type=full
 suffix_parser=parser_pruned-true_model-${parser_model_type}.pred
 

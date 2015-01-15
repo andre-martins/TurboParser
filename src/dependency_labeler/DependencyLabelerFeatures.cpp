@@ -29,6 +29,14 @@
 // TODO: deprecate this.
 DEFINE_int32(dependency_token_context, 1,
              "Size of the context in token features.");
+DEFINE_bool(use_dependency_word_pair_features, true,
+            "True for using intensive word pair features");
+DEFINE_bool(use_dependency_sibling_features, true,
+            "True for using sibling features");
+DEFINE_bool(use_dependency_grandparent_features, true,
+            "True for using grandparent features");
+DEFINE_bool(use_dependency_span_features, true,
+            "True for using span features");
 
 // Add arc-factored features including lemmas and morpho-syntactic
 // feature information.
@@ -43,10 +51,10 @@ void DependencyLabelerFeatures::AddArcFeatures(
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-#if 1
-  AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC,
-                      head, modifier, true, true, features);
-#endif
+  if (FLAGS_use_dependency_word_pair_features) {
+    AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC,
+                        head, modifier, true, true, features);
+  }
 
   const std::vector<int> &heads = sentence->GetHeads();
   std::vector<int> siblings;
@@ -191,10 +199,10 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
   CHECK_EQ(num_left_modifiers + num_right_modifiers, siblings.size());
   if (modifier < head) {
     // This is a left modifier.
-    index_modifier = num_left_modifiers - index_modifier;
+    index_modifier = num_left_modifiers - index_modifier; // 1, 2, 3,...
   } else {
     // This is a right modifier.
-    index_modifier = index_modifier - num_left_modifiers + 1;
+    index_modifier = index_modifier - num_left_modifiers + 1; // 1, 2, 3,...
   }
   CHECK_GE(index_modifier, 0);
 
@@ -291,201 +299,204 @@ void DependencyLabelerFeatures::AddArcSiblingFeatures(
 
   // Previous/next sibling features (conjoined with the modifier index).
 
-  // Bilexical.
+  if (FLAGS_use_dependency_sibling_features) {
+    // Bilexical.
 #if 0
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_pSP_HMD, flags, HWID, MWID, pSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSW_HMD, flags, HWID, pSWID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSW_HMD, flags, MWID, pSWID, HPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_pSP_HMD, flags, HWID, MWID, pSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSW_HMD, flags, HWID, pSWID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSW_HMD, flags, MWID, pSWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_nSP_HMD, flags, HWID, MWID, nSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSW_HMD, flags, HWID, nSWID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSW_HMD, flags, MWID, nSWID, HPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_nSP_HMD, flags, HWID, MWID, nSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSW_HMD, flags, HWID, nSWID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSW_HMD, flags, MWID, nSWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
 #endif
 
-  // Unilexical.
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSP_HMD, flags, HWID, MPID, pSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSP_HMD, flags, MWID, HPID, pSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSW_HMD, flags, pSWID, HPID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
+    // Unilexical.
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSP_HMD, flags, HWID, MPID, pSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSP_HMD, flags, MWID, HPID, pSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSW_HMD, flags, pSWID, HPID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSP_HMD, flags, HWID, MPID, nSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSP_HMD, flags, MWID, HPID, nSPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSW_HMD, flags, nSWID, HPID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSP_HMD, flags, HWID, MPID, nSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSP_HMD, flags, MWID, HPID, nSPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSW_HMD, flags, nSWID, HPID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  // POS trigram.
-  fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSP_HMD, flags, HPID, MPID, pSPID, index_modifier_code);
-  AddFeature(fkey, features);
+    // POS trigram.
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSP_HMD, flags, HPID, MPID, pSPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSP_HMD, flags, HPID, MPID, nSPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSP_HMD, flags, HPID, MPID, nSPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  // Previous/next sibling features (not conjoined with the modifier index).
+    // Previous/next sibling features (not conjoined with the modifier index).
 
-  // Bilexical.
+    // Bilexical.
 #if 0
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_pSP, flags, HWID, MWID, pSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSW, flags, HWID, pSWID, MPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSW, flags, MWID, pSWID, HPID);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_pSP, flags, HWID, MWID, pSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSW, flags, HWID, pSWID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSW, flags, MWID, pSWID, HPID);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_nSP, flags, HWID, MWID, nSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSW, flags, HWID, nSWID, MPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSW, flags, MWID, nSWID, HPID);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_nSP, flags, HWID, MWID, nSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSW, flags, HWID, nSWID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSW, flags, MWID, nSWID, HPID);
+    AddFeature(fkey, features);
 #endif
 
-  // Unilexical.
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSP, flags, HWID, MPID, pSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSP, flags, MWID, HPID, pSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSW, flags, pSWID, HPID, MPID);
-  AddFeature(fkey, features);
+    // Unilexical.
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_pSP, flags, HWID, MPID, pSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_pSP, flags, MWID, HPID, pSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSW, flags, pSWID, HPID, MPID);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSP, flags, HWID, MPID, nSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSP, flags, MWID, HPID, nSPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSW, flags, nSWID, HPID, MPID);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_nSP, flags, HWID, MPID, nSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_nSP, flags, MWID, HPID, nSPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSW, flags, nSWID, HPID, MPID);
+    AddFeature(fkey, features);
 
-  // POS trigram.
-  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSP, flags, HPID, MPID, pSPID);
-  AddFeature(fkey, features);
+    // POS trigram.
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_pSP, flags, HPID, MPID, pSPID);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSP, flags, HPID, MPID, nSPID);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_nSP, flags, HPID, MPID, nSPID);
+    AddFeature(fkey, features);
 
 #if 0
-  // Previous/next sibling features (pairwise modifier-sibling).
-  //LOG(INFO) << head << " " << modifier << " " << previous_sibling << " " << next_sibling << " " << sentence_length;
-  int s = (previous_sibling < 0)? 0 : previous_sibling;
-  AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC_PREVIOUS_SIBLING,
-                      s, modifier, true, true, features);
+    // Previous/next sibling features (pairwise modifier-sibling).
+    //LOG(INFO) << head << " " << modifier << " " << previous_sibling << " " << next_sibling << " " << sentence_length;
+    int s = (previous_sibling < 0)? 0 : previous_sibling;
+    AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC_PREVIOUS_SIBLING,
+                        s, modifier, true, true, features);
 
-  s = (next_sibling < 0)? 0 : next_sibling;
-  AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC_NEXT_SIBLING,
-                      modifier, s, true, true, features);
+    s = (next_sibling < 0)? 0 : next_sibling;
+    AddWordPairFeatures(sentence, DependencyLabelerFeatureTemplateParts::ARC_NEXT_SIBLING,
+                        modifier, s, true, true, features);
 #endif
+  }
 
   // Grandparent features (conjoined with the modifier index).
-
-  // Bilexical.
+  if (FLAGS_use_dependency_grandparent_features) {
+    // Bilexical.
 #if 0
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_GP_HMD, flags, HWID, MWID, GPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GW_HMD, flags, HWID, GWID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GW_HMD, flags, MWID, GWID, HPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_GP_HMD, flags, HWID, MWID, GPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GW_HMD, flags, HWID, GWID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GW_HMD, flags, MWID, GWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
 #endif
 
-  // Unilexical.
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GP_HMD, flags, HWID, MPID, GPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GP_HMD, flags, MWID, HPID, GPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GW_HMD, flags, GWID, HPID, MPID, index_modifier_code);
-  AddFeature(fkey, features);
+    // Unilexical.
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GP_HMD, flags, HWID, MPID, GPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GP_HMD, flags, MWID, HPID, GPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GW_HMD, flags, GWID, HPID, MPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  // POS trigram.
-  fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GP_HMD, flags, HPID, MPID, GPID, index_modifier_code);
-  AddFeature(fkey, features);
+    // POS trigram.
+    fkey = encoder_.CreateFKey_PPPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GP_HMD, flags, HPID, MPID, GPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  // Grandparent features (not conjoined with the modifier index).
+    // Grandparent features (not conjoined with the modifier index).
 
-  // Bilexical.
+    // Bilexical.
 #if 0
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_GP, flags, HWID, MWID, GPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GW, flags, HWID, GWID, MPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GW, flags, MWID, GWID, HPID);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MW_GP, flags, HWID, MWID, GPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GW, flags, HWID, GWID, MPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GW, flags, MWID, GWID, HPID);
+    AddFeature(fkey, features);
 #endif
 
-  // Unilexical.
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GP, flags, HWID, MPID, GPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GP, flags, MWID, HPID, GPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GW, flags, GWID, HPID, MPID);
-  AddFeature(fkey, features);
+    // Unilexical.
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_MP_GP, flags, HWID, MPID, GPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MW_GP, flags, MWID, HPID, GPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GW, flags, GWID, HPID, MPID);
+    AddFeature(fkey, features);
 
-  // POS trigram.
-  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GP, flags, HPID, MPID, GPID);
-  AddFeature(fkey, features);
-
+    // POS trigram.
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_MP_GP, flags, HPID, MPID, GPID);
+    AddFeature(fkey, features);
+  }
 
   // Span features conjoined with head/modifier word and POS (conjoined with modifier index).
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::iDW_HMD, flags, iDWID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::iDP_HMD, flags, iDPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW_HMD, flags, HWID, iDWID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP_HMD, flags, HWID, iDPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW_HMD, flags, iDWID, HPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP_HMD, flags, HPID, iDPID, index_modifier_code);
-  AddFeature(fkey, features);
+  if (FLAGS_use_dependency_span_features) {
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::iDW_HMD, flags, iDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::iDP_HMD, flags, iDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW_HMD, flags, HWID, iDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP_HMD, flags, HWID, iDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW_HMD, flags, iDWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP_HMD, flags, HPID, iDPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::oDW_HMD, flags, oDWID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::oDP_HMD, flags, oDPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW_HMD, flags, HWID, oDWID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP_HMD, flags, HWID, oDPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW_HMD, flags, oDWID, HPID, index_modifier_code);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP_HMD, flags, HPID, oDPID, index_modifier_code);
-  AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::oDW_HMD, flags, oDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::oDP_HMD, flags, oDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW_HMD, flags, HWID, oDWID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP_HMD, flags, HWID, oDPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW_HMD, flags, oDWID, HPID, index_modifier_code);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP_HMD, flags, HPID, oDPID, index_modifier_code);
+    AddFeature(fkey, features);
 
-  // Span features conjoined with head/modifier word and POS (not conjoined with modifier index).
-  fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::iDW, flags, iDWID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::iDP, flags, iDPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW, flags, HWID, iDWID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP, flags, HWID, iDPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW, flags, iDWID, HPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP, flags, HPID, iDPID);
-  AddFeature(fkey, features);
+    // Span features conjoined with head/modifier word and POS (not conjoined with modifier index).
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::iDW, flags, iDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::iDP, flags, iDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_iDW, flags, HWID, iDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_iDP, flags, HWID, iDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDW, flags, iDWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_iDP, flags, HPID, iDPID);
+    AddFeature(fkey, features);
 
-  fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::oDW, flags, oDWID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::oDP, flags, oDPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW, flags, HWID, oDWID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP, flags, HWID, oDPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW, flags, oDWID, HPID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP, flags, HPID, oDPID);
-  AddFeature(fkey, features);
-
+    fkey = encoder_.CreateFKey_W(DependencyLabelerFeatureTemplateArcSiblings::oDW, flags, oDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_P(DependencyLabelerFeatureTemplateArcSiblings::oDP, flags, oDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(DependencyLabelerFeatureTemplateArcSiblings::HW_oDW, flags, HWID, oDWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HW_oDP, flags, HWID, oDPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDW, flags, oDWID, HPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_PP(DependencyLabelerFeatureTemplateArcSiblings::HP_oDP, flags, HPID, oDPID);
+    AddFeature(fkey, features);
+  }
 
 #if 0
   // In-between flags.

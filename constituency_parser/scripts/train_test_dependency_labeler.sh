@@ -116,7 +116,7 @@ then
         if ${delta_encoding}
         then
             # Convert gold to delta encoding.
-            #python delta_encode_labeling_indices.py ${files_test[$i]} > ${files_test_transformed[$i]}
+            python delta_encode_labeling_indices.py ${files_test[$i]} > ${files_test_transformed[$i]}
             file_test=${files_test_transformed[$i]}
             file_prediction=${file_test}.${suffix}.pred
         else
@@ -172,9 +172,12 @@ then
         if ${delta_encoding}
         then
             # Convert gold to delta encoding.
+            #python delta_encode_labeling_indices.py ${files_test_parsed[$i]} > ${files_test_parsed_transformed[$i]}
             file_test=${files_test_transformed[$i]}
-            file_test_parsed=${files_test_parsed_transformed[$i]}
-            file_prediction_parsed=${file_test_parsed}.${suffix}.pred
+            #file_test_parsed=${files_test_parsed_transformed[$i]}
+            #file_prediction_parsed=${file_test_parsed}.${suffix}.pred
+            file_test_parsed=${files_test_parsed[$i]}
+            file_prediction_parsed=${files_test_parsed_transformed[$i]}.${suffix}.pred
         else
             file_test=${files_test[$i]}
             file_test_parsed=${files_test_parsed[$i]}
