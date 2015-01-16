@@ -70,6 +70,13 @@ class DependencyLabelerFeatures: public Features {
                       int head,
                       int modifier);
 
+  void AddSiblingFeatures(DependencyInstanceNumeric* sentence,
+                          const std::vector<std::vector<int> > &descendents,
+                          int r,
+                          int head,
+                          int modifier,
+                          int sibling);
+
  protected:
   void AddWordPairFeatures(DependencyInstanceNumeric* sentence,
                            int pair_type,

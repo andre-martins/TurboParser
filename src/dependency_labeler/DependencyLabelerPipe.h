@@ -26,7 +26,7 @@
 #include "TokenDictionary.h"
 #include "DependencyInstanceNumeric.h"
 #include "DependencyWriter.h"
-#include "DependencyPart.h"
+#include "DependencyLabelerPart.h"
 #include "DependencyLabelerFeatures.h"
 #include "DependencyLabelerDecoder.h"
 
@@ -77,7 +77,7 @@ class DependencyLabelerPipe : public Pipe {
   void CreateReader() { reader_ = new DependencyReader; };
   void CreateWriter() { writer_ = new DependencyWriter; };
   void CreateDecoder() { decoder_ = new DependencyLabelerDecoder(this); };
-  Parts *CreateParts() { return new DependencyParts; };
+  Parts *CreateParts() { return new DependencyLabelerParts; };
   Features *CreateFeatures() { return new DependencyLabelerFeatures(this); };
 
   void CreateTokenDictionary() {
@@ -110,7 +110,11 @@ class DependencyLabelerPipe : public Pipe {
   void MakePartsBasic(Instance *instance, Parts *parts,
                       std::vector<double> *gold_outputs);
   void MakePartsGlobal(Instance *instance, Parts *parts,
-                       vector<double> *gold_outputs);
+                       std::vector<double> *gold_outputs);
+  void MakeSiblingParts(Instance *instance,
+                        Parts *parts,
+                        std::vector<double> *gold_outputs);
+
   void MakeSelectedFeatures(Instance *instance,
                             Parts *parts,
                             const std::vector<bool>& selected_parts,
@@ -157,9 +161,11 @@ class DependencyLabelerPipe : public Pipe {
                                 Parts *parts,
                                 const std::vector<double> &gold_outputs,
                                 const std::vector<double> &predicted_outputs) {
+#if 0
     DependencyInstance *dependency_instance =
       static_cast<DependencyInstance*>(instance);
-    DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+    DependencyLabelerParts *dependency_parts =
+      static_cast<DependencyLabelerParts*>(parts);
     for (int m = 1; m < dependency_instance->size(); ++m) {
       int head = -1;
       int num_possible_heads = 0;
@@ -188,6 +194,7 @@ class DependencyLabelerPipe : public Pipe {
       ++num_tokens_;
       num_heads_after_pruning_ += num_possible_heads;
     }
+#endif
   }
   virtual void EndEvaluation() {
     LOG(INFO) << "Labeling accuracy: " <<
@@ -215,6 +222,9 @@ class DependencyLabelerPipe : public Pipe {
   void GetAllAncestors(const std::vector<int> &heads,
                        int descend,
                        std::vector<int>* ancestors) const;
+  void ComputeSiblings(const std::vector<int> &heads,
+                       std::vector<std::vector<int> >* siblings) const;
+
   //bool ExistsPath(const vector<int> &heads,
   //                int ancest,
   //                int descend) const;

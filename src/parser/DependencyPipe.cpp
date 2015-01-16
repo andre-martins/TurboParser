@@ -309,7 +309,7 @@ void DependencyPipe::MakeParts(Instance *instance,
     dependency_parts->BuildOffsets();
     dependency_parts->BuildIndices(sentence_length,
         GetDependencyOptions()->labeled());
-  
+
     // Make global parts.
     MakePartsGlobal(instance, parts, gold_outputs);
     dependency_parts->BuildOffsets();

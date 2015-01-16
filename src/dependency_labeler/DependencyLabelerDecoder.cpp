@@ -17,7 +17,7 @@
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DependencyLabelerDecoder.h"
-#include "DependencyPart.h"
+#include "DependencyLabelerPart.h"
 #include "DependencyLabelerPipe.h"
 #include "AlgUtils.h"
 #include <iostream>
@@ -33,10 +33,11 @@ void DependencyLabelerDecoder::DecodeCostAugmented(
     std::vector<double> *predicted_output,
     double *cost,
     double *loss) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   int offset_arcs, num_arcs;
 
-  dependency_parts->GetOffsetLabeledArc(&offset_arcs, &num_arcs);
+  dependency_parts->GetOffsetArc(&offset_arcs, &num_arcs);
 
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;
@@ -65,8 +66,9 @@ void DependencyLabelerDecoder::DecodeCostAugmented(
 void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
                                       const std::vector<double> &scores,
                                       std::vector<double> *predicted_output) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
   // Create copy of the scores.
   vector<double> copied_scores(scores);
   vector<int> best_labeled_parts;
@@ -88,6 +90,7 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
     (*predicted_output)[offset_arcs + r] = 1.0;
     (*predicted_output)[best_labeled_parts[r]] = 1.0;
   }
+#endif
 }
 
 void DependencyLabelerDecoder::DecodeMarginals(
@@ -97,8 +100,9 @@ void DependencyLabelerDecoder::DecodeMarginals(
     std::vector<double> *predicted_output,
     double *entropy,
     double *loss) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
   // Right now, only allow marginal inference for arc-factored models.
   CHECK(dependency_parts->IsArcFactored());
 
@@ -155,6 +159,7 @@ void DependencyLabelerDecoder::DecodeMarginals(
     LOG(INFO) << "Loss truncated to zero (" << *loss << ")";
     *loss = 0.0;
   }
+#endif
 }
 
 // Decode the best label for each candidate arc. The output vector
@@ -164,8 +169,9 @@ void DependencyLabelerDecoder::DecodeLabels(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
     std::vector<int> *best_labeled_parts) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
   int offset, num_arcs;
   dependency_parts->GetOffsetArc(&offset, &num_arcs);
   best_labeled_parts->resize(num_arcs);
@@ -186,6 +192,7 @@ void DependencyLabelerDecoder::DecodeLabels(
     }
     (*best_labeled_parts)[r] = best_label;
   }
+#endif
 }
 
 // Decode the label marginals for each candidate arc. The output vector
@@ -196,8 +203,9 @@ void DependencyLabelerDecoder::DecodeLabelMarginals(
     const std::vector<double> &scores,
     std::vector<double> *total_scores,
     std::vector<double> *label_marginals) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
   int offset, num_arcs;
   int offset_labeled, num_labeled_arcs;
   dependency_parts->GetOffsetArc(&offset, &num_arcs);
@@ -230,4 +238,5 @@ void DependencyLabelerDecoder::DecodeLabelMarginals(
       LOG(INFO) << "Label marginals don't sum to one: sum = " << sum;
     }
   }
+#endif
 }

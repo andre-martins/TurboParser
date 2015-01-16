@@ -36,12 +36,14 @@ class DependencyLabelerOptions : public Options {
   // Get option values.
   //bool projective() { return projective_; }
   bool prune_labels() { return prune_labels_; }
+  bool use_sibling_parts() { return use_sibling_parts_; }
 
  protected:
   std::string file_format_;
   //string model_type_;
   //bool projective_;
   bool prune_labels_;
+  bool use_sibling_parts_;
 };
 
 #endif // DEPENDENCY_LABELER_OPTIONS_H_

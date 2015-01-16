@@ -18,7 +18,7 @@
 
 #include "DependencyLabelerPipe.h"
 #include "DependencyLabelerFeatures.h"
-#include "DependencyPart.h"
+//#include "DependencyLabelerPart.h"
 #include "DependencyLabelerFeatureTemplates.h"
 #include <set>
 
@@ -71,6 +71,27 @@ void DependencyLabelerFeatures::AddArcFeatures(
 
   AddArcSiblingFeatures(sentence, descendents, head, modifier, siblings,
                         features);
+}
+
+// Add asibling features.
+void DependencyLabelerFeatures::AddSiblingFeatures(
+    DependencyInstanceNumeric* sentence,
+    const std::vector<std::vector<int> > &descendents,
+    int r,
+    int head,
+    int modifier,
+    int sibling) {
+  CHECK(!input_features_[r]);
+  BinaryFeatures *features = new BinaryFeatures;
+  input_features_[r] = features;
+
+  uint64_t fkey;
+  uint8_t flags = 0x0;
+  flags |= DependencyLabelerFeatureTemplateParts::SIBLING;
+
+  // Bias feature.
+  fkey = encoder_.CreateFKey_NONE(DependencyLabelerFeatureTemplateSibling::BIAS, flags);
+  AddFeature(fkey, features);
 }
 
 //#define PRINT_INFO

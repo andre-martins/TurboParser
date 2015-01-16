@@ -30,6 +30,8 @@ DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
             "training data.");
+DEFINE_bool(use_sibling_parts, false,
+            "True for using sibling parts.");
 
 // Save current option flags to the model file.
 void DependencyLabelerOptions::Save(FILE* fs) {
@@ -41,6 +43,8 @@ void DependencyLabelerOptions::Save(FILE* fs) {
   //success = WriteBool(fs, projective_);
   //CHECK(success);
   success = WriteBool(fs, prune_labels_);
+  CHECK(success);
+  success = WriteBool(fs, use_sibling_parts_);
   CHECK(success);
 }
 
@@ -59,6 +63,9 @@ void DependencyLabelerOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --prune_labels=" << FLAGS_prune_labels;
+  success = ReadBool(fs, &FLAGS_use_sibling_parts);
+  CHECK(success);
+  LOG(INFO) << "Setting --use_sibling_parts=" << FLAGS_use_sibling_parts;
 
   Initialize();
 }
@@ -70,4 +77,5 @@ void DependencyLabelerOptions::Initialize() {
   //model_type_ = FLAGS_model_type;
   //projective_ = FLAGS_projective;
   prune_labels_ = FLAGS_prune_labels;
+  use_sibling_parts_ = FLAGS_use_sibling_parts;
 }

@@ -25,7 +25,14 @@ struct DependencyLabelerFeatureTemplateParts {
     ARC_SIBLINGS,
     ARC_PREVIOUS_SIBLING,
     ARC_NEXT_SIBLING,
-    ARC_GRANDPARENT
+    ARC_GRANDPARENT,
+    SIBLING
+  };
+};
+
+struct DependencyLabelerFeatureTemplateSibling {
+  enum types {
+    BIAS = 0, /* bias */
   };
 };
 
@@ -33,7 +40,7 @@ struct DependencyLabelerFeatureTemplateArcSiblings {
   enum types {
     // There is a cross-product between these and direction, distance, {word form}, {pos cpos}
     // Features for head and modifier [add prefixes and suffixes]
-    BIAS = 0,				/* bias */
+    BIAS = 0, /* bias */
     HMD, /* position of this arc */
 
     HW_HMD, /* Same, plus head word */

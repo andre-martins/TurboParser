@@ -75,11 +75,27 @@ void DependencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
                                           std::vector<double> *scores) {
   Parameters *parameters = parameters_;
   scores->resize(parts->size());
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+
+#if 0
+  // Remove this.
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyLabelerOptions *dependency_options = GetDependencyLabelerOptions();
+  const vector<int> &heads = sentence->GetHeads();
+  std::vector<std::vector<int> > siblings;
+  if (dependency_options->use_sibling_parts()) {
+    ComputeSiblings(heads, &siblings);
+  }
+
   for (int r = 0; r < parts->size(); ++r) {
     // Labeled arcs will be treated by looking at the unlabeled arcs and
     // conjoining with the label.
     if ((*parts)[r]->type() == DEPENDENCYPART_LABELEDARC) continue;
+    // Labeled siblings will be treated by looking at the unlabeled siblings and
+    // conjoining with the label.
+    if ((*parts)[r]->type() == DEPENDENCYPART_LABELEDSIBL) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
     if ((*parts)[r]->type() == DEPENDENCYPART_ARC) {
       (*scores)[r] = 0.0;
@@ -100,9 +116,30 @@ void DependencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
         (*scores)[index_labeled_parts[k]] = label_scores[k];
       }
       continue;
+    } else if ((*parts)[r]->type() == DEPENDENCYPART_SIBL) {
+      (*scores)[r] = 0.0;
+      DependencyPartSibl *sibling =
+        static_cast<DependencyPartSibl*>((*parts)[r]);
+      const vector<int> &index_labeled_parts =
+          dependency_parts->FindLabeledArcs(arc->head(), arc->modifier());
+      vector<int> allowed_labels(index_labeled_parts.size());
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        DependencyPartLabeledArc *labeled_arc =
+            static_cast<DependencyPartLabeledArc*>(
+                (*parts)[index_labeled_parts[k]]);
+        allowed_labels[k] = labeled_arc->label();
+      }
+      vector<double> label_scores;
+      parameters->ComputeLabelScores(part_features, allowed_labels,
+          &label_scores);
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        (*scores)[index_labeled_parts[k]] = label_scores[k];
+      }
+      continue;
     }
     (*scores)[r] = parameters->ComputeScore(part_features);
   }
+#endif
 }
 
 void DependencyLabelerPipe::RemoveUnsupportedFeatures(
@@ -110,7 +147,7 @@ void DependencyLabelerPipe::RemoveUnsupportedFeatures(
     const std::vector<bool> &selected_parts,
     Features *features) {
   Parameters *parameters = parameters_;
-
+#if 0
   for (int r = 0; r < parts->size(); ++r) {
     if (!selected_parts[r]) continue;
     // Skip labeled arcs, are they use the features from unlabeled arcs.
@@ -127,6 +164,7 @@ void DependencyLabelerPipe::RemoveUnsupportedFeatures(
     }
     part_features->resize(num_supported);
   }
+#endif
 }
 
 void DependencyLabelerPipe::MakeGradientStep(
@@ -136,9 +174,11 @@ void DependencyLabelerPipe::MakeGradientStep(
     int iteration,
     const std::vector<double> &gold_output,
     const std::vector<double> &predicted_output) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   Parameters *parameters = GetTrainingParameters();
 
+#if 0
   for (int r = 0; r < parts->size(); ++r) {
     if (predicted_output[r] == gold_output[r]) continue;
 
@@ -167,15 +207,17 @@ void DependencyLabelerPipe::MakeGradientStep(
         predicted_output[r] - gold_output[r]);
     }
   }
+#endif
 }
 
 void DependencyLabelerPipe::TouchParameters(
     Parts *parts,
     Features *features,
     const std::vector<bool> &selected_parts) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   Parameters *parameters = GetTrainingParameters();
-
+#if 0
   for (int r = 0; r < parts->size(); ++r) {
     if (!selected_parts[r]) continue;
 
@@ -203,6 +245,7 @@ void DependencyLabelerPipe::TouchParameters(
       parameters->MakeGradientStep(part_features, 0.0, 0, 0.0);
     }
   }
+#endif
 }
 
 void DependencyLabelerPipe::MakeFeatureDifference(
@@ -211,8 +254,9 @@ void DependencyLabelerPipe::MakeFeatureDifference(
     const std::vector<double> &gold_output,
     const std::vector<double> &predicted_output,
     FeatureVector *difference) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
-
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
   for (int r = 0; r < parts->size(); ++r) {
     if (predicted_output[r] == gold_output[r]) continue;
 
@@ -243,14 +287,16 @@ void DependencyLabelerPipe::MakeFeatureDifference(
       }
     }
   }
+#endif
 }
 
 void DependencyLabelerPipe::MakeParts(Instance *instance,
                                       Parts *parts,
                                       std::vector<double> *gold_outputs) {
-  int sentence_length =
-      static_cast<DependencyInstanceNumeric*>(instance)->size();
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyInstanceNumeric *sentence =
+      static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   dependency_parts->Initialize();
   bool make_gold = (gold_outputs != NULL);
   if (make_gold) gold_outputs->clear();
@@ -258,7 +304,7 @@ void DependencyLabelerPipe::MakeParts(Instance *instance,
   // Make arc-factored parts and compute indices.
   MakePartsBasic(instance, parts, gold_outputs);
   dependency_parts->BuildOffsets();
-  dependency_parts->BuildIndices(sentence_length, true);
+  dependency_parts->BuildIndices(sentence->GetHeads());
 
   // Make global parts.
   MakePartsGlobal(instance, parts, gold_outputs);
@@ -270,7 +316,8 @@ void DependencyLabelerPipe::MakePartsBasic(Instance *instance,
                                            std::vector<double> *gold_outputs) {
   DependencyInstanceNumeric *sentence =
     static_cast<DependencyInstanceNumeric*>(instance);
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   DependencyDictionary *dependency_dictionary = GetDependencyDictionary();
   DependencyLabelerOptions *dependency_options = GetDependencyLabelerOptions();
   int sentence_length = sentence->size();
@@ -288,27 +335,10 @@ void DependencyLabelerPipe::MakePartsBasic(Instance *instance,
   const vector<int> &heads = sentence->GetHeads();
   int num_parts_initial = dependency_parts->size();
 
-  // Add parts for the gold unlabeled arcs.
-  for (int m = 1; m < sentence_length; ++m) {
-    int h = heads[m];
-    Part *part = dependency_parts->CreatePartArc(h, m);
-    dependency_parts->push_back(part);
-    if (make_gold) {
-      gold_outputs->push_back(1.0);
-    }
-  }
-
-  dependency_parts->SetOffsetArc(num_parts_initial,
-                                 dependency_parts->size() - num_parts_initial);
-  dependency_parts->BuildOffsets();
-  dependency_parts->BuildIndices(sentence_length, false);
-
-  // Now, add parts for each possible label.
+  // Add parts for the labeled arcs.
   num_parts_initial = dependency_parts->size();
   for (int m = 1; m < sentence_length; ++m) {
     int h = heads[m];
-    CHECK_GE(dependency_parts->FindArc(h, m), 0);
-
     if (prune_labels) {
       int modifier_pos_id = sentence->GetPosId(m);
       int head_pos_id = sentence->GetPosId(h);
@@ -327,10 +357,10 @@ void DependencyLabelerPipe::MakePartsBasic(Instance *instance,
     }
     for (int k = 0; k < allowed_labels.size(); ++k) {
       int l = allowed_labels[k];
-      Part *part = dependency_parts->CreatePartLabeledArc(h, m, l);
+      Part *part = dependency_parts->CreatePartArc(h, m, l);
       dependency_parts->push_back(part);
       if (make_gold) {
-        if (sentence->GetHead(m) == h && sentence->GetRelationId(m) == l) {
+        if (sentence->GetRelationId(m) == l) {
           gold_outputs->push_back(1.0);
         } else {
           gold_outputs->push_back(0.0);
@@ -339,15 +369,199 @@ void DependencyLabelerPipe::MakePartsBasic(Instance *instance,
     }
   }
 
-  dependency_parts->
-    SetOffsetLabeledArc(num_parts_initial,
-                        dependency_parts->size() - num_parts_initial);
+  dependency_parts->SetOffsetArc(num_parts_initial,
+                                 dependency_parts->size() - num_parts_initial);
+  dependency_parts->BuildOffsets();
+  dependency_parts->BuildIndices(heads);
 }
 
 void DependencyLabelerPipe::MakePartsGlobal(Instance *instance,
                                             Parts *parts,
                                             std::vector<double> *gold_outputs) {
-  // TODO(atm): add global parts.
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+#if 0
+  int num_parts_initial = dependency_parts->size();
+  // Make sibling parts.
+  if (GetDependencyLabelerOptions()->use_sibling_parts()) {
+    MakeSiblingParts(instance, parts, gold_outputs);
+  }
+  dependency_parts->SetOffsetSibl(
+      num_parts_initial,
+      dependency_parts->size() - num_parts_initial);
+
+  num_parts_initial = dependency_parts->size();
+  // Make labeled sibling parts.
+  if (GetDependencyLabelerOptions()->use_sibling_parts()) {
+    MakeLabeledSiblingParts(instance, parts, gold_outputs);
+  }
+  dependency_parts->SetOffsetLabeledSibl(
+      num_parts_initial,
+      dependency_parts->size() - num_parts_initial);
+#endif
+}
+
+#if 0
+void DependencyLabelerPipe::MakeSiblingParts(
+    Instance *instance,
+    Parts *parts,
+    std::vector<double> *gold_outputs) {
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyParts *dependency_labeler_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+  DependencyDictionary *dependency_dictionary = GetDependencyDictionary();
+  DependencyLabelerOptions *dependency_options = GetDependencyLabelerOptions();
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  bool prune_labels = dependency_options->prune_labels();
+  vector<int> allowed_labels;
+  const vector<int> &heads = sentence->GetHeads();
+
+  std::vector<std::vector<int> > siblings(sentence_length);
+  for (int m = 1; m < sentence_length; ++m) {
+    siblings[heads[m]].push_back(m);
+  }
+  for (int h = 0; h < sentence_length; ++h) {
+    // Don't create parts for heads without modifiers.
+    if (siblings.size() == 0) continue;
+
+    // Start position.
+    int m = siblings[h][0];
+    int r = dependency_parts->FindArc(h, m);
+    CHECK_GE(r, 0);
+    DependencyPartArc *initial_part =
+      static_cast<DependencyPartArc*>((*dependency_parts)[r]);
+    Part *part = dependency_parts->CreatePartSibl(h, m, -1);
+    dependency_parts->push_back(part);
+    if (make_gold) {
+      gold_outputs->push_back((*gold_outputs)[r]);
+    }
+
+    // Intermediate position.
+    for (int i = 1; i < siblings[h].size(); ++i) {
+      int m = siblings[h][i];
+      int s = siblings[h][i-1];
+      int current = dependency_parts->FindArc(h, m);
+      int previous = dependency_parts->FindArc(h, s);
+      CHECK_GE(current, 0);
+      CHECK_GE(previous, 0);
+      DependencyPartArc *current_part =
+        static_cast<DependencyPartArc*>((*dependency_parts)[current]);
+      DependencyPartArc *previous_part =
+        static_cast<DependencyPartArc*>((*dependency_parts)[previous]);
+      Part *part = dependency_parts->CreatePartSibl(h, m, s);
+      dependency_parts->push_back(part);
+      if (make_gold) {
+        gold_outputs->push_back((*gold_outputs)[current] *
+                                (*gold_outputs)[previous]);
+      }
+    }
+
+    // Final position.
+    m = siblings[h][siblings[h].size()-1];
+    r = dependency_parts->FindArc(h, m);
+    DependencyPartArc *final_part =
+      static_cast<DependencyPartArc*>((*dependency_parts)[r]);
+    part = dependency_parts->CreatePartSibl(h, -1, m);
+    dependency_parts->push_back(part);
+    if (make_gold) {
+      gold_outputs->push_back((*gold_outputs)[r]);
+    }
+  }
+}
+#endif
+
+void DependencyLabelerPipe::MakeSiblingParts(
+    Instance *instance,
+    Parts *parts,
+    std::vector<double> *gold_outputs) {
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
+  DependencyDictionary *dependency_dictionary = GetDependencyDictionary();
+  DependencyLabelerOptions *dependency_options = GetDependencyLabelerOptions();
+  int sentence_length = sentence->size();
+  bool make_gold = (gold_outputs != NULL);
+  bool prune_labels = dependency_options->prune_labels();
+  vector<int> allowed_labels;
+  const vector<int> &heads = sentence->GetHeads();
+
+#if 0
+  std::vector<std::vector<int> > siblings(sentence_length);
+  for (int m = 1; m < sentence_length; ++m) {
+    siblings[heads[m]].push_back(m);
+  }
+  for (int h = 0; h < sentence_length; ++h) {
+    // Don't create parts for heads without modifiers.
+    if (siblings.size() == 0) continue;
+
+    // Start position.
+    int m = siblings[h][0];
+    const std::vector<int>& initial_parts =
+      dependency_parts->FindLabeledArcs(h, m);
+    for (int j = 0; j < initial_parts.size(); ++j) {
+      DependencyPartLabeledArc *initial_part =
+        static_cast<DependencyPartLabeledArc*>(
+          (*dependency_parts)[initial_parts[j]]);
+      // TODO: Don't create a bigram part if this bigram is not allowed.
+      Part *part = dependency_parts->
+        CreatePartLabeledSibl(h, m, -1, initial_part->label(), -1);
+      dependency_parts->push_back(part);
+      if (make_gold) {
+        gold_outputs->push_back((*gold_outputs)[initial_parts[j]]);
+      }
+    }
+
+    // Intermediate position.
+    for (int i = 1; i < siblings[h].size(); ++i) {
+      int m = siblings[h][i];
+      int s = siblings[h][i-1];
+      const std::vector<int>& current_parts =
+        dependency_parts->FindLabeledArcs(h, m);
+      const std::vector<int>& previous_parts =
+        dependency_parts->FindLabeledArcs(h, s);
+      for (int j = 0; j < current_parts.size(); ++j) {
+        DependencyPartLabeledArc *current_part =
+          static_cast<DependencyPartLabeledArc*>(
+            (*dependency_parts)[current_parts[j]]);
+        for (int k = 0; k < previous_parts.size(); ++k) {
+          DependencyPartLabeledArc *previous_part =
+            static_cast<DependencyPartLabeledArc*>(
+              (*dependency_parts)[previous_parts[k]]);
+          // TODO: Don't create a bigram part if this bigram is not allowed.
+          Part *part = dependency_parts->
+            CreatePartLabeledSibl(h, m, s, current_part->label(),
+                                  previous_part->label());
+          dependency_parts->push_back(part);
+          if (make_gold) {
+            gold_outputs->push_back(
+              (*gold_outputs)[current_parts[j]] *
+                (*gold_outputs)[previous_parts[k]]);
+          }
+        }
+      }
+    }
+
+    // Final position.
+    m = siblings[h][siblings[h].size()-1];
+    const std::vector<int>& final_parts =
+      dependency_parts->FindLabeledArcs(h, m);
+    for (int j = 0; j < final_parts.size(); ++j) {
+      DependencyPartLabeledArc *final_part =
+        static_cast<DependencyPartLabeledArc*>(
+          (*dependency_parts)[final_parts[j]]);
+      // TODO: Don't create a bigram part if this bigram is not allowed.
+      Part *part = dependency_parts->
+        CreatePartLabeledSibl(h, -1, m, -1, final_part->label());
+      dependency_parts->push_back(part);
+      if (make_gold) {
+        gold_outputs->push_back((*gold_outputs)[final_parts[j]]);
+      }
+    }
+  }
+#endif
 }
 
 void DependencyLabelerPipe::MakeSelectedFeatures(
@@ -357,17 +571,20 @@ void DependencyLabelerPipe::MakeSelectedFeatures(
     Features *features) {
   DependencyInstanceNumeric *sentence =
     static_cast<DependencyInstanceNumeric*>(instance);
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   DependencyLabelerFeatures *dependency_features =
     static_cast<DependencyLabelerFeatures*>(features);
   int sentence_length = sentence->size();
 
   dependency_features->Initialize(instance, parts);
 
+#if 0
   // TODO(atm): make this computation of descendents be part of
   // DependencyInstanceNumeric or a class that derives from it.
   std::vector<std::vector<int> > descendents;
-  ComputeDescendents(sentence->GetHeads(), &descendents);
+  const std::vector<int> &heads = sentence->GetHeads();
+  ComputeDescendents(heads, &descendents);
 
   // Even in the case of labeled parsing, build features for unlabeled arcs
   // only. They will later be conjoined with the labels.
@@ -381,12 +598,27 @@ void DependencyLabelerPipe::MakeSelectedFeatures(
     dependency_features->AddArcFeatures(sentence, descendents, r, arc->head(),
                                         arc->modifier());
   }
+
+  // Build features for siblings. They will be later conjoined with the labels.
+  dependency_parts->GetOffsetSibl(&offset, &size);
+  for (int r = offset; r < offset + size; ++r) {
+    if (!selected_parts[r]) continue;
+    DependencyPartSibl *part =
+      static_cast<DependencyPartSibl*>((*dependency_parts)[r]);
+    CHECK_EQ(part->type(), DEPENDENCYPART_SIBL);
+    dependency_features->AddSiblingFeatures(sentence, descendents, r,
+                                            part->head(),
+                                            part->modifier(),
+                                            part->sibling());
+  }
+#endif
 }
 
 void DependencyLabelerPipe::LabelInstance(Parts *parts,
                                           const std::vector<double> &output,
                                           Instance *instance) {
-  DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  DependencyLabelerParts *dependency_parts =
+    static_cast<DependencyLabelerParts*>(parts);
   DependencyInstance *dependency_instance =
       static_cast<DependencyInstance*>(instance);
   int instance_length = dependency_instance->size();
@@ -396,6 +628,7 @@ void DependencyLabelerPipe::LabelInstance(Parts *parts,
   }
   double threshold = 0.5;
 
+#if 0
   int offset, num_labeled_arcs;
   dependency_parts->GetOffsetLabeledArc(&offset, &num_labeled_arcs);
   for (int r = 0; r < num_labeled_arcs; ++r) {
@@ -415,6 +648,17 @@ void DependencyLabelerPipe::LabelInstance(Parts *parts,
       dependency_instance->SetHead(m, 0);
       dependency_instance->SetDependencyRelation(m, GetDependencyDictionary()->GetLabelName(0));
     }
+  }
+#endif
+}
+
+void DependencyLabelerPipe::ComputeSiblings(
+    const std::vector<int> &heads,
+    std::vector<std::vector<int> >* siblings) const {
+  siblings->assign(heads.size(),
+                   std::vector<int>(0));
+  for (int m = 1; m < heads.size(); ++m) {
+    (*siblings)[heads[m]].push_back(m);
   }
 }
 

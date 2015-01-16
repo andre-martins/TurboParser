@@ -15,15 +15,16 @@ DependencyLabelerPipe.h \
 TurboDependencyLabeler.cpp \
 DependencyLabelerOptions.h \
 DependencyLabelerFeatures.cpp \
+DependencyLabelerPart.cpp \
+DependencyLabelerPart.h \
 $(PARSER)/DependencyReader.cpp $(PARSER)/DependencyDictionary.h \
-$(PARSER)/DependencyInstance.h $(PARSER)/DependencyPart.cpp \
+$(PARSER)/DependencyInstance.h \
 $(PARSER)/DependencyReader.h \
 $(PARSER)/DependencyDictionary.cpp \
 $(PARSER)/DependencyInstance.cpp \
 $(PARSER)/DependencyInstanceNumeric.h \
 $(PARSER)/DependencyWriter.h \
 $(PARSER)/DependencyInstanceNumeric.cpp \
-$(PARSER)/DependencyPart.h \
 $(PARSER)/DependencyWriter.cpp \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \

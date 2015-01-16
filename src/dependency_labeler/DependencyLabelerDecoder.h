@@ -20,7 +20,7 @@
 #define DEPENDENCYLABELERDECODER_H_
 
 #include "Decoder.h"
-#include "DependencyPart.h"
+#include "DependencyLabelerPart.h"
 
 class DependencyLabelerPipe;
 
