@@ -41,15 +41,18 @@ DEFINE_bool(use_dependency_span_features, true,
 // Add arc-factored features including lemmas and morpho-syntactic
 // feature information.
 // The features are very similar to the ones used in Koo et al. EGSTRA.
+
 void DependencyLabelerFeatures::AddArcFeatures(
-    DependencyInstanceNumeric* sentence,
+    DependencyInstanceNumeric *sentence,
     const std::vector<std::vector<int> > &descendents,
-    int r,
-    int head,
+    const std::vector<std::vector<int> > &siblings,
     int modifier) {
-  CHECK(!input_features_[r]);
+  CHECK(!input_arc_features_[modifier]);
   BinaryFeatures *features = new BinaryFeatures;
-  input_features_[r] = features;
+  input_arc_features_[modifier] = features;
+
+  const std::vector<int> &heads = sentence->GetHeads();
+  int head = heads[modifier];
 
   if (FLAGS_use_dependency_word_pair_features) {
 #if 0
@@ -61,15 +64,8 @@ void DependencyLabelerFeatures::AddArcFeatures(
 #endif
   }
 
-  const std::vector<int> &heads = sentence->GetHeads();
-  std::vector<int> siblings;
-  for (int m = 1; m < heads.size(); ++m) {
-    if (head == heads[m]) {
-      siblings.push_back(m);
-    }
-  }
-
-  AddArcSiblingFeatures(sentence, descendents, head, modifier, siblings,
+  AddArcSiblingFeatures(sentence, descendents, head, modifier,
+                        siblings[head],
                         features);
 }
 
@@ -77,21 +73,78 @@ void DependencyLabelerFeatures::AddArcFeatures(
 void DependencyLabelerFeatures::AddSiblingFeatures(
     DependencyInstanceNumeric* sentence,
     const std::vector<std::vector<int> > &descendents,
-    int r,
+    const std::vector<std::vector<int> > &siblings,
     int head,
-    int modifier,
-    int sibling) {
-  CHECK(!input_features_[r]);
+    int sibling_index) {
+  CHECK(!input_sibling_features_[head][sibling_index]);
   BinaryFeatures *features = new BinaryFeatures;
-  input_features_[r] = features;
+  input_sibling_features_[head][sibling_index] = features;
 
   uint64_t fkey;
   uint8_t flags = 0x0;
   flags |= DependencyLabelerFeatureTemplateParts::SIBLING;
 
+  int modifier = -1;
+  int sibling = -1;
+  if (sibling_index < siblings[head].size()) {
+    modifier = siblings[head][sibling_index];
+  }
+  if (sibling_index > 0) {
+    sibling = siblings[head][sibling_index-1];
+  }
+
+  // 0x1 if right attachment, 0x0 otherwise, 0x2 if head in the middle.
+  uint8_t direction_code;
+  if (modifier >= 0 && modifier < head) {
+    if (sibling < head) {
+      direction_code = 0x0;
+    } else {
+      direction_code = 0x2;
+    }
+  } else {
+    if (sibling < 0 || sibling > head) {
+      direction_code = 0x1;
+    } else {
+      direction_code = 0x2;
+    }
+  }
+
+  // Codewords for accommodating word/POS information.
+  uint16_t HWID, MWID, SWID;
+  uint8_t HPID, MPID, SPID;
+
+  // Maximum is 255 feature templates.
+  //LOG(INFO) << DependencyFeatureTemplateArc::COUNT;
+  CHECK_LT(DependencyLabelerFeatureTemplateSibling::COUNT, 256);
+
+  uint8_t original_flags = flags;
+  flags |= (direction_code << 4); // 2 more bits.
+
+  // Words/POS.
+  HWID = sentence->GetFormId(head);
+  MWID = (modifier >= 0)? sentence->GetFormId(modifier) : TOKEN_STOP;
+  SWID = (sibling >= 0)? sentence->GetFormId(sibling) : TOKEN_START;
+  HPID = sentence->GetCoarsePosId(head);
+  MPID = (modifier >= 0)? sentence->GetCoarsePosId(modifier) : TOKEN_STOP;
+  SPID = (sibling >= 0)? sentence->GetCoarsePosId(sibling) : TOKEN_START;
+
+#if 0
+  // Bias feature without the direction flags.
+  fkey = encoder_.CreateFKey_NONE(DependencyLabelerFeatureTemplateSibling::BIAS_NO_DIRECTION, original_flags);
+  AddFeature(fkey, features);
+#endif
+
   // Bias feature.
   fkey = encoder_.CreateFKey_NONE(DependencyLabelerFeatureTemplateSibling::BIAS, flags);
   AddFeature(fkey, features);
+
+
+#if 0
+  // POS triplet.
+  fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateSibling::HP_MP_SP, flags,
+                                 HPID, MPID, SPID);
+  AddFeature(fkey, features);
+#endif
 }
 
 //#define PRINT_INFO

@@ -107,10 +107,8 @@ class DependencyLabelerPipe : public Pipe {
 
   void MakeParts(Instance *instance, Parts *parts,
                  std::vector<double> *gold_outputs);
-  void MakePartsBasic(Instance *instance, Parts *parts,
-                      std::vector<double> *gold_outputs);
-  void MakePartsGlobal(Instance *instance, Parts *parts,
-                       std::vector<double> *gold_outputs);
+  void MakeArcParts(Instance *instance, Parts *parts,
+                    std::vector<double> *gold_outputs);
   void MakeSiblingParts(Instance *instance,
                         Parts *parts,
                         std::vector<double> *gold_outputs);
@@ -122,10 +120,6 @@ class DependencyLabelerPipe : public Pipe {
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
                      std::vector<double> *scores);
-
-  void RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-                                 const vector<bool> &selected_parts,
-                                 Features *features);
 
   void MakeFeatureDifference(Parts *parts,
                              Features *features,
@@ -140,14 +134,8 @@ class DependencyLabelerPipe : public Pipe {
                         const std::vector<double> &gold_output,
                         const std::vector<double> &predicted_output);
 
-  void TouchParameters(Parts *parts, Features *features,
-                       const std::vector<bool> &selected_parts);
-
   void LabelInstance(Parts *parts, const std::vector<double> &output,
                      Instance *instance);
-
-  //void Prune(Instance *instance, Parts *parts, vector<double> *gold_outputs,
-  //           bool preserve_gold);
 
   virtual void BeginEvaluation() {
     num_head_mistakes_ = 0;
@@ -161,29 +149,29 @@ class DependencyLabelerPipe : public Pipe {
                                 Parts *parts,
                                 const std::vector<double> &gold_outputs,
                                 const std::vector<double> &predicted_outputs) {
-#if 0
     DependencyInstance *dependency_instance =
       static_cast<DependencyInstance*>(instance);
+    DependencyInstance *dependency_output_instance =
+      static_cast<DependencyInstance*>(output_instance);
     DependencyLabelerParts *dependency_parts =
       static_cast<DependencyLabelerParts*>(parts);
     for (int m = 1; m < dependency_instance->size(); ++m) {
       int head = -1;
+      int h = dependency_output_instance->GetHead(m);
       int num_possible_heads = 0;
-      for (int h = 0; h < dependency_instance->size(); ++h) {
-        const vector<int> &index_labeled_parts =
-          dependency_parts->FindLabeledArcs(h, m);
-        for (int k = 0; k < index_labeled_parts.size(); ++k) {
-          int r = index_labeled_parts[k];
-          if (r < 0) continue;
-          ++num_possible_heads;
-          if (gold_outputs[r] >= 0.5) {
-            CHECK_EQ(gold_outputs[r], 1.0);
-            if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-              ++num_head_mistakes_;
-            }
-            head = h;
-            //break;
+      const vector<int> &index_labeled_parts =
+        dependency_parts->FindArcs(m);
+      for (int k = 0; k < index_labeled_parts.size(); ++k) {
+        int r = index_labeled_parts[k];
+        if (r < 0) continue;
+        ++num_possible_heads;
+        if (gold_outputs[r] >= 0.5) {
+          CHECK_EQ(gold_outputs[r], 1.0);
+          if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
+            ++num_head_mistakes_;
           }
+          head = h;
+          //break;
         }
       }
       if (head < 0) {
@@ -194,7 +182,6 @@ class DependencyLabelerPipe : public Pipe {
       ++num_tokens_;
       num_heads_after_pruning_ += num_possible_heads;
     }
-#endif
   }
   virtual void EndEvaluation() {
     LOG(INFO) << "Labeling accuracy: " <<
@@ -222,8 +209,13 @@ class DependencyLabelerPipe : public Pipe {
   void GetAllAncestors(const std::vector<int> &heads,
                        int descend,
                        std::vector<int>* ancestors) const;
-  void ComputeSiblings(const std::vector<int> &heads,
-                       std::vector<std::vector<int> >* siblings) const;
+
+  int GetSiblingLabel(int sibling, int modifier) {
+    CHECK_GE(sibling, -1);
+    CHECK_GE(modifier, -1);
+    int num_labels = GetDependencyDictionary()->GetLabelAlphabet().size();
+    return ((1 + sibling) * (1 + num_labels) +  (1 + modifier));
+  }
 
   //bool ExistsPath(const vector<int> &heads,
   //                int ancest,

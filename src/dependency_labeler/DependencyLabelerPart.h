@@ -148,8 +148,10 @@ class DependencyLabelerParts : public Parts {
   void DeleteAll();
 
  public:
-  void BuildIndices(const std::vector<int> &heads);
-  void DeleteIndices();
+  void BuildArcIndices(const std::vector<int> &heads);
+  void BuildSiblingIndices(const std::vector<int> &heads);
+  void DeleteArcIndices();
+  void DeleteSiblingIndices();
 
   // Set/Get offsets:
   void BuildOffsets() {
@@ -163,20 +165,29 @@ class DependencyLabelerParts : public Parts {
   void SetOffsetArc(int offset, int size) {
     SetOffset(DEPENDENCYLABELERPART_ARC, offset, size);
   };
-  void SetOffsetLabeledSibling(int offset, int size) {
+  void SetOffsetSibling(int offset, int size) {
     SetOffset(DEPENDENCYLABELERPART_SIBLING, offset, size);
   };
 
   void GetOffsetArc(int *offset, int *size) const {
     GetOffset(DEPENDENCYLABELERPART_ARC, offset, size);
   };
-  void GetOffsetLabeledSibling(int *offset, int *size) const {
+  void GetOffsetSibling(int *offset, int *size) const {
     GetOffset(DEPENDENCYLABELERPART_SIBLING, offset, size);
   };
+
+  void ComputeSiblings(const std::vector<int> &heads);
 
   const vector<int> &FindArcs(int m) {
     return index_arcs_[m];
   }
+  const vector<int> &FindSiblings(int h, int i) {
+    return index_siblings_[h][i];
+  }
+  int GetSiblingIndex(int h, int m) {
+    return (m < 0)? siblings_[h].size() : map_siblings_[h][m];
+  }
+  const std::vector<std::vector<int> > &siblings() { return siblings_; }
 
  private:
   // Get offset from part index.
@@ -193,7 +204,10 @@ class DependencyLabelerParts : public Parts {
   }
 
  private:
-  std::vector<std::vector<int> >  index_arcs_;
+  std::vector<std::vector<int> > index_arcs_;
+  std::vector<std::vector<std::vector<int> > > index_siblings_;
+  std::vector<std::vector<int> > map_siblings_;
+  std::vector<std::vector<int> > siblings_;
   int offsets_[NUM_DEPENDENCYLABELERPARTS];
 };
 

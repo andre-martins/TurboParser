@@ -33,6 +33,9 @@ struct DependencyLabelerFeatureTemplateParts {
 struct DependencyLabelerFeatureTemplateSibling {
   enum types {
     BIAS = 0, /* bias */
+    BIAS_NO_DIRECTION, /* bias without direction */
+    HP_MP_SP, /* POS triplet */
+    COUNT
   };
 };
 

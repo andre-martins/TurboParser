@@ -33,49 +33,69 @@ class DependencyLabelerFeatures: public Features {
 
  public:
   void Clear() {
-    for (int r = 0; r < input_features_.size(); ++r) {
-      if (!input_features_[r]) continue;
-        input_features_[r]->clear();
-        delete input_features_[r];
-        input_features_[r] = NULL;
+    for (int m = 0; m < input_arc_features_.size(); ++m) {
+      if (!input_arc_features_[m]) continue;
+        input_arc_features_[m]->clear();
+        delete input_arc_features_[m];
+        input_arc_features_[m] = NULL;
     }
-    input_features_.clear();
+    input_arc_features_.clear();
+
+    for (int h = 0; h < input_sibling_features_.size(); ++h) {
+      for (int i = 0; i < input_sibling_features_[h].size(); ++i) {
+        if (!input_sibling_features_[h][i]) continue;
+        input_sibling_features_[h][i]->clear();
+        delete input_sibling_features_[h][i];
+        input_sibling_features_[h][i] = NULL;
+      }
+      input_sibling_features_[h].clear();
+    }
+    input_sibling_features_.clear();
   }
 
-  void Initialize(Instance *instance, Parts *parts) {
+  void Initialize(Instance *instance, Parts *parts,
+                  const std::vector<std::vector<int> > &siblings) {
     Clear();
-    input_features_.resize(parts->size(), static_cast<BinaryFeatures*>(NULL));
-  }
-
-  int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r])? 0 : input_features_[r]->size();
-  };
-
-  int GetPartFeature(int r, int j) const {
-    return (*input_features_[r])[j];
+    int length = static_cast<DependencyInstanceNumeric*>(instance)->size();
+    input_arc_features_.resize(length, static_cast<BinaryFeatures*>(NULL));
+    input_sibling_features_.resize(length);
+    for (int h = 0; h < length; ++h) {
+      if (siblings[h].size() == 0) continue;
+      input_sibling_features_[h].resize(siblings[h].size()+1,
+                                        static_cast<BinaryFeatures*>(NULL));
+    }
   }
 
   const BinaryFeatures &GetPartFeatures(int r) const {
-    return *(input_features_[r]);
+    CHECK(false) << "All part features are specific to arcs or siblings.";
+    // Do this to avoid compilation error.
+    return *new BinaryFeatures;
   };
 
   BinaryFeatures *GetMutablePartFeatures(int r) const {
-    return input_features_[r];
+    CHECK(false) << "All part features are specific to arcs or siblings.";
+    return NULL;
   };
 
  public:
   void AddArcFeatures(DependencyInstanceNumeric *sentence,
                       const std::vector<std::vector<int> > &descendents,
-                      int r,
-                      int head,
+                      const std::vector<std::vector<int> > &siblings,
                       int modifier);
 
   void AddSiblingFeatures(DependencyInstanceNumeric* sentence,
                           const std::vector<std::vector<int> > &descendents,
-                          int r,
+                          const std::vector<std::vector<int> > &siblings,
                           int head,
-                          int modifier,
-                          int sibling);
+                          int sibling_index);
+
+  const BinaryFeatures &GetArcFeatures(int modifier) {
+    return *(input_arc_features_[modifier]);
+  }
+
+  const BinaryFeatures &GetSiblingFeatures(int head, int sibling_index) {
+    return *(input_sibling_features_[head][sibling_index]);
+  }
 
  protected:
   void AddWordPairFeatures(DependencyInstanceNumeric* sentence,
@@ -104,7 +124,9 @@ class DependencyLabelerFeatures: public Features {
   }
 
  protected:
-  vector<BinaryFeatures*> input_features_; // Vector of input features.
+  std::vector<BinaryFeatures*> input_arc_features_; // Vector of arc features.
+  // Vectors of sibling features.
+  std::vector<std::vector<BinaryFeatures*> > input_sibling_features_;
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 

@@ -34,6 +34,10 @@ class DependencyLabelerDecoder : public Decoder {
               const std::vector<double> &scores,
               std::vector<double> *predicted_output);
 
+  void DecodeBasic(Instance *instance, Parts *parts,
+                   const std::vector<double> &scores,
+                   std::vector<double> *predicted_output);
+
   void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const std::vector<double> &scores,
                            const std::vector<double> &gold_output,
@@ -46,17 +50,15 @@ class DependencyLabelerDecoder : public Decoder {
                        const std::vector<double> &gold_output,
                        std::vector<double> *predicted_output,
                        double *entropy,
-                       double *loss);
+                       double *loss) {
+    CHECK(false) << "Not implemented yet.";
+  }
 
  protected:
-  void DecodeLabels(Instance *instance, Parts *parts,
-                    const std::vector<double> &scores,
-                    std::vector<int> *best_labeled_parts);
-
-  void DecodeLabelMarginals(Instance *instance, Parts *parts,
-                            const std::vector<double> &scores,
-                            std::vector<double> *total_scores,
-                            std::vector<double> *label_marginals);
+  double RunViterbi(
+      const std::vector<std::vector<double> > &node_scores,
+      const std::vector<std::vector<std::vector<double> > > &edge_scores,
+      std::vector<int> *best_path);
 
  protected:
   DependencyLabelerPipe *pipe_;

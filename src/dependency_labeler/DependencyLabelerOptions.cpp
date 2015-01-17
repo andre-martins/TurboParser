@@ -30,7 +30,7 @@ DEFINE_bool(prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
             "training data.");
-DEFINE_bool(use_sibling_parts, false,
+DEFINE_bool(use_sibling_parts, true,
             "True for using sibling parts.");
 
 // Save current option flags to the model file.
