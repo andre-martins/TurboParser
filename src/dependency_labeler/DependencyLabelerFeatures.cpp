@@ -95,16 +95,28 @@ void DependencyLabelerFeatures::AddSiblingFeatures(
 
   // 0x1 if right attachment, 0x0 otherwise, 0x2 if head in the middle.
   uint8_t direction_code;
-  if (modifier >= 0 && modifier < head) {
+  // modifier = -1, sibling = 2, head = 3.
+  if (sibling < 0) {
+    if (modifier < head) {
+      direction_code = 0x0;
+    } else {
+      direction_code = 0x1;
+    }
+  } else if (modifier < 0) {
     if (sibling < head) {
       direction_code = 0x0;
     } else {
-      direction_code = 0x2;
+      direction_code = 0x1;
     }
   } else {
-    if (sibling < 0 || sibling > head) {
+    if (modifier < head) {
+      CHECK_LT(sibling, head);
+      direction_code = 0x0;
+    } else if (sibling > head) {
       direction_code = 0x1;
     } else {
+      CHECK_LT(sibling, head);
+      CHECK_GT(modifier, head);
       direction_code = 0x2;
     }
   }
@@ -138,13 +150,21 @@ void DependencyLabelerFeatures::AddSiblingFeatures(
   fkey = encoder_.CreateFKey_NONE(DependencyLabelerFeatureTemplateSibling::BIAS, flags);
   AddFeature(fkey, features);
 
-
-#if 0
   // POS triplet.
   fkey = encoder_.CreateFKey_PPP(DependencyLabelerFeatureTemplateSibling::HP_MP_SP, flags,
                                  HPID, MPID, SPID);
   AddFeature(fkey, features);
-#endif
+
+  // Unilexical features.
+  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateSibling::HW_MP_SP, flags,
+                                 HWID, MPID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateSibling::HP_MW_SP, flags,
+                                 MWID, HPID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateSibling::HP_MP_SW, flags,
+                                 SWID, HPID, MPID);
+  AddFeature(fkey, features);
 }
 
 //#define PRINT_INFO

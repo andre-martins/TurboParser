@@ -35,6 +35,9 @@ struct DependencyLabelerFeatureTemplateSibling {
     BIAS = 0, /* bias */
     BIAS_NO_DIRECTION, /* bias without direction */
     HP_MP_SP, /* POS triplet */
+    HW_MP_SP, /* Unilexical feature */
+    HP_MW_SP, /* Unilexical feature */
+    HP_MP_SW, /* Unilexical feature */
     COUNT
   };
 };

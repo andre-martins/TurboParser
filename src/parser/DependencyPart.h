@@ -36,7 +36,6 @@ enum {
   DEPENDENCYPART_NONPROJ,
   DEPENDENCYPART_PATH,
   DEPENDENCYPART_HEADBIGRAM,
-  DEPENDENCYPART_LABELEDSIBL,
   NUM_DEPENDENCYPARTS
 };
 
@@ -403,54 +402,6 @@ class DependencyPartHeadBigram : public Part {
   int hp_; // Index of the head of the previous word (m_ - 1).
 };
 
-class DependencyPartLabeledSibl : public Part {
- public:
-  DependencyPartLabeledSibl() { h_ = m_ = s_ = -1; };
-  DependencyPartLabeledSibl(int head, int modifier, int sibling,
-                            int modifier_label, int sibling_label) {
-    h_ = head;
-    m_ = modifier;
-    s_ = sibling;
-    modifier_label_ = modifier_label;
-    sibling_label_ = sibling_label;
-  }
-  virtual ~DependencyPartLabeledSibl() {};
-
- public:
-  int type() { return DEPENDENCYPART_LABELEDSIBL; };
-
- public:
-  int head() { return h_; };
-  int modifier() { return m_; };
-  int sibling() { return s_; };
-  int modifier_label() { return modifier_label_; };
-  int sibling_label() { return sibling_label_; };
-
- public:
-  void Save(FILE *fs) {
-    if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fwrite(&s_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fwrite(&modifier_label_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fwrite(&sibling_label_, sizeof(int), 1, fs)) CHECK(false);
-  };
-
-  void Load(FILE *fs) {
-    if (1 != fread(&h_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fread(&modifier_label_, sizeof(int), 1, fs)) CHECK(false);
-    if (1 != fread(&sibling_label_, sizeof(int), 1, fs)) CHECK(false);
-  };
-
- private:
-  int h_; // Index of the head.
-  int m_; // Index of the modifier (if m_ = h_, s_ encodes the first child).
-  int s_; // Index of the next sibling (if s_ = 0 or length, m_ encodes the last child).
-  int modifier_label_;
-  int sibling_label_;
-};
-
 class DependencyParts : public Parts {
  public:
   DependencyParts() {};
@@ -492,11 +443,6 @@ class DependencyParts : public Parts {
   }
   Part *CreatePartHeadBigram(int head, int modifier, int previous_head) {
     return new DependencyPartHeadBigram(head, modifier, previous_head);
-  }
-  Part *CreatePartLabeledSibl(int head, int modifier, int sibling,
-                              int modifier_label, int sibling_label) {
-    return new DependencyPartLabeledSibl(head, modifier, sibling,
-                                         modifier_label, sibling_label);
   }
 
   void Save(FILE* fs) {
@@ -572,9 +518,6 @@ class DependencyParts : public Parts {
   void SetOffsetHeadBigr(int offset, int size) {
     SetOffset(DEPENDENCYPART_HEADBIGRAM, offset, size);
   };
-  void SetOffsetLabeledSibl(int offset, int size) {
-    SetOffset(DEPENDENCYPART_LABELEDSIBL, offset, size);
-  };
 
   void GetOffsetLabeledArc(int *offset, int *size) const {
     GetOffset(DEPENDENCYPART_LABELEDARC, offset, size);
@@ -605,9 +548,6 @@ class DependencyParts : public Parts {
   };
   void GetOffsetHeadBigr(int *offset, int *size) const {
     GetOffset(DEPENDENCYPART_HEADBIGRAM, offset, size);
-  };
-  void GetOffsetLabeledSibl(int *offset, int *size) const {
-    GetOffset(DEPENDENCYPART_LABELEDSIBL, offset, size);
   };
 
  private:
