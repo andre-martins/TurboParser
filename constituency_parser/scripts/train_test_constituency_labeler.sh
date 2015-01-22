@@ -48,7 +48,7 @@ then
 else
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
-    files_test_indexed[0]=${path_data}/${language}_test.conll.predpos.${suffix_indexer}
+    files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.${suffix_indexer}
 fi
 
 # Obtain a prediction file path for each test file.

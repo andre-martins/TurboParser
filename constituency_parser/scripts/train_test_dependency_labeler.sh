@@ -59,6 +59,16 @@ then
         files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.predpos.${suffix_parser}
         files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.predpos.${suffix_parser}
     fi
+else
+    file_train=${path_data}/${language}_train.trees.conll
+    files_test[0]=${path_data}/${language}_test.trees.conll
+    files_test_parsed[0]=${path_data}/${language}_ftags_test.conll.${suffix_parser}
+    if ${delta_encoding}
+    then
+        file_train_transformed=${path_data}/${language}_delta_train.trees.conll
+        files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
+        files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.${suffix_parser}
+    fi
 fi
 
 # Obtain a prediction file path for each test file.
@@ -205,6 +215,7 @@ then
         touch ${file_results}
         perl ${path_scripts_parser}/eval.pl -b -q -g ${files_test[$i]} -s ${files_prediction_parsed[$i]} | tail -5 \
             >> ${file_results}
+        cat ${file_results}
 
         if ${dependency_to_constituency}
         then
@@ -218,6 +229,7 @@ then
             java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp
             sed 's/ROOT/TOP/g' ${files_prediction_parsed[$i]}.conv.trees.tmp > ${files_prediction_parsed[$i]}.conv.trees
             # Run EVALB.
+            echo ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees
             ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
 

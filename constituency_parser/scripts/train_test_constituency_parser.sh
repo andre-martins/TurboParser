@@ -27,6 +27,15 @@ then
     file_train_conll=${path_data}/${language}_ftags_train.conll.predpos
     files_test_conll[0]=${path_data}/${language}_ftags_test.conll.predpos
     files_test_conll[1]=${path_data}/${language}_ftags_dev.conll.predpos
+else
+    # Example: swedish.
+    # Constituency files (gold tags).
+    file_train_trees=${path_data}/${language}_train.trees
+    files_test_trees[0]=${path_data}/${language}_test.trees
+
+    # Dependency files (predicted tags).
+    file_train_conll=${path_data}/${language}_ftags_train.conll
+    files_test_conll[0]=${path_data}/${language}_ftags_test.conll
 fi
 
 ./train_test_parser.sh ${language} ${C_parser} ${parser_model_type}
