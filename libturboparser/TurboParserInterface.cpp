@@ -61,6 +61,10 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
             << " sec." << endl;
 }
 
+void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
+  tagger_pipe_->ClassifyInstance(sentence);
+}
+
 TurboEntityRecognizerWorker::TurboEntityRecognizerWorker() {
   entity_options_ = new EntityOptions;
   entity_options_->Initialize();
@@ -109,6 +113,10 @@ void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
 
   LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
             << " sec." << endl;
+}
+
+void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
+  entity_pipe_->ClassifyInstance(sentence);
 }
 
 TurboParserWorker::TurboParserWorker() {
