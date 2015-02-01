@@ -8,11 +8,11 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
-num_epochs=10 #20 # Number of training epochs.
-regularization_parameter=$2 #0.001 # The C parameter in MIRA.
-train_cost_false_positives=$3
-train_cost_false_negatives=$4
-ignore_null_labels=$5 #false #true
+num_epochs=$2 #10 # Number of training epochs.
+regularization_parameter=$3 #0.001 # The C parameter in MIRA.
+train_cost_false_positives=$4
+train_cost_false_negatives=$5
+ignore_null_labels=$6 #false #true
 train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.
@@ -40,7 +40,8 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
-    file_train=${path_data}/${language}_train.trees
+    file_train=${path_data}/${language}_train.trees.predpos
+    #file_train=${path_data}/${language}_train.trees.predpos
     files_test[0]=${path_data}/${language}_test.trees
     files_test[1]=${path_data}/${language}_dev.trees
     files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.predpos.${suffix_indexer}
@@ -48,7 +49,9 @@ then
 else
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
+    files_test[1]=${path_data}/${language}_dev.trees
     files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.${suffix_indexer}
+    files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.${suffix_indexer}
 fi
 
 # Obtain a prediction file path for each test file.

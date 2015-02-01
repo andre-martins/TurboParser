@@ -8,7 +8,7 @@ language=$1 # Example: "english_ptb".
 C_labeler=0.01 #0.01
 C_parser=0.001
 C_unary_predictor=1.0
-delta_encoding=true #false
+delta_encoding=false
 parser_model_type=full
 suffix_parser=parser_pruned-true_model-${parser_model_type}.pred
 
@@ -32,10 +32,12 @@ else
     # Constituency files (gold tags).
     file_train_trees=${path_data}/${language}_train.trees
     files_test_trees[0]=${path_data}/${language}_test.trees
+    files_test_trees[1]=${path_data}/${language}_dev.trees
 
     # Dependency files (predicted tags).
     file_train_conll=${path_data}/${language}_ftags_train.conll
     files_test_conll[0]=${path_data}/${language}_ftags_test.conll
+    files_test_conll[1]=${path_data}/${language}_ftags_dev.conll
 fi
 
 ./train_test_parser.sh ${language} ${C_parser} ${parser_model_type}
@@ -66,5 +68,5 @@ then
 fi
 
 ./train_test_dependency_labeler.sh ${language} ${C_labeler} ${delta_encoding}
-./train_test_constituency_labeler.sh ${language} ${C_unary_predictor} 0.5 0.5 true
+./train_test_constituency_labeler.sh ${language} 10 ${C_unary_predictor} 0.5 0.5 true
 
