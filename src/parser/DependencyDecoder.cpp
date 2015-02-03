@@ -1815,7 +1815,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                          left_grandsibling_indices[h].begin(),
                                          left_grandsibling_indices[h].end());
         }
-      } else {
+      } else if (use_next_sibling_parts) { // Added this "if", thanks to Ilan.
         AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
         factor->Initialize(arcs, left_siblings[h]);
         factor->SetAdditionalLogPotentials(left_scores[h]);
@@ -1887,7 +1887,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
                                          right_grandsibling_indices[h].begin(),
                                          right_grandsibling_indices[h].end());
         }
-      } else {
+      } else if (use_next_sibling_parts) { // Added this "if", thanks to Ilan.
         AD3::FactorHeadAutomaton *factor = new AD3::FactorHeadAutomaton;
         factor->Initialize(arcs, right_siblings[h]);
         factor->SetAdditionalLogPotentials(right_scores[h]);
