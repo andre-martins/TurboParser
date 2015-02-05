@@ -8,7 +8,7 @@ language=$1 # Example: "english_ptb".
 C_parser=$2 #0.001
 C_labeler=$3 #0.01
 C_unary_predictor=$4 #1.0
-delta_encoding=false
+delta_encoding=true #false
 parser_model_type=full
 suffix_parser=parser_pruned-true_model-${parser_model_type}.pred
 
