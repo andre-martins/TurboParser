@@ -3,7 +3,7 @@
 # Folder where the data will be placed.
 data_folder="`cd $(dirname $0);cd ..;pwd`"
 generate_test_splits=true
-blind_test=true
+blind_test=false #true
 
 for language in english czech chinese
 do
