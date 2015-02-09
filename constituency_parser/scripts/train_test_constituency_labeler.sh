@@ -40,6 +40,9 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
+    evalb_bin=${path_scripts}/EVALB/evalb
+    evalb_parameter_file=${path_scripts}/EVALB/COLLINS_new.prm
+
     file_train=${path_data}/${language}_train.trees.predpos
     #file_train=${path_data}/${language}_train.trees.predpos
     files_test[0]=${path_data}/${language}_test.trees
@@ -47,6 +50,9 @@ then
     files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.predpos.${suffix_indexer}
     files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.predpos.${suffix_indexer}
 else
+    evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
+    evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+
     file_train=${path_data}/${language}_train.trees
     files_test[0]=${path_data}/${language}_test.trees
     files_test[1]=${path_data}/${language}_dev.trees
@@ -117,7 +123,7 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]} ${files_prediction[$i]} | grep Bracketing | head -3 \
+        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${files_prediction[$i]} | grep Bracketing | head -3 \
             >> ${file_results}
         cat ${file_results}
     done
@@ -141,7 +147,7 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
+        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
             >> ${file_results}
         cat ${file_results}
 

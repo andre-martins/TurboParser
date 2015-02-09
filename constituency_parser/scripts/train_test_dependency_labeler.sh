@@ -46,6 +46,9 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
+    evalb_bin=${path_scripts}/EVALB/evalb
+    evalb_parameter_file=${path_scripts}/EVALB/COLLINS_new.prm
+
     file_train=${path_data}/${language}_train.trees.conll
     files_test[0]=${path_data}/${language}_test.trees.conll
     files_test[1]=${path_data}/${language}_dev.trees.conll
@@ -60,6 +63,9 @@ then
         files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.predpos.${suffix_parser}
     fi
 else
+    evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
+    evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+
     file_train=${path_data}/${language}_train.trees.conll
     files_test[0]=${path_data}/${language}_test.trees.conll
     files_test[1]=${path_data}/${language}_dev.trees.conll
@@ -166,14 +172,12 @@ then
             # Convert gold standard file to phrases.
             # NOTE: gold standard files should have index dependencies...
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
-            sed 's/ROOT/TOP/g' ${files_test[$i]}.conv.trees.tmp > ${files_test[$i]}.conv.trees
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees 4
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction[$i]} > ${files_prediction[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp 4
-            sed 's/ROOT/TOP/g' ${files_prediction[$i]}.conv.trees.tmp > ${files_prediction[$i]}.conv.trees
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees 4
             # Run EVALB.
-            ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
+            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
         fi
 
@@ -226,15 +230,13 @@ then
             # Convert gold standard file to phrases.
             # TODO: use original .trees files here.
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
-            sed 's/ROOT/TOP/g' ${files_test[$i]}.conv.trees.tmp > ${files_test[$i]}.conv.trees
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees 4
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction_parsed[$i]} > ${files_prediction_parsed[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp 4
-            sed 's/ROOT/TOP/g' ${files_prediction_parsed[$i]}.conv.trees.tmp > ${files_prediction_parsed[$i]}.conv.trees
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees 4
             # Run EVALB.
-            echo ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees
-            ${path_scripts}/EVALB/evalb -p EVALB/COLLINS_new.prm ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
+            echo ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees
+            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
 
             echo "UNARY SCORE: `tail -1 ${file_results}`"

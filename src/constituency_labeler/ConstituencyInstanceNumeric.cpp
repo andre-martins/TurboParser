@@ -64,7 +64,7 @@ void ParseTreeNumeric::Initialize(const ConstituencyDictionary &dictionary,
     ParseTreeNode *original_node = parse_tree.non_terminals()[i];
     ParseTreeNumericNode *node = non_terminals_[i];
     int id = dictionary.GetConstituentId(original_node->label());
-    CHECK_LT(id, 0xff);
+    CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
     node->set_label(id);
     node->set_span(original_node->span());
