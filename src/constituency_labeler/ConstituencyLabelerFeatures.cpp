@@ -21,6 +21,11 @@
 #include "ConstituencyLabelerPart.h"
 #include "ConstituencyLabelerFeatureTemplates.h"
 
+DEFINE_bool(use_constituency_lemma_features, true,
+            "True for using lemma features.");
+DEFINE_bool(use_constituency_morph_features, true,
+            "True for using morpho-syntactic features.");
+
 void ConstituencyLabelerFeatures::AddNodeFeatures(
     ConstituencyLabelerInstanceNumeric *sentence,
     int position) {
@@ -28,6 +33,9 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   CHECK(!input_features_nodes_[position]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_nodes_[position] = features;
+
+  bool use_lemma_features = FLAGS_use_constituency_lemma_features;
+  bool use_morphological_features = FLAGS_use_constituency_morph_features;
 
   const ParseTreeNumeric &parse_tree = sentence->GetParseTree();
   const std::vector<ParseTreeNumericNode*> &non_terminals =
@@ -82,6 +90,15 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   // Next word, if next node is pre-terminal.
   uint16_t nWID = (right_node && right_node->IsPreTerminal())?
     sentence->GetFormId(right_node->start()) : TOKEN_STOP;
+  // Current lemma, if pre-terminal.
+  uint16_t LID = (node->IsPreTerminal())? sentence->GetLemmaId(node->start()) :
+    TOKEN_STOP;
+  // Previous lemma, if previous node is pre-terminal.
+  uint16_t pLID = (left_node && left_node->IsPreTerminal())?
+    sentence->GetLemmaId(left_node->start()) : TOKEN_START;
+  // Next lemma, if next node is pre-terminal.
+  uint16_t nLID = (right_node && right_node->IsPreTerminal())?
+    sentence->GetLemmaId(right_node->start()) : TOKEN_STOP;
   // Child index.
   uint8_t current_index_code = (current_index < 0xff)? current_index : 0xff;
   // Preterminal code.
@@ -131,15 +148,53 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   if (node->IsPreTerminal()) {
     fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_WID, flags, CID, WID);
     AddFeature(fkey, features);
+    if (use_lemma_features) {
+      fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_LID, flags, CID, LID);
+      AddFeature(fkey, features);
+    }
+    if (use_morphological_features) {
+      for (int k = 0; k < sentence->GetNumMorphFeatures(node->start()); ++k) {
+        int MFID = sentence->GetMorphFeature(node->start(), k);
+        CHECK_LT(MFID, 0xffff);
+        fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_MFID, flags, CID, MFID);
+        AddFeature(fkey, features);
+      }
+    }
   }
 
   if (left_node && left_node->IsPreTerminal()) {
     fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_pWID, flags, CID, pWID);
     AddFeature(fkey, features);
+    if (use_lemma_features) {
+      fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_pLID, flags, CID, pLID);
+      AddFeature(fkey, features);
+    }
+    if (use_morphological_features) {
+      for (int k = 0; k < sentence->GetNumMorphFeatures(left_node->start());
+           ++k) {
+        int pMFID = sentence->GetMorphFeature(left_node->start(), k);
+        CHECK_LT(pMFID, 0xffff);
+        fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_pMFID, flags, CID, pMFID);
+        AddFeature(fkey, features);
+      }
+    }
   }
 
   if (right_node && right_node->IsPreTerminal()) {
     fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_nWID, flags, CID, nWID);
     AddFeature(fkey, features);
+    if (use_lemma_features) {
+      fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_nLID, flags, CID, nLID);
+      AddFeature(fkey, features);
+    }
+    if (use_morphological_features) {
+      for (int k = 0; k < sentence->GetNumMorphFeatures(right_node->start());
+           ++k) {
+        int nMFID = sentence->GetMorphFeature(right_node->start(), k);
+        CHECK_LT(nMFID, 0xffff);
+        fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_nMFID, flags, CID, nMFID);
+        AddFeature(fkey, features);
+      }
+    }
   }
 }

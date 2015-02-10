@@ -28,12 +28,15 @@ class ConstituencyLabelerInstance : public ConstituencyInstance {
 
   Instance* Copy() {
     ConstituencyLabelerInstance* instance = new ConstituencyLabelerInstance();
-    instance->Initialize(forms_, tags_, parse_tree_, constituent_labels_);
+    instance->Initialize(forms_, lemmas_, tags_, morph_, parse_tree_,
+                         constituent_labels_);
     return static_cast<Instance*>(instance);
   }
 
   void Initialize(const std::vector<std::string> &forms,
+                  const std::vector<std::string> &lemmas,
                   const std::vector<std::string> &tags,
+                  const std::vector<std::vector<std::string> > &morph,
                   const ParseTree &parse_tree,
                   const std::vector<std::string> &constituent_labels);
 

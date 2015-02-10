@@ -31,10 +31,12 @@ Instance *ConstituencyReader::GetNext() {
     ParseTree tree;
     std::vector<std::string> words;
     std::vector<std::string> tags;
+    std::vector<std::string> lemmas;
+    std::vector<std::vector<std::string> > morph;
     tree.LoadFromString(line);
     tree.ExtractWordsAndTags(&words, &tags);
     instance = new ConstituencyInstance;
-    instance->Initialize(words, tags, tree);
+    instance->Initialize(words, lemmas, tags, morph, tree);
   }
 
   return static_cast<Instance*>(instance);

@@ -28,6 +28,12 @@ class ConstituencyLabelerReader : public ConstituencyReader {
 
  public:
   virtual Instance *GetNext();
+
+ protected:
+  void ExtractLemmasAndMorphFeatsFromTag(const std::string &original_tag,
+                                         std::string *tag,
+                                         std::string *lemma,
+                                         std::vector<std::string> *morph_feats);
 };
 
 #endif /* CONSTITUENCYLABELERREADER_H_ */

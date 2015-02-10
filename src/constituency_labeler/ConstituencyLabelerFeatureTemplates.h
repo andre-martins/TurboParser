@@ -38,10 +38,16 @@ struct ConstituencyLabelerFeatureTemplateNode {
     CID_nCID,  // Current node, next sibling node.
     CID_PCID,  // Current node, parent node.
     CID_WID,   // Current node and its word (terminal nodes only).
+    CID_LID,   // Current node and its lemma (terminal nodes only).
+    CID_MFID,   // Current node and its morpho-syntactic feature (terminal nodes only).
     CID_CHIDX, // Current node and child index.
     CID_PCID_CHIDX, // Current node, parent node and child index.
     CID_pWID,   // Current node and previous word (if previous node is terminal).
     CID_nWID,   // Current node and next word (if previous node is terminal).
+    CID_pLID,   // Current node and previous lemma (if previous node is terminal).
+    CID_nLID,   // Current node and next lemma (if previous node is terminal).
+    CID_pMFID,   // Current node and previous morpho-syntactic feature (if previous node is terminal).
+    CID_nMFID,   // Current node and next morpho-sytactic feature (if previous node is terminal).
 
     COUNT
   };

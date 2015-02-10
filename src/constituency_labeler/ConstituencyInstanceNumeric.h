@@ -107,14 +107,24 @@ class ConstituencyInstanceNumeric : public SequenceInstanceNumeric {
 
   virtual void Clear() {
     SequenceInstanceNumeric::Clear();
+    lemma_ids_.clear();
+    for (int i = 0; i < morph_ids_.size(); i++) {
+      morph_ids_[i].clear();
+    }
   }
 
   void Initialize(const ConstituencyDictionary &dictionary,
                   ConstituencyInstance *instance);
 
+  int GetLemmaId(int i) { return lemma_ids_[i]; };
+  int GetNumMorphFeatures(int i) { return morph_ids_[i].size(); };
+  int GetMorphFeature(int i, int j) { return morph_ids_[i][j]; };
+
   const ParseTreeNumeric &GetParseTree() const { return parse_tree_; }
 
  protected:
+  std::vector<int> lemma_ids_;
+  std::vector<std::vector<int> > morph_ids_;
   ParseTreeNumeric parse_tree_;
 };
 

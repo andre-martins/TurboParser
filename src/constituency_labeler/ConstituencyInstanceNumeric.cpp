@@ -96,6 +96,23 @@ void ConstituencyInstanceNumeric::Initialize(
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   int length = instance->size();
 
+  lemma_ids_.resize(length);
+  morph_ids_.resize(length);
+  for (int i = 0; i < length; i++) {
+    int id = dictionary.GetLemmaId(instance->GetLemma(i));
+    CHECK_LT(id, 0xffff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    lemma_ids_[i] = id;
+
+    morph_ids_[i].resize(instance->GetNumMorphFeatures(i));
+    for (int j = 0; j < instance->GetNumMorphFeatures(i); ++j) {
+      id = dictionary.GetMorphFeatureId(instance->GetMorphFeature(i, j));
+      CHECK_LT(id, 0xffff);
+      if (id < 0) id = TOKEN_UNKNOWN;
+      morph_ids_[i][j] = id;
+    }
+  }
+
   parse_tree_.Initialize(dictionary, instance->GetParseTree());
 
   const std::vector<ParseTreeNode*> &non_terminals =

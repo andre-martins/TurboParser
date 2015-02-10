@@ -31,18 +31,24 @@ class ConstituencyDictionary : public SequenceDictionary {
   virtual void Clear() {
     // Don't clear token_dictionary, since this class does not own it.
     SequenceDictionary::Clear();
+    lemma_alphabet_.clear();
+    morph_alphabet_.clear();
     constituent_alphabet_.clear();
     rule_alphabet_.clear();
   }
 
   virtual void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
+    if (0 > lemma_alphabet_.Save(fs)) CHECK(false);
+    if (0 > morph_alphabet_.Save(fs)) CHECK(false);
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
     if (0 > rule_alphabet_.Save(fs)) CHECK(false);
   }
 
   virtual void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
+    if (0 > lemma_alphabet_.Load(fs)) CHECK(false);
+    if (0 > morph_alphabet_.Load(fs)) CHECK(false);
     if (0 > constituent_alphabet_.Load(fs)) CHECK(false);
     constituent_alphabet_.BuildNames();
     if (0 > rule_alphabet_.Load(fs)) CHECK(false);
@@ -51,11 +57,15 @@ class ConstituencyDictionary : public SequenceDictionary {
 
   void AllowGrowth() {
     SequenceDictionary::AllowGrowth();
+    lemma_alphabet_.AllowGrowth();
+    morph_alphabet_.AllowGrowth();
     constituent_alphabet_.AllowGrowth();
     rule_alphabet_.AllowGrowth();
   }
   void StopGrowth() {
     SequenceDictionary::StopGrowth();
+    lemma_alphabet_.StopGrowth();
+    morph_alphabet_.StopGrowth();
     constituent_alphabet_.StopGrowth();
     rule_alphabet_.StopGrowth();
   }
@@ -70,6 +80,16 @@ class ConstituencyDictionary : public SequenceDictionary {
     return constituent_alphabet_;
   }
 
+  int GetNumLemmas() const { return lemma_alphabet_.size(); }
+
+  int GetLemmaId(const std::string &lemma) const {
+    return lemma_alphabet_.Lookup(lemma);
+  }
+
+  int GetMorphFeatureId(const std::string &morph) const {
+    return morph_alphabet_.Lookup(morph);
+  }
+
   int GetConstituentId(const std::string &name) const {
     return constituent_alphabet_.Lookup(name);
   }
@@ -79,6 +99,8 @@ class ConstituencyDictionary : public SequenceDictionary {
   }
 
  protected:
+  Alphabet lemma_alphabet_;
+  Alphabet morph_alphabet_;
   Alphabet constituent_alphabet_;
   Alphabet rule_alphabet_;
 };

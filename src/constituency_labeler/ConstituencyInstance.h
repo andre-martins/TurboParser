@@ -31,13 +31,19 @@ class ConstituencyInstance : public SequenceInstance {
 
   virtual Instance* Copy() {
     ConstituencyInstance* instance = new ConstituencyInstance();
-    instance->Initialize(forms_, tags_, parse_tree_);
+    instance->Initialize(forms_, lemmas_, tags_, morph_, parse_tree_);
     return static_cast<Instance*>(instance);
   }
 
   void Initialize(const std::vector<std::string> &forms,
+                  const std::vector<std::string> &lemmas,
                   const std::vector<std::string> &tags,
+                  const std::vector<std::vector<std::string> > &morph,
                   const ParseTree &parse_tree);
+
+  const string &GetLemma(int i) { return lemmas_[i]; };
+  int GetNumMorphFeatures(int i) { return morph_[i].size(); };
+  const string &GetMorphFeature(int i, int j) { return morph_[i][j]; };
 
   const ParseTree &GetParseTree() const { return parse_tree_; }
   ParseTree *GetMutableParseTree() { return &parse_tree_; }
@@ -45,6 +51,8 @@ class ConstituencyInstance : public SequenceInstance {
   void SetParseTree(const ParseTree &parse_tree) { parse_tree_ = parse_tree; }
 
  protected:
+  std::vector<std::string> lemmas_;
+  std::vector<std::vector<std::string> > morph_;
   ParseTree parse_tree_;
 };
 

@@ -21,9 +21,11 @@
 
 void ConstituencyLabelerInstance::Initialize(
     const std::vector<std::string> &forms,
+    const std::vector<std::string> &lemmas,
     const std::vector<std::string> &tags,
+    const std::vector<std::vector<std::string> > &morph,
     const ParseTree &parse_tree,
     const std::vector<std::string> &constituent_labels) {
-  ConstituencyInstance::Initialize(forms, tags, parse_tree);
+  ConstituencyInstance::Initialize(forms, lemmas, tags, morph, parse_tree);
   constituent_labels_ = constituent_labels;
 }

@@ -32,8 +32,45 @@ Instance *ConstituencyLabelerReader::GetNext() {
       ParseTree tree;
       std::vector<std::string> words;
       std::vector<std::string> tags;
+      std::vector<std::string> lemmas;
+      std::vector<std::vector<std::string> > feats;
       tree.LoadFromString(line);
       tree.ExtractWordsAndTags(&words, &tags);
+
+      // Extract lemma and morpho-syntactic information, if available.
+      // The format is "TAG##lem=LEMMA|MORPH##".
+      // Example: "DET##lem=hogeita_hamabost|AZP=DET_DZH|KAS=ZERO##"
+      lemmas.resize(tags.size());
+      feats.resize(tags.size());
+      std::string start_info_marker = "##";
+      std::string end_info_marker = "##";
+      for (int i = 0; i < tags.size(); ++i) {
+        std::string tag = tags[i];
+        ExtractLemmasAndMorphFeatsFromTag(tag, &tags[i], &lemmas[i],
+                                          &feats[i]);
+
+#if 0
+        std::string all_morph_feats = "";
+        StringJoin(feats[i], '+', &all_morph_feats);
+        LOG(INFO) << "Word=" << words[i] << " "
+                  << "Tag=" << tags[i] << " "
+                  << "Lemma=" << lemmas[i] << " "
+                  << "Morph=" << all_morph_feats;
+#endif
+      }
+
+      // Clean lemma/morpho-syntactic information from the original nodes.
+      for (int i = 0; i < tree.non_terminals().size(); ++i) {
+        if (!tree.non_terminals()[i]->IsPreTerminal()) continue;
+        std::string full_label = tree.non_terminals()[i]->label();
+        std::string tag, lemma;
+        std::vector<std::string> morph_feats;
+        ExtractLemmasAndMorphFeatsFromTag(full_label, &tag, &lemma,
+                                          &morph_feats);
+        tree.non_terminals()[i]->set_label(tag);
+      }
+
+      // Collapse unary spines into a single node with labels split by "|".
       tree.CollapseSingletonSpines(false, true);
 
       //std::cout << line << std::endl;
@@ -58,7 +95,8 @@ Instance *ConstituencyLabelerReader::GetNext() {
         }
       }
       instance = new ConstituencyLabelerInstance;
-      instance->Initialize(words, tags, tree, constituent_labels);
+      instance->Initialize(words, lemmas, tags, feats, tree,
+                           constituent_labels);
 
       CHECK_EQ(terminals.size(), instance->size());
 
@@ -99,4 +137,44 @@ Instance *ConstituencyLabelerReader::GetNext() {
     }
   }
   return static_cast<Instance*>(instance);
+}
+
+void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
+    const std::string &original_tag,
+    std::string *tag,
+    std::string *lemma,
+    std::vector<std::string> *morph_feats) {
+
+  std::string start_info_marker = "##";
+  std::string end_info_marker = "##";
+
+  *tag = original_tag;
+  *lemma = "";
+  morph_feats->clear();
+
+  std::string info = "_";
+  std::size_t start_info = original_tag.find(start_info_marker);
+  std::size_t end_info = original_tag.rfind(end_info_marker);
+  if (start_info != original_tag.npos && end_info != start_info) {
+    *tag = original_tag.substr(0, start_info);
+    start_info += start_info_marker.length();
+    info = original_tag.substr(start_info, end_info - start_info);
+  }
+
+  std::string feat_seq = info;
+  if (0 == feat_seq.compare("_")) {
+    *lemma = "_";
+    morph_feats->clear();
+  } else {
+    StringSplit(feat_seq, "|", morph_feats);
+    for (int j = 0; j < morph_feats->size(); ++j) {
+      std::string lemma_prefix = "lem=";
+      if ((*morph_feats)[j].compare(0, lemma_prefix.length(),
+                                    lemma_prefix) == 0) {
+        *lemma = (*morph_feats)[j].substr(lemma_prefix.length());
+        morph_feats->erase(morph_feats->begin() + j);
+        break;
+      }
+    }
+  }
 }
