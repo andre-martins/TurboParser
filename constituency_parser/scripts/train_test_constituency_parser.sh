@@ -5,12 +5,12 @@ root_folder="`cd $(dirname $0);cd ../..;pwd`"
 task_folder="`cd $(dirname $0);cd ..;pwd`"
 
 language=$1 # Example: "english_ptb".
-C_parser=$2 #0.001
-C_labeler=$3 #0.01
-C_unary_predictor=$4 #1.0
+word_cutoff=$2 #0
+C_parser=$3 #0.001
+C_labeler=$4 #0.01
+C_unary_predictor=$5 #1.0
 delta_encoding=true #false
 parser_model_type=full
-suffix_parser=parser_pruned-true_model-${parser_model_type}.pred
 
 path_data=${task_folder}/data/${language} # Folder with the data.
 path_models=${task_folder}/models/${language} # Folder where models are stored.
@@ -40,7 +40,7 @@ else
     files_test_conll[1]=${path_data}/${language}_ftags_dev.conll
 fi
 
-./train_test_parser.sh ${language} ${C_parser} ${parser_model_type}
+./train_test_parser.sh ${language} ${C_parser} ${parser_model_type} ${word_cutoff}
 
 if true
 then
@@ -67,6 +67,9 @@ then
     done
 fi
 
-./train_test_dependency_labeler.sh ${language} ${C_labeler} ${delta_encoding}
-./train_test_constituency_labeler.sh ${language} 10 ${C_unary_predictor} 0.5 0.5 true
+suffix_parser=parser_pruned-true_model-${parser_model_type}_cutoff-${word_cutoff}.pred
+suffix_indexer=${suffix_parser}.labeler.pred.conv.trees
+
+./train_test_dependency_labeler.sh ${language} ${suffix_parser} ${C_labeler} ${delta_encoding}
+./train_test_constituency_labeler.sh ${language} ${suffix_indexer} 10 ${C_unary_predictor} 0.5 0.5 true
 

@@ -9,7 +9,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
 num_epochs=20 #10 #20 # Number of training epochs.
-regularization_parameter=$2 #0.001 # The C parameter in MIRA.
+regularization_parameter=$3 #0.001 # The C parameter in MIRA.
 train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.
@@ -21,10 +21,10 @@ lemma_cutoff=0 # Cutoff in lemma occurrence.
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they
                     # make the parser a lot slower.
-delta_encoding=$3
+delta_encoding=$4
 dependency_to_constituency=true
 
-suffix_parser=parser_pruned-true_model-full.pred
+suffix_parser=$2 #parser_pruned-true_model-full.pred
 suffix=labeler
 
 # Set path folders.
@@ -172,10 +172,12 @@ then
             # Convert gold standard file to phrases.
             # NOTE: gold standard files should have index dependencies...
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees 4
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
+	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction[$i]} > ${files_prediction[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees 4
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp 4
+	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp ${files_prediction[$i]}.conv.trees
             # Run EVALB.
             ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
                 >> ${file_results}
@@ -230,10 +232,12 @@ then
             # Convert gold standard file to phrases.
             # TODO: use original .trees files here.
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees 4
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
+	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction_parsed[$i]} > ${files_prediction_parsed[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees 4
+            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp 4
+	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp ${files_prediction_parsed[$i]}.conv.trees
             # Run EVALB.
             echo ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees
             ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \

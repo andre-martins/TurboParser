@@ -8,18 +8,18 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=svm_mira # Training algorithm.
-num_epochs=$2 #10 # Number of training epochs.
-regularization_parameter=$3 #0.001 # The C parameter in MIRA.
-train_cost_false_positives=$4
-train_cost_false_negatives=$5
-ignore_null_labels=$6 #false #true
+num_epochs=$3 #10 # Number of training epochs.
+regularization_parameter=$4 #0.001 # The C parameter in MIRA.
+train_cost_false_positives=$5
+train_cost_false_negatives=$6
+ignore_null_labels=$7 #false #true
 train=true
 test=true
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
 
-suffix_indexer=parser_pruned-true_model-full.pred.labeler.pred.conv.trees
+suffix_indexer=$2 #parser_pruned-true_model-full.pred.labeler.pred.conv.trees
 suffix=constituency_labeler
 
 # Set path folders.

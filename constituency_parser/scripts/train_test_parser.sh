@@ -22,7 +22,7 @@ pruner_max_heads=10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output dependency labels.
 large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
-form_cutoff=0 # Cutoff in word occurrence.
+form_cutoff=$4 # 0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
 projective=true #false # If true, force single-rooted projective trees.
 model_type=$3 #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
@@ -37,7 +37,7 @@ then
     prune=false
 fi
 
-suffix=parser_pruned-${prune}_model-${model_type}
+suffix=parser_pruned-${prune}_model-${model_type}_cutoff-${form_cutoff}
 suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
 
 # Set path folders.

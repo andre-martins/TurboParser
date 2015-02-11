@@ -54,6 +54,7 @@ class DependencyInstance : public Instance {
   const string &GetPosTag(int i) { return postags_[i]; };
   int GetNumMorphFeatures(int i) { return feats_[i].size(); };
   const string &GetMorphFeature(int i, int j) { return feats_[i][j]; };
+  const vector<string> &GetMorphFeatures(int i) { return feats_[i]; };
   int GetHead(int i) { return heads_[i]; };
   const string &GetDependencyRelation(int i) { return deprels_[i]; };
 

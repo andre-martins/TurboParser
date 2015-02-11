@@ -18,6 +18,7 @@
 
 #include "DependencyWriter.h"
 #include "DependencyInstance.h"
+#include "Utils.h"
 #include <iostream>
 #include <sstream>
 
@@ -31,7 +32,13 @@ void DependencyWriter::Write(Instance *instance) {
     os_ << dependency_instance->GetLemma(i) << "\t";
     os_ << dependency_instance->GetCoarsePosTag(i) << "\t";
     os_ << dependency_instance->GetPosTag(i) << "\t";
-    os_ << "_" << "\t"; // Change this later
+    std::string feat_seq = "_";
+    const std::vector<std::string> &feats = dependency_instance->GetMorphFeatures(i);
+    if (feats.size() > 0) {
+      StringJoin(feats, '|', &feat_seq);
+    }
+    //os_ << "_" << "\t"; // Change this later
+    os_ << feat_seq << "\t";
     os_ << dependency_instance->GetHead(i) << "\t";
     os_ << dependency_instance->GetDependencyRelation(i) << endl;
   }
