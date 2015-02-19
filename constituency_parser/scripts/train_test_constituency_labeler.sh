@@ -40,6 +40,7 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
+    discontinuous=false
     evalb_bin=${path_scripts}/EVALB/evalb
     evalb_parameter_file=${path_scripts}/EVALB/COLLINS_new.prm
 
@@ -50,14 +51,45 @@ then
     files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.predpos.${suffix_indexer}
     files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.predpos.${suffix_indexer}
 else
-    evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
-    evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+    if [ "$language" == "tgpred" ]
+    then
+	discontinuous=true
+	discontinuous_kind=TIGER
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+	use_dev=true
+    elif [ "$language" == "hnpred" ]
+    then
+	discontinuous=true
+	discontinuous_kind=TIGER
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/disco-dop/discodop/proper.prm	
+	use_dev=false
+    elif [ "$language" == "ngpred" ]
+    then
+	discontinuous=true
+	discontinuous_kind=NEGRA
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/disco-dop/discodop/proper.prm	
+	use_dev=false
+    else
+	discontinuous=false
+	evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
+	evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+	use_dev=true
+    fi
 
     file_train=${path_data}/${language}_train.trees
-    files_test[0]=${path_data}/${language}_test.trees
-    files_test[1]=${path_data}/${language}_dev.trees
-    files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.${suffix_indexer}
-    files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.${suffix_indexer}
+    if ${use_dev}
+    then
+	files_test[0]=${path_data}/${language}_test.trees
+	files_test[1]=${path_data}/${language}_dev.trees
+	files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.${suffix_indexer}
+	files_test_indexed[1]=${path_data}/${language}_ftags_dev.conll.${suffix_indexer}
+    else
+	files_test[0]=${path_data}/${language}_test.trees
+	files_test_indexed[0]=${path_data}/${language}_ftags_test.conll.${suffix_indexer}
+    fi
 fi
 
 # Obtain a prediction file path for each test file.
@@ -69,6 +101,27 @@ do
     file_prediction_indexed=${file_test_indexed}.${suffix}.pred
     files_prediction[$i]=${file_prediction}
     files_prediction_indexed[$i]=${file_prediction_indexed}
+done
+
+
+# Evaluate what happens when we don't add unaries at all (useful in TIGER and NEGRA).
+for (( i=0; i<${#files_test[*]}; i++ ))
+do
+    echo "Evaluating (skipping unary predictor)..."
+    touch ${file_results}
+    if ${discontinuous}
+    then
+	java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test[$i]} ${discontinuous_kind}
+	java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test_indexed[$i]} ${discontinuous_kind}
+	${evalb_bin} ${files_test[$i]}.export ${files_test_indexed[$i]}.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
+            >> ${file_results}
+    else
+        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
+	    >> ${file_results}
+    fi
+    cat ${file_results}
+
+    echo "FINAL SCORE NO UNARIES: `tail -1 ${file_results}`"
 done
 
 
@@ -123,8 +176,16 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${files_prediction[$i]} | grep Bracketing | head -3 \
-            >> ${file_results}
+	if ${discontinuous}
+	then
+	    java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test[$i]} ${discontinuous_kind}
+	    java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_prediction[$i]} ${discontinuous_kind}
+	    ${evalb_bin} ${files_test[$i]}.export ${files_prediction[$i]}.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
+                >> ${file_results}
+	else
+            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${files_prediction[$i]} | grep Bracketing | head -3 \
+		>> ${file_results}
+	fi
         cat ${file_results}
     done
 
@@ -135,7 +196,7 @@ then
         file_prediction=${files_prediction_indexed[$i]}
 
         echo ""
-        echo "Testing on ${file_test_indexed}..."
+        echo "Testing on ${file_test}..."
         ${path_bin}/TurboConstituencyLabeler \
             --test \
             --evaluate \
@@ -147,8 +208,17 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
-            >> ${file_results}
+	if ${discontinuous}
+	then
+	    java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test[$i]} ${discontinuous_kind}
+	    java -jar -Dfile.encoding=utf-8 trees2export.jar ${file_prediction} ${discontinuous_kind}
+
+	    ${evalb_bin} ${files_test[$i]}.export ${file_prediction}.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
+                >> ${file_results}
+	else
+            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
+		>> ${file_results}
+	fi
         cat ${file_results}
 
         echo "FINAL SCORE: `tail -1 ${file_results}`"

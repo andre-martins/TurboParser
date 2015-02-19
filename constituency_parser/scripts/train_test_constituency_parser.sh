@@ -5,16 +5,24 @@ root_folder="`cd $(dirname $0);cd ../..;pwd`"
 task_folder="`cd $(dirname $0);cd ..;pwd`"
 
 language=$1 # Example: "english_ptb".
-word_cutoff=$2 #0
-C_parser=$3 #0.001
-C_labeler=$4 #0.01
-C_unary_predictor=$5 #1.0
-delta_encoding=true #false
-parser_model_type=full
+discontinuous=$2
+word_cutoff=$3 #0
+C_parser=$4 #0.001
+C_labeler=$5 #0.01
+C_unary_predictor=$6 #1.0
+delta_encoding=$7 #true #false
+parser_model_type=$8 #full
 
 path_data=${task_folder}/data/${language} # Folder with the data.
 path_models=${task_folder}/models/${language} # Folder where models are stored.
 path_results=${task_folder}/results/${language} # Folder for the results.
+
+if ${discontinuous}
+then
+    projective=false
+else
+    projective=true
+fi
 
 if [ "$language" == "english_ptb" ]
 then
@@ -40,9 +48,9 @@ else
     files_test_conll[1]=${path_data}/${language}_ftags_dev.conll
 fi
 
-./train_test_parser.sh ${language} ${C_parser} ${parser_model_type} ${word_cutoff}
+./train_test_parser.sh ${language} ${projective} ${C_parser} ${parser_model_type} ${word_cutoff}
 
-if true
+if ! ${discontinuous}
 then
     # Convert constituency trees to dependency trees using an existing dependency
     # file as a guide.
@@ -67,7 +75,13 @@ then
     done
 fi
 
-suffix_parser=parser_pruned-true_model-${parser_model_type}_cutoff-${word_cutoff}.pred
+if [ "${parser_model_type}" == "basic" ]
+then
+    parser_pruned=false
+else
+    parser_pruned=true
+fi
+suffix_parser=parser_pruned-${parser_pruned}_model-${parser_model_type}_cutoff-${word_cutoff}.pred
 suffix_indexer=${suffix_parser}.labeler.pred.conv.trees
 
 ./train_test_dependency_labeler.sh ${language} ${suffix_parser} ${C_labeler} ${delta_encoding}

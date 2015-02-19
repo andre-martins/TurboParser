@@ -11,7 +11,7 @@ train_algorithm=svm_mira # Training algorithm.
 train_algorithm_pruner=crf_mira # Training algorithm for pruner.
 num_epochs=10 # Number of training epochs.
 num_epochs_pruner=10 # Number of training epochs for the pruner.
-regularization_parameter=$2 #0.001 # The C parameter in MIRA.
+regularization_parameter=$3 #0.001 # The C parameter in MIRA.
 regularization_parameter_pruner=1e12 # Same for the pruner.
 train=true
 test=true
@@ -22,10 +22,10 @@ pruner_max_heads=10 # Maximum number of candidate heads allowed by the pruner.
 labeled=true # Output dependency labels.
 large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
-form_cutoff=$4 # 0 # Cutoff in word occurrence.
+form_cutoff=$5 # 0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
-projective=true #false # If true, force single-rooted projective trees.
-model_type=$3 #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
+projective=$2 #true # If true, force single-rooted projective trees.
+model_type=$4 #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they
@@ -86,14 +86,29 @@ then
             > ${file_test}
     done
 else
+    if [ "$language" == "hnpred" ] || [ "$language" == "ngpred" ]
+    then
+	use_dev=false
+    else
+	use_dev=true
+    fi
+
     # For all languages except english and dutch,
     # replace coarse tags by fine tags.
-    file_train_orig=${path_data}/${language}_train.conll
-    files_test_orig[0]=${path_data}/${language}_test.conll
-    files_test_orig[1]=${path_data}/${language}_dev.conll
-    file_train=${path_data}/${language}_ftags_train.conll
-    files_test[0]=${path_data}/${language}_ftags_test.conll
-    files_test[1]=${path_data}/${language}_ftags_dev.conll
+    if ${use_dev}
+    then
+	file_train_orig=${path_data}/${language}_train.conll
+	files_test_orig[0]=${path_data}/${language}_test.conll
+	files_test_orig[1]=${path_data}/${language}_dev.conll
+	file_train=${path_data}/${language}_ftags_train.conll
+	files_test[0]=${path_data}/${language}_ftags_test.conll
+	files_test[1]=${path_data}/${language}_ftags_dev.conll
+    else
+	file_train_orig=${path_data}/${language}_train.conll
+	files_test_orig[0]=${path_data}/${language}_test.conll
+	file_train=${path_data}/${language}_ftags_train.conll
+	files_test[0]=${path_data}/${language}_ftags_test.conll
+    fi
     rm -f file_train
     awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_train_orig} \
         > ${file_train}

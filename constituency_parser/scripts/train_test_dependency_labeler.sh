@@ -46,6 +46,7 @@ file_results=${path_results}/${language}_${suffix}.txt
 
 if [ "$language" == "english_ptb" ]
 then
+    discontinuous=false
     evalb_bin=${path_scripts}/EVALB/evalb
     evalb_parameter_file=${path_scripts}/EVALB/COLLINS_new.prm
 
@@ -63,21 +64,59 @@ then
         files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.predpos.${suffix_parser}
     fi
 else
-    evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
-    evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
-
-    file_train=${path_data}/${language}_train.trees.conll
-    files_test[0]=${path_data}/${language}_test.trees.conll
-    files_test[1]=${path_data}/${language}_dev.trees.conll
-    files_test_parsed[0]=${path_data}/${language}_ftags_test.conll.${suffix_parser}
-    files_test_parsed[1]=${path_data}/${language}_ftags_dev.conll.${suffix_parser}
-    if ${delta_encoding}
+    if [ "$language" == "tgpred" ]
     then
-        file_train_transformed=${path_data}/${language}_delta_train.trees.conll
-        files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
-        files_test_transformed[1]=${path_data}/${language}_delta_dev.trees.conll
-        files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.${suffix_parser}
-        files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.${suffix_parser}
+	discontinuous=true
+	discontinuous_kind=TIGER
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm	
+	use_dev=true
+    elif [ "$language" == "hnpred" ]
+    then
+	discontinuous=true
+	discontinuous_kind=TIGER
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/disco-dop/discodop/proper.prm	
+	use_dev=false
+    elif [ "$language" == "ngpred" ]
+    then
+	discontinuous=true
+	discontinuous_kind=NEGRA
+	evalb_bin=${path_scripts}/disco-dop/discodop/eval.py
+	evalb_parameter_file=${path_scripts}/disco-dop/discodop/proper.prm
+	use_dev=false
+    else
+	discontinuous=false
+	evalb_bin=${path_scripts}/evalb_spmrl2013/evalb_spmrl
+	evalb_parameter_file=${path_scripts}/evalb_spmrl2013/spmrl.prm
+	use_dev=true
+    fi
+
+    if ${use_dev}
+    then
+	file_train=${path_data}/${language}_train.trees.conll
+	files_test[0]=${path_data}/${language}_test.trees.conll
+	files_test[1]=${path_data}/${language}_dev.trees.conll
+	files_test_parsed[0]=${path_data}/${language}_ftags_test.conll.${suffix_parser}
+	files_test_parsed[1]=${path_data}/${language}_ftags_dev.conll.${suffix_parser}
+	if ${delta_encoding}
+	then
+            file_train_transformed=${path_data}/${language}_delta_train.trees.conll
+            files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
+            files_test_transformed[1]=${path_data}/${language}_delta_dev.trees.conll
+            files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.${suffix_parser}
+            files_test_parsed_transformed[1]=${path_data}/${language}_ftags_delta_dev.conll.${suffix_parser}
+	fi
+    else
+	file_train=${path_data}/${language}_train.trees.conll
+	files_test[0]=${path_data}/${language}_test.trees.conll
+	files_test_parsed[0]=${path_data}/${language}_ftags_test.conll.${suffix_parser}
+	if ${delta_encoding}
+	then
+            file_train_transformed=${path_data}/${language}_delta_train.trees.conll
+            files_test_transformed[0]=${path_data}/${language}_delta_test.trees.conll
+            files_test_parsed_transformed[0]=${path_data}/${language}_ftags_delta_test.conll.${suffix_parser}
+	fi
     fi
 fi
 
@@ -172,15 +211,38 @@ then
             # Convert gold standard file to phrases.
             # NOTE: gold standard files should have index dependencies...
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
-	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+            if ${discontinuous}
+            then
+		java -jar -Dfile.encoding=utf-8 disconverter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+		java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test[$i]}.conv.trees ${discontinuous_kind}
+	    else
+		java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+	    fi
+
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction[$i]} > ${files_prediction[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp 4
-	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp ${files_prediction[$i]}.conv.trees
-            # Run EVALB.
-            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
-                >> ${file_results}
+            if ${discontinuous}
+            then
+		java -jar -Dfile.encoding=utf-8 disconverter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp ${files_prediction[$i]}.conv.trees
+		java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_prediction[$i]}.conv.trees ${discontinuous_kind}
+	    else
+		java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp 4
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction[$i]}.escaped ${files_prediction[$i]}.conv.trees.tmp ${files_prediction[$i]}.conv.trees
+	    fi
+
+	    if ${discontinuous}
+	    then
+                # Run EVALB.
+		${evalb_bin} ${files_test[$i]}.conv.trees.export ${files_prediction[$i]}.conv.trees.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
+                    >> ${file_results}
+	    else
+                # Run EVALB.
+		${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction[$i]}.conv.trees | grep Bracketing | head -3 \
+                    >> ${file_results}
+	    fi
         fi
 
         cat ${file_results}
@@ -232,16 +294,38 @@ then
             # Convert gold standard file to phrases.
             # TODO: use original .trees files here.
             python escape_parenthesis.py ${files_test[$i]} > ${files_test[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
-	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+            if ${discontinuous}
+            then
+		java -jar -Dfile.encoding=utf-8 disconverter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+		java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_test[$i]}.conv.trees ${discontinuous_kind}
+	    else
+		java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp 4
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_test[$i]}.escaped ${files_test[$i]}.conv.trees.tmp ${files_test[$i]}.conv.trees
+	    fi
+
             # Convert predicted file to phrases.
             python escape_parenthesis.py ${files_prediction_parsed[$i]} > ${files_prediction_parsed[$i]}.escaped
-            java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp 4
-	    java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp ${files_prediction_parsed[$i]}.conv.trees
-            # Run EVALB.
-            echo ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees
-            ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
-                >> ${file_results}
+            if ${discontinuous}
+            then
+		java -jar -Dfile.encoding=utf-8 disconverter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp ${files_prediction_parsed[$i]}.conv.trees
+		java -jar -Dfile.encoding=utf-8 trees2export.jar ${files_prediction_parsed[$i]}.conv.trees ${discontinuous_kind}
+	    else
+		java -jar -Dfile.encoding=utf-8 converter.jar deconv ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp 4
+		java -jar -Dfile.encoding=utf-8 addInfoTree.jar ${files_prediction_parsed[$i]}.escaped ${files_prediction_parsed[$i]}.conv.trees.tmp ${files_prediction_parsed[$i]}.conv.trees
+	    fi
+
+	    if ${discontinuous}
+	    then
+                # Run EVALB.
+		${evalb_bin} ${files_test[$i]}.conv.trees.export ${files_prediction_parsed[$i]}.conv.trees.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
+                    >> ${file_results}
+	    else
+                # Run EVALB.
+		${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]}.conv.trees ${files_prediction_parsed[$i]}.conv.trees | grep Bracketing | head -3 \
+                    >> ${file_results}
+	    fi
 
             echo "UNARY SCORE: `tail -1 ${file_results}`"
 
