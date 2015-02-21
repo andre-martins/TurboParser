@@ -116,7 +116,7 @@ do
 	${evalb_bin} ${files_test[$i]}.export ${files_test_indexed[$i]}.export ${evalb_parameter_file} | grep '^labeled' | head -3 \
             >> ${file_results}
     else
-        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${file_prediction} | grep Bracketing | head -3 \
+        ${evalb_bin} -p ${evalb_parameter_file} ${files_test[$i]} ${files_test_indexed[$i]} | grep Bracketing | head -3 \
 	    >> ${file_results}
     fi
     cat ${file_results}

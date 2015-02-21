@@ -153,8 +153,11 @@ void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
   morph_feats->clear();
 
   std::string info = "_";
-  std::size_t start_info = original_tag.find(start_info_marker);
+  std::size_t start_info = original_tag.npos; // original_tag.find(start_info_marker);
   std::size_t end_info = original_tag.rfind(end_info_marker);
+  if (end_info != original_tag.npos) {
+    start_info = original_tag.rfind(start_info_marker, end_info-1);
+  }
   if (start_info != original_tag.npos && end_info != start_info) {
     *tag = original_tag.substr(0, start_info);
     start_info += start_info_marker.length();
