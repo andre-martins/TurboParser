@@ -64,12 +64,15 @@ void DependencyLabelerFeatures::AddArcFeatures(
 #endif
   }
 
+#if 0
+  // Removed this since now we have sequential features.
   AddArcSiblingFeatures(sentence, descendents, head, modifier,
                         siblings[head],
                         features);
+#endif
 }
 
-// Add asibling features.
+// Add sibling features.
 void DependencyLabelerFeatures::AddSiblingFeatures(
     DependencyInstanceNumeric* sentence,
     const std::vector<std::vector<int> > &descendents,

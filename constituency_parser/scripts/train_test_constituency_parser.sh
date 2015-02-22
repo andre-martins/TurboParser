@@ -48,7 +48,7 @@ else
     files_test_conll[1]=${path_data}/${language}_ftags_dev.conll
 fi
 
-./train_test_parser.sh ${language} ${projective} ${C_parser} ${parser_model_type} ${word_cutoff}
+#./train_test_parser.sh ${language} ${projective} ${C_parser} ${parser_model_type} ${word_cutoff}
 
 if ! ${discontinuous}
 then

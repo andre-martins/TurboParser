@@ -84,6 +84,15 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   // Current word, if pre-terminal.
   uint16_t WID = (node->IsPreTerminal())? sentence->GetFormId(node->start()) :
     TOKEN_STOP;
+  // First/last word.
+  uint16_t fWID = sentence->GetFormId(node->start());
+  uint16_t lWID = sentence->GetFormId(node->end());
+  // First/last lemma.
+  uint16_t fLID = sentence->GetLemmaId(node->start());
+  uint16_t lLID = sentence->GetLemmaId(node->end());
+  // First/last POS tag.
+  uint8_t fPID = sentence->GetTagId(node->start());
+  uint8_t lPID = sentence->GetTagId(node->end());
   // Previous word, if previous node is pre-terminal.
   uint16_t pWID = (left_node && left_node->IsPreTerminal())?
     sentence->GetFormId(left_node->start()) : TOKEN_START;
@@ -133,6 +142,18 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
   fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_PCID, flags, CID, PCID);
   AddFeature(fkey, features);
 
+  // Added this tri-node feature.
+  fkey = encoder_.CreateFKey_WWW(ConstituencyLabelerFeatureTemplateNode::CID_pCID_nCID, flags, CID, pCID, nCID);
+  AddFeature(fkey, features);
+
+  // Added this tri-node feature.
+  //fkey = encoder_.CreateFKey_WWW(ConstituencyLabelerFeatureTemplateNode::CID_PCID_pCID, flags, CID, PCID, pCID);
+  //AddFeature(fkey, features);
+
+  // Added this tri-node feature.
+  //fkey = encoder_.CreateFKey_WWW(ConstituencyLabelerFeatureTemplateNode::CID_PCID_nCID, flags, CID, PCID, nCID);
+  //AddFeature(fkey, features);
+
   fkey = encoder_.CreateFKey_W(ConstituencyLabelerFeatureTemplateNode::RULEDOWN, flags, RID);
   AddFeature(fkey, features);
 
@@ -157,6 +178,35 @@ void ConstituencyLabelerFeatures::AddNodeFeatures(
         int MFID = sentence->GetMorphFeature(node->start(), k);
         CHECK_LT(MFID, 0xffff);
         fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_MFID, flags, CID, MFID);
+        AddFeature(fkey, features);
+      }
+    }
+  } else {
+    fkey = encoder_.CreateFKey_WP(ConstituencyLabelerFeatureTemplateNode::CID_fPID, flags, CID, fPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(ConstituencyLabelerFeatureTemplateNode::CID_lPID, flags, CID, lPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_fWID, flags, CID, fWID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_lWID, flags, CID, lWID);
+    AddFeature(fkey, features);
+    if (use_lemma_features) {
+      fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_fLID, flags, CID, fLID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_lLID, flags, CID, lLID);
+      AddFeature(fkey, features);
+    }
+    if (use_morphological_features) {
+      for (int k = 0; k < sentence->GetNumMorphFeatures(node->start()); ++k) {
+        int fMFID = sentence->GetMorphFeature(node->start(), k);
+        CHECK_LT(fMFID, 0xffff);
+        fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_fMFID, flags, CID, fMFID);
+        AddFeature(fkey, features);
+      }
+      for (int k = 0; k < sentence->GetNumMorphFeatures(node->end()); ++k) {
+        int lMFID = sentence->GetMorphFeature(node->end(), k);
+        CHECK_LT(lMFID, 0xffff);
+        fkey = encoder_.CreateFKey_WW(ConstituencyLabelerFeatureTemplateNode::CID_lMFID, flags, CID, lMFID);
         AddFeature(fkey, features);
       }
     }
