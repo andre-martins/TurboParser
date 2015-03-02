@@ -16,13 +16,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "SequencePipe.h"
-#include "SequenceFeatures.h"
+#include "TaggerPipe.h"
+#include "TaggerFeatures.h"
 #include "SequencePart.h"
-#include "SequenceFeatureTemplates.h"
+#include "TaggerFeatureTemplates.h"
 
-void SequenceFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
-                                          int position) {
+void TaggerFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
+                                        int position) {
   CHECK(!input_features_unigrams_[position]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_unigrams_[position] = features;
@@ -67,74 +67,74 @@ void SequenceFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   uint64_t fkey;
   uint8_t flags = 0x0;
 
-  flags |= SequenceFeatureTemplateParts::UNIGRAM;
+  flags |= TaggerFeatureTemplateParts::UNIGRAM;
 
   // Maximum is 255 feature templates.
-  CHECK_LT(SequenceFeatureTemplateUnigram::COUNT, 256);
+  CHECK_LT(TaggerFeatureTemplateUnigram::COUNT, 256);
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(SequenceFeatureTemplateUnigram::BIAS, flags);
+  fkey = encoder_.CreateFKey_NONE(TaggerFeatureTemplateUnigram::BIAS, flags);
   AddFeature(fkey, features);
 
   // Lexical features.
-  fkey = encoder_.CreateFKey_W(SequenceFeatureTemplateUnigram::W, flags, WID);
+  fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::W, flags, WID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(SequenceFeatureTemplateUnigram::pW, flags, pWID);
+  fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::pW, flags, pWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(SequenceFeatureTemplateUnigram::nW, flags, nWID);
+  fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::nW, flags, nWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(SequenceFeatureTemplateUnigram::ppW, flags, ppWID);
+  fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::ppW, flags, ppWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(SequenceFeatureTemplateUnigram::nnW, flags, nnWID);
+  fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::nnW, flags, nnWID);
   AddFeature(fkey, features);
   
   // Prefix/Suffix features.
   for (int l = 0; l < AID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(SequenceFeatureTemplateUnigram::A, flags, AID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(TaggerFeatureTemplateUnigram::A, flags, AID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < ZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(SequenceFeatureTemplateUnigram::Z, flags, ZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(TaggerFeatureTemplateUnigram::Z, flags, ZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
 
   // Several flags.
-  fkey = encoder_.CreateFKey_P(SequenceFeatureTemplateUnigram::FLAG, flags, flag_digit);
+  fkey = encoder_.CreateFKey_P(TaggerFeatureTemplateUnigram::FLAG, flags, flag_digit);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(SequenceFeatureTemplateUnigram::FLAG, flags, flag_upper);
+  fkey = encoder_.CreateFKey_P(TaggerFeatureTemplateUnigram::FLAG, flags, flag_upper);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(SequenceFeatureTemplateUnigram::FLAG, flags, flag_hyphen);
+  fkey = encoder_.CreateFKey_P(TaggerFeatureTemplateUnigram::FLAG, flags, flag_hyphen);
   AddFeature(fkey, features);
 }
 
-void SequenceFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
-                                         int position) {
+void TaggerFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
+                                       int position) {
   CHECK(!input_features_bigrams_[position]) << position << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
   input_features_bigrams_[position] = features;
 
   uint64_t fkey;
   uint8_t flags = 0x0;
-  flags |= SequenceFeatureTemplateParts::BIGRAM;
+  flags |= TaggerFeatureTemplateParts::BIGRAM;
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(SequenceFeatureTemplateBigram::BIAS, flags);
+  fkey = encoder_.CreateFKey_NONE(TaggerFeatureTemplateBigram::BIAS, flags);
   AddFeature(fkey, features);
 }
 
-void SequenceFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
-                                         int position) {
+void TaggerFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
+                                        int position) {
   CHECK(!input_features_trigrams_[position]) << position << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
   input_features_trigrams_[position] = features;
 
   uint64_t fkey;
   uint8_t flags = 0x0;
-  flags |= SequenceFeatureTemplateParts::TRIGRAM;
+  flags |= TaggerFeatureTemplateParts::TRIGRAM;
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(SequenceFeatureTemplateTrigram::BIAS, flags);
+  fkey = encoder_.CreateFKey_NONE(TaggerFeatureTemplateTrigram::BIAS, flags);
   AddFeature(fkey, features);
 }

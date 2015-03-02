@@ -31,6 +31,7 @@ const string kTokenStop = "_STOP_"; // Stop symbol.
 // Maximum alphabet sizes.
 const unsigned int kMaxFormAlphabetSize = 0xffff;
 const unsigned int kMaxLemmaAlphabetSize = 0xffff;
+const unsigned int kMaxShapeAlphabetSize = 0xffff;
 const unsigned int kMaxPosAlphabetSize = 0xff;
 const unsigned int kMaxCoarsePosAlphabetSize = 0xff;
 const unsigned int kMaxFeatsAlphabetSize = 0xfff; //0xffff;
@@ -57,20 +58,12 @@ void TokenDictionary::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_form_case_sensitive);
   CHECK(success);
   LOG(INFO) << "Setting --form_case_sensitive=" << FLAGS_form_case_sensitive;
-#if 0
-  success = ReadInteger(fs, &FLAGS_prefix_length);
-  CHECK(success);
-  LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
-  FLAGS_suffix_length = FLAGS_prefix_length;
-  LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
-#else
   success = ReadInteger(fs, &FLAGS_prefix_length);
   CHECK(success);
   LOG(INFO) << "Setting --prefix_length=" << FLAGS_prefix_length;
   success = ReadInteger(fs, &FLAGS_suffix_length);
   CHECK(success);
   LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
-#endif
 
   if (0 > form_alphabet_.Load(fs)) CHECK(false);
   if (0 > lemma_alphabet_.Load(fs)) CHECK(false);
@@ -104,18 +97,21 @@ void TokenDictionary::Save(FILE* fs) {
   if (0 > shape_alphabet_.Save(fs)) CHECK(false);
 }
 
-void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
+void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
   LOG(INFO) << "Creating token dictionary...";
 
   int form_cutoff = FLAGS_form_cutoff;
+  int shape_cutoff = 0;
   int prefix_length = FLAGS_prefix_length;
   int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
-  vector<int> form_freqs;
+  std::vector<int> form_freqs;
+  std::vector<int> shape_freqs;
   Alphabet form_alphabet;
+  Alphabet shape_alphabet;
 
-  string special_symbols[NUM_SPECIAL_TOKENS];
+  std::string special_symbols[NUM_SPECIAL_TOKENS];
   special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
   special_symbols[TOKEN_START] = kTokenStart;
   special_symbols[TOKEN_STOP] = kTokenStop;
@@ -124,9 +120,11 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
     prefix_alphabet_.Insert(special_symbols[i]);
     suffix_alphabet_.Insert(special_symbols[i]);
     form_alphabet.Insert(special_symbols[i]);
+    shape_alphabet.Insert(special_symbols[i]);
 
     // Counts of special symbols are set to -1:
     form_freqs.push_back(-1);
+    shape_freqs.push_back(-1);
   }
 
   // Go through the corpus and build the dictionaries,
@@ -140,7 +138,7 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
       int id;
 
       // Add form to alphabet.
-      string form = instance->GetForm(i);
+      std::string form = instance->GetForm(i);
       if (!form_case_sensitive) {
         transform(form.begin(), form.end(), form.begin(), ::tolower);
       }
@@ -152,12 +150,22 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
       ++form_freqs[id];
 
       // Add prefix/suffix to alphabet.
-      string prefix = form.substr(0, prefix_length);
+      std::string prefix = form.substr(0, prefix_length);
       id = prefix_alphabet_.Insert(prefix);
       int start = form.length() - suffix_length;
       if (start < 0) start = 0;
-      string suffix = form.substr(start, suffix_length);
+      std::string suffix = form.substr(start, suffix_length);
       id = suffix_alphabet_.Insert(suffix);
+
+      // Add shape to alphabet.
+      std::string shape;
+      GetWordShape(instance->GetForm(i), &shape);
+      id = shape_alphabet.Insert(shape);
+      if (id >= shape_freqs.size()) {
+        CHECK_EQ(id, shape_freqs.size());
+        shape_freqs.push_back(0);
+      }
+      ++shape_freqs[id];
     }
     delete instance;
     instance = static_cast<SequenceInstance*>(reader->GetNext());
@@ -182,7 +190,25 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
     LOG(INFO) << "Incrementing form cutoff to " << form_cutoff << "...";
   }
 
+  while (true) {
+    shape_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      shape_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = shape_alphabet.begin();
+         iter != shape_alphabet.end();
+         ++iter) {
+      if (shape_freqs[iter->second] > shape_cutoff) {
+        shape_alphabet_.Insert(iter->first);
+      }
+    }
+    if (shape_alphabet_.size() < kMaxShapeAlphabetSize) break;
+    ++shape_cutoff;
+    LOG(INFO) << "Incrementing shape cutoff to " << shape_cutoff << "...";
+  }
+
   form_alphabet_.StopGrowth();
+  shape_alphabet_.StopGrowth();
   lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
   suffix_alphabet_.StopGrowth();
@@ -191,12 +217,15 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
   cpos_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
-            << "Number of prefixes: " 
+            << "Number of prefixes: "
             << prefix_alphabet_.size() << endl
-            << "Number of suffixes: " 
-            << suffix_alphabet_.size();
+            << "Number of suffixes: "
+            << suffix_alphabet_.size() << endl
+            << "Number of word shapes: "
+            << shape_alphabet_.size();
 
   CHECK_LT(form_alphabet_.size(), 0xffff);
+  CHECK_LT(shape_alphabet_.size(), 0xffff);
   CHECK_LT(lemma_alphabet_.size(), 0xffff);
   CHECK_LT(prefix_alphabet_.size(), 0xffff);
   CHECK_LT(suffix_alphabet_.size(), 0xffff);
@@ -205,7 +234,7 @@ void TokenDictionary::InitializeFromReader(SequenceReader *reader) {
   CHECK_LT(cpos_alphabet_.size(), 0xff);
 }
 
-void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
+void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   LOG(INFO) << "Creating token dictionary...";
 
   int form_cutoff = FLAGS_form_cutoff;
@@ -433,4 +462,211 @@ void TokenDictionary::InitializeFromReader(DependencyReader *reader) {
 
   // TODO: Remove this (only for debugging purposes).
   BuildNames();
+}
+
+void TokenDictionary::InitializeFromEntityReader(EntityReader *reader) {
+  InitializeFromSequenceReader(reader);
+
+  int pos_cutoff = FLAGS_pos_cutoff;
+  std::vector<int> pos_freqs;
+  Alphabet pos_alphabet;
+
+  std::string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
+  special_symbols[TOKEN_START] = kTokenStart;
+  special_symbols[TOKEN_STOP] = kTokenStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    pos_alphabet.Insert(special_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    pos_freqs.push_back(-1);
+  }
+
+  // Go through the corpus and build the dictionaries,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  EntityInstance *instance =
+    static_cast<EntityInstance*>(reader->GetNext());
+  while (instance != NULL) {
+    int instance_length = instance->size();
+    for (int i = 0; i < instance_length; ++i) {
+      int id;
+      // Add POS to alphabet.
+      id = pos_alphabet.Insert(instance->GetPosTag(i));
+      if (id >= pos_freqs.size()) {
+        CHECK_EQ(id, pos_freqs.size());
+        pos_freqs.push_back(0);
+      }
+      ++pos_freqs[id];
+    }
+    delete instance;
+    instance = static_cast<EntityInstance*>(reader->GetNext());
+  }
+  reader->Close();
+
+  // Now adjust the cutoffs if necessary.
+  while (true) {
+    pos_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      pos_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = pos_alphabet.begin();
+         iter != pos_alphabet.end();
+         ++iter) {
+      if (pos_freqs[iter->second] > pos_cutoff) {
+        pos_alphabet_.Insert(iter->first);
+      }
+    }
+    if (pos_alphabet_.size() < kMaxPosAlphabetSize) break;
+    ++pos_cutoff;
+    LOG(INFO) << "Incrementing POS cutoff to " << pos_cutoff << "...";
+  }
+
+  form_alphabet_.StopGrowth();
+  lemma_alphabet_.StopGrowth();
+  prefix_alphabet_.StopGrowth();
+  suffix_alphabet_.StopGrowth();
+  feats_alphabet_.StopGrowth();
+  pos_alphabet_.StopGrowth();
+  cpos_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of pos: " << pos_alphabet_.size();
+  CHECK_LT(pos_alphabet_.size(), 0xff);
+
+
+#if 0
+  LOG(INFO) << "Creating token dictionary...";
+
+  int form_cutoff = FLAGS_form_cutoff;
+  int pos_cutoff = FLAGS_pos_cutoff;
+  int prefix_length = FLAGS_prefix_length;
+  int suffix_length = FLAGS_suffix_length;
+  bool form_case_sensitive = FLAGS_form_case_sensitive;
+
+  vector<int> form_freqs;
+  vector<int> pos_freqs;
+
+  Alphabet form_alphabet;
+  Alphabet pos_alphabet;
+
+  string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
+  special_symbols[TOKEN_START] = kTokenStart;
+  special_symbols[TOKEN_STOP] = kTokenStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    prefix_alphabet_.Insert(special_symbols[i]);
+    suffix_alphabet_.Insert(special_symbols[i]);
+    form_alphabet.Insert(special_symbols[i]);
+    pos_alphabet.Insert(special_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    form_freqs.push_back(-1);
+    pos_freqs.push_back(-1);
+  }
+
+  // Go through the corpus and build the dictionaries,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  EntityInstance *instance =
+    static_cast<EntityInstance*>(reader->GetNext());
+  while (instance != NULL) {
+    int instance_length = instance->size();
+    for (int i = 0; i < instance_length; ++i) {
+      int id;
+
+      // Add form to alphabet.
+      string form = instance->GetForm(i);
+      if (!form_case_sensitive) {
+        transform(form.begin(), form.end(), form.begin(), ::tolower);
+      }
+      id = form_alphabet.Insert(form);
+      if (id >= form_freqs.size()) {
+        CHECK_EQ(id, form_freqs.size());
+        form_freqs.push_back(0);
+      }
+      ++form_freqs[id];
+
+      // Add prefix/suffix to alphabet.
+      // TODO: add varying lengths.
+      string prefix = form.substr(0, prefix_length);
+      id = prefix_alphabet_.Insert(prefix);
+      int start = form.length() - suffix_length;
+      if (start < 0) start = 0;
+      string suffix = form.substr(start, suffix_length);
+      id = suffix_alphabet_.Insert(suffix);
+
+      // Add POS to alphabet.
+      id = pos_alphabet.Insert(instance->GetPosTag(i));
+      if (id >= pos_freqs.size()) {
+        CHECK_EQ(id, pos_freqs.size());
+        pos_freqs.push_back(0);
+      }
+      ++pos_freqs[id];
+    }
+    delete instance;
+    instance = static_cast<EntityInstance*>(reader->GetNext());
+  }
+  reader->Close();
+
+  // Now adjust the cutoffs if necessary.
+  while (true) {
+    form_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      form_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = form_alphabet.begin();
+         iter != form_alphabet.end();
+         ++iter) {
+      if (form_freqs[iter->second] > form_cutoff) {
+        form_alphabet_.Insert(iter->first);
+      }
+    }
+    if (form_alphabet_.size() < kMaxFormAlphabetSize) break;
+    ++form_cutoff;
+    LOG(INFO) << "Incrementing form cutoff to " << form_cutoff << "...";
+  }
+
+  while (true) {
+    pos_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      pos_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = pos_alphabet.begin();
+         iter != pos_alphabet.end(); 
+         ++iter) {
+      if (pos_freqs[iter->second] > pos_cutoff) {
+        pos_alphabet_.Insert(iter->first);
+      }
+    }
+    if (pos_alphabet_.size() < kMaxPosAlphabetSize) break;
+    ++pos_cutoff;
+    LOG(INFO) << "Incrementing POS cutoff to " << pos_cutoff << "...";
+  }
+
+  form_alphabet_.StopGrowth();
+  lemma_alphabet_.StopGrowth();
+  prefix_alphabet_.StopGrowth();
+  suffix_alphabet_.StopGrowth();
+  feats_alphabet_.StopGrowth();
+  pos_alphabet_.StopGrowth();
+  cpos_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
+            << "Number of prefixes: " << prefix_alphabet_.size() << endl
+            << "Number of suffixes: " << suffix_alphabet_.size() << endl
+            << "Number of pos: " << pos_alphabet_.size();
+
+  CHECK_LT(form_alphabet_.size(), 0xffff);
+  CHECK_LT(lemma_alphabet_.size(), 0xffff);
+  CHECK_LT(prefix_alphabet_.size(), 0xffff);
+  CHECK_LT(suffix_alphabet_.size(), 0xffff);
+  CHECK_LT(feats_alphabet_.size(), 0xffff);
+  CHECK_LT(pos_alphabet_.size(), 0xff);
+  CHECK_LT(cpos_alphabet_.size(), 0xff);
+
+  // TODO: Remove this (only for debugging purposes).
+  BuildNames();
+#endif
 }

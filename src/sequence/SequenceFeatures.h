@@ -21,7 +21,6 @@
 
 #include "Features.h"
 #include "SequenceInstanceNumeric.h"
-#include "FeatureEncoder.h"
 
 class SequenceOptions;
 
@@ -93,18 +92,28 @@ class SequenceFeatures: public Features {
   };
 
  public:
-  void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
-                          int position);
+  virtual void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
+                          int position) {
+    // Add an empty feature vector.
+    CHECK(!input_features_unigrams_[position]);
+    BinaryFeatures *features = new BinaryFeatures;
+    input_features_unigrams_[position] = features;
+  }
 
-  void AddBigramFeatures(SequenceInstanceNumeric *sentence,
-                          int position);
+  virtual void AddBigramFeatures(SequenceInstanceNumeric *sentence,
+                         int position) {
+    // Add an empty feature vector.
+    CHECK(!input_features_bigrams_[position]);
+    BinaryFeatures *features = new BinaryFeatures;
+    input_features_bigrams_[position] = features;
+  }
 
-  void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
-                          int position);
-
- protected:
-  void AddFeature(uint64_t fkey, BinaryFeatures* features) {
-    features->push_back(fkey);
+  virtual void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
+                          int position) {
+    // Add an empty feature vector.
+    CHECK(!input_features_trigrams_[position]);
+    BinaryFeatures *features = new BinaryFeatures;
+    input_features_trigrams_[position] = features;
   }
 
  protected:
@@ -112,7 +121,6 @@ class SequenceFeatures: public Features {
   vector<BinaryFeatures*> input_features_unigrams_;
   vector<BinaryFeatures*> input_features_bigrams_;
   vector<BinaryFeatures*> input_features_trigrams_;
-  FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 
 #endif /* SEQUENCEFEATURES_H_ */

@@ -23,6 +23,7 @@
 #include "Alphabet.h"
 #include "SequenceReader.h"
 #include "DependencyReader.h"
+#include "EntityReader.h"
 
 DECLARE_int32(prefix_length);
 DECLARE_int32(suffix_length);
@@ -82,27 +83,81 @@ class TokenDictionary : public Dictionary {
   int GetNumForms() const { return form_alphabet_.size(); }
   int GetNumLemmas() const { return lemma_alphabet_.size(); }
 
-  int GetFormId(const string &form) const { return form_alphabet_.Lookup(form); };
-  int GetLemmaId(const string &lemma) const { return lemma_alphabet_.Lookup(lemma); };
-  int GetPrefixId(const string &prefix) const { return prefix_alphabet_.Lookup(prefix); };
-  int GetSuffixId(const string &suffix) const { return suffix_alphabet_.Lookup(suffix); };
-  int GetPosTagId(const string &pos) const { return pos_alphabet_.Lookup(pos); };
-  int GetCoarsePosTagId(const string &cpos) const { return cpos_alphabet_.Lookup(cpos); };
-  int GetMorphFeatureId(const string &feats) const { return feats_alphabet_.Lookup(feats); };
-  int GetShapeId(const string &shape) const { return shape_alphabet_.Lookup(shape); };
-
-  int GetNumFeatures() {
-    CHECK(false) << "There is no notion of number of features in TokenDictionary.";
+  int GetFormId(const std::string &form) const {
+    return form_alphabet_.Lookup(form);
+  }
+  int GetLemmaId(const std::string &lemma) const {
+    return lemma_alphabet_.Lookup(lemma);
+  }
+  int GetPrefixId(const std::string &prefix) const {
+    return prefix_alphabet_.Lookup(prefix);
+  }
+  int GetSuffixId(const std::string &suffix) const {
+    return suffix_alphabet_.Lookup(suffix);
+  }
+  int GetPosTagId(const std::string &pos) const {
+    return pos_alphabet_.Lookup(pos);
+  }
+  int GetCoarsePosTagId(const std::string &cpos) const {
+    return cpos_alphabet_.Lookup(cpos);
+  }
+  int GetMorphFeatureId(const std::string &feats) const {
+    return feats_alphabet_.Lookup(feats);
+  }
+  int GetShapeId(const std::string &shape) const {
+    return shape_alphabet_.Lookup(shape);
   }
 
-  void InitializeFromReader(SequenceReader *reader);
-  void InitializeFromReader(DependencyReader *reader);
+  int GetNumFeatures() {
+    CHECK(false) <<
+      "There is no notion of number of features in TokenDictionary.";
+  }
+
+  void InitializeFromSequenceReader(SequenceReader *reader);
+  void InitializeFromDependencyReader(DependencyReader *reader);
+  void InitializeFromEntityReader(EntityReader *reader);
 
   void BuildNames() {
     pos_alphabet_.BuildNames();
   }
 
   const string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
+
+  void GetWordShape(const std::string &word, std::string *shape) {
+    string type = "";
+    char last = '\0';
+    for (int i = 0; i < word.size(); ++i) {
+      if (word[i] >= 'A' && word[i] <= 'Z') {
+        if (last != 'A') {
+          type += 'A';
+          last = 'A';
+        } else if (type[type.size()-1] != '+') {
+          type += '+';
+        }
+      }
+      else if (word[i] >= 'a' && word[i] <= 'z') {
+        if (last != 'a') {
+          type += 'a';
+          last = 'a';
+        } else if (type[type.size()-1] != '+') {
+          type += '+';
+        }
+      }
+      else if (word[i] >= '0' && word[i] <= '9') {
+        if (last != '0') {
+          type += '0';
+          last = '0';
+        } else if (type[type.size()-1] != '+') {
+          type += '+';
+          last = '0';
+        }
+      } else {
+        type += word[i];
+        last = '\0';
+      }
+    }
+    *shape = type;
+  }
 
  private:
   Pipe *pipe_;
@@ -113,7 +168,7 @@ class TokenDictionary : public Dictionary {
   Alphabet feats_alphabet_;
   Alphabet pos_alphabet_;
   Alphabet cpos_alphabet_;
-  Alphabet shape_alphabet_; // For this, we need to look at all the parts...
+  Alphabet shape_alphabet_;
 };
 
 #endif /* TOKENDICTIONARY_H_ */

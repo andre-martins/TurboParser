@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "SequencePipe.h"
+#include "TaggerPipe.h"
+#include "EntityPipe.h"
 #include "DependencyPipe.h"
 #include "SemanticPipe.h"
 
@@ -17,8 +18,23 @@ class TurboTaggerWorker {
            const std::string &file_prediction);
 
  private:
-  SequenceOptions *tagger_options_;
-  SequencePipe *tagger_pipe_;
+  TaggerOptions *tagger_options_;
+  TaggerPipe *tagger_pipe_;
+};
+
+class TurboEntityRecognizerWorker {
+ public:
+  TurboEntityRecognizerWorker();
+  virtual ~TurboEntityRecognizerWorker();
+
+  void LoadEntityRecognizerModel(const std::string &file_model);
+
+  void Tag(const std::string &file_test,
+           const std::string &file_prediction);
+
+ private:
+  EntityOptions *entity_options_;
+  EntityPipe *entity_pipe_;
 };
 
 class TurboParserWorker {
@@ -77,6 +93,13 @@ class TurboParserInterface {
     return tagger;
   }
 
+  TurboEntityRecognizerWorker *CreateEntityRecognizer() {
+    TurboEntityRecognizerWorker *entity_recognizer =
+      new TurboEntityRecognizerWorker();
+    entity_recognizers_.push_back(entity_recognizer);
+    return entity_recognizer;
+  }
+
   TurboParserWorker *CreateParser() {
     TurboParserWorker *parser = new TurboParserWorker();
     parsers_.push_back(parser);
@@ -96,6 +119,13 @@ class TurboParserInterface {
     taggers_.clear();
   }
 
+  void DeleteAllEntityRecognizers() {
+    for (int i = 0; i < entity_recognizers_.size(); ++i) {
+      delete entity_recognizers_[i];
+    }
+    entity_recognizers_.clear();
+  }
+
   void DeleteAllParsers() {
     for (int i = 0; i < parsers_.size(); ++i) {
       delete parsers_[i];
@@ -113,9 +143,10 @@ class TurboParserInterface {
  private:
   int argc_;
   char** argv_;
-  vector<TurboTaggerWorker*> taggers_;
-  vector<TurboParserWorker*> parsers_;
-  vector<TurboSemanticParserWorker*> semantic_parsers_;
+  std::vector<TurboTaggerWorker*> taggers_;
+  std::vector<TurboParserWorker*> parsers_;
+  std::vector<TurboSemanticParserWorker*> semantic_parsers_;
+  std::vector<TurboEntityRecognizerWorker*> entity_recognizers_;
 };
 
 } // namespace TurboParserInterface.

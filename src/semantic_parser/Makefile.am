@@ -1,6 +1,7 @@
 UTIL = ../util
 CLASSIFIER = ../classifier
-TAGGER = ../tagger
+SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 PARSER = ../parser
 
 TurboSemanticParserprgdir = ../..
@@ -30,7 +31,7 @@ $(PARSER)/DependencyInstance.cpp \
 $(PARSER)/DependencyInstance.h \
 $(PARSER)/DependencyReader.cpp \
 $(PARSER)/DependencyReader.h \
-$(TAGGER)/TokenDictionary.cpp $(TAGGER)/TokenDictionary.h \
+$(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \
@@ -45,6 +46,6 @@ $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(TAGGER) -I$(PARSER) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) -I$(PARSER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 

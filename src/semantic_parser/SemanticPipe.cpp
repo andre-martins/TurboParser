@@ -84,7 +84,7 @@ void SemanticPipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<SemanticDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromReader(GetSemanticReader());
+  token_dictionary_->InitializeFromDependencyReader(GetSemanticReader());
   delete dependency_dictionary_;
   CreateDependencyDictionary();
   dependency_dictionary_->SetTokenDictionary(token_dictionary_);

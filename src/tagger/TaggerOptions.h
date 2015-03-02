@@ -16,21 +16,35 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEWRITER_H_
-#define SEQUENCEWRITER_H_
+#ifndef TAGGER_OPTIONS_H_
+#define TAGGER_OPTIONS_H_
 
-#include "Writer.h"
+#include "SequenceOptions.h"
 
-using namespace std;
+class TaggerOptions : public SequenceOptions {
+ public:
+  TaggerOptions() {};
+  virtual ~TaggerOptions() {};
 
-class SequenceWriter : public Writer {
-public:
-  SequenceWriter() {};
-  virtual ~SequenceWriter() {};
+  // Serialization functions.
+  void Load(FILE* fs);
+  void Save(FILE* fs);
 
-public:
-  void Write(Instance *instance);
+  // Initialization: set options based on the flags.
+  void Initialize();
+
+  // Get option flags.
+  bool prune_tags() { return prune_tags_; }
+  bool large_feature_set() { return large_feature_set_; }
+  const string &GetUnknownWordTagsFilePath() {
+    return file_unknown_word_tags_;
+  }
+
+ protected:
+  bool prune_tags_;
+  string file_format_;
+  bool large_feature_set_;
+  string file_unknown_word_tags_;
 };
 
-#endif /* SEQUENCEWRITER_H_ */
-
+#endif // TAGGER_OPTIONS_H_

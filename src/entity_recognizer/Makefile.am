@@ -1,15 +1,19 @@
 UTIL = ../util
 CLASSIFIER = ../classifier
 SEQUENCE = ../sequence
-ENTITY_RECOGNIZER = ../entity_recognizer
 PARSER = ../parser
 
-TurboTaggerprgdir = ../..
-TurboTaggerprg_PROGRAMS = TurboTagger
-TurboTagger_SOURCES = TaggerFeatures.cpp TaggerFeatures.h \
-TaggerFeatureTemplates.h TaggerOptions.cpp TaggerOptions.h \
-TaggerDictionary.cpp TaggerDictionary.h \
-TaggerPipe.cpp TaggerPipe.h \
+TurboEntityRecognizerprgdir = ../..
+TurboEntityRecognizerprg_PROGRAMS = TurboEntityRecognizer
+TurboEntityRecognizer_SOURCES = EntityFeatures.cpp EntityFeatures.h \
+EntityFeatureTemplates.h EntityOptions.cpp EntityOptions.h \
+EntityDictionary.cpp EntityDictionary.h \
+EntityInstance.cpp EntityInstance.h \
+EntityInstanceNumeric.cpp EntityInstanceNumeric.h \
+EntityReader.cpp EntityReader.h \
+EntityWriter.cpp EntityWriter.h \
+EntitySpan.h \
+EntityPipe.cpp EntityPipe.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp \
 $(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequenceWriter.cpp \
 $(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequenceFeatures.h \
@@ -34,8 +38,8 @@ $(UTIL)/AlgUtils.cpp $(UTIL)/logval.h $(UTIL)/SerializationUtils.h \
 $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h \
-TurboTagger.cpp
+TurboEntityRecognizer.cpp
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) -I$(PARSER) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(PARSER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 

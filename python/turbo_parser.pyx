@@ -12,6 +12,11 @@ cdef extern from "../libturboparser/TurboParserInterface.h" namespace "TurboPars
         void LoadTaggerModel(string file_model)
         void Tag(string file_test, string file_prediction)
 
+    cdef cppclass TurboEntityRecognizerWorker:
+        TurboEntityRecognizerWorker()
+        void LoadEntityRecognizerModel(string file_model)
+        void Tag(string file_test, string file_prediction)
+
     cdef cppclass TurboParserWorker:
         TurboParserWorker()
         void LoadParserModel(string file_model)
@@ -25,6 +30,7 @@ cdef extern from "../libturboparser/TurboParserInterface.h" namespace "TurboPars
     cdef cppclass TurboParserInterface:
         TurboParserInterface()
         TurboTaggerWorker* CreateTagger()
+        TurboEntityRecognizerWorker* CreateEntityRecognizer()
         TurboParserWorker* CreateParser()
         TurboSemanticParserWorker* CreateSemanticParser()
 
@@ -47,6 +53,11 @@ cdef class PTurboParser:
         tagger = PTurboTaggerWorker(allocate=False)
         tagger.thisptr = self.thisptr.CreateTagger()
         return tagger
+
+    def create_entity_recognizer(self):
+        entity_recognizer = PTurboEntityRecognizerWorker(allocate=False)
+        entity_recognizer.thisptr = self.thisptr.CreateEntityRecognizer()
+        return entity_recognizer
 
     def create_parser(self):
         parser = PTurboParserWorker(allocate=False)
@@ -72,6 +83,24 @@ cdef class PTurboTaggerWorker:
 
     def load_tagger_model(self, file_model):
         self.thisptr.LoadTaggerModel(file_model)
+
+    def tag(self, file_test, file_prediction):
+        self.thisptr.Tag(file_test, file_prediction)
+
+cdef class PTurboEntityRecognizerWorker:
+    cdef TurboEntityRecognizerWorker *thisptr
+    cdef bool allocate
+    def __cinit__(self, allocate=False):
+        self.allocate = allocate
+        if allocate:
+            self.thisptr = new TurboEntityRecognizerWorker()
+
+    def __dealloc__(self):
+        if self.allocate:
+          del self.thisptr
+
+    def load_entity_recognizer_model(self, file_model):
+        self.thisptr.LoadEntityRecognizerModel(file_model)
 
     def tag(self, file_test, file_prediction):
         self.thisptr.Tag(file_test, file_prediction)

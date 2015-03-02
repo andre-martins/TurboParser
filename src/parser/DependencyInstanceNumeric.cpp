@@ -43,7 +43,7 @@ void DependencyInstanceNumeric::Initialize(
   feats_ids_.resize(length);
   pos_ids_.resize(length);
   cpos_ids_.resize(length);
-  shapes_.resize(length);
+  //shapes_.resize(length);
   is_noun_.resize(length);
   is_verb_.resize(length);
   is_punc_.resize(length);
@@ -98,7 +98,7 @@ void DependencyInstanceNumeric::Initialize(
       feats_ids_[i][j] = id;
     }
 
-    GetWordShape(instance->GetForm(i), &shapes_[i]);
+    //GetWordShape(instance->GetForm(i), &shapes_[i]);
 
     // Check whether the word is a noun, verb, punctuation or coordination.
     // Note: this depends on the POS tag string.

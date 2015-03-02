@@ -16,37 +16,34 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEINSTANCE_H_
-#define SEQUENCEINSTANCE_H_
+#ifndef ENTITYFEATURES_H_
+#define ENTITYFEATURES_H_
 
-#include <string>
-#include <vector>
-#include "Instance.h"
+#include "SequenceFeatures.h"
+#include "FeatureEncoder.h"
 
-class SequenceInstance : public Instance {
+class EntityFeatures: public SequenceFeatures {
  public:
-  SequenceInstance() {}
-  virtual ~SequenceInstance() {}
+  EntityFeatures(Pipe* pipe) : SequenceFeatures(pipe) {}
+  virtual ~EntityFeatures() {};
 
-  Instance* Copy() {
-    SequenceInstance* instance = new SequenceInstance();
-    instance->Initialize(forms_, tags_);
-    return static_cast<Instance*>(instance);
-  }
+ public:
+  void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
+                          int position);
 
-  void Initialize(const vector<string> &forms,
-                  const vector<string> &tags);
+  void AddBigramFeatures(SequenceInstanceNumeric *sentence,
+                          int position);
 
-  int size() { return forms_.size(); };
-
-  const string &GetForm(int i) { return forms_[i]; }
-  const string &GetTag(int i) { return tags_[i]; }
-
-  void SetTag(int i, const string &tag) { tags_[i] = tag; }
+  void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
+                          int position);
 
  protected:
-  vector<string> forms_;
-  vector<string> tags_;
+  void AddFeature(uint64_t fkey, BinaryFeatures* features) {
+    features->push_back(fkey);
+  }
+
+ protected:
+  FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 
-#endif /* SEQUENCEINSTANCE_H_*/
+#endif /* ENTITYFEATURES_H_ */

@@ -274,7 +274,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 UTIL = ../util
 CLASSIFIER = ../classifier
-TAGGER = ../tagger
+SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 PARSER = ../parser
 TurboSemanticParserprgdir = ../..
 TurboSemanticParser_SOURCES = SemanticDecoder.cpp SemanticFeatures.h \
@@ -302,7 +303,7 @@ $(PARSER)/DependencyInstance.cpp \
 $(PARSER)/DependencyInstance.h \
 $(PARSER)/DependencyReader.cpp \
 $(PARSER)/DependencyReader.h \
-$(TAGGER)/TokenDictionary.cpp $(TAGGER)/TokenDictionary.h \
+$(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \
@@ -317,7 +318,7 @@ $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
 $(UTIL)/Utils.h
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(TAGGER) -I$(PARSER) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) -I$(PARSER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 all: all-am
 
@@ -519,19 +520,19 @@ DependencyReader.obj: $(PARSER)/DependencyReader.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o DependencyReader.obj `if test -f '$(PARSER)/DependencyReader.cpp'; then $(CYGPATH_W) '$(PARSER)/DependencyReader.cpp'; else $(CYGPATH_W) '$(srcdir)/$(PARSER)/DependencyReader.cpp'; fi`
 
-TokenDictionary.o: $(TAGGER)/TokenDictionary.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.o -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.o `test -f '$(TAGGER)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(TAGGER)/TokenDictionary.cpp
+TokenDictionary.o: $(SEQUENCE)/TokenDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.o -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.o `test -f '$(SEQUENCE)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/TokenDictionary.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TokenDictionary.Tpo $(DEPDIR)/TokenDictionary.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(TAGGER)/TokenDictionary.cpp' object='TokenDictionary.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/TokenDictionary.cpp' object='TokenDictionary.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.o `test -f '$(TAGGER)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(TAGGER)/TokenDictionary.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.o `test -f '$(SEQUENCE)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/TokenDictionary.cpp
 
-TokenDictionary.obj: $(TAGGER)/TokenDictionary.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.obj -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.obj `if test -f '$(TAGGER)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(TAGGER)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(TAGGER)/TokenDictionary.cpp'; fi`
+TokenDictionary.obj: $(SEQUENCE)/TokenDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.obj -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.obj `if test -f '$(SEQUENCE)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/TokenDictionary.cpp'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TokenDictionary.Tpo $(DEPDIR)/TokenDictionary.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(TAGGER)/TokenDictionary.cpp' object='TokenDictionary.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/TokenDictionary.cpp' object='TokenDictionary.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.obj `if test -f '$(TAGGER)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(TAGGER)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(TAGGER)/TokenDictionary.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.obj `if test -f '$(SEQUENCE)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/TokenDictionary.cpp'; fi`
 
 Alphabet.o: $(CLASSIFIER)/Alphabet.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Alphabet.o -MD -MP -MF $(DEPDIR)/Alphabet.Tpo -c -o Alphabet.o `test -f '$(CLASSIFIER)/Alphabet.cpp' || echo '$(srcdir)/'`$(CLASSIFIER)/Alphabet.cpp

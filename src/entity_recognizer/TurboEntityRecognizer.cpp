@@ -8,13 +8,12 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "Utils.h"
-#include "TaggerPipe.h"
-//#include "StringUtils.h"
+#include "EntityPipe.h"
 
 using namespace std;
 
-void TrainTagger();
-void TestTagger();
+void TrainEntityRecognizer();
+void TestEntityRecognizer();
 
 int main(int argc, char** argv) {
   // Initialize Google's logging library.
@@ -27,26 +26,25 @@ int main(int argc, char** argv) {
   google::LogToStderr();
 #endif
   if (FLAGS_train) {
-    LOG(INFO) << "Training tagger..." << endl;
-    TrainTagger();
+    LOG(INFO) << "Training entity recognizer..." << endl;
+    TrainEntityRecognizer();
   } else if (FLAGS_test) {
-    LOG(INFO) << "Running tagger..." << endl;
-    TestTagger();
+    LOG(INFO) << "Running entity recognizer..." << endl;
+    TestEntityRecognizer();
   }
-
 
   return 0;
 }
 
-void TrainTagger() {
+void TrainEntityRecognizer() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  TaggerOptions *options = new TaggerOptions;
+  EntityOptions *options = new EntityOptions;
   options->Initialize();
 
-  TaggerPipe *pipe = new TaggerPipe(options);
+  EntityPipe *pipe = new EntityPipe(options);
   pipe->Initialize();
   pipe->Train();
   pipe->SaveModelFile();
@@ -54,22 +52,22 @@ void TrainTagger() {
   gettimeofday(&end, NULL);
   time = diff_ms(end,start);
 
-  LOG(INFO) << "Training took " << static_cast<double>(time)/1000.0 
+  LOG(INFO) << "Training took " << static_cast<double>(time)/1000.0
             << " sec." << endl;
 
   delete pipe;
   delete options;
 }
 
-void TestTagger() {
+void TestEntityRecognizer() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  TaggerOptions *options = new TaggerOptions;
+  EntityOptions *options = new EntityOptions;
   options->Initialize();
 
-  TaggerPipe *pipe = new TaggerPipe(options);
+  EntityPipe *pipe = new EntityPipe(options);
   pipe->Initialize();
   pipe->LoadModelFile();
   pipe->Run();

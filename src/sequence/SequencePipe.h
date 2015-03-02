@@ -46,23 +46,23 @@ class SequencePipe : public Pipe {
   };
 
  protected:
-  void CreateDictionary() {
+  virtual void CreateDictionary() {
     dictionary_ = new SequenceDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
   }
-  void CreateReader() { reader_ = new SequenceReader; }
-  void CreateWriter() { writer_ = new SequenceWriter; }
+  virtual void CreateReader() { reader_ = new SequenceReader; }
+  virtual void CreateWriter() { writer_ = new SequenceWriter; }
   void CreateDecoder() { decoder_ = new SequenceDecoder(this); };
   Parts *CreateParts() { return new SequenceParts; };
-  Features *CreateFeatures() { return new SequenceFeatures(this); };
+  virtual Features *CreateFeatures() { return new SequenceFeatures(this); };
 
   void CreateTokenDictionary() {
     token_dictionary_ = new TokenDictionary(this);
   };
 
-  void PreprocessData();
+  virtual void PreprocessData();
 
-  Instance *GetFormattedInstance(Instance *instance) {
+  virtual Instance *GetFormattedInstance(Instance *instance) {
     SequenceInstanceNumeric *instance_numeric =
           new SequenceInstanceNumeric;
     instance_numeric->Initialize(*GetSequenceDictionary(),
@@ -71,8 +71,16 @@ class SequencePipe : public Pipe {
   }
 
  protected:
-  void SaveModel(FILE* fs);
-  void LoadModel(FILE* fs);
+  virtual void SaveModel(FILE* fs);
+  virtual void LoadModel(FILE* fs);
+
+  // Return the allowed tags for the i-th word. An empty vector means that all
+  // tags are allowed.
+  virtual void GetAllowedTags(Instance *instance, int i,
+                              vector<int> *allowed_tags) {
+    // By default, allow all tags.
+    allowed_tags->clear();
+  }
 
   void MakeParts(Instance *instance, Parts *parts,
                  vector<double> *gold_outputs);

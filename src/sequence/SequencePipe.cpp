@@ -35,11 +35,11 @@ void SequencePipe::SaveModel(FILE* fs) {
 
 void SequencePipe::LoadModel(FILE* fs) {
   delete token_dictionary_;
-  CreateTokenDictionary();  
+  CreateTokenDictionary();
   token_dictionary_->Load(fs);
   Pipe::LoadModel(fs);
   static_cast<SequenceDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);  
+    SetTokenDictionary(token_dictionary_);
 }
 
 void SequencePipe::PreprocessData() {
@@ -47,7 +47,7 @@ void SequencePipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<SequenceDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromReader(GetSequenceReader());
+  token_dictionary_->InitializeFromSequenceReader(GetSequenceReader());
   static_cast<SequenceDictionary*>(dictionary_)->
     CreateTagDictionary(GetSequenceReader());
 }
@@ -283,7 +283,6 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
   SequenceOptions *sequence_options = GetSequenceOptions();
   int sentence_length = sentence->size();
   bool make_gold = (gold_outputs != NULL);
-  bool prune_tags = sequence_options->prune_tags();
   vector<int> all_tags;
   vector<int> allowed_tags;
 
@@ -295,14 +294,8 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
   int num_parts_initial = sequence_parts->size();
 
   for (int i = 0; i < sentence_length; ++i) {
-    if (prune_tags) {
-      int word_id = sentence->GetFormId(i);
-      allowed_tags = sequence_dictionary->GetWordTags(word_id);
-      // For unknown words, allow all the tags.
-      if (allowed_tags.empty()) {
-        allowed_tags = all_tags;
-      }
-    } else {
+    GetAllowedTags(instance, i, &allowed_tags);
+    if (allowed_tags.empty()) {
       allowed_tags = all_tags;
     }
 
@@ -310,6 +303,14 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
     CHECK_GE(allowed_tags.size(), 0);
     for (int k = 0; k < allowed_tags.size(); ++k) {
       int tag = allowed_tags[k];
+      // Don't create a inigram part if a start/stop bigram is not allowed.
+      if (i == 0 && !sequence_dictionary->IsAllowedBigram(-1, tag)) {
+        continue;
+      } else if (i == sentence_length - 1 &&
+                 !sequence_dictionary->IsAllowedBigram(tag, -1)) {
+        continue;
+      }
+
       Part *part = sequence_parts->CreatePartUnigram(i, tag);
       sequence_parts->push_back(part);
       if (make_gold) {
@@ -358,6 +359,11 @@ void SequencePipe::MakeBigramParts(Instance *instance,
       for (int k = 0; k < previous_parts.size(); ++k) {
         SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
                 (*sequence_parts)[previous_parts[k]]);
+        // Don't create a bigram part if this bigram is not allowed.
+        if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
+                                                      current_part->tag())) {
+          continue;
+        }
         Part *part = sequence_parts->CreatePartBigram(i,
                                                       current_part->tag(),
                                                       previous_part->tag());
@@ -412,6 +418,11 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
     for (int k = 0; k < initial_parts.size(); ++k) {
       SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
               (*sequence_parts)[initial_parts[k]]);
+      // Don't create a trigram part if this bigram is not allowed.
+      if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
+                                                    current_part->tag())) {
+        continue;
+      }
       Part *part = sequence_parts->CreatePartTrigram(1,
                                                      current_part->tag(),
                                                      previous_part->tag(), 
@@ -436,10 +447,21 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
       for (int k = 0; k < previous_parts.size(); ++k) {
         SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
                 (*sequence_parts)[previous_parts[k]]);
+        // Don't create a trigram part if this bigram is not allowed.
+        if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
+                                                      current_part->tag())) {
+          continue;
+        }
         for (int l = 0; l < before_previous_parts.size(); ++l) {
           SequencePartUnigram *before_previous_part =
               static_cast<SequencePartUnigram *>(
                   (*sequence_parts)[before_previous_parts[l]]);
+          // Don't create a trigram part if this bigram is not allowed.
+          if (!GetSequenceDictionary()->
+              IsAllowedBigram(before_previous_part->tag(),
+                              previous_part->tag())) {
+            continue;
+          }
           Part *part =
             sequence_parts->CreatePartTrigram(i,
                                              current_part->tag(),
@@ -460,7 +482,7 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
   // Final position.
   const vector<int> &final_parts =
       sequence_parts->FindUnigramParts(sentence_length - 1);
-  const vector<int> &before_final_parts = 
+  const vector<int> &before_final_parts =
       sequence_parts->FindUnigramParts(sentence_length - 2);
   for (int j = 0; j < final_parts.size(); ++j) {
     SequencePartUnigram *current_part = static_cast<SequencePartUnigram *>(
@@ -468,6 +490,11 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
     for (int k = 0; k < before_final_parts.size(); ++k) {
       SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
               (*sequence_parts)[before_final_parts[k]]);
+      // Don't create a trigram part if this bigram is not allowed.
+      if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
+                                                    current_part->tag())) {
+        continue;
+      }
       Part *part = sequence_parts->CreatePartTrigram(sentence_length,
                                                      -1, /* stop symbol */
                                                      current_part->tag(),

@@ -16,23 +16,40 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef SEQUENCEREADER_H_
-#define SEQUENCEREADER_H_
+#ifndef ENTITY_OPTIONS_H_
+#define ENTITY_OPTIONS_H_
 
-#include "SequenceInstance.h"
-#include "Reader.h"
-#include <fstream>
+#include "SequenceOptions.h"
 
-using namespace std;
-
-class SequenceReader : public Reader {
-public:
-  SequenceReader() {};
-  virtual ~SequenceReader() {};
-
-public:
-  Instance *GetNext();
+struct EntityTaggingSchemes {
+  enum {
+    IO = 0,
+    BIO,
+    BILOU
+  };
 };
 
-#endif /* SEQUENCEREADER_H_ */
+class EntityOptions : public SequenceOptions {
+ public:
+  EntityOptions() {};
+  virtual ~EntityOptions() {};
 
+  // Serialization functions.
+  void Load(FILE* fs);
+  void Save(FILE* fs);
+
+  // Initialization: set options based on the flags.
+  void Initialize();
+
+  // Get option flags.
+  int tagging_scheme() { return tagging_scheme_; }
+  const std::string &file_gazetteer() { return file_gazetteer_; }
+
+ protected:
+  std::string file_format_;
+  std::string tagging_scheme_name_;
+  std::string file_gazetteer_;
+  int tagging_scheme_;
+};
+
+#endif // ENTITY_OPTIONS_H_

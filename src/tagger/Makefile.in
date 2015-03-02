@@ -90,17 +90,18 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(TurboTaggerprgdir)"
 PROGRAMS = $(TurboTaggerprg_PROGRAMS)
-am_TurboTagger_OBJECTS = SequenceFeatures.$(OBJEXT) \
-	SequenceInstanceNumeric.$(OBJEXT) SequenceWriter.$(OBJEXT) \
-	SequenceDecoder.$(OBJEXT) SequencePipe.$(OBJEXT) \
-	SequenceOptions.$(OBJEXT) TokenDictionary.$(OBJEXT) \
-	SequenceDictionary.$(OBJEXT) SequenceInstance.$(OBJEXT) \
-	SequenceReader.$(OBJEXT) SequencePart.$(OBJEXT) \
-	TurboTagger.$(OBJEXT) Alphabet.$(OBJEXT) Dictionary.$(OBJEXT) \
+am_TurboTagger_OBJECTS = TaggerFeatures.$(OBJEXT) \
+	TaggerOptions.$(OBJEXT) TaggerDictionary.$(OBJEXT) \
+	TaggerPipe.$(OBJEXT) SequenceInstanceNumeric.$(OBJEXT) \
+	SequenceWriter.$(OBJEXT) SequenceDecoder.$(OBJEXT) \
+	SequencePipe.$(OBJEXT) SequenceOptions.$(OBJEXT) \
+	TokenDictionary.$(OBJEXT) SequenceDictionary.$(OBJEXT) \
+	SequenceInstance.$(OBJEXT) SequenceReader.$(OBJEXT) \
+	SequencePart.$(OBJEXT) Alphabet.$(OBJEXT) Dictionary.$(OBJEXT) \
 	Reader.$(OBJEXT) Parameters.$(OBJEXT) Pipe.$(OBJEXT) \
 	Writer.$(OBJEXT) Options.$(OBJEXT) AlgUtils.$(OBJEXT) \
 	SerializationUtils.$(OBJEXT) StringUtils.$(OBJEXT) \
-	TimeUtils.$(OBJEXT)
+	TimeUtils.$(OBJEXT) TurboTagger.$(OBJEXT)
 TurboTagger_OBJECTS = $(am_TurboTagger_OBJECTS)
 TurboTagger_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
@@ -271,15 +272,25 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 UTIL = ../util
 CLASSIFIER = ../classifier
+SEQUENCE = ../sequence
+ENTITY_RECOGNIZER = ../entity_recognizer
 PARSER = ../parser
 TurboTaggerprgdir = ../..
-TurboTagger_SOURCES = SequenceFeatures.cpp SequenceInstanceNumeric.cpp \
-SequencePart.h SequenceWriter.cpp SequenceDecoder.cpp SequenceFeatures.h \
-SequenceInstanceNumeric.h SequencePipe.cpp SequenceWriter.h SequenceDecoder.h \
-SequenceFeatureTemplates.h SequenceOptions.cpp SequencePipe.h \
-TokenDictionary.cpp SequenceDictionary.cpp SequenceInstance.cpp \
-SequenceOptions.h SequenceReader.cpp TokenDictionary.h SequenceDictionary.h \
-SequenceInstance.h SequencePart.cpp SequenceReader.h TurboTagger.cpp \
+TurboTagger_SOURCES = TaggerFeatures.cpp TaggerFeatures.h \
+TaggerFeatureTemplates.h TaggerOptions.cpp TaggerOptions.h \
+TaggerDictionary.cpp TaggerDictionary.h \
+TaggerPipe.cpp TaggerPipe.h \
+$(SEQUENCE)/SequenceInstanceNumeric.cpp \
+$(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequenceWriter.cpp \
+$(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequenceFeatures.h \
+$(SEQUENCE)/SequenceInstanceNumeric.h $(SEQUENCE)/SequencePipe.cpp \
+$(SEQUENCE)/SequenceWriter.h $(SEQUENCE)/SequenceDecoder.h \
+$(SEQUENCE)/SequenceOptions.cpp $(SEQUENCE)/SequencePipe.h \
+$(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/SequenceDictionary.cpp \
+$(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceOptions.h \
+$(SEQUENCE)/SequenceReader.cpp $(SEQUENCE)/SequenceDictionary.h \
+$(SEQUENCE)/SequenceInstance.h $(SEQUENCE)/SequencePart.cpp \
+$(SEQUENCE)/SequenceReader.h $(SEQUENCE)/TokenDictionary.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \
@@ -292,9 +303,10 @@ $(CLASSIFIER)/SparseLabeledParameterVector.h $(CLASSIFIER)/Writer.h \
 $(UTIL)/AlgUtils.cpp $(UTIL)/logval.h $(UTIL)/SerializationUtils.h \
 $(UTIL)/StringUtils.h $(UTIL)/TimeUtils.h $(UTIL)/AlgUtils.h \
 $(UTIL)/SerializationUtils.cpp $(UTIL)/StringUtils.cpp $(UTIL)/TimeUtils.cpp \
-$(UTIL)/Utils.h
+$(UTIL)/Utils.h \
+TurboTagger.cpp
 
-AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(PARSER) $(CPPFLAGS)
+AM_CPPFLAGS = -I$(UTIL) -I$(CLASSIFIER) -I$(SEQUENCE) -I$(ENTITY_RECOGNIZER) -I$(PARSER) $(CPPFLAGS)
 LDADD = $(LFLAGS)
 all: all-am
 
@@ -392,7 +404,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Reader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceDictionary.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceFeatures.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceInstance.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceInstanceNumeric.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceOptions.Po@am__quote@
@@ -402,6 +413,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SequenceWriter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SerializationUtils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StringUtils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TaggerDictionary.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TaggerFeatures.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TaggerOptions.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TaggerPipe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TimeUtils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TokenDictionary.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TurboTagger.Po@am__quote@
@@ -420,6 +435,146 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+SequenceInstanceNumeric.o: $(SEQUENCE)/SequenceInstanceNumeric.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceInstanceNumeric.o -MD -MP -MF $(DEPDIR)/SequenceInstanceNumeric.Tpo -c -o SequenceInstanceNumeric.o `test -f '$(SEQUENCE)/SequenceInstanceNumeric.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceInstanceNumeric.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceInstanceNumeric.Tpo $(DEPDIR)/SequenceInstanceNumeric.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceInstanceNumeric.cpp' object='SequenceInstanceNumeric.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceInstanceNumeric.o `test -f '$(SEQUENCE)/SequenceInstanceNumeric.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceInstanceNumeric.cpp
+
+SequenceInstanceNumeric.obj: $(SEQUENCE)/SequenceInstanceNumeric.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceInstanceNumeric.obj -MD -MP -MF $(DEPDIR)/SequenceInstanceNumeric.Tpo -c -o SequenceInstanceNumeric.obj `if test -f '$(SEQUENCE)/SequenceInstanceNumeric.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceInstanceNumeric.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceInstanceNumeric.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceInstanceNumeric.Tpo $(DEPDIR)/SequenceInstanceNumeric.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceInstanceNumeric.cpp' object='SequenceInstanceNumeric.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceInstanceNumeric.obj `if test -f '$(SEQUENCE)/SequenceInstanceNumeric.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceInstanceNumeric.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceInstanceNumeric.cpp'; fi`
+
+SequenceWriter.o: $(SEQUENCE)/SequenceWriter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceWriter.o -MD -MP -MF $(DEPDIR)/SequenceWriter.Tpo -c -o SequenceWriter.o `test -f '$(SEQUENCE)/SequenceWriter.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceWriter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceWriter.Tpo $(DEPDIR)/SequenceWriter.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceWriter.cpp' object='SequenceWriter.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceWriter.o `test -f '$(SEQUENCE)/SequenceWriter.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceWriter.cpp
+
+SequenceWriter.obj: $(SEQUENCE)/SequenceWriter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceWriter.obj -MD -MP -MF $(DEPDIR)/SequenceWriter.Tpo -c -o SequenceWriter.obj `if test -f '$(SEQUENCE)/SequenceWriter.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceWriter.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceWriter.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceWriter.Tpo $(DEPDIR)/SequenceWriter.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceWriter.cpp' object='SequenceWriter.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceWriter.obj `if test -f '$(SEQUENCE)/SequenceWriter.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceWriter.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceWriter.cpp'; fi`
+
+SequenceDecoder.o: $(SEQUENCE)/SequenceDecoder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceDecoder.o -MD -MP -MF $(DEPDIR)/SequenceDecoder.Tpo -c -o SequenceDecoder.o `test -f '$(SEQUENCE)/SequenceDecoder.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceDecoder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceDecoder.Tpo $(DEPDIR)/SequenceDecoder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceDecoder.cpp' object='SequenceDecoder.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceDecoder.o `test -f '$(SEQUENCE)/SequenceDecoder.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceDecoder.cpp
+
+SequenceDecoder.obj: $(SEQUENCE)/SequenceDecoder.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceDecoder.obj -MD -MP -MF $(DEPDIR)/SequenceDecoder.Tpo -c -o SequenceDecoder.obj `if test -f '$(SEQUENCE)/SequenceDecoder.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceDecoder.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceDecoder.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceDecoder.Tpo $(DEPDIR)/SequenceDecoder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceDecoder.cpp' object='SequenceDecoder.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceDecoder.obj `if test -f '$(SEQUENCE)/SequenceDecoder.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceDecoder.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceDecoder.cpp'; fi`
+
+SequencePipe.o: $(SEQUENCE)/SequencePipe.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequencePipe.o -MD -MP -MF $(DEPDIR)/SequencePipe.Tpo -c -o SequencePipe.o `test -f '$(SEQUENCE)/SequencePipe.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequencePipe.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequencePipe.Tpo $(DEPDIR)/SequencePipe.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequencePipe.cpp' object='SequencePipe.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequencePipe.o `test -f '$(SEQUENCE)/SequencePipe.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequencePipe.cpp
+
+SequencePipe.obj: $(SEQUENCE)/SequencePipe.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequencePipe.obj -MD -MP -MF $(DEPDIR)/SequencePipe.Tpo -c -o SequencePipe.obj `if test -f '$(SEQUENCE)/SequencePipe.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequencePipe.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequencePipe.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequencePipe.Tpo $(DEPDIR)/SequencePipe.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequencePipe.cpp' object='SequencePipe.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequencePipe.obj `if test -f '$(SEQUENCE)/SequencePipe.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequencePipe.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequencePipe.cpp'; fi`
+
+SequenceOptions.o: $(SEQUENCE)/SequenceOptions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceOptions.o -MD -MP -MF $(DEPDIR)/SequenceOptions.Tpo -c -o SequenceOptions.o `test -f '$(SEQUENCE)/SequenceOptions.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceOptions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceOptions.Tpo $(DEPDIR)/SequenceOptions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceOptions.cpp' object='SequenceOptions.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceOptions.o `test -f '$(SEQUENCE)/SequenceOptions.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceOptions.cpp
+
+SequenceOptions.obj: $(SEQUENCE)/SequenceOptions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceOptions.obj -MD -MP -MF $(DEPDIR)/SequenceOptions.Tpo -c -o SequenceOptions.obj `if test -f '$(SEQUENCE)/SequenceOptions.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceOptions.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceOptions.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceOptions.Tpo $(DEPDIR)/SequenceOptions.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceOptions.cpp' object='SequenceOptions.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceOptions.obj `if test -f '$(SEQUENCE)/SequenceOptions.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceOptions.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceOptions.cpp'; fi`
+
+TokenDictionary.o: $(SEQUENCE)/TokenDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.o -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.o `test -f '$(SEQUENCE)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/TokenDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TokenDictionary.Tpo $(DEPDIR)/TokenDictionary.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/TokenDictionary.cpp' object='TokenDictionary.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.o `test -f '$(SEQUENCE)/TokenDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/TokenDictionary.cpp
+
+TokenDictionary.obj: $(SEQUENCE)/TokenDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TokenDictionary.obj -MD -MP -MF $(DEPDIR)/TokenDictionary.Tpo -c -o TokenDictionary.obj `if test -f '$(SEQUENCE)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/TokenDictionary.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TokenDictionary.Tpo $(DEPDIR)/TokenDictionary.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/TokenDictionary.cpp' object='TokenDictionary.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TokenDictionary.obj `if test -f '$(SEQUENCE)/TokenDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/TokenDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/TokenDictionary.cpp'; fi`
+
+SequenceDictionary.o: $(SEQUENCE)/SequenceDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceDictionary.o -MD -MP -MF $(DEPDIR)/SequenceDictionary.Tpo -c -o SequenceDictionary.o `test -f '$(SEQUENCE)/SequenceDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceDictionary.Tpo $(DEPDIR)/SequenceDictionary.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceDictionary.cpp' object='SequenceDictionary.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceDictionary.o `test -f '$(SEQUENCE)/SequenceDictionary.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceDictionary.cpp
+
+SequenceDictionary.obj: $(SEQUENCE)/SequenceDictionary.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceDictionary.obj -MD -MP -MF $(DEPDIR)/SequenceDictionary.Tpo -c -o SequenceDictionary.obj `if test -f '$(SEQUENCE)/SequenceDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceDictionary.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceDictionary.Tpo $(DEPDIR)/SequenceDictionary.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceDictionary.cpp' object='SequenceDictionary.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceDictionary.obj `if test -f '$(SEQUENCE)/SequenceDictionary.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceDictionary.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceDictionary.cpp'; fi`
+
+SequenceInstance.o: $(SEQUENCE)/SequenceInstance.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceInstance.o -MD -MP -MF $(DEPDIR)/SequenceInstance.Tpo -c -o SequenceInstance.o `test -f '$(SEQUENCE)/SequenceInstance.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceInstance.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceInstance.Tpo $(DEPDIR)/SequenceInstance.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceInstance.cpp' object='SequenceInstance.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceInstance.o `test -f '$(SEQUENCE)/SequenceInstance.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceInstance.cpp
+
+SequenceInstance.obj: $(SEQUENCE)/SequenceInstance.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceInstance.obj -MD -MP -MF $(DEPDIR)/SequenceInstance.Tpo -c -o SequenceInstance.obj `if test -f '$(SEQUENCE)/SequenceInstance.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceInstance.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceInstance.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceInstance.Tpo $(DEPDIR)/SequenceInstance.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceInstance.cpp' object='SequenceInstance.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceInstance.obj `if test -f '$(SEQUENCE)/SequenceInstance.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceInstance.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceInstance.cpp'; fi`
+
+SequenceReader.o: $(SEQUENCE)/SequenceReader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceReader.o -MD -MP -MF $(DEPDIR)/SequenceReader.Tpo -c -o SequenceReader.o `test -f '$(SEQUENCE)/SequenceReader.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceReader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceReader.Tpo $(DEPDIR)/SequenceReader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceReader.cpp' object='SequenceReader.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceReader.o `test -f '$(SEQUENCE)/SequenceReader.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequenceReader.cpp
+
+SequenceReader.obj: $(SEQUENCE)/SequenceReader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequenceReader.obj -MD -MP -MF $(DEPDIR)/SequenceReader.Tpo -c -o SequenceReader.obj `if test -f '$(SEQUENCE)/SequenceReader.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceReader.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceReader.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequenceReader.Tpo $(DEPDIR)/SequenceReader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequenceReader.cpp' object='SequenceReader.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequenceReader.obj `if test -f '$(SEQUENCE)/SequenceReader.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequenceReader.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequenceReader.cpp'; fi`
+
+SequencePart.o: $(SEQUENCE)/SequencePart.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequencePart.o -MD -MP -MF $(DEPDIR)/SequencePart.Tpo -c -o SequencePart.o `test -f '$(SEQUENCE)/SequencePart.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequencePart.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequencePart.Tpo $(DEPDIR)/SequencePart.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequencePart.cpp' object='SequencePart.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequencePart.o `test -f '$(SEQUENCE)/SequencePart.cpp' || echo '$(srcdir)/'`$(SEQUENCE)/SequencePart.cpp
+
+SequencePart.obj: $(SEQUENCE)/SequencePart.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SequencePart.obj -MD -MP -MF $(DEPDIR)/SequencePart.Tpo -c -o SequencePart.obj `if test -f '$(SEQUENCE)/SequencePart.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequencePart.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequencePart.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/SequencePart.Tpo $(DEPDIR)/SequencePart.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$(SEQUENCE)/SequencePart.cpp' object='SequencePart.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SequencePart.obj `if test -f '$(SEQUENCE)/SequencePart.cpp'; then $(CYGPATH_W) '$(SEQUENCE)/SequencePart.cpp'; else $(CYGPATH_W) '$(srcdir)/$(SEQUENCE)/SequencePart.cpp'; fi`
 
 Alphabet.o: $(CLASSIFIER)/Alphabet.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Alphabet.o -MD -MP -MF $(DEPDIR)/Alphabet.Tpo -c -o Alphabet.o `test -f '$(CLASSIFIER)/Alphabet.cpp' || echo '$(srcdir)/'`$(CLASSIFIER)/Alphabet.cpp
