@@ -38,6 +38,9 @@ struct DependencyLabelerFeatureTemplateSibling {
     HW_MP_SP, /* Unilexical feature */
     HP_MW_SP, /* Unilexical feature */
     HP_MP_SW, /* Unilexical feature */
+    HW_MW_SP, /* Bilexical feature */
+    HP_MW_SW, /* Bilexical feature */
+    HW_MP_SW, /* Bilexical feature */
     COUNT
   };
 };

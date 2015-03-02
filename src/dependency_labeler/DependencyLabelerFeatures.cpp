@@ -168,6 +168,19 @@ void DependencyLabelerFeatures::AddSiblingFeatures(
   fkey = encoder_.CreateFKey_WPP(DependencyLabelerFeatureTemplateSibling::HP_MP_SW, flags,
                                  SWID, HPID, MPID);
   AddFeature(fkey, features);
+
+#if 0
+  // Bilexical features.
+  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateSibling::HW_MW_SP, flags,
+                                 HWID, MWID, SPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateSibling::HP_MW_SW, flags,
+                                 MWID, SWID, HPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWP(DependencyLabelerFeatureTemplateSibling::HW_MP_SW, flags,
+                                 HWID, SWID, MPID);
+  AddFeature(fkey, features);
+#endif
 }
 
 //#define PRINT_INFO
