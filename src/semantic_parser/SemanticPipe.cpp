@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticPipe.h"
 #include <iostream>
@@ -25,6 +25,12 @@
 
 using namespace std;
 
+// Define the current model version and the oldest back-compatible version.
+// The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
+const uint64_t kSemanticParserModelVersion = 200030000;
+const uint64_t kOldestCompatibleSemanticParserModelVersion = 200030000;
+const uint64_t kSemanticParserModelCheck = 1234567890;
+
 DEFINE_bool(use_only_labeled_arc_features, true,
             "True for not using unlabeled arc features in addition to labeled ones.");
 DEFINE_bool(use_only_labeled_sibling_features, false, //true,
@@ -32,8 +38,12 @@ DEFINE_bool(use_only_labeled_sibling_features, false, //true,
 DEFINE_bool(use_labeled_sibling_features, false, //true,
             "True for using labels in sibling features.");
 
-
 void SemanticPipe::SaveModel(FILE* fs) {
+  bool success;
+  success = WriteUINT64(fs, kSemanticParserModelCheck);
+  CHECK(success);
+  success = WriteUINT64(fs, kSemanticParserModelVersion);
+  CHECK(success);
   token_dictionary_->Save(fs);
   dependency_dictionary_->Save(fs);
   Pipe::SaveModel(fs);
@@ -41,6 +51,17 @@ void SemanticPipe::SaveModel(FILE* fs) {
 }
 
 void SemanticPipe::LoadModel(FILE* fs) {
+  bool success;
+  uint64_t model_check;
+  uint64_t model_version;
+  success = ReadUINT64(fs, &model_check);
+  CHECK(success);
+  CHECK_EQ(model_check, kSemanticParserModelCheck)
+    << "The model file is too old and not supported anymore.";
+  success = ReadUINT64(fs, &model_version);
+  CHECK(success);
+  CHECK_GE(model_version, kOldestCompatibleSemanticParserModelVersion)
+    << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();
   static_cast<SemanticDictionary*>(dictionary_)->
