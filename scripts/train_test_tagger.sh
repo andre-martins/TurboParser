@@ -11,6 +11,7 @@ num_epochs=10 # Number of training epochs.
 regularization_parameter=1e12 # The C parameter in MIRA.
 train=true
 test=true
+jackknifing=false # True for performing jackknifing in the training data. Useful for downstream applications.
 model_type=2 # Second-order model (trigrams).
 form_cutoff=1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
 suffix=tagger
@@ -67,6 +68,58 @@ done
 
 if $train
 then
+
+    if ${jackknifing}
+    then
+	num_jackknifing_partitions=10
+	file_train_jackknifed=${file_train}.pred
+
+	echo "Jackknifing with ${num_jackknifing_partitions} partitions..."
+	python split_corpus_jackknifing.py ${file_train} ${num_jackknifing_partitions}
+
+	for (( i=0; i<${num_jackknifing_partitions}; i++ ))
+	do
+	    file_train_jackknifing=${file_train}_all-splits-except-${i}
+	    file_test_jackknifing=${file_train}_split-${i}
+	    file_model_jackknifing=${file_model}_split-${i}
+            file_prediction_jackknifing=${file_test_jackknifing}.pred
+
+            echo ""
+	    echo "Training on ${file_train_jackknifing}..."
+	    ${path_bin}/TurboTagger \
+		--train \
+		--train_epochs=${num_epochs} \
+		--file_model=${file_model_jackknifing} \
+		--file_train=${file_train_jackknifing} \
+		--train_algorithm=${train_algorithm} \
+		--train_regularization_constant=${regularization_parameter} \
+		--sequence_model_type=${model_type} \
+		--form_cutoff=${form_cutoff} \
+		--logtostderr
+	    
+            echo ""
+            echo "Testing on ${file_test_jackknifing}..."
+            ${path_bin}/TurboTagger \
+		--test \
+		--evaluate \
+		--file_model=${file_model_jackknifing} \
+		--file_test=${file_test_jackknifing} \
+		--file_prediction=${file_prediction_jackknifing} \
+		--logtostderr
+
+            echo ""
+            echo "Evaluating..."
+            perl ${path_scripts}/eval_predpos.pl ${file_prediction_jackknifing} ${file_test_jackknifing}
+
+            if [ "${i}" == "0" ]
+	    then
+		cat ${file_prediction_jackknifing} > ${file_train_jackknifed}
+            else
+		cat ${file_prediction_jackknifing} >> ${file_train_jackknifed}
+	    fi
+	done
+    fi
+
     echo "Training..."
     ${path_bin}/TurboTagger \
         --train \
