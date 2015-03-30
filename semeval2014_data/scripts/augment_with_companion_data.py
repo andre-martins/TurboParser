@@ -35,6 +35,7 @@ for line, line_companion in zip(f, f_companion):
                          word,
                          lemma,
                          pos, #predicted_pos
+                         "_", #Morph or Syntatic Features by Corentin Ribeyre
                          head,
                          deprel,
                          top,
