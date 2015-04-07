@@ -14,12 +14,16 @@ DEBUG = -g
 INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(AUXINCLUDES)
 LIBS = -L/usr/local/lib/ -L$(AUXLIBS)
 CFLAGS = -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC $(INCLUDES)
-LFLAGS = $(LIBS) -lad3 -lgflags -lglog
+LDFLAGS = -shared
+LFLAGS = $(LIBS) -Wl,-whole-archive -lad3 -Wl,-no-whole-archive -lgflags -lglog
 
-all : libturboparser.a
+all : libturboparser.a libturboparser.so
 
 libturboparser.a : $(OBJS)
 	ar rcs libturboparser.a $(OBJS)
+
+libturboparser.so : $(OBJS)
+	$(CC) -o libturboparser.so $(OBJS) $(LDFLAGS) $(LFLAGS)
 
 TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/TaggerPipe.h $(ENTITYRECOGNIZER)/EntityPipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(UTIL)/Utils.h
 	$(CC) $(CFLAGS) TurboParserInterface.cpp
@@ -200,4 +204,4 @@ TimeUtils.o: $(UTIL)/TimeUtils.h $(UTIL)/TimeUtils.cpp
 #####################
 
 clean:
-	rm -f *.o *~ libturboparser.a
+	rm -f *.o *~ libturboparser.a libturboparser.so
