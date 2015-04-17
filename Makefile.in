@@ -292,7 +292,9 @@ top_srcdir = @top_srcdir@
 @DEBUG_FALSE@AM_CXXFLAGS = -O2
 @DEBUG_TRUE@AM_CXXFLAGS = -g3 -O0
 ############################################
-SUBDIRS = src/tagger src/parser src/semantic_parser src/entity_recognizer
+SUBDIRS = src/tagger src/parser src/semantic_parser src/entity_recognizer \
+src/coreference_resolver
+
 EXTRA_DIST = scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \
 scripts/create_conll_predicted_tags_corpus.sh \
@@ -305,6 +307,7 @@ scripts/run_tagger.sh \
 scripts/tokenizer.sed \
 scripts/train_test_parser.sh \
 scripts/train_test_tagger.sh \
+scripts_ner/conlleval.txt \
 scripts_ner/train_test_entity_recognizer.sh \
 scripts_ner/convert_ontonotes_to_NER_corpus.py \
 scripts_ner/create_gazetteer_file.py \

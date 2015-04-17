@@ -16,29 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef READER_H_
-#define READER_H_
+#include "CoreferenceDocument.h"
 
-#include "Instance.h"
-#include <fstream>
-using namespace std;
+void CoreferenceDocument::DeleteAllSentences() {
+  for (int i = 0; i < sentences_.size(); ++i) {
+    delete sentences_[i];
+  }
+  sentences_.clear();
+}
 
-// Abstract class for the reader. Task-specific parts should derive
-// from this class and implement the pure virtual methods.
-// The reader reads instances from a file.
-class Reader {
-public:
-  Reader() {};
-  virtual ~Reader() {};
+void CoreferenceDocument::Initialize(
+    const string &name,
+    int part_number,
+    const std::vector<CoreferenceSentence*> &sentences) {
+  name_ = name;
+  part_number_ = part_number;
 
-public:
-  virtual void Open(const string &filepath);
-  virtual void Close();
-  virtual Instance *GetNext() = 0;
-
-protected:
-  ifstream is_;
-
-};
-
-#endif /* READER_H_ */
+  DeleteAllSentences();
+  for (int i = 0; i < sentences.size(); ++i) {
+    CoreferenceSentence* sentence =
+      static_cast<CoreferenceSentence*>(sentences[i]->Copy());
+    sentences_.push_back(sentence);
+  }
+}
