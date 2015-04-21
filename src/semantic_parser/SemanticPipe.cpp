@@ -21,8 +21,11 @@
 #include <sstream>
 #include <vector>
 #include <queue>
+#ifndef _WIN32
 #include <sys/time.h>
-
+#else
+#include <time.h>
+#endif
 using namespace std;
 
 // Define the current model version and the oldest back-compatible version.

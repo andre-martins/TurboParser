@@ -15,78 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\tagger\SequenceDecoder.cpp">
+    <ClCompile Include="..\..\src\tagger\TaggerDictionary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceDictionary.cpp">
+    <ClCompile Include="..\..\src\tagger\TaggerFeatures.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceFeatures.cpp">
+    <ClCompile Include="..\..\src\tagger\TaggerOptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceInstance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceInstanceNumeric.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequencePart.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequencePipe.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\SequenceWriter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\TokenDictionary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\tagger\TurboTagger.cpp">
+    <ClCompile Include="..\..\src\tagger\TaggerPipe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\tagger\SequenceDecoder.h">
+    <ClInclude Include="..\..\src\tagger\TaggerDictionary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceDictionary.h">
+    <ClInclude Include="..\..\src\tagger\TaggerFeatures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceFeatures.h">
+    <ClInclude Include="..\..\src\tagger\TaggerFeatureTemplates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceFeatureTemplates.h">
+    <ClInclude Include="..\..\src\tagger\TaggerOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceInstance.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceInstanceNumeric.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequencePart.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequencePipe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\SequenceWriter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\tagger\TokenDictionary.h">
+    <ClInclude Include="..\..\src\tagger\TaggerPipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

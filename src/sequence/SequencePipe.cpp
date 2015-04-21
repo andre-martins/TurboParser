@@ -21,7 +21,7 @@
 #include <sstream>
 #include <vector>
 #ifdef _WIN32
-#include <gettimeofday.h>
+#include <time.h>
 #else
 #include <sys/time.h>
 #endif
@@ -169,7 +169,7 @@ void SequencePipe::MakeGradientStep(Parts *parts,
       static_cast<SequenceFeatures*>(features);
   SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
 
-  for (int r = 0; r < parts->size(); ++r) {
+  for (int r = 0; r < parts->size(); ++r) {	
     //LOG(INFO) << predicted_output[r] << " " << gold_output[r];
     if (predicted_output[r] == gold_output[r]) continue;
 

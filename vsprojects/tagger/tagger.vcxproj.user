@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>--train --file_train=j:\corpora\conll06_data_portuguese_bosque_train_v1.2.tar\data\portuguese\bosque\treebank\portuguese_bosque_train.conll.tagging --file_model=model --form_cutoff=1 --affix_length=2</LocalDebuggerCommandArguments>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>--train --file_train=j:\corpora\conll06_data_portuguese_bosque_train_v1.2.tar\data\portuguese\bosque\treebank\portuguese_bosque_train.conll.tagging --file_model=models\pttagg.model --file_oov_tags=j:\corpora\conll06_data_portuguese_bosque_train_v1.2.tar\data\portuguese\bosque\treebank\tags  --form_cutoff=1 --affix_length=2</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>F:\Projectos\TurboParser-2.0.2\TurboParser-2.0.2</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommandArguments>--train --file_train=j:\corpora\conll06_data_portuguese_bosque_train_v1.2.tar\data\portuguese\bosque\treebank\portuguese_bosque_train.conll.tagging --file_model=models\pttagg.model --file_oov_tags=j:\corpora\conll06_data_portuguese_bosque_train_v1.2.tar\data\portuguese\bosque\treebank\tags  --form_cutoff=1 --affix_length=2</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>F:\Projectos\TurboParser-2.0.2\TurboParser-2.0.2</LocalDebuggerWorkingDirectory>

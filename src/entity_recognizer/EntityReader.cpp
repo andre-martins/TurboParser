@@ -16,11 +16,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "EntityReader.h"
-#include "EntityOptions.h"
 #include "Utils.h"
 #include <iostream>
 #include <sstream>
+#include "EntityReader.h"
+#include "EntityOptions.h"
+
 
 Instance *EntityReader::GetNext() {
   // Fill all fields for the entire sentence.

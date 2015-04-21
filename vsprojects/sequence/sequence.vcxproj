@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,15 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{572F3882-6014-4FB1-AE04-01A17D4EB041}</ProjectGuid>
+    <ProjectGuid>{6EC765B9-C3CD-4A5D-94C8-851333497DB1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>classifier</RootNamespace>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccProvider>
-    </SccProvider>
+    <RootNamespace>sequence</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -61,19 +55,15 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -84,8 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D GFLAGS_DLL_DECL= /D GFLAGS_DLL_DECLARE_FLAG= /D GFLAGS_DLL_DEFINE_FLAG= %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,8 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D GFLAGS_DLL_DECL= /D GFLAGS_DLL_DECLARE_FLAG= /D GFLAGS_DLL_DEFINE_FLAG= %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,8 +104,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/D GFLAGS_DLL_DECL= /D GFLAGS_DLL_DECLARE_FLAG= /D GFLAGS_DLL_DEFINE_FLAG= %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,8 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/D GFLAGS_DLL_DECL= /D GFLAGS_DLL_DECLARE_FLAG= /D GFLAGS_DLL_DEFINE_FLAG= %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -153,29 +139,29 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\classifier\Alphabet.cpp" />
-    <ClCompile Include="..\..\src\classifier\Dictionary.cpp" />
-    <ClCompile Include="..\..\src\classifier\Options.cpp" />
-    <ClCompile Include="..\..\src\classifier\Parameters.cpp" />
-    <ClCompile Include="..\..\src\classifier\Pipe.cpp" />
-    <ClCompile Include="..\..\src\classifier\Reader.cpp" />
-    <ClCompile Include="..\..\src\classifier\Writer.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceDecoder.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceDictionary.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceInstance.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceInstanceNumeric.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceOptions.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequencePart.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequencePipe.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceReader.cpp" />
+    <ClCompile Include="..\..\src\sequence\SequenceWriter.cpp" />
+    <ClCompile Include="..\..\src\sequence\TokenDictionary.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\classifier\Alphabet.h" />
-    <ClInclude Include="..\..\src\classifier\Decoder.h" />
-    <ClInclude Include="..\..\src\classifier\Dictionary.h" />
-    <ClInclude Include="..\..\src\classifier\FeatureEncoder.h" />
-    <ClInclude Include="..\..\src\classifier\Features.h" />
-    <ClInclude Include="..\..\src\classifier\Instance.h" />
-    <ClInclude Include="..\..\src\classifier\Options.h" />
-    <ClInclude Include="..\..\src\classifier\Parameters.h" />
-    <ClInclude Include="..\..\src\classifier\Part.h" />
-    <ClInclude Include="..\..\src\classifier\Pipe.h" />
-    <ClInclude Include="..\..\src\classifier\Reader.h" />
-    <ClInclude Include="..\..\src\classifier\SparseLabeledParameterVector.h" />
-    <ClInclude Include="..\..\src\classifier\SparseParameterVector.h" />
-    <ClInclude Include="..\..\src\classifier\Writer.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceDecoder.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceDictionary.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceFeatures.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceInstance.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceInstanceNumeric.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceOptions.h" />
+    <ClInclude Include="..\..\src\sequence\SequencePart.h" />
+    <ClInclude Include="..\..\src\sequence\SequencePipe.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceReader.h" />
+    <ClInclude Include="..\..\src\sequence\SequenceWriter.h" />
+    <ClInclude Include="..\..\src\sequence\TokenDictionary.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

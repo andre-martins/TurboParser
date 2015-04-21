@@ -88,7 +88,8 @@ class TurboParserInterface {
     argc_ = 2;
     argv_ = new char*[argc_];
     argv_[0] = strdup("TurboParser");
-    argv_[1] = strdup("--logtostderr");
+    //argv_[1] = strdup("--minloglevel=10");
+	argv_[1] = strdup("--logtostderr");
   }
 
   TurboTaggerWorker *CreateTagger() {
