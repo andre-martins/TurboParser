@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticOptions.h"
 #include "StringUtils.h"
@@ -72,6 +72,9 @@ DEFINE_bool(srl_prune_labels, true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for each pair of POS tags in the "
             "training data.");
+DEFINE_bool(srl_prune_labels_with_senses, true,
+            "True for pruning the set of possible labels taking into account "
+            "the predicate sense occurring in the training data.");
 DEFINE_bool(srl_prune_labels_with_relation_paths, false, //true,
             "True for pruning the set of possible labels taking into account "
             "the labels that have occured for syntactic dependency relation "
@@ -146,6 +149,8 @@ void SemanticOptions::Save(FILE* fs) {
   CHECK(success);
   success = WriteBool(fs, prune_labels_);
   CHECK(success);
+  success = WriteBool(fs, prune_labels_with_senses_);
+  CHECK(success);
   success = WriteBool(fs, prune_labels_with_relation_paths_);
   CHECK(success);
   success = WriteBool(fs, prune_distances_);
@@ -196,6 +201,10 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_srl_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_labels=" << FLAGS_srl_prune_labels;
+  success = ReadBool(fs, &FLAGS_srl_prune_labels_with_senses);
+  CHECK(success);
+  LOG(INFO) << "Setting --srl_prune_labels_with_senses="
+            << FLAGS_srl_prune_labels_with_senses;
   success = ReadBool(fs, &FLAGS_srl_prune_labels_with_relation_paths);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_labels_with_relation_paths="
@@ -257,6 +266,7 @@ void SemanticOptions::Initialize() {
   allow_unseen_predicates_ = FLAGS_srl_allow_unseen_predicates;
   use_predicate_senses_ = FLAGS_srl_use_predicate_senses;
   prune_labels_ = FLAGS_srl_prune_labels;
+  prune_labels_with_senses_ = FLAGS_srl_prune_labels_with_senses;
   prune_labels_with_relation_paths_ =
     FLAGS_srl_prune_labels_with_relation_paths;
   prune_distances_ = FLAGS_srl_prune_distances;

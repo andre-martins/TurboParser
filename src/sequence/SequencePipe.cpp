@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SequencePipe.h"
 #include <iostream>
@@ -28,12 +28,34 @@
 
 using namespace std;
 
+// Define the current model version and the oldest back-compatible version.
+// The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
+const uint64_t kSequenceModelVersion = 200030000;
+const uint64_t kOldestCompatibleSequenceModelVersion = 200030000;
+const uint64_t kSequenceModelCheck = 1234567890;
+
 void SequencePipe::SaveModel(FILE* fs) {
+  bool success;
+  success = WriteUINT64(fs, kSequenceModelCheck);
+  CHECK(success);
+  success = WriteUINT64(fs, kSequenceModelVersion);
+  CHECK(success);
   token_dictionary_->Save(fs);
   Pipe::SaveModel(fs);
 }
 
 void SequencePipe::LoadModel(FILE* fs) {
+  bool success;
+  uint64_t model_check;
+  uint64_t model_version;
+  success = ReadUINT64(fs, &model_check);
+  CHECK(success);
+  CHECK_EQ(model_check, kSequenceModelCheck)
+    << "The model file is too old and not supported anymore.";
+  success = ReadUINT64(fs, &model_version);
+  CHECK(success);
+  CHECK_GE(model_version, kOldestCompatibleSequenceModelVersion)
+    << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();
   token_dictionary_->Load(fs);

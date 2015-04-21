@@ -1,6 +1,6 @@
 ================================================================================
 TurboParser -- Dependency Parser with Linear Programming Relaxations.
-Version 2.2.x
+Version 2.3.x
 
 Written and maintained by André Martins (afm [at] cs.cmu.edu).
 ================================================================================
@@ -172,7 +172,7 @@ data, and evaluate the output against the gold standard:
 --logtostderr
 
 The results from running the parser are in the file 
-data/samples/sample_test.conll.predicted and the trained model in 
+data/sample/sample_test.conll.predicted and the trained model in 
 models/sample_parser.model.
 
 
@@ -269,7 +269,7 @@ Here is a sample of two sentences from the Dutch dataset:
 12  terrassen         terras            N     N     soort|mv|neut                    11  cnj     _  _
 13  .                 .                 Punc  Punc  punt                             12  punct   _  _
 
-Please go to http://nextens.uvt.nl/~conll/#dataformat for more information 
+Please go to http://ilk.uvt.nl/conll/#dataformat for more information
 about the meaning of each column field. 
 The parser should still learn/run if some of the fields (like the FEATS field) 
 are filled with "_".
@@ -345,7 +345,7 @@ Just run:
   -s data/danish/danish_test.conll.predicted | tail -5
 
 This script also allows performing significance tests (see 
-http://nextens.uvt.nl/~conll/software.html for details).
+http://ilk.uvt.nl/conll/software.html for details).
 
 ================================================================================
 3c. Training the tagger

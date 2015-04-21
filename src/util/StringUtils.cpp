@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "StringUtils.h"
 
@@ -57,9 +57,7 @@ void TrimComments(const string &delim, string *line) {
 // non-delimiting character (e.g. whitespaces).
 void TrimLeft(const string &delim, string *line) {
   size_t cutAt = line->find_first_not_of(delim);
-  if (cutAt == line->npos) {
-    *line == "";
-  } else {
+  if (cutAt != line->npos) {
     *line = line->substr(cutAt);
   }
 }
@@ -68,9 +66,7 @@ void TrimLeft(const string &delim, string *line) {
 // non-delimiting character (e.g. whitespaces).
 void TrimRight(const string &delim, string *line) {
   size_t cutAt = line->find_last_not_of(delim);
-  if (cutAt == line->npos) {
-    *line == "";
-  } else {
+  if (cutAt != line->npos) {
     *line = line->substr(0, cutAt+1);
   }
 }

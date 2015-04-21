@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticPipe.h"
 #include <iostream>
@@ -25,6 +25,12 @@
 
 using namespace std;
 
+// Define the current model version and the oldest back-compatible version.
+// The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
+const uint64_t kSemanticParserModelVersion = 200030000;
+const uint64_t kOldestCompatibleSemanticParserModelVersion = 200030000;
+const uint64_t kSemanticParserModelCheck = 1234567890;
+
 DEFINE_bool(use_only_labeled_arc_features, true,
             "True for not using unlabeled arc features in addition to labeled ones.");
 DEFINE_bool(use_only_labeled_sibling_features, false, //true,
@@ -32,8 +38,12 @@ DEFINE_bool(use_only_labeled_sibling_features, false, //true,
 DEFINE_bool(use_labeled_sibling_features, false, //true,
             "True for using labels in sibling features.");
 
-
 void SemanticPipe::SaveModel(FILE* fs) {
+  bool success;
+  success = WriteUINT64(fs, kSemanticParserModelCheck);
+  CHECK(success);
+  success = WriteUINT64(fs, kSemanticParserModelVersion);
+  CHECK(success);
   token_dictionary_->Save(fs);
   dependency_dictionary_->Save(fs);
   Pipe::SaveModel(fs);
@@ -41,6 +51,17 @@ void SemanticPipe::SaveModel(FILE* fs) {
 }
 
 void SemanticPipe::LoadModel(FILE* fs) {
+  bool success;
+  uint64_t model_check;
+  uint64_t model_version;
+  success = ReadUINT64(fs, &model_check);
+  CHECK(success);
+  CHECK_EQ(model_check, kSemanticParserModelCheck)
+    << "The model file is too old and not supported anymore.";
+  success = ReadUINT64(fs, &model_version);
+  CHECK(success);
+  CHECK_GE(model_version, kOldestCompatibleSemanticParserModelVersion)
+    << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();
   static_cast<SemanticDictionary*>(dictionary_)->
@@ -593,6 +614,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   bool prune_labels = semantic_options->prune_labels();
   bool prune_labels_with_relation_paths =
     semantic_options->prune_labels_with_relation_paths();
+  bool prune_labels_with_senses = semantic_options->prune_labels_with_senses();
   bool prune_distances = semantic_options->prune_distances();
   bool allow_self_loops = semantic_options->allow_self_loops();
   bool allow_root_predicate = semantic_options->allow_root_predicate();
@@ -704,7 +726,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
           set<int> label_set;
           for (int m = 0; m < allowed_labels.size(); ++m) {
-            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
+            if (!prune_labels_with_senses ||
+                (*predicates)[s]->HasRole(allowed_labels[m])) {
               label_set.insert(allowed_labels[m]);
             }
           }
@@ -725,7 +748,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
             GetExistingRoles(predicate_pos_id, argument_pos_id);
           set<int> label_set;
           for (int m = 0; m < allowed_labels.size(); ++m) {
-            if ((*predicates)[s]->HasRole(allowed_labels[m])) {
+            if (!prune_labels_with_senses ||
+                (*predicates)[s]->HasRole(allowed_labels[m])) {
               label_set.insert(allowed_labels[m]);
             }
           }
@@ -754,7 +778,9 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
           for (int m = 0; m < allowed_labels.size(); ++m) {
             int role = allowed_labels[m];
-            if (prune_labels) CHECK((*predicates)[s]->HasRole(role));
+            if (prune_labels && prune_labels_with_senses) {
+              CHECK((*predicates)[s]->HasRole(role));
+            }
             Part *part = semantic_parts->CreatePartLabeledArc(p, a, s, role);
             CHECK_GE(arc_index, 0);
             semantic_parts->AddLabeledPart(part, arc_index);

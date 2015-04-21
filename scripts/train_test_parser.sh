@@ -23,7 +23,7 @@ large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
-projective=true #false # If true, force single-rooted projective trees.
+projective=false # If true, force single-rooted projective trees.
 model_type=standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
@@ -59,6 +59,8 @@ file_pruner_results=${path_results}/${language}_${suffix_pruner}.txt
 
 if [ "$language" == "english_proj" ] || [ "$language" == "english_proj_stanford" ]
 then
+    projective=true
+
     file_train_orig=${path_data}/${language}_train.conll.predpos
     files_test_orig[0]=${path_data}/${language}_test.conll
     files_test_orig[1]=${path_data}/${language}_dev.conll

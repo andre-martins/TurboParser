@@ -1,20 +1,20 @@
-// Copyright (c) 2012-2013 Andre Martins
+// Copyright (c) 2012-2015 Andre Martins
 // All Rights Reserved.
 //
-// This file is part of TurboParser 2.1.
+// This file is part of TurboParser 2.3.
 //
-// TurboParser 2.1 is free software: you can redistribute it and/or modify
+// TurboParser 2.3 is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// TurboParser 2.1 is distributed in the hope that it will be useful,
+// TurboParser 2.3 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with TurboParser 2.1.  If not, see <http://www.gnu.org/licenses/>.
+// along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SemanticReader.h"
 #include "SemanticOptions.h"
@@ -45,7 +45,11 @@ Instance *SemanticReader::GetNext() {
       if (line.length() <= 0) break;
       if (0 == line.substr(0, 1).compare("#")) {
         //LOG(INFO) << line;
-        name = line;
+	if (name != "") {
+	  name += "\n" + line;
+	} else {
+	  name = line;
+	}
         continue; // Sentence ID.
       }
       vector<string> fields;
@@ -53,6 +57,9 @@ Instance *SemanticReader::GetNext() {
       sentence_fields.push_back(fields);
     }
   }
+
+  bool read_next_sentence = false;
+  if (!is_.eof()) read_next_sentence = true;
 
   // Sentence length.
   int length = sentence_fields.size();
@@ -123,20 +130,21 @@ Instance *SemanticReader::GetNext() {
     // Semantic role labeling information.
     if (read_semantic_roles) {
       bool is_top = false; // For sdp format only.
+      bool is_predicate = false;
       if (use_sdp_format_) {
         string top_name = info[offset];
         ++offset;
         CHECK(0 == top_name.compare("-") || 0 == top_name.compare("+"));
         if (0 == top_name.compare("+")) is_top = true;
+        string predicate_flag = info[offset];
+        ++offset;
+        CHECK(0 == predicate_flag.compare("-") ||
+              0 == predicate_flag.compare("+"));
+        if (0 == predicate_flag.compare("+")) is_predicate = true;
       }
       string predicate_name = info[offset];
       ++offset;
-      bool is_predicate = false;
-      if (use_sdp_format_) {
-        CHECK(0 == predicate_name.compare("-") ||
-              0 == predicate_name.compare("+"));
-        if (0 == predicate_name.compare("+")) is_predicate = true;
-      } else {
+      if (!use_sdp_format_) {
         if (0 != predicate_name.compare("_")) is_predicate = true;
       }
       if (!use_sdp_format_) CHECK_EQ(offset, 11);
@@ -188,7 +196,7 @@ Instance *SemanticReader::GetNext() {
   CHECK_EQ(num_predicates, predicate_names.size());
 
   SemanticInstance *instance = NULL;
-  if (length > 0) {
+  if (read_next_sentence && length >= 0) {
     instance = new SemanticInstance;
     instance->Initialize(name, forms, lemmas, cpos, pos, feats, deprels, heads,
                          predicate_names, predicate_indices, argument_roles,

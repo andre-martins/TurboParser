@@ -1,0 +1,42 @@
+To reproduce the SemEval 2015 paper [1]:
+
+1) Place the SemEval 2015 original data in folders "train" and "test".
+The directory contents should be:
+
+train/cs.psd.sdp
+train/cz.pas.sdp
+train/en.dm.sdp
+train/en.pas.sdp
+train/en.psd.sdp
+train/en.sb.bn.cpn
+
+test/cs.id.psd.sdp
+test/cs.ood.psd.sdp
+test/cz.id.pas.sdp
+test/en.id.dm.sdp
+test/en.id.pas.sdp
+test/en.id.psd.sdp
+test/en.id.sb.bn.cpn
+test/en.ood.dm.sdp
+test/en.ood.pas.sdp
+test/en.ood.psd.sdp
+test/en.ood.sb.bn.cpn
+
+2) Type:
+
+cd scripts
+./generate_all_splits.sh
+
+This will create folders "dm", "pas", "psd" where the train/dev/test splits
+will be stored.
+
+3) Type:
+
+cd ../../scripts_srl
+./train_test_submission_SDP2015.sh
+
+It should take a few hours to train and run the semantic parsers.
+
+[1] Mariana S.C. Almeida and André F.T. Martins (2015).
+"Lisbon: Evaluating TurboSemanticParser on Multiple Languages and Out-of-Domain Data."
+Proc. of SemEval 2015 task 18 (Broad-Coverage Semantic Dependency Parsing).
