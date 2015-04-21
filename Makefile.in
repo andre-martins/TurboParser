@@ -305,6 +305,7 @@ scripts/run_tagger.sh \
 scripts/tokenizer.sed \
 scripts/train_test_parser.sh \
 scripts/train_test_tagger.sh \
+scripts_ner/conlleval.txt \
 scripts_ner/train_test_entity_recognizer.sh \
 scripts_ner/convert_ontonotes_to_NER_corpus.py \
 scripts_ner/create_gazetteer_file.py \
