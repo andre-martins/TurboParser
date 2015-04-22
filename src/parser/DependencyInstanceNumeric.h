@@ -42,6 +42,7 @@ public:
 
   void Clear() {
     form_ids_.clear();
+    form_lower_ids_.clear();
     lemma_ids_.clear();
     prefix_ids_.clear();
     suffix_ids_.clear();
@@ -101,6 +102,7 @@ public:
 #endif
 
   const vector<int> &GetFormIds() const { return form_ids_; }
+  const vector<int> &GetFormLowerIds() const { return form_lower_ids_; }
   const vector<int> &GetLemmaIds() const { return lemma_ids_; }
   const vector<int> &GetPosIds() const { return pos_ids_; }
   const vector<int> &GetCoarsePosIds() const { return cpos_ids_; }
@@ -108,6 +110,7 @@ public:
   const vector<int> &GetRelations() const { return relations_; }
 
   int GetFormId(int i) { return form_ids_[i]; };
+  int GetFormLowerId(int i) { return form_lower_ids_[i]; };
   int GetLemmaId(int i) { return lemma_ids_[i]; };
   int GetPrefixId(int i) { return prefix_ids_[i]; };
   int GetSuffixId(int i) { return suffix_ids_[i]; };
@@ -124,6 +127,7 @@ public:
 
  protected:
   vector<int> form_ids_;
+  vector<int> form_lower_ids_;
   vector<int> lemma_ids_;
   vector<int> prefix_ids_;
   vector<int> suffix_ids_;

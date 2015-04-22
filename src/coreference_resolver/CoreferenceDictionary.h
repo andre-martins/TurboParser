@@ -19,12 +19,14 @@
 #ifndef COREFERENCEDICTIONARY_H_
 #define COREFERENCEDICTIONARY_H_
 
+#include <map>
 #include "Dictionary.h"
 #include "TokenDictionary.h"
 #include "DependencyDictionary.h"
 #include "SemanticDictionary.h"
 #include "SerializationUtils.h"
 #include "CoreferenceReader.h"
+#include "CoreferencePronoun.h"
 
 class Pipe;
 
@@ -112,6 +114,57 @@ class CoreferenceDictionary : public Dictionary {
     return entity_alphabet_;
   };
 
+  bool IsNamedEntity(int entity_tag) const {
+    return named_entity_tags_.find(entity_tag) != named_entity_tags_.end();
+  }
+
+  bool IsPersonEntity(int entity_tag) const {
+    return person_entity_tags_.find(entity_tag) != person_entity_tags_.end();
+  }
+
+  bool IsNounPhrase(int constituent_tag) const {
+    return noun_phrase_tags_.find(constituent_tag) != noun_phrase_tags_.end();
+  }
+
+  bool IsProperNoun(int pos_tag) const {
+    return proper_noun_tags_.find(pos_tag) != proper_noun_tags_.end();
+  }
+
+  bool IsPronounTag(int pos_tag) const {
+    return pronominal_tags_.find(pos_tag) != pronominal_tags_.end();
+  }
+
+  bool IsPronoun(int form_lower) const {
+    std::map<int, CoreferencePronoun*>::const_iterator it =
+      all_pronouns_.find(form_lower);
+    return it != all_pronouns_.end();
+  }
+
+  CoreferencePronoun *GetPronoun(int form_lower) const {
+    std::map<int, CoreferencePronoun*>::const_iterator it =
+      all_pronouns_.find(form_lower);
+    if (it == all_pronouns_.end()) return NULL;
+    return it->second;
+  }
+
+  bool IsMalePronoun(int form_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+    if (!pronoun) return false;
+    return pronoun->IsGenderMale();
+  }
+
+  bool IsFemalePronoun(int form_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+    if (!pronoun) return false;
+    return pronoun->IsGenderFemale();
+  }
+
+  bool IsNeutralPronoun(int form_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+    if (!pronoun) return false;
+    return pronoun->IsGenderNeutral();
+  }
+
  protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
@@ -119,7 +172,9 @@ class CoreferenceDictionary : public Dictionary {
   SemanticDictionary *semantic_dictionary_;
   Alphabet entity_alphabet_;
   Alphabet constituent_alphabet_;
-  std::set<int> excluded_entity_tags_;
+  std::map<int, CoreferencePronoun*> all_pronouns_;
+  std::set<int> named_entity_tags_;
+  std::set<int> person_entity_tags_;
   std::set<int> noun_phrase_tags_;
   std::set<int> proper_noun_tags_;
   std::set<int> pronominal_tags_;

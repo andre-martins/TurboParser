@@ -49,6 +49,7 @@ class TokenDictionary : public Dictionary {
 
   void Clear() {
     form_alphabet_.clear();
+    form_lower_alphabet_.clear();
     lemma_alphabet_.clear();
     prefix_alphabet_.clear();
     suffix_alphabet_.clear();
@@ -60,6 +61,7 @@ class TokenDictionary : public Dictionary {
 
   void AllowGrowth() {
     form_alphabet_.AllowGrowth();
+    form_lower_alphabet_.AllowGrowth();
     lemma_alphabet_.AllowGrowth();
     prefix_alphabet_.AllowGrowth();
     suffix_alphabet_.AllowGrowth();
@@ -70,6 +72,7 @@ class TokenDictionary : public Dictionary {
   }
   void StopGrowth() {
     form_alphabet_.StopGrowth();
+    form_lower_alphabet_.StopGrowth();
     lemma_alphabet_.StopGrowth();
     prefix_alphabet_.StopGrowth();
     suffix_alphabet_.StopGrowth();
@@ -85,6 +88,9 @@ class TokenDictionary : public Dictionary {
 
   int GetFormId(const std::string &form) const {
     return form_alphabet_.Lookup(form);
+  }
+  int GetFormLowerId(const std::string &form_lower) const {
+    return form_lower_alphabet_.Lookup(form_lower);
   }
   int GetLemmaId(const std::string &lemma) const {
     return lemma_alphabet_.Lookup(lemma);
@@ -162,6 +168,7 @@ class TokenDictionary : public Dictionary {
  private:
   Pipe *pipe_;
   Alphabet form_alphabet_;
+  Alphabet form_lower_alphabet_;
   Alphabet lemma_alphabet_;
   Alphabet prefix_alphabet_;
   Alphabet suffix_alphabet_;

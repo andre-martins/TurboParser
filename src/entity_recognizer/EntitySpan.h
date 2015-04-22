@@ -19,6 +19,10 @@
 #ifndef ENTITYSPAN_H_
 #define ENTITYSPAN_H_
 
+//#include <cstddef>
+#include <vector>
+#include <string>
+
 typedef class NamedSpan EntitySpan;
 
 class Span {
@@ -67,7 +71,7 @@ class NamedSpan : public Span {
 class NumericSpan : public Span {
  public:
   NumericSpan() : Span() { id_ = -1; }
- NumericSpan(int start, int end, int id) : Span(start, end) {
+  NumericSpan(int start, int end, int id) : Span(start, end) {
     id_ = id;
   }
   virtual ~NumericSpan() {}

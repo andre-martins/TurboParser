@@ -27,19 +27,28 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   // Compute mention type.
   type_ = -1;
   entity_tag_ = -1;
+  std::vector<Span*> entity_spans(sentence->GetEntitySpans().begin(),
+                                  sentence->GetEntitySpans().end());
   NumericSpan *entity_span =
-    static_cast<NumericSpan*>(FindCoveringSpan(sentence->GetEntitySpans()));
+    static_cast<NumericSpan*>(FindCoveringSpan(entity_spans));
   if (entity_span) {
     type_ = MENTION_PROPER;
     entity_tag_ = entity_span->id();
   }
 
-  int head_word = sentence->GetFormLowerCase(head_index_);
-  int head_tag = sentence->GetPosTag(head_index_);
-  if (dictionary->IsPronounWord(head_word) ||
-      dictionary->IsPronounTag(head_tag)) {
+  words_.assign(sentence->GetFormIds().begin() + start_,
+                sentence->GetFormIds().begin() + end_);
+  words_lower_.assign(sentence->GetFormLowerIds().begin() + start_,
+                      sentence->GetFormLowerIds().begin() + end_);
+  tags_.assign(sentence->GetPosIds().begin() + start_,
+               sentence->GetPosIds().begin() + end_);
+
+  int head_word = sentence->GetFormLowerId(head_index_);
+  int head_tag = sentence->GetPosId(head_index_);
+  if (dictionary.IsPronoun(head_word) ||
+      dictionary.IsPronounTag(head_tag)) {
     type_ = MENTION_PRONOMINAL;
-  } else if (dictionary->IsProperTag(head_tag)) {
+  } else if (dictionary.IsProperNoun(head_tag)) {
     type_ = MENTION_PROPER;
   } else if (type_ < 0) {
     type_ = MENTION_NOMINAL;
@@ -49,11 +58,11 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   number_ = MENTION_NUMBER_SINGULAR;
   gender_ = MENTION_GENDER_MALE;
   if (type_ == MENTION_PRONOMINAL) {
-    if (dictionary->IsMalePronoun(head_word)) {
+    if (dictionary.IsMalePronoun(head_word)) {
       gender_ = MENTION_GENDER_MALE;
-    } else if (dictionary->IsFemalePronoun(head_word)) {
+    } else if (dictionary.IsFemalePronoun(head_word)) {
       gender_ = MENTION_GENDER_FEMALE;
-    } else if (dictionary->IsNeutralPronoun(head_word)) {
+    } else if (dictionary.IsNeutralPronoun(head_word)) {
       gender_ = MENTION_GENDER_NEUTRAL;
     } else {
       gender_ = MENTION_GENDER_UNKNOWN;
@@ -61,7 +70,7 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   } else {
     number_ = ComputeNumber(words_, words_lower_, head_index_ - start_);
     if (entity_tag_ >= 0 &&
-        dictionary->IsEntityPersonTag(entity_tag_)) {
+        dictionary.IsPersonEntity(entity_tag_)) {
       gender_ = ComputePersonGender(words_, words_lower_, head_index_ - start_);
     } else {
       gender_ = ComputeNonPersonGender(words_, words_lower_,

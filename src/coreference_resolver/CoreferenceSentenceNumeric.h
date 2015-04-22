@@ -43,6 +43,10 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
   void Initialize(const CoreferenceDictionary &dictionary,
                   CoreferenceSentence *instance);
 
+  const std::vector<NumericSpan*> &GetEntitySpans() {
+    return entity_spans_;
+  }
+
  protected:
   void DeleteAllSpans() {
     for (int i = 0; i < entity_spans_.size(); ++i) {
@@ -69,7 +73,8 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
   void GenerateMentions(const CoreferenceDictionary &dictionary,
                         CoreferenceSentence *instance);
 
-  void AddMention(int start, int end, int id);
+  void AddMention(const CoreferenceDictionary &dictionary,
+                  int start, int end, int id);
 
  private:
   std::vector<NumericSpan*> entity_spans_;

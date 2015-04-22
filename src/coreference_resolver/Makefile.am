@@ -26,6 +26,7 @@ CoreferenceDictionary.h \
 CoreferenceDocumentNumeric.h \
 CoreferenceSentenceNumeric.h \
 Mention.h \
+CoreferencePronoun.h \
 $(SEMANTIC_PARSER)/SemanticInstance.cpp \
 $(SEMANTIC_PARSER)/SemanticInstance.h \
 $(SEMANTIC_PARSER)/SemanticReader.cpp \

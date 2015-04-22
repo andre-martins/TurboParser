@@ -86,10 +86,10 @@ void CoreferenceSentenceNumeric::GenerateMentions(
     if (mention_end < size() - 1 && instance->GetForm(mention_end) == "'s") {
       ++mention_end;
     }
-    AddMention(mention_start, mention_end, -1);
+    AddMention(dictionary, mention_start, mention_end, -1);
   }
-  std::vector<Mention*> named_entity_mentions(mentions_.begin(),
-                                              mentions_.end());
+  std::vector<Span*> named_entity_mentions(mentions_.begin(),
+                                           mentions_.end());
 
   // Generate mentions for noun phrases and pronouns *except* those contained in
   // the named entity chunks (the named entity tagger seems more reliable than
@@ -97,10 +97,12 @@ void CoreferenceSentenceNumeric::GenerateMentions(
   // Generate mentions for named entities.
   for (int k = 0; k < constituent_spans_.size(); ++k) {
     if (!dictionary.IsNounPhrase(constituent_spans_[k]->id())) continue;
-    if (constituent_spans_[k]->LiesInsideAnyOfSpans(named_entity_mentions)) {
+    if (constituent_spans_[k]->FindCoveringSpan(named_entity_mentions)) {
       continue;
     }
-    AddMention(constituent_spans_[k]->start(), constituent_spans_[k]->end(),
+    AddMention(dictionary,
+               constituent_spans_[k]->start(),
+               constituent_spans_[k]->end(),
                -1);
   }
 
@@ -111,16 +113,18 @@ void CoreferenceSentenceNumeric::GenerateMentions(
   }
 
   for (int i = 0; i < size(); ++i) {
-    if (!dictionary.IsPronominalTag(tags_[i])) continue;
+    if (!dictionary.IsPronounTag(pos_ids_[i])) continue;
     // TODO(atm): for Portuguese need to ignore "se" and "-se".
     Span span(i, i);
-    if (span.LiesInsideAnyOfSpans(named_entity_mentions)) continue;
-    AddMention(i, i, -1);
+    if (span.FindCoveringSpan(named_entity_mentions)) continue;
+    AddMention(dictionary, i, i, -1);
   }
 }
 
-void CoreferenceSentenceNumeric::AddMention(int start, int end, int id) {
+void CoreferenceSentenceNumeric::AddMention(
+    const CoreferenceDictionary &dictionary,
+    int start, int end, int id) {
   Mention *mention = new Mention(start, end, id);
-  mention->ComputeProperties();
+  mention->ComputeProperties(dictionary, this);
   mentions_.push_back(mention);
 }

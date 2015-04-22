@@ -66,6 +66,7 @@ void TokenDictionary::Load(FILE* fs) {
   LOG(INFO) << "Setting --suffix_length=" << FLAGS_suffix_length;
 
   if (0 > form_alphabet_.Load(fs)) CHECK(false);
+  if (0 > form_lower_alphabet_.Load(fs)) CHECK(false);
   if (0 > lemma_alphabet_.Load(fs)) CHECK(false);
   if (0 > prefix_alphabet_.Load(fs)) CHECK(false);
   if (0 > suffix_alphabet_.Load(fs)) CHECK(false);
@@ -88,6 +89,7 @@ void TokenDictionary::Save(FILE* fs) {
   CHECK(success);
 
   if (0 > form_alphabet_.Save(fs)) CHECK(false);
+  if (0 > form_lower_alphabet_.Save(fs)) CHECK(false);
   if (0 > lemma_alphabet_.Save(fs)) CHECK(false);
   if (0 > prefix_alphabet_.Save(fs)) CHECK(false);
   if (0 > suffix_alphabet_.Save(fs)) CHECK(false);
@@ -101,14 +103,17 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
   LOG(INFO) << "Creating token dictionary...";
 
   int form_cutoff = FLAGS_form_cutoff;
+  int form_lower_cutoff = FLAGS_form_cutoff;
   int shape_cutoff = 0;
   int prefix_length = FLAGS_prefix_length;
   int suffix_length = FLAGS_suffix_length;
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   std::vector<int> form_freqs;
+  std::vector<int> form_lower_freqs;
   std::vector<int> shape_freqs;
   Alphabet form_alphabet;
+  Alphabet form_lower_alphabet;
   Alphabet shape_alphabet;
 
   std::string special_symbols[NUM_SPECIAL_TOKENS];
@@ -120,10 +125,12 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
     prefix_alphabet_.Insert(special_symbols[i]);
     suffix_alphabet_.Insert(special_symbols[i]);
     form_alphabet.Insert(special_symbols[i]);
+    form_lower_alphabet.Insert(special_symbols[i]);
     shape_alphabet.Insert(special_symbols[i]);
 
     // Counts of special symbols are set to -1:
     form_freqs.push_back(-1);
+    form_lower_freqs.push_back(-1);
     shape_freqs.push_back(-1);
   }
 
@@ -139,15 +146,24 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
 
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
-      if (!form_case_sensitive) {
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
-      }
+      std::string form_lower(form);
+      transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                ::tolower);
+      if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {
         CHECK_EQ(id, form_freqs.size());
         form_freqs.push_back(0);
       }
       ++form_freqs[id];
+
+      // Add lower-case form to the alphabet.
+      id = form_lower_alphabet.Insert(form_lower);
+      if (id >= form_lower_freqs.size()) {
+        CHECK_EQ(id, form_lower_freqs.size());
+        form_lower_freqs.push_back(0);
+      }
+      ++form_lower_freqs[id];
 
       // Add prefix/suffix to alphabet.
       std::string prefix = form.substr(0, prefix_length);
@@ -191,6 +207,24 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
   }
 
   while (true) {
+    form_lower_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      form_lower_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = form_lower_alphabet.begin();
+         iter != form_lower_alphabet.end();
+         ++iter) {
+      if (form_lower_freqs[iter->second] > form_lower_cutoff) {
+        form_lower_alphabet_.Insert(iter->first);
+      }
+    }
+    if (form_lower_alphabet_.size() < kMaxFormAlphabetSize) break;
+    ++form_lower_cutoff;
+    LOG(INFO) << "Incrementing lower-case form cutoff to "
+              << form_lower_cutoff << "...";
+  }
+
+  while (true) {
     shape_alphabet_.clear();
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       shape_alphabet_.Insert(special_symbols[i]);
@@ -208,6 +242,7 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
   }
 
   form_alphabet_.StopGrowth();
+  form_lower_alphabet_.StopGrowth();
   shape_alphabet_.StopGrowth();
   lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
@@ -225,6 +260,7 @@ void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
             << shape_alphabet_.size();
 
   CHECK_LT(form_alphabet_.size(), 0xffff);
+  CHECK_LT(form_lower_alphabet_.size(), 0xffff);
   CHECK_LT(shape_alphabet_.size(), 0xffff);
   CHECK_LT(lemma_alphabet_.size(), 0xffff);
   CHECK_LT(prefix_alphabet_.size(), 0xffff);
@@ -238,6 +274,7 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   LOG(INFO) << "Creating token dictionary...";
 
   int form_cutoff = FLAGS_form_cutoff;
+  int form_lower_cutoff = FLAGS_form_cutoff;
   int lemma_cutoff = FLAGS_lemma_cutoff;
   int feats_cutoff = FLAGS_feats_cutoff;
   int pos_cutoff = FLAGS_pos_cutoff;
@@ -247,12 +284,14 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   vector<int> form_freqs;
+  vector<int> form_lower_freqs;
   vector<int> lemma_freqs;
   vector<int> feats_freqs;
   vector<int> pos_freqs;
   vector<int> cpos_freqs;
 
   Alphabet form_alphabet;
+  Alphabet form_lower_alphabet;
   Alphabet lemma_alphabet;
   Alphabet feats_alphabet;
   Alphabet pos_alphabet;
@@ -267,6 +306,7 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
     prefix_alphabet_.Insert(special_symbols[i]);
     suffix_alphabet_.Insert(special_symbols[i]);
     form_alphabet.Insert(special_symbols[i]);
+    form_lower_alphabet.Insert(special_symbols[i]);
     lemma_alphabet.Insert(special_symbols[i]);
     feats_alphabet.Insert(special_symbols[i]);
     pos_alphabet.Insert(special_symbols[i]);
@@ -274,6 +314,7 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
 
     // Counts of special symbols are set to -1:
     form_freqs.push_back(-1);
+    form_lower_freqs.push_back(-1);
     lemma_freqs.push_back(-1);
     feats_freqs.push_back(-1);
     pos_freqs.push_back(-1);
@@ -291,16 +332,25 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
       int id;
 
       // Add form to alphabet.
-      string form = instance->GetForm(i);
-      if (!form_case_sensitive) {
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
-      }
+      std::string form = instance->GetForm(i);
+      std::string form_lower(form);
+      transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                ::tolower);
+      if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {
         CHECK_EQ(id, form_freqs.size());
         form_freqs.push_back(0);
       }
       ++form_freqs[id];
+
+      // Add lower-case form to alphabet.
+      id = form_lower_alphabet.Insert(form_lower);
+      if (id >= form_lower_freqs.size()) {
+        CHECK_EQ(id, form_lower_freqs.size());
+        form_lower_freqs.push_back(0);
+      }
+      ++form_lower_freqs[id];
 
       // Add lemma to alphabet.
       id = lemma_alphabet.Insert(instance->GetLemma(i));
@@ -369,12 +419,30 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   }
 
   while (true) {
+    form_lower_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      form_lower_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = form_lower_alphabet.begin();
+         iter != form_lower_alphabet.end();
+         ++iter) {
+      if (form_lower_freqs[iter->second] > form_lower_cutoff) {
+        form_lower_alphabet_.Insert(iter->first);
+      }
+    }
+    if (form_lower_alphabet_.size() < kMaxFormAlphabetSize) break;
+    ++form_lower_cutoff;
+    LOG(INFO) << "Incrementing lower-case form cutoff to "
+              << form_lower_cutoff << "...";
+  }
+
+  while (true) {
     lemma_alphabet_.clear();
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       lemma_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = lemma_alphabet.begin();
-         iter != lemma_alphabet.end(); 
+         iter != lemma_alphabet.end();
          ++iter) {
       if (lemma_freqs[iter->second] > lemma_cutoff) {
         lemma_alphabet_.Insert(iter->first);
@@ -437,6 +505,7 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   }
 
   form_alphabet_.StopGrowth();
+  form_lower_alphabet_.StopGrowth();
   lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
   suffix_alphabet_.StopGrowth();
@@ -444,15 +513,18 @@ void TokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
   pos_alphabet_.StopGrowth();
   cpos_alphabet_.StopGrowth();
 
-  LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl 
-            << "Number of lemmas: " << lemma_alphabet_.size() << endl  
-            << "Number of prefixes: " << prefix_alphabet_.size() << endl  
-            << "Number of suffixes: " << suffix_alphabet_.size() << endl  
-            << "Number of feats: " << feats_alphabet_.size() << endl  
-            << "Number of pos: " << pos_alphabet_.size() << endl 
+  LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
+            << "Number of lower-case forms: " << form_lower_alphabet_.size()
+            << endl
+            << "Number of lemmas: " << lemma_alphabet_.size() << endl
+            << "Number of prefixes: " << prefix_alphabet_.size() << endl
+            << "Number of suffixes: " << suffix_alphabet_.size() << endl
+            << "Number of feats: " << feats_alphabet_.size() << endl
+            << "Number of pos: " << pos_alphabet_.size() << endl
             << "Number of cpos: " << cpos_alphabet_.size();
 
   CHECK_LT(form_alphabet_.size(), 0xffff);
+  CHECK_LT(form_lower_alphabet_.size(), 0xffff);
   CHECK_LT(lemma_alphabet_.size(), 0xffff);
   CHECK_LT(prefix_alphabet_.size(), 0xffff);
   CHECK_LT(suffix_alphabet_.size(), 0xffff);
@@ -524,6 +596,7 @@ void TokenDictionary::InitializeFromEntityReader(EntityReader *reader) {
   }
 
   form_alphabet_.StopGrowth();
+  form_lower_alphabet_.StopGrowth();
   lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
   suffix_alphabet_.StopGrowth();
@@ -533,140 +606,4 @@ void TokenDictionary::InitializeFromEntityReader(EntityReader *reader) {
 
   LOG(INFO) << "Number of pos: " << pos_alphabet_.size();
   CHECK_LT(pos_alphabet_.size(), 0xff);
-
-
-#if 0
-  LOG(INFO) << "Creating token dictionary...";
-
-  int form_cutoff = FLAGS_form_cutoff;
-  int pos_cutoff = FLAGS_pos_cutoff;
-  int prefix_length = FLAGS_prefix_length;
-  int suffix_length = FLAGS_suffix_length;
-  bool form_case_sensitive = FLAGS_form_case_sensitive;
-
-  vector<int> form_freqs;
-  vector<int> pos_freqs;
-
-  Alphabet form_alphabet;
-  Alphabet pos_alphabet;
-
-  string special_symbols[NUM_SPECIAL_TOKENS];
-  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
-  special_symbols[TOKEN_START] = kTokenStart;
-  special_symbols[TOKEN_STOP] = kTokenStop;
-
-  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
-    prefix_alphabet_.Insert(special_symbols[i]);
-    suffix_alphabet_.Insert(special_symbols[i]);
-    form_alphabet.Insert(special_symbols[i]);
-    pos_alphabet.Insert(special_symbols[i]);
-
-    // Counts of special symbols are set to -1:
-    form_freqs.push_back(-1);
-    pos_freqs.push_back(-1);
-  }
-
-  // Go through the corpus and build the dictionaries,
-  // counting the frequencies.
-  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  EntityInstance *instance =
-    static_cast<EntityInstance*>(reader->GetNext());
-  while (instance != NULL) {
-    int instance_length = instance->size();
-    for (int i = 0; i < instance_length; ++i) {
-      int id;
-
-      // Add form to alphabet.
-      string form = instance->GetForm(i);
-      if (!form_case_sensitive) {
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
-      }
-      id = form_alphabet.Insert(form);
-      if (id >= form_freqs.size()) {
-        CHECK_EQ(id, form_freqs.size());
-        form_freqs.push_back(0);
-      }
-      ++form_freqs[id];
-
-      // Add prefix/suffix to alphabet.
-      // TODO: add varying lengths.
-      string prefix = form.substr(0, prefix_length);
-      id = prefix_alphabet_.Insert(prefix);
-      int start = form.length() - suffix_length;
-      if (start < 0) start = 0;
-      string suffix = form.substr(start, suffix_length);
-      id = suffix_alphabet_.Insert(suffix);
-
-      // Add POS to alphabet.
-      id = pos_alphabet.Insert(instance->GetPosTag(i));
-      if (id >= pos_freqs.size()) {
-        CHECK_EQ(id, pos_freqs.size());
-        pos_freqs.push_back(0);
-      }
-      ++pos_freqs[id];
-    }
-    delete instance;
-    instance = static_cast<EntityInstance*>(reader->GetNext());
-  }
-  reader->Close();
-
-  // Now adjust the cutoffs if necessary.
-  while (true) {
-    form_alphabet_.clear();
-    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
-      form_alphabet_.Insert(special_symbols[i]);
-    }
-    for (Alphabet::iterator iter = form_alphabet.begin();
-         iter != form_alphabet.end();
-         ++iter) {
-      if (form_freqs[iter->second] > form_cutoff) {
-        form_alphabet_.Insert(iter->first);
-      }
-    }
-    if (form_alphabet_.size() < kMaxFormAlphabetSize) break;
-    ++form_cutoff;
-    LOG(INFO) << "Incrementing form cutoff to " << form_cutoff << "...";
-  }
-
-  while (true) {
-    pos_alphabet_.clear();
-    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
-      pos_alphabet_.Insert(special_symbols[i]);
-    }
-    for (Alphabet::iterator iter = pos_alphabet.begin();
-         iter != pos_alphabet.end(); 
-         ++iter) {
-      if (pos_freqs[iter->second] > pos_cutoff) {
-        pos_alphabet_.Insert(iter->first);
-      }
-    }
-    if (pos_alphabet_.size() < kMaxPosAlphabetSize) break;
-    ++pos_cutoff;
-    LOG(INFO) << "Incrementing POS cutoff to " << pos_cutoff << "...";
-  }
-
-  form_alphabet_.StopGrowth();
-  lemma_alphabet_.StopGrowth();
-  prefix_alphabet_.StopGrowth();
-  suffix_alphabet_.StopGrowth();
-  feats_alphabet_.StopGrowth();
-  pos_alphabet_.StopGrowth();
-  cpos_alphabet_.StopGrowth();
-
-  LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
-            << "Number of prefixes: " << prefix_alphabet_.size() << endl
-            << "Number of suffixes: " << suffix_alphabet_.size() << endl
-            << "Number of pos: " << pos_alphabet_.size();
-
-  CHECK_LT(form_alphabet_.size(), 0xffff);
-  CHECK_LT(lemma_alphabet_.size(), 0xffff);
-  CHECK_LT(prefix_alphabet_.size(), 0xffff);
-  CHECK_LT(suffix_alphabet_.size(), 0xffff);
-  CHECK_LT(feats_alphabet_.size(), 0xffff);
-  CHECK_LT(pos_alphabet_.size(), 0xff);
-  CHECK_LT(cpos_alphabet_.size(), 0xff);
-
-  // TODO: Remove this (only for debugging purposes).
-  BuildNames();
-#endif
 }

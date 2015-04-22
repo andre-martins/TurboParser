@@ -20,8 +20,6 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace std;
-
 void DependencyInstanceNumeric::Initialize(
     const DependencyDictionary &dictionary,
     DependencyInstance* instance) {
@@ -37,6 +35,7 @@ void DependencyInstanceNumeric::Initialize(
   Clear();
 
   form_ids_.resize(length);
+  form_lower_ids_.resize(length);
   lemma_ids_.resize(length);
   prefix_ids_.resize(length);
   suffix_ids_.resize(length);
@@ -52,21 +51,27 @@ void DependencyInstanceNumeric::Initialize(
   relations_.resize(length);
 
   for (i = 0; i < length; i++) {
-    string form = instance->GetForm(i);
-    if (!form_case_sensitive) {
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
-    }
+    std::string form = instance->GetForm(i);
+    std::string form_lower(form);
+    transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+              ::tolower);
+    if (!form_case_sensitive) form = form_lower;
     id = token_dictionary->GetFormId(form);
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
     form_ids_[i] = id;
+
+    id = token_dictionary->GetFormLowerId(form_lower);
+    CHECK_LT(id, 0xffff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    form_lower_ids_[i] = id;
 
     id = token_dictionary->GetLemmaId(instance->GetLemma(i));
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
     lemma_ids_[i] = id;
 
-    string prefix = form.substr(0, prefix_length);
+    std::string prefix = form.substr(0, prefix_length);
     id = token_dictionary->GetPrefixId(prefix);
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
@@ -74,7 +79,7 @@ void DependencyInstanceNumeric::Initialize(
 
     int start = form.length() - suffix_length;
     if (start < 0) start = 0;
-    string suffix = form.substr(start, suffix_length);
+    std::string suffix = form.substr(start, suffix_length);
     id = token_dictionary->GetSuffixId(suffix);
     CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;

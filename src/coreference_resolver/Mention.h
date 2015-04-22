@@ -20,6 +20,7 @@
 #define MENTION_H_
 
 #include "EntitySpan.h"
+#include "CoreferenceDictionary.h"
 
 enum MentionTypes {
   MENTION_PRONOMINAL = 0,
@@ -47,21 +48,36 @@ class CoreferenceSentenceNumeric;
 
 class Mention : public NumericSpan {
  public:
-  Mention() {}
+  Mention() { sentence_  = NULL; }
   Mention(int start, int end, int id) : NumericSpan(start, end, id) {}
   virtual ~Mention() {}
 
  public:
-  void ComputeProperties(CoreferenceSentenceNumeric *sentence);
+  void ComputeProperties(const CoreferenceDictionary &dictionary,
+                         CoreferenceSentenceNumeric *sentence);
 
  protected:
   void ComputeHead();
+  int ComputeNumber(const std::vector<int> &words,
+                    const std::vector<int> &words_lower,
+                    int head_index) { return -1; }
+  int ComputePersonGender(const std::vector<int> &words,
+                          const std::vector<int> &words_lower,
+                          int head_index) { return -1; }
+  int ComputeNonPersonGender(const std::vector<int> &words,
+                             const std::vector<int> &words_lower,
+                             int head_index) { return -1; }
 
  protected:
+  CoreferenceSentenceNumeric *sentence_;
   int type_; // Type of mention (pronominal, proper, or nominal).
+  int entity_tag_; // Entity tag, if applicable (otherwise, -1).
   int gender_; // Gender (male, female, neutral, unknown).
   int number_; // Number (singular, plural, unknown).
   int head_index_; // Position of the head word.
+  std::vector<int> words_; // Mention words.
+  std::vector<int> words_lower_; // Mention words in lower case.
+  std::vector<int> tags_; // Mention POS tags.
 };
 
 #endif /* MENTION_H_ */
