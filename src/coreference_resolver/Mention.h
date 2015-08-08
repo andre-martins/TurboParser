@@ -45,6 +45,7 @@ enum MentionNumber {
 };
 
 class CoreferenceSentenceNumeric;
+class CoreferenceSentence;
 
 class Mention : public NumericSpan {
  public:
@@ -56,17 +57,21 @@ class Mention : public NumericSpan {
   void ComputeProperties(const CoreferenceDictionary &dictionary,
                          CoreferenceSentenceNumeric *sentence);
 
+  // Print debug information about this mention.
+  void Print(const CoreferenceDictionary &dictionary,
+             CoreferenceSentence *instance);
+
  protected:
   void ComputeHead();
   int ComputeNumber(const std::vector<int> &words,
                     const std::vector<int> &words_lower,
-                    int head_index) { return -1; }
+                    int head_index) { return MENTION_NUMBER_SINGULAR; }
   int ComputePersonGender(const std::vector<int> &words,
                           const std::vector<int> &words_lower,
-                          int head_index) { return -1; }
+                          int head_index) { return MENTION_GENDER_MALE; }
   int ComputeNonPersonGender(const std::vector<int> &words,
                              const std::vector<int> &words_lower,
-                             int head_index) { return -1; }
+                             int head_index) { return MENTION_GENDER_MALE; }
 
  protected:
   CoreferenceSentenceNumeric *sentence_;

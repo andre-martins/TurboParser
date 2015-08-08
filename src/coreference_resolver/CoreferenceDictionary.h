@@ -40,23 +40,34 @@ class CoreferenceDictionary : public Dictionary {
     // Don't clear token_dictionary, since this class does not own it.
     entity_alphabet_.clear();
     constituent_alphabet_.clear();
+    word_alphabet_.clear();
+    word_lower_alphabet_.clear();
   }
 
   virtual void Save(FILE *fs) {
     if (0 > entity_alphabet_.Save(fs)) CHECK(false);
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
+    if (0 > word_alphabet_.Save(fs)) CHECK(false);
+    if (0 > word_lower_alphabet_.Save(fs)) CHECK(false);
   }
 
   void Load(FILE *fs) {
     if (0 > entity_alphabet_.Load(fs)) CHECK(false);
     if (0 > constituent_alphabet_.Load(fs)) CHECK(false);
+    if (0 > word_alphabet_.Load(fs)) CHECK(false);
+    if (0 > word_lower_alphabet_.Load(fs)) CHECK(false);
     entity_alphabet_.BuildNames();
     constituent_alphabet_.BuildNames();
+    // TODO(atm): Remove this for memory efficiency.
+    word_alphabet_.BuildNames();
+    word_lower_alphabet_.BuildNames();
   }
 
   void AllowGrowth() {
     entity_alphabet_.AllowGrowth();
     constituent_alphabet_.AllowGrowth();
+    word_alphabet_.AllowGrowth();
+    word_lower_alphabet_.AllowGrowth();
     token_dictionary_->AllowGrowth();
     dependency_dictionary_->AllowGrowth();
     semantic_dictionary_->AllowGrowth();
@@ -64,6 +75,8 @@ class CoreferenceDictionary : public Dictionary {
   void StopGrowth() {
     entity_alphabet_.StopGrowth();
     constituent_alphabet_.StopGrowth();
+    word_alphabet_.StopGrowth();
+    word_lower_alphabet_.StopGrowth();
     token_dictionary_->StopGrowth();
     dependency_dictionary_->StopGrowth();
     semantic_dictionary_->StopGrowth();
@@ -73,6 +86,8 @@ class CoreferenceDictionary : public Dictionary {
 
   void CreateConstituentDictionary(CoreferenceSentenceReader *reader);
 
+  void CreateWordDictionaries(CoreferenceSentenceReader *reader);
+
   void BuildEntityNames() {
     entity_alphabet_.BuildNames();
   }
@@ -81,12 +96,25 @@ class CoreferenceDictionary : public Dictionary {
     constituent_alphabet_.BuildNames();
   }
 
+  void BuildWordNames() {
+    word_alphabet_.BuildNames();
+    word_lower_alphabet_.BuildNames();
+  }
+
   const string &GetEntityName(int tag) const {
     return entity_alphabet_.GetName(tag);
   }
 
   const string &GetConstituentName(int tag) const {
     return constituent_alphabet_.GetName(tag);
+  }
+
+  const string &GetWord(int word) const {
+    return word_alphabet_.GetName(word);
+  }
+
+  const string &GetWordLower(int word) const {
+    return word_lower_alphabet_.GetName(word);
   }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
@@ -113,6 +141,18 @@ class CoreferenceDictionary : public Dictionary {
   const Alphabet &GetEntityAlphabet() const {
     return entity_alphabet_;
   };
+
+  const Alphabet &GetWordAlphabet() const {
+    return word_alphabet_;
+  };
+
+  const Alphabet &GetWordLowerAlphabet() const {
+    return word_lower_alphabet_;
+  };
+
+  void ReadGenderNumberStatistics();
+  void ReadMentionTags();
+  void ReadPronouns();
 
   bool IsNamedEntity(int entity_tag) const {
     return named_entity_tags_.find(entity_tag) != named_entity_tags_.end();
@@ -165,6 +205,29 @@ class CoreferenceDictionary : public Dictionary {
     return pronoun->IsGenderNeutral();
   }
 
+  bool IsSingularPronoun(int form_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+    if (!pronoun) return false;
+    return pronoun->IsNumberSingular();
+  }
+
+  bool IsPluralPronoun(int form_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+    if (!pronoun) return false;
+    return pronoun->IsNumberPlural();
+  }
+
+ protected:
+  void DeleteAllPronouns() {
+    for (std::map<int, CoreferencePronoun*>::iterator it =
+           all_pronouns_.begin();
+         it != all_pronouns_.end();
+         ++it) {
+      delete it->second;
+    }
+    all_pronouns_.clear();
+  }
+
  protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
@@ -172,6 +235,12 @@ class CoreferenceDictionary : public Dictionary {
   SemanticDictionary *semantic_dictionary_;
   Alphabet entity_alphabet_;
   Alphabet constituent_alphabet_;
+  // The two form alphabets below come in addition to the TokenDictionary's
+  // form alphabet. We have these additional alphabets here since we do not want
+  // a cutoff and we want to allow loading a lexicon (for gender/number
+  // computation).
+  Alphabet word_alphabet_;
+  Alphabet word_lower_alphabet_;
   std::map<int, CoreferencePronoun*> all_pronouns_;
   std::set<int> named_entity_tags_;
   std::set<int> person_entity_tags_;

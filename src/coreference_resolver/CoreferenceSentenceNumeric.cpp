@@ -94,7 +94,6 @@ void CoreferenceSentenceNumeric::GenerateMentions(
   // Generate mentions for noun phrases and pronouns *except* those contained in
   // the named entity chunks (the named entity tagger seems more reliable than
   // the parser).
-  // Generate mentions for named entities.
   for (int k = 0; k < constituent_spans_.size(); ++k) {
     if (!dictionary.IsNounPhrase(constituent_spans_[k]->id())) continue;
     if (constituent_spans_[k]->FindCoveringSpan(named_entity_mentions)) {
@@ -118,6 +117,13 @@ void CoreferenceSentenceNumeric::GenerateMentions(
     Span span(i, i);
     if (span.FindCoveringSpan(named_entity_mentions)) continue;
     AddMention(dictionary, i, i, -1);
+  }
+
+  // TODO(atm): Need to filter and sort mentions.
+
+  // Print mention information (for debugging purposes).
+  for (int i = 0; i < mentions_.size(); ++i) {
+    mentions_[i]->Print(dictionary, instance);
   }
 }
 

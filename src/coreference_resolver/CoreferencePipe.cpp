@@ -82,6 +82,12 @@ void CoreferencePipe::PreprocessData() {
     CreateEntityDictionary(GetCoreferenceSentenceReader());
   GetCoreferenceDictionary()->
     CreateConstituentDictionary(GetCoreferenceSentenceReader());
+  GetCoreferenceDictionary()->
+    CreateWordDictionaries(GetCoreferenceSentenceReader());
+
+  GetCoreferenceDictionary()->ReadMentionTags();
+  GetCoreferenceDictionary()->ReadPronouns();
+  GetCoreferenceDictionary()->ReadGenderNumberStatistics();
 }
 
 void CoreferencePipe::ComputeScores(Instance *instance, Parts *parts,

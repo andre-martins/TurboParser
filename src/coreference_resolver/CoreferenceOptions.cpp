@@ -28,6 +28,9 @@ DEFINE_string(coreference_file_mention_tags, "",
 DEFINE_string(coreference_file_pronouns, "",
               "Path to a file containing a list of pronouns classified by "
               "types.");
+DEFINE_string(coreference_file_gender_number_statistics, "",
+              "Path to a file containing statistics of nouns' gender and number"
+              "(e.g. Bergsma & Lin data file.");
 DEFINE_double(false_anaphor_cost, 0.1, "Cost of predicting anaphor when it "
               "should be a new cluster.");
 DEFINE_double(false_new_cost, 3.0, "Cost of predicting new cluster when it "
@@ -85,6 +88,8 @@ void CoreferenceOptions::Initialize() {
 
   file_mention_tags_ = FLAGS_coreference_file_mention_tags;
   file_pronouns_ = FLAGS_coreference_file_pronouns;
+  file_gender_number_statistics_ =
+    FLAGS_coreference_file_gender_number_statistics;
 
   //model_type_ = FLAGS_sequence_model_type;
   //prune_tags_ = FLAGS_sequence_prune_tags;

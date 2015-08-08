@@ -36,6 +36,9 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.coref
+coreference_file_mention_tags=${path_data}/${language}_mention_tags.txt
+coreference_file_pronouns=${path_data}/${language}_pronouns.txt
+coreference_file_gender_number_statistics=${path_data}/gender.data
 
 if [ "$language" == "english_ontonotes_wsj" ] || [ "$language" == "english_ontonotes" ]
 then
@@ -66,6 +69,9 @@ then
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
         --file_train=${file_train} \
+        --coreference_file_mention_tags=${coreference_file_mention_tags} \
+        --coreference_file_pronouns=${coreference_file_pronouns} \
+        --coreference_file_gender_number_statistics=${coreference_file_gender_number_statistics} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --form_cutoff=${form_cutoff} \

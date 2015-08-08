@@ -19,6 +19,8 @@
 #include "CoreferenceDictionary.h"
 #include "CoreferencePipe.h"
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 void CoreferenceDictionary::CreateEntityDictionary(
     CoreferenceSentenceReader *reader) {
@@ -91,5 +93,257 @@ void CoreferenceDictionary::CreateConstituentDictionary(
        it != constituent_alphabet_.end();
        ++it) {
     LOG(INFO) << it->first;
+  }
+}
+
+void CoreferenceDictionary::CreateWordDictionaries(
+    CoreferenceSentenceReader *reader) {
+  LOG(INFO) << "Creating word dictionary...";
+  std::vector<int> word_freqs;
+  std::vector<int> word_lower_freqs;
+
+  // Go through the corpus and build the label dictionary,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  CoreferenceSentence *instance =
+    static_cast<CoreferenceSentence*>(reader->GetNext());
+  while (instance != NULL) {
+    for (int i = 0; i < instance->size(); ++i) {
+      int id;
+
+      // Add form to alphabet.
+      std::string form = instance->GetForm(i);
+      std::string form_lower(form);
+      transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                ::tolower);
+      id = word_alphabet_.Insert(form);
+      if (id >= word_freqs.size()) {
+        CHECK_EQ(id, word_freqs.size());
+        word_freqs.push_back(0);
+      }
+      ++word_freqs[id];
+
+      // Add lower-case form to the alphabet.
+      // TODO(atm): "sanitize" words, by escaping digit sequences:
+      // word = re.sub('[\d]+', '#', word.lower())
+      id = word_lower_alphabet_.Insert(form_lower);
+      if (id >= word_lower_freqs.size()) {
+        CHECK_EQ(id, word_lower_freqs.size());
+        word_lower_freqs.push_back(0);
+      }
+      ++word_lower_freqs[id];
+    }
+    delete instance;
+    instance = static_cast<CoreferenceSentence*>(reader->GetNext());
+  }
+  reader->Close();
+  word_alphabet_.StopGrowth();
+  word_lower_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of words: " << word_alphabet_.size();
+  LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
+}
+
+void CoreferenceDictionary::ReadGenderNumberStatistics() {
+  // TODO(atm): implement this.
+  CoreferenceOptions *options =
+    static_cast<CoreferenceOptions*>(pipe_->GetOptions());
+
+  word_alphabet_.AllowGrowth();
+  word_lower_alphabet_.AllowGrowth();
+
+  if (options->file_gender_number_statistics() != "") {
+    LOG(INFO) << "Loading gender/number statistics file "
+              << options->file_gender_number_statistics() << "...";
+    std::ifstream is;
+    std::string line;
+
+    // Read the pronouns, one per line.
+    is.open(options->file_gender_number_statistics().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_gender_number_statistics() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, "\t", &fields); // Break on tabs.
+        CHECK_EQ(fields.size(), 2);
+        const std::string &phrase = fields[0];
+        const std::string &statistics = fields[1];
+        std::vector<std::string> words;
+        StringSplit(phrase, " ", &words); // Break on spaces.
+        for (int i = 0; i < words.size(); ++i) {
+          const std::string &word = words[i];
+          std::string word_lower(word);
+          transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                    ::tolower);
+
+          int word_id = word_alphabet_.Insert(word);
+
+          // Add lower-case form to the alphabet.
+          // TODO(atm): "sanitize" words, by escaping digit sequences:
+          // word = re.sub('[\d]+', '#', word.lower())
+          int word_lower_id = word_lower_alphabet_.Insert(word_lower);
+        }
+
+        std::vector<std::string> subfields;
+        StringSplit(statistics, " ", &subfields); // Break on spaces.
+        CHECK_EQ(subfields.size(), 4);
+        std::vector<int> counts;
+        for (int i = 0; i < subfields.size(); ++i) {
+          std::stringstream ss(subfields[i]);
+          int count;
+          ss >> count;
+          counts.push_back(count);
+        }
+      }
+    }
+    is.close();
+  }
+
+  word_alphabet_.StopGrowth();
+  word_lower_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of words: " << word_alphabet_.size();
+  LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
+}
+
+void CoreferenceDictionary::ReadPronouns() {
+  CoreferenceOptions *options =
+    static_cast<CoreferenceOptions*>(pipe_->GetOptions());
+
+  DeleteAllPronouns();
+
+  if (options->file_pronouns() != "") {
+    LOG(INFO) << "Loading pronouns file "
+              << options->file_pronouns() << "...";
+    std::ifstream is;
+    std::string line;
+
+    // Read the pronouns, one per line.
+    is.open(options->file_pronouns().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_pronouns() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        CHECK_EQ(fields.size(), 2);
+        const std::string &form = fields[0];
+        const std::string code_flags = fields[1];
+        std::string form_lower(form);
+        transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                  ::tolower);
+        int id = token_dictionary_->GetFormLowerId(form_lower);
+        CHECK_LT(id, 0xffff);
+        if (id < 0) {
+          LOG(INFO) << "Ignoring unknown word: "
+                    << form_lower;
+          continue;
+        }
+        CHECK(all_pronouns_.find(id) == all_pronouns_.end());
+        CoreferencePronoun *pronoun = new CoreferencePronoun(code_flags);
+        all_pronouns_[id] = pronoun;
+      }
+    }
+    is.close();
+  }
+}
+
+void CoreferenceDictionary::ReadMentionTags() {
+  CoreferenceOptions *options =
+    static_cast<CoreferenceOptions*>(pipe_->GetOptions());
+
+  named_entity_tags_.clear();
+  person_entity_tags_.clear();
+  noun_phrase_tags_.clear();
+  proper_noun_tags_.clear();
+  pronominal_tags_.clear();
+
+  if (options->file_mention_tags() != "") {
+    LOG(INFO) << "Loading mention tags file "
+              << options->file_mention_tags() << "...";
+    std::ifstream is;
+    std::string line;
+
+    // Read the mention tags, one type per line.
+    is.open(options->file_mention_tags().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_mention_tags() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        CHECK_GT(fields.size(), 0);
+        const std::string &mention_tag_type = fields[0];
+        if (mention_tag_type == "named_entity_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = entity_alphabet_.Lookup(tag_name);
+            CHECK_LT(id, 0xff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown entity tag: "
+                        << tag_name;
+              continue;
+            }
+            named_entity_tags_.insert(id);
+          }
+        } else if (mention_tag_type == "person_entity_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = entity_alphabet_.Lookup(tag_name);
+            CHECK_LT(id, 0xff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown entity tag: "
+                        << tag_name;
+              continue;
+            }
+            person_entity_tags_.insert(id);
+          }
+        } else if (mention_tag_type == "noun_phrase_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = constituent_alphabet_.Lookup(tag_name);
+            CHECK_LT(id, 0xffff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown constituent: "
+                        << tag_name;
+              continue;
+            }
+            noun_phrase_tags_.insert(id);
+          }
+        } else if (mention_tag_type == "proper_noun_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = token_dictionary_->GetPosTagId(tag_name);
+            CHECK_LT(id, 0xff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown POS tag: "
+                        << tag_name;
+              continue;
+            }
+            proper_noun_tags_.insert(id);
+          }
+        } else if (mention_tag_type == "pronominal_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = token_dictionary_->GetPosTagId(tag_name);
+            CHECK_LT(id, 0xff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown POS tag: "
+                        << tag_name;
+              continue;
+            }
+            pronominal_tags_.insert(id);
+          }
+        }
+      }
+    }
+    is.close();
   }
 }

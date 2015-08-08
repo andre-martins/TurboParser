@@ -67,6 +67,13 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
     } else {
       gender_ = MENTION_GENDER_UNKNOWN;
     }
+    if (dictionary.IsSingularPronoun(head_word)) {
+      number_ = MENTION_NUMBER_SINGULAR;
+    } else if (dictionary.IsPluralPronoun(head_word)) {
+      number_ = MENTION_NUMBER_PLURAL;
+    } else {
+      number_ = MENTION_NUMBER_UNKNOWN;
+    }
   } else {
     number_ = ComputeNumber(words_, words_lower_, head_index_ - start_);
     if (entity_tag_ >= 0 &&
@@ -78,6 +85,52 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
     }
   }
 }
+
+void Mention::Print(const CoreferenceDictionary &dictionary,
+                    CoreferenceSentence* instance) {
+  LOG(INFO) << "-----------------------------------------";
+  std::string word_sequence = "";
+  std::string pos_sequence = "";
+  for (int i = start_; i <= end_; ++i) {
+    word_sequence += instance->GetForm(i) + " ";
+    pos_sequence += instance->GetPosTag(i) + " ";
+  }
+  LOG(INFO) << word_sequence;
+  LOG(INFO) << pos_sequence;
+  LOG(INFO) << "Head: " << instance->GetForm(head_index_);
+  LOG(INFO) << "Entity type: " << entity_tag_;
+  if (type_ == MENTION_PRONOMINAL) {
+    LOG(INFO) << "Type: pronominal";
+  } else if (type_ == MENTION_PROPER) {
+    LOG(INFO) << "Type: proper";
+  } else if (type_ == MENTION_NOMINAL) {
+    LOG(INFO) << "Type: nominal";
+  } else {
+    CHECK(false);
+  }
+  if (gender_ == MENTION_GENDER_MALE) {
+    LOG(INFO) << "Gender: male";
+  } else if (gender_ == MENTION_GENDER_FEMALE) {
+    LOG(INFO) << "Gender: female";
+  } else if (gender_ == MENTION_GENDER_NEUTRAL) {
+    LOG(INFO) << "Gender: neutral";
+  } else if (gender_ == MENTION_GENDER_UNKNOWN) {
+    LOG(INFO) << "Gender: unknown";
+  } else {
+    CHECK(false) << gender_;
+  }
+  if (number_ == MENTION_NUMBER_SINGULAR) {
+    LOG(INFO) << "Number: singular";
+  } else if (number_ == MENTION_NUMBER_PLURAL) {
+    LOG(INFO) << "Number: plural";
+  } else if (number_ == MENTION_NUMBER_UNKNOWN) {
+    LOG(INFO) << "Number: unknown";
+  } else {
+    CHECK(false) << number_;
+  }
+  LOG(INFO) << "-----------------------------------------";
+}
+
 
 void Mention::ComputeHead() {
   // If it's a constituent, only one word should have its head outside the span.

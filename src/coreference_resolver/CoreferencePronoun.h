@@ -63,6 +63,7 @@ class CoreferencePronoun {
   void SetFlags(const std::string &code_flags) {
     CHECK_EQ(code_flags.length(), 3);
 
+    ClearFlags();
     char ch = code_flags[0]; // Person flag.
     if (ch == '1') {
       SetPersonFirst();
