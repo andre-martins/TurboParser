@@ -22,26 +22,32 @@
 #include "EntitySpan.h"
 #include "CoreferenceDictionary.h"
 
-enum MentionTypes {
-  MENTION_PRONOMINAL = 0,
-  MENTION_PROPER,
-  MENTION_NOMINAL,
-  NUM_MENTION_TYPES
+struct MentionType {
+  enum {
+    PRONOMINAL = 0,
+    PROPER,
+    NOMINAL,
+    NUM_MENTION_TYPES
+  };
 };
 
-enum MentionGender {
-  MENTION_GENDER_MALE = 0,
-  MENTION_GENDER_FEMALE,
-  MENTION_GENDER_NEUTRAL,
-  MENTION_GENDER_UNKNOWN,
-  NUM_MENTION_GENDERS
+struct MentionGender {
+  enum {
+    MALE = 0,
+    FEMALE,
+    NEUTRAL,
+    UNKNOWN,
+    NUM_MENTION_GENDERS
+  };
 };
 
-enum MentionNumber {
-  MENTION_NUMBER_SINGULAR = 0,
-  MENTION_NUMBER_PLURAL,
-  MENTION_NUMBER_UNKNOWN,
-  NUM_MENTION_NUMBERS
+struct MentionNumber {
+  enum {
+    SINGULAR = 0,
+    PLURAL,
+    UNKNOWN,
+    NUM_MENTION_NUMBERS
+  };
 };
 
 class CoreferenceSentenceNumeric;
@@ -55,6 +61,7 @@ class Mention : public NumericSpan {
 
  public:
   void ComputeProperties(const CoreferenceDictionary &dictionary,
+                         CoreferenceSentence* instance,
                          CoreferenceSentenceNumeric *sentence);
 
   // Print debug information about this mention.
@@ -65,13 +72,13 @@ class Mention : public NumericSpan {
   void ComputeHead();
   int ComputeNumber(const std::vector<int> &words,
                     const std::vector<int> &words_lower,
-                    int head_index) { return MENTION_NUMBER_SINGULAR; }
+                    int head_index) { return MentionNumber::SINGULAR; }
   int ComputePersonGender(const std::vector<int> &words,
                           const std::vector<int> &words_lower,
-                          int head_index) { return MENTION_GENDER_MALE; }
+                          int head_index) { return MentionGender::MALE; }
   int ComputeNonPersonGender(const std::vector<int> &words,
                              const std::vector<int> &words_lower,
-                             int head_index) { return MENTION_GENDER_MALE; }
+                             int head_index) { return MentionGender::MALE; }
 
  protected:
   CoreferenceSentenceNumeric *sentence_;

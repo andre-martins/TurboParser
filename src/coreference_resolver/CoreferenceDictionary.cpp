@@ -18,9 +18,69 @@
 
 #include "CoreferenceDictionary.h"
 #include "CoreferencePipe.h"
+#include "Mention.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+
+int GenderNumberStatistics::ComputeNumber(const std::vector<int> &phrase,
+                                          int head_index) const {
+  std::map<std::vector<int>, std::vector<int> >::const_iterator it =
+    phrase_counts_.find(phrase);
+  std::vector<int> counts;
+  if (it != phrase_counts_.end()) {
+    counts = it->second;
+  } else {
+    std::vector<int> word;
+    word.push_back(phrase[head_index]);
+    it = phrase_counts_.find(word);
+    if (it != phrase_counts_.end()) {
+      counts = it->second;
+    }
+  }
+  if (counts.size() > 0) {
+    CHECK_EQ(counts.size(), 4);
+    if (counts[0] + counts[1] + counts[2] >= counts[3]) {
+      return MentionNumber::SINGULAR;
+    } else {
+      return MentionNumber::PLURAL;
+    }
+  } else {
+    return MentionNumber::SINGULAR;
+  }
+}
+
+int GenderNumberStatistics::ComputeGender(const std::vector<int> &phrase,
+                                          int head_index) const {
+  std::map<std::vector<int>, std::vector<int> >::const_iterator it =
+    phrase_counts_.find(phrase);
+  std::vector<int> counts;
+  if (it != phrase_counts_.end()) {
+    counts = it->second;
+  } else {
+    std::vector<int> word;
+    word.push_back(phrase[head_index]);
+    it = phrase_counts_.find(word);
+    if (it != phrase_counts_.end()) {
+      counts = it->second;
+    }
+  }
+  if (counts.size() > 0) {
+    CHECK_EQ(counts.size(), 4);
+    // Require some confidence to decide (taken from the Stanford system).
+    if (counts[0] >= 2*(counts[1] + counts[2]) && counts[0] >= 3) {
+      return MentionGender::MALE;
+    } else if (counts[1] >= 2*(counts[0] + counts[2]) && counts[1] >= 3) {
+      return MentionGender::FEMALE;
+    } else if (counts[2] >= 2*(counts[0] + counts[1]) && counts[2] >= 3) {
+      return MentionGender::NEUTRAL;
+    } else {
+      return MentionGender::UNKNOWN;
+    }
+  } else {
+    return MentionGender::UNKNOWN;
+  }
+}
 
 void CoreferenceDictionary::CreateEntityDictionary(
     CoreferenceSentenceReader *reader) {
@@ -102,6 +162,20 @@ void CoreferenceDictionary::CreateWordDictionaries(
   std::vector<int> word_freqs;
   std::vector<int> word_lower_freqs;
 
+  /*
+  string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
+  special_symbols[TOKEN_START] = kTokenStart;
+  special_symbols[TOKEN_STOP] = kTokenStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    word_alphabet.Insert(special_symbols[i]);
+    word_freqs.push_back(0);
+    word_lower_alphabet.Insert(special_symbols[i]);
+    word_lower_freqs.push_back(0);
+  }
+  */
+
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
@@ -152,6 +226,8 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
   word_alphabet_.AllowGrowth();
   word_lower_alphabet_.AllowGrowth();
 
+  gender_number_statistics_.Clear();
+
   if (options->file_gender_number_statistics() != "") {
     LOG(INFO) << "Loading gender/number statistics file "
               << options->file_gender_number_statistics() << "...";
@@ -173,6 +249,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
         const std::string &statistics = fields[1];
         std::vector<std::string> words;
         StringSplit(phrase, " ", &words); // Break on spaces.
+        std::vector<int> phrase_ids;
         for (int i = 0; i < words.size(); ++i) {
           const std::string &word = words[i];
           std::string word_lower(word);
@@ -185,6 +262,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
           // TODO(atm): "sanitize" words, by escaping digit sequences:
           // word = re.sub('[\d]+', '#', word.lower())
           int word_lower_id = word_lower_alphabet_.Insert(word_lower);
+          phrase_ids.push_back(word_lower_id);
         }
 
         std::vector<std::string> subfields;
@@ -196,6 +274,10 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
           int count;
           ss >> count;
           counts.push_back(count);
+        }
+
+        if (!gender_number_statistics_.AddPhrase(phrase_ids, counts)) {
+          LOG(INFO) << "Repeated phrase: " << phrase;
         }
       }
     }

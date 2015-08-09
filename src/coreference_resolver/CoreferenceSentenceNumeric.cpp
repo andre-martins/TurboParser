@@ -67,6 +67,14 @@ void CoreferenceSentenceNumeric::Initialize(
     constituent_spans_[k] = new NumericSpan(start, end, id);
   }
 
+  int length = instance->size();
+  first_upper_.resize(length);
+  for (int i = 0; i < length; ++i) {
+    const char* word = instance->GetForm(i).c_str();
+    int word_length = instance->GetForm(i).length();
+    first_upper_[i] = IsCapitalized(word, word_length);
+  }
+
   // Generate candidate mentions.
   GenerateMentions(dictionary, instance);
 }
@@ -86,7 +94,7 @@ void CoreferenceSentenceNumeric::GenerateMentions(
     if (mention_end < size() - 1 && instance->GetForm(mention_end) == "'s") {
       ++mention_end;
     }
-    AddMention(dictionary, mention_start, mention_end, -1);
+    AddMention(dictionary, instance, mention_start, mention_end, -1);
   }
   std::vector<Span*> named_entity_mentions(mentions_.begin(),
                                            mentions_.end());
@@ -100,6 +108,7 @@ void CoreferenceSentenceNumeric::GenerateMentions(
       continue;
     }
     AddMention(dictionary,
+               instance,
                constituent_spans_[k]->start(),
                constituent_spans_[k]->end(),
                -1);
@@ -116,7 +125,7 @@ void CoreferenceSentenceNumeric::GenerateMentions(
     // TODO(atm): for Portuguese need to ignore "se" and "-se".
     Span span(i, i);
     if (span.FindCoveringSpan(named_entity_mentions)) continue;
-    AddMention(dictionary, i, i, -1);
+    AddMention(dictionary, instance, i, i, -1);
   }
 
   // TODO(atm): Need to filter and sort mentions.
@@ -129,8 +138,9 @@ void CoreferenceSentenceNumeric::GenerateMentions(
 
 void CoreferenceSentenceNumeric::AddMention(
     const CoreferenceDictionary &dictionary,
+    CoreferenceSentence* instance,
     int start, int end, int id) {
   Mention *mention = new Mention(start, end, id);
-  mention->ComputeProperties(dictionary, this);
+  mention->ComputeProperties(dictionary, instance, this);
   mentions_.push_back(mention);
 }

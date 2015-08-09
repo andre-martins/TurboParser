@@ -18,8 +18,10 @@
 
 #include "Mention.h"
 #include "CoreferenceSentenceNumeric.h"
+#include <algorithm>
 
 void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
+                                CoreferenceSentence* instance,
                                 CoreferenceSentenceNumeric *sentence) {
   sentence_ = sentence;
   ComputeHead();
@@ -32,7 +34,7 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   NumericSpan *entity_span =
     static_cast<NumericSpan*>(FindCoveringSpan(entity_spans));
   if (entity_span) {
-    type_ = MENTION_PROPER;
+    type_ = MentionType::PROPER;
     entity_tag_ = entity_span->id();
   }
 
@@ -47,41 +49,75 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   int head_tag = sentence->GetPosId(head_index_);
   if (dictionary.IsPronoun(head_word) ||
       dictionary.IsPronounTag(head_tag)) {
-    type_ = MENTION_PRONOMINAL;
+    type_ = MentionType::PRONOMINAL;
   } else if (dictionary.IsProperNoun(head_tag)) {
-    type_ = MENTION_PROPER;
+    type_ = MentionType::PROPER;
   } else if (type_ < 0) {
-    type_ = MENTION_NOMINAL;
+    type_ = MentionType::NOMINAL;
   }
 
   // Compute gender and number.
-  number_ = MENTION_NUMBER_SINGULAR;
-  gender_ = MENTION_GENDER_MALE;
-  if (type_ == MENTION_PRONOMINAL) {
+  number_ = MentionNumber::SINGULAR;
+  gender_ = MentionGender::MALE;
+  if (type_ == MentionType::PRONOMINAL) {
     if (dictionary.IsMalePronoun(head_word)) {
-      gender_ = MENTION_GENDER_MALE;
+      gender_ = MentionGender::MALE;
     } else if (dictionary.IsFemalePronoun(head_word)) {
-      gender_ = MENTION_GENDER_FEMALE;
+      gender_ = MentionGender::FEMALE;
     } else if (dictionary.IsNeutralPronoun(head_word)) {
-      gender_ = MENTION_GENDER_NEUTRAL;
+      gender_ = MentionGender::NEUTRAL;
     } else {
-      gender_ = MENTION_GENDER_UNKNOWN;
+      gender_ = MentionGender::UNKNOWN;
     }
     if (dictionary.IsSingularPronoun(head_word)) {
-      number_ = MENTION_NUMBER_SINGULAR;
+      number_ = MentionNumber::SINGULAR;
     } else if (dictionary.IsPluralPronoun(head_word)) {
-      number_ = MENTION_NUMBER_PLURAL;
+      number_ = MentionNumber::PLURAL;
     } else {
-      number_ = MENTION_NUMBER_UNKNOWN;
+      number_ = MentionNumber::UNKNOWN;
     }
   } else {
-    number_ = ComputeNumber(words_, words_lower_, head_index_ - start_);
+    std::vector<int> phrase;
+    std::vector<int> phrase_lower;
+    for (int i = start_; i <= end_; ++i) {
+      const std::string &word = instance->GetForm(i);
+      std::string word_lower(word);
+      transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                ::tolower);
+      int id = dictionary.GetWordAlphabet().Lookup(word);
+      //if (id < 0) id = TOKEN_UNKNOWN;
+      phrase.push_back(id);
+      id = dictionary.GetWordLowerAlphabet().Lookup(word_lower);
+      //if (id < 0) id = TOKEN_UNKNOWN;
+      phrase_lower.push_back(id);
+    }
+    //number_ = ComputeNumber(phrase, phrase_lower, head_index_ - start_);
+    number_ = dictionary.GetGenderNumberStatistics().
+      ComputeNumber(phrase_lower, head_index_ - start_);
     if (entity_tag_ >= 0 &&
         dictionary.IsPersonEntity(entity_tag_)) {
-      gender_ = ComputePersonGender(words_, words_lower_, head_index_ - start_);
+      //gender_ = ComputePersonGender(phrase, phrase_lower,
+      //                              head_index_ - start_);
+      // If the head is upper case, assume it's a last name.
+      if (sentence->FirstUpper(head_index_)) {
+        // If the word before the head is upper case, assume it's a first name,
+        // and decide based on that.
+        if (head_index_ > 0 && sentence->FirstUpper(head_index_ - 1)) {
+          gender_ = dictionary.GetGenderNumberStatistics().
+            ComputeGender(phrase_lower, head_index_ - 1 - start_);
+        } else {
+          gender_ = dictionary.GetGenderNumberStatistics().
+            ComputeGender(phrase_lower, head_index_ - start_);
+        }
+      } else {
+        gender_ = dictionary.GetGenderNumberStatistics().
+          ComputeGender(phrase_lower, head_index_ - start_);
+      }
     } else {
-      gender_ = ComputeNonPersonGender(words_, words_lower_,
-                                       head_index_ - start_);
+      //gender_ = ComputeNonPersonGender(phrase, phrase_lower,
+      //                                 head_index_ - start_);
+      gender_ = dictionary.GetGenderNumberStatistics().
+        ComputeGender(phrase_lower, head_index_ - start_);
     }
   }
 }
@@ -99,31 +135,31 @@ void Mention::Print(const CoreferenceDictionary &dictionary,
   LOG(INFO) << pos_sequence;
   LOG(INFO) << "Head: " << instance->GetForm(head_index_);
   LOG(INFO) << "Entity type: " << entity_tag_;
-  if (type_ == MENTION_PRONOMINAL) {
+  if (type_ == MentionType::PRONOMINAL) {
     LOG(INFO) << "Type: pronominal";
-  } else if (type_ == MENTION_PROPER) {
+  } else if (type_ == MentionType::PROPER) {
     LOG(INFO) << "Type: proper";
-  } else if (type_ == MENTION_NOMINAL) {
+  } else if (type_ == MentionType::NOMINAL) {
     LOG(INFO) << "Type: nominal";
   } else {
     CHECK(false);
   }
-  if (gender_ == MENTION_GENDER_MALE) {
+  if (gender_ == MentionGender::MALE) {
     LOG(INFO) << "Gender: male";
-  } else if (gender_ == MENTION_GENDER_FEMALE) {
+  } else if (gender_ == MentionGender::FEMALE) {
     LOG(INFO) << "Gender: female";
-  } else if (gender_ == MENTION_GENDER_NEUTRAL) {
+  } else if (gender_ == MentionGender::NEUTRAL) {
     LOG(INFO) << "Gender: neutral";
-  } else if (gender_ == MENTION_GENDER_UNKNOWN) {
+  } else if (gender_ == MentionGender::UNKNOWN) {
     LOG(INFO) << "Gender: unknown";
   } else {
     CHECK(false) << gender_;
   }
-  if (number_ == MENTION_NUMBER_SINGULAR) {
+  if (number_ == MentionNumber::SINGULAR) {
     LOG(INFO) << "Number: singular";
-  } else if (number_ == MENTION_NUMBER_PLURAL) {
+  } else if (number_ == MentionNumber::PLURAL) {
     LOG(INFO) << "Number: plural";
-  } else if (number_ == MENTION_NUMBER_UNKNOWN) {
+  } else if (number_ == MentionNumber::UNKNOWN) {
     LOG(INFO) << "Number: unknown";
   } else {
     CHECK(false) << number_;

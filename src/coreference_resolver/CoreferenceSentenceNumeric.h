@@ -47,6 +47,10 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
     return entity_spans_;
   }
 
+  // TODO(atm): this is duplicated from SequenceInstanceNumeric. It should
+  // be inherited from that class.
+  bool FirstUpper(int i) { return first_upper_[i]; }
+
  protected:
   void DeleteAllSpans() {
     for (int i = 0; i < entity_spans_.size(); ++i) {
@@ -70,10 +74,19 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
     mentions_.clear();
   }
 
+  // TODO(atm): this is duplicated from SequenceInstanceNumeric. It should
+  // be inherited from that class.
+  bool IsUpperCase(char c) { return (c >= 'A' && c <= 'Z'); }
+  bool IsCapitalized(const char* word, int len) {
+    if (len <= 0) return false;
+    return IsUpperCase(word[0]);
+  }
+
   void GenerateMentions(const CoreferenceDictionary &dictionary,
                         CoreferenceSentence *instance);
 
   void AddMention(const CoreferenceDictionary &dictionary,
+                  CoreferenceSentence* instance,
                   int start, int end, int id);
 
  private:
@@ -81,6 +94,9 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
   std::vector<NumericSpan*> constituent_spans_;
   std::vector<NumericSpan*> coreference_spans_;
   std::vector<Mention*> mentions_;
+  // TODO(atm): this is duplicated from SequenceInstanceNumeric. It should
+  // be inherited from that class.
+  std::vector<bool> first_upper_;
 };
 
 #endif /* COREFERENCESENTENCENUMERIC_H_ */

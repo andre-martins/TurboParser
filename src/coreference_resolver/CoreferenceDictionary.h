@@ -30,6 +30,30 @@
 
 class Pipe;
 
+class GenderNumberStatistics {
+ public:
+  GenderNumberStatistics() {}
+  virtual ~GenderNumberStatistics() { Clear(); }
+
+  void Clear() { phrase_counts_.clear(); }
+
+  bool AddPhrase(const std::vector<int> &phrase,
+                 const std::vector<int> &counts) {
+    if (phrase_counts_.find(phrase) == phrase_counts_.end()) {
+      phrase_counts_[phrase] = counts;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  int ComputeNumber(const std::vector<int> &phrase, int head_index) const;
+  int ComputeGender(const std::vector<int> &phrase, int head_index) const;
+
+ protected:
+  std::map<std::vector<int>, std::vector<int> > phrase_counts_;
+};
+
 class CoreferenceDictionary : public Dictionary {
  public:
   CoreferenceDictionary() {}
@@ -150,6 +174,10 @@ class CoreferenceDictionary : public Dictionary {
     return word_lower_alphabet_;
   };
 
+  const GenderNumberStatistics &GetGenderNumberStatistics() const {
+    return gender_number_statistics_;
+  };
+
   void ReadGenderNumberStatistics();
   void ReadMentionTags();
   void ReadPronouns();
@@ -241,6 +269,7 @@ class CoreferenceDictionary : public Dictionary {
   // computation).
   Alphabet word_alphabet_;
   Alphabet word_lower_alphabet_;
+  GenderNumberStatistics gender_number_statistics_;
   std::map<int, CoreferencePronoun*> all_pronouns_;
   std::set<int> named_entity_tags_;
   std::set<int> person_entity_tags_;
