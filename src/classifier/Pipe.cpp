@@ -247,6 +247,11 @@ void Pipe::TrainEpoch(int epoch) {
     gettimeofday(&end_scores, NULL);
     time_scores += diff_ms(end_scores, start_scores);
 
+    // This is a no-op by default. But it's convenient to have it here to build
+    // latent-variable structured classifiers (e.g. for coreference resolution).
+    double inner_loss = 0.0;
+    TransformGold(instance, parts, scores, &gold_outputs, &inner_loss);
+
     if (options_->GetTrainingAlgorithm() == "perceptron" ||
         options_->GetTrainingAlgorithm() == "mira" ) {
       timeval start_decoding, end_decoding;
@@ -293,6 +298,7 @@ void Pipe::TrainEpoch(int epoch) {
       gettimeofday(&end_decoding, NULL);
       time_decoding += diff_ms(end_decoding, start_decoding);
 
+      loss -= inner_loss;
       if (loss < 0.0) {
         if (!NEARLY_EQ_TOL(loss, 0.0, 1e-9)) {
           LOG(INFO) << "Warning: negative loss set to zero: " << loss;

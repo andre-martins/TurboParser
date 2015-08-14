@@ -43,7 +43,7 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // Word on the left.
   uint16_t pWID = (position > 0)? (*word_ids)[position - 1] : TOKEN_START;
   // Word on the right.
-  uint16_t nWID = (position < sentence_length - 1)? 
+  uint16_t nWID = (position < sentence_length - 1)?
       (*word_ids)[position + 1] : TOKEN_STOP;
   // Word two positions on the left.
   uint16_t ppWID = (position > 1)? (*word_ids)[position - 2] : TOKEN_START;

@@ -39,11 +39,14 @@ class CoreferenceDocumentNumeric : public Instance {
       delete coreference_spans_[i];
     }
     coreference_spans_.clear();
+    // TODO(atm): if document owns mentions, they should be deleted here.
+    mentions_.clear();
     DeleteAllSentences();
   }
 
   void Initialize(const CoreferenceDictionary &dictionary,
-                  CoreferenceDocument *instance);
+                  CoreferenceDocument *instance,
+                  bool add_gold_mentions);
 
   // Returns the number of sentences in the document.
   int GetNumSentences() { return sentences_.size(); }
@@ -53,6 +56,9 @@ class CoreferenceDocumentNumeric : public Instance {
 
   // Returns the i-th sentence.
   CoreferenceSentenceNumeric *GetSentence(int i) { return sentences_[i]; }
+
+  // Returns the mentions.
+  const std::vector<Mention*> &GetMentions() { return mentions_; }
 
   // Get the sentence to which a word belongs.
   // Note: this takes linear time w.r.t. the number of sentences.
@@ -98,6 +104,7 @@ class CoreferenceDocumentNumeric : public Instance {
   std::vector<CoreferenceSentenceNumeric*> sentences_;
   std::vector<int> sentence_cumulative_lengths_;
   std::vector<NumericSpan*> coreference_spans_;
+  std::vector<Mention*> mentions_;
 };
 
 #endif /* COREFERENCEDOCUMENTNUMERIC_H_ */

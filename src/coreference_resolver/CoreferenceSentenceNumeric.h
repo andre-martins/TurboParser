@@ -41,10 +41,15 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
   }
 
   void Initialize(const CoreferenceDictionary &dictionary,
-                  CoreferenceSentence *instance);
+                  CoreferenceSentence *instance,
+                  bool add_gold_mentions);
 
   const std::vector<NumericSpan*> &GetEntitySpans() {
     return entity_spans_;
+  }
+
+  const std::vector<Mention*> &GetMentions() {
+    return mentions_;
   }
 
   // TODO(atm): this is duplicated from SequenceInstanceNumeric. It should
@@ -84,6 +89,12 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
 
   void GenerateMentions(const CoreferenceDictionary &dictionary,
                         CoreferenceSentence *instance);
+
+  void FilterAndSortMentions(const CoreferenceDictionary &dictionary,
+                             CoreferenceSentence *instance);
+
+  void AddGoldMentions(const CoreferenceDictionary &dictionary,
+                       CoreferenceSentence* instance);
 
   void AddMention(const CoreferenceDictionary &dictionary,
                   CoreferenceSentence* instance,

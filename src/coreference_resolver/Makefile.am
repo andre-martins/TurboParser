@@ -16,6 +16,9 @@ CoreferenceSentence.cpp \
 CoreferenceDictionary.cpp \
 CoreferenceDocumentNumeric.cpp \
 CoreferenceSentenceNumeric.cpp \
+CoreferencePart.cpp \
+CoreferenceFeatures.cpp \
+CoreferenceDecoder.cpp \
 Mention.cpp \
 CoreferencePipe.h \
 CoreferenceOptions.h \
@@ -25,6 +28,10 @@ CoreferenceSentence.h \
 CoreferenceDictionary.h \
 CoreferenceDocumentNumeric.h \
 CoreferenceSentenceNumeric.h \
+CoreferencePart.h \
+CoreferenceFeatures.h \
+CoreferenceFeatureTemplates.h \
+CoreferenceDecoder.h \
 Mention.h \
 CoreferencePronoun.h \
 $(SEMANTIC_PARSER)/SemanticInstance.cpp \

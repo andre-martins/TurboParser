@@ -59,6 +59,35 @@ class Mention : public NumericSpan {
   Mention(int start, int end, int id) : NumericSpan(start, end, id) {}
   virtual ~Mention() {}
 
+  int type() const { return type_; }
+
+  int head_index() const { return head_index_; }
+  void set_head_index(int head_index) { head_index_ = head_index; }
+
+  int sentence_index() const { return sentence_index_; }
+  void set_sentence_index(int sentence_index) {
+    sentence_index_ = sentence_index;
+  }
+
+  int offset() const { return offset_; }
+  void set_offset(int offset) { offset_ = offset; }
+
+  int global_start() const { return offset_ + start_; }
+  int global_end() const { return offset_ + end_; }
+  int global_head_index() { return offset_ + head_index_; }
+
+  int head_string_id() const { return head_string_id_; }
+  void set_head_string_id(int head_string_id) {
+    head_string_id_ = head_string_id;
+  }
+
+  int phrase_string_id() const { return phrase_string_id_; }
+  void set_phrase_string_id(int phrase_string_id) {
+    phrase_string_id_ = phrase_string_id;
+  }
+
+  CoreferencePronoun *pronoun() const { return pronoun_; }
+
  public:
   void ComputeProperties(const CoreferenceDictionary &dictionary,
                          CoreferenceSentence* instance,
@@ -67,6 +96,10 @@ class Mention : public NumericSpan {
   // Print debug information about this mention.
   void Print(const CoreferenceDictionary &dictionary,
              CoreferenceSentence *instance);
+  void GetPhraseString(CoreferenceSentence *instance,
+                       std::string *phrase_string);
+  void GetHeadString(CoreferenceSentence *instance,
+                     std::string *head_string);
 
  protected:
   void ComputeHead();
@@ -84,12 +117,17 @@ class Mention : public NumericSpan {
   CoreferenceSentenceNumeric *sentence_;
   int type_; // Type of mention (pronominal, proper, or nominal).
   int entity_tag_; // Entity tag, if applicable (otherwise, -1).
+  CoreferencePronoun *pronoun_; // Pronoun information, if applicable.
   int gender_; // Gender (male, female, neutral, unknown).
   int number_; // Number (singular, plural, unknown).
   int head_index_; // Position of the head word.
   std::vector<int> words_; // Mention words.
   std::vector<int> words_lower_; // Mention words in lower case.
   std::vector<int> tags_; // Mention POS tags.
+  int offset_; // Global offset position (start of sentence at document level).
+  int sentence_index_; // Index of the sentence to which this mention belongs.
+  int head_string_id_; // ID of head word to test head match w/ other mentions.
+  int phrase_string_id_; // ID of the entire phrase to test exact match.
 };
 
 #endif /* MENTION_H_ */

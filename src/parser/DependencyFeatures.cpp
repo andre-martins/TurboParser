@@ -671,8 +671,8 @@ void DependencyFeatures::AddDirectedPathFeatures(
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-	int left_position, right_position;
-	int span_length;
+  int left_position, right_position;
+  int span_length;
 
   uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.
   uint8_t binned_length_code; // Binned arc length.

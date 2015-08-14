@@ -17,6 +17,7 @@
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CoreferencePipe.h"
+#include "logval.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -93,87 +94,7 @@ void CoreferencePipe::PreprocessData() {
 void CoreferencePipe::ComputeScores(Instance *instance, Parts *parts,
                                     Features *features,
                                     std::vector<double> *scores) {
-#if 0
-  SequenceInstanceNumeric *sentence =
-    static_cast<SequenceInstanceNumeric*>(instance);
-  SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-  SequenceFeatures *sequence_features =
-    static_cast<SequenceFeatures*>(features);
-  SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
-  scores->resize(parts->size());
-
-  // Compute scores for the unigram parts.
-  for (int i = 0; i < sentence->size(); ++i) {
-    // Conjoin unigram features with the tag.
-    const BinaryFeatures &unigram_features =
-      sequence_features->GetUnigramFeatures(i);
-
-    const vector<int> &index_unigram_parts =
-      sequence_parts->FindUnigramParts(i);
-    vector<int> allowed_tags(index_unigram_parts.size());
-    for (int k = 0; k < index_unigram_parts.size(); ++k) {
-      SequencePartUnigram *unigram =
-          static_cast<SequencePartUnigram*>((*parts)[index_unigram_parts[k]]);
-      allowed_tags[k] = unigram->tag();
-    }
-    vector<double> tag_scores;
-    parameters_->ComputeLabelScores(unigram_features, allowed_tags,
-        &tag_scores);
-    for (int k = 0; k < index_unigram_parts.size(); ++k) {
-      (*scores)[index_unigram_parts[k]] = tag_scores[k];
-    }
-  }
-
-  // Compute scores for the bigram parts.
-  if (GetSequenceOptions()->markov_order() >= 1) {
-    for (int i = 0; i < sentence->size() + 1; ++i) {
-      // Conjoin bigram features with the pair of tags.
-      const BinaryFeatures &bigram_features =
-        sequence_features->GetBigramFeatures(i);
-
-      const vector<int> &index_bigram_parts = sequence_parts->FindBigramParts(i);
-      vector<int> bigram_tags(index_bigram_parts.size());
-      for (int k = 0; k < index_bigram_parts.size(); ++k) {
-        SequencePartBigram *bigram =
-            static_cast<SequencePartBigram*>((*parts)[index_bigram_parts[k]]);
-        bigram_tags[k] = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
-                                                             bigram->tag());
-      }
-
-      vector<double> tag_scores;
-      parameters_->ComputeLabelScores(bigram_features, bigram_tags, &tag_scores);
-      for (int k = 0; k < index_bigram_parts.size(); ++k) {
-        (*scores)[index_bigram_parts[k]] = tag_scores[k];
-      }
-    }
-  }
-
-  // Compute scores for the trigram parts.
-  if (GetSequenceOptions()->markov_order() >= 2) {
-    for (int i = 1; i < sentence->size() + 1; ++i) {
-      // Conjoin trigram features with the triple of tags.
-      const BinaryFeatures &trigram_features =
-        sequence_features->GetTrigramFeatures(i);
-
-      const vector<int> &index_trigram_parts = sequence_parts->FindTrigramParts(i);
-      vector<int> trigram_tags(index_trigram_parts.size());
-      for (int k = 0; k < index_trigram_parts.size(); ++k) {
-        SequencePartTrigram *trigram =
-            static_cast<SequencePartTrigram*>((*parts)[index_trigram_parts[k]]);
-        trigram_tags[k] = sequence_dictionary->GetTrigramLabel(
-          trigram->tag_left_left(),
-          trigram->tag_left(),
-          trigram->tag());
-      }
-
-      vector<double> tag_scores;
-      parameters_->ComputeLabelScores(trigram_features, trigram_tags, &tag_scores);
-      for (int k = 0; k < index_trigram_parts.size(); ++k) {
-        (*scores)[index_trigram_parts[k]] = tag_scores[k];
-      }
-    }
-  }
-#endif
+  Pipe::ComputeScores(instance, parts, features, scores);
 }
 
 void CoreferencePipe::MakeGradientStep(
@@ -183,53 +104,8 @@ void CoreferencePipe::MakeGradientStep(
     int iteration,
     const std::vector<double> &gold_output,
     const std::vector<double> &predicted_output) {
-#if 0
-  SequenceFeatures *sequence_features =
-      static_cast<SequenceFeatures*>(features);
-  SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
-
-  for (int r = 0; r < parts->size(); ++r) {
-    //LOG(INFO) << predicted_output[r] << " " << gold_output[r];
-    if (predicted_output[r] == gold_output[r]) continue;
-
-    if ((*parts)[r]->type() == SEQUENCEPART_UNIGRAM) {
-      SequencePartUnigram *unigram =
-                  static_cast<SequencePartUnigram*>((*parts)[r]);
-      const BinaryFeatures &unigram_features =
-          sequence_features->GetUnigramFeatures(unigram->position());
-
-      parameters_->MakeLabelGradientStep(unigram_features, eta, iteration,
-                                         unigram->tag(),
-                                         predicted_output[r] - gold_output[r]);
-    } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
-      SequencePartBigram *bigram =
-                  static_cast<SequencePartBigram*>((*parts)[r]);
-      const BinaryFeatures &bigram_features =
-          sequence_features->GetBigramFeatures(bigram->position());
-      int bigram_tag = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
-                                                           bigram->tag());
-
-      parameters_->MakeLabelGradientStep(bigram_features, eta, iteration,
-                                         bigram_tag,
-                                         predicted_output[r] - gold_output[r]);
-    } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
-      SequencePartTrigram *trigram =
-                  static_cast<SequencePartTrigram*>((*parts)[r]);
-      const BinaryFeatures &trigram_features =
-          sequence_features->GetTrigramFeatures(trigram->position());
-      int trigram_tag = 
-        sequence_dictionary->GetTrigramLabel(trigram->tag_left_left(),
-                                             trigram->tag_left(),
-                                             trigram->tag());
-
-      parameters_->MakeLabelGradientStep(trigram_features, eta, iteration,
-                                         trigram_tag,
-                                         predicted_output[r] - gold_output[r]);
-    } else {
-      CHECK(false);
-    }
-  }
-#endif
+  Pipe::MakeGradientStep(parts, features, eta, iteration, gold_output,
+                         predicted_output);
 }
 
 void CoreferencePipe::MakeFeatureDifference(
@@ -238,86 +114,69 @@ void CoreferencePipe::MakeFeatureDifference(
     const std::vector<double> &gold_output,
     const std::vector<double> &predicted_output,
     FeatureVector *difference) {
-#if 0
-  SequenceFeatures *sequence_features =
-      static_cast<SequenceFeatures*>(features);
-  SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
+  Pipe::MakeFeatureDifference(parts, features, gold_output, predicted_output,
+                              difference);
+}
 
+void CoreferencePipe::TransformGold(Instance *instance,
+                                    Parts *parts,
+                                    const std::vector<double> &scores,
+                                    std::vector<double> *gold_output,
+                                    double *loss_inner) {
+  double log_partition_function_inner;
+  double entropy_inner;
+  std::vector<double> copied_scores = scores;
   for (int r = 0; r < parts->size(); ++r) {
-    if (predicted_output[r] == gold_output[r]) continue;
-
-    if ((*parts)[r]->type() == SEQUENCEPART_UNIGRAM) {
-      SequencePartUnigram *unigram =
-                  static_cast<SequencePartUnigram*>((*parts)[r]);
-      const BinaryFeatures &unigram_features =
-          sequence_features->GetUnigramFeatures(unigram->position());
-      for (int j = 0; j < unigram_features.size(); ++j) {
-        difference->mutable_labeled_weights()->Add(unigram_features[j],
-            unigram->tag(), predicted_output[r] - gold_output[r]);
-      }
-    } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
-      SequencePartBigram *bigram =
-                  static_cast<SequencePartBigram*>((*parts)[r]);
-      const BinaryFeatures &bigram_features =
-          sequence_features->GetBigramFeatures(bigram->position());
-      int bigram_tag = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
-                                                           bigram->tag());
-      for (int j = 0; j < bigram_features.size(); ++j) {
-        difference->mutable_labeled_weights()->Add(bigram_features[j],
-            bigram_tag, predicted_output[r] - gold_output[r]);
-      }
-    } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
-      SequencePartTrigram *trigram =
-                  static_cast<SequencePartTrigram*>((*parts)[r]);
-      const BinaryFeatures &trigram_features =
-          sequence_features->GetTrigramFeatures(trigram->position());
-      int trigram_tag =
-        sequence_dictionary->GetTrigramLabel(trigram->tag_left_left(),
-                                             trigram->tag_left(),
-                                             trigram->tag());
-      for (int j = 0; j < trigram_features.size(); ++j) {
-        difference->mutable_labeled_weights()->Add(trigram_features[j],
-            trigram_tag, predicted_output[r] - gold_output[r]);
-      }
-    } else {
-      CHECK(false);
+    if ((*gold_output)[r] < 0.5) {
+      copied_scores[r] = -std::numeric_limits<double>::infinity();
     }
   }
-#endif
+  static_cast<CoreferenceDecoder*>(decoder_)->
+    DecodeBasicMarginals(instance, parts, copied_scores, gold_output,
+                         &log_partition_function_inner, &entropy_inner);
+  *loss_inner = entropy_inner;
 }
 
 void CoreferencePipe::MakeParts(Instance *instance,
                                 Parts *parts,
                                 std::vector<double> *gold_outputs) {
-#if 0
-  int sentence_length =
-      static_cast<SequenceInstanceNumeric*>(instance)->size();
-  SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-  sequence_parts->Initialize();
+  CoreferenceDocumentNumeric *document =
+    static_cast<CoreferenceDocumentNumeric*>(instance);
+
+  CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+  coreference_parts->Initialize();
   bool make_gold = (gold_outputs != NULL);
   if (make_gold) gold_outputs->clear();
 
-  CHECK_GE(GetSequenceOptions()->markov_order(), 0);
-  CHECK_LE(GetSequenceOptions()->markov_order(), 2);
+  const std::vector<Mention*> &mentions = document->GetMentions();
 
-  // Make unigram parts and compute indices.
-  MakeUnigramParts(instance, parts, gold_outputs);
-  sequence_parts->BuildUnigramIndices(sentence_length);
-
-  // Make bigram parts.
-  if (GetSequenceOptions()->markov_order() >= 1) {
-    MakeBigramParts(instance, parts, gold_outputs);
-    sequence_parts->BuildBigramIndices(sentence_length);
+  // Create arc parts departing from the artifical root (non-anaphoric
+  // mentions).
+  for (int j = 0; j < mentions.size(); ++j) {
+    Part *part = coreference_parts->CreatePartArc(-1, j);
+    coreference_parts->push_back(part);
+    if (make_gold) {
+      gold_outputs->push_back(1.0);
+    }
   }
 
-  // Make trigram parts.
-  if (GetSequenceOptions()->markov_order() >= 2) {
-    MakeTrigramParts(instance, parts, gold_outputs);
-    sequence_parts->BuildTrigramIndices(sentence_length);
+  // Create arc parts involving two mentions.
+  for (int j = 0; j < mentions.size(); ++j) {
+    for (int k = j+1; k < mentions.size(); ++k) {
+      Part *part = coreference_parts->CreatePartArc(j, k);
+      coreference_parts->push_back(part);
+      if (make_gold) {
+        if (mentions[j]->id() >= 0 && mentions[j]->id() == mentions[k]->id()) {
+          gold_outputs->push_back(1.0);
+          //LOG(INFO) << "Found coreferent mentions: " << j << ", " << k;
+        } else {
+          gold_outputs->push_back(0.0);
+        }
+      }
+    }
   }
 
-  sequence_parts->BuildOffsets();
-#endif
+  coreference_parts->BuildIndices(mentions.size());
 }
 
 void CoreferencePipe::MakeSelectedFeatures(
@@ -325,33 +184,23 @@ void CoreferencePipe::MakeSelectedFeatures(
     Parts *parts,
     const std::vector<bool> &selected_parts,
     Features *features) {
-#if 0
-  SequenceInstanceNumeric *sentence =
-    static_cast<SequenceInstanceNumeric*>(instance);
-  SequenceFeatures *sequence_features =
-    static_cast<SequenceFeatures*>(features);
+  CoreferenceDocumentNumeric *document =
+    static_cast<CoreferenceDocumentNumeric*>(instance);
+  CoreferenceFeatures *coreference_features =
+    static_cast<CoreferenceFeatures*>(features);
 
-  int sentence_length = sentence->size();
+  CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+  const std::vector<Mention*> &mentions = document->GetMentions();
 
-  sequence_features->Initialize(instance, parts);
+  coreference_features->Initialize(instance, parts);
 
-  // Build features for words only. They will later be conjoined with the tags.
-  for (int i = 0; i < sentence_length; ++i) {
-    sequence_features->AddUnigramFeatures(sentence, i);
+  // Build features for coreference arcs.
+  for (int r = 0; r < coreference_parts->size(); ++r) {
+    CoreferencePartArc *arc =
+      static_cast<CoreferencePartArc*>((*coreference_parts)[r]);
+    coreference_features->AddArcFeatures(document, r, arc->parent_mention(),
+                                         arc->child_mention());
   }
-
-  if (GetSequenceOptions()->markov_order() >= 1) {
-    for (int i = 0; i < sentence_length + 1; ++i) {
-      sequence_features->AddBigramFeatures(sentence, i);
-    }
-  }
-
-  if (GetSequenceOptions()->markov_order() >= 2) {
-    for (int i = 1; i < sentence_length + 1; ++i) {
-      sequence_features->AddTrigramFeatures(sentence, i);
-    }
-  }
-#endif
 }
 
 void CoreferencePipe::LabelInstance(Parts *parts,

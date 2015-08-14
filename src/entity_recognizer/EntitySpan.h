@@ -41,6 +41,11 @@ class Span {
   bool LiesInsideSpan(const Span &span) const {
     return start_ >= span.start() && end_ <= span.end();
   }
+  bool OverlapNotNested(const Span &span) const {
+    return
+      ((start_ > span.start() && end_ > span.end() && start_ <= span.end()) ||
+       (start_ < span.start() && end_ < span.end() && end_ >= span.start()));
+  }
   Span *FindCoveringSpan(const std::vector<Span*> &spans) const {
     for (int i = 0; i < spans.size(); ++i) {
       if (LiesInsideSpan(*(spans[i]))) return spans[i];

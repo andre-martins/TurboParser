@@ -27,9 +27,9 @@
 #include "CoreferenceDocumentNumeric.h"
 //#include "CoreferenceDocument.h"
 //#include "SequenceWriter.h"
-//#include "SequencePart.h"
-//#include "SequenceFeatures.h"
-//#include "SequenceDecoder.h"
+#include "CoreferencePart.h"
+#include "CoreferenceFeatures.h"
+#include "CoreferenceDecoder.h"
 
 class CoreferencePipe : public Pipe {
  public:
@@ -72,9 +72,9 @@ class CoreferencePipe : public Pipe {
   }
   void CreateReader() { reader_ = new CoreferenceReader; }
   void CreateWriter() { } //writer_ = new SequenceWriter; }
-  void CreateDecoder() { } //decoder_ = new SequenceDecoder(this); };
-  Parts *CreateParts() { return NULL; } //return new SequenceParts; };
-  Features *CreateFeatures() { return NULL; } //return new SequenceFeatures(this); };
+  void CreateDecoder() { decoder_ = new CoreferenceDecoder(this); }
+  Parts *CreateParts() { return new CoreferenceParts; }
+  Features *CreateFeatures() { return new CoreferenceFeatures(this); }
 
   void CreateTokenDictionary() {
     token_dictionary_ = new TokenDictionary(this);
@@ -93,8 +93,11 @@ class CoreferencePipe : public Pipe {
   Instance *GetFormattedInstance(Instance *instance) {
     CoreferenceDocumentNumeric *instance_numeric =
           new CoreferenceDocumentNumeric;
+    // Only add gold mentions as candidates if we're training.
+    bool add_gold_mentions = options_->train();
     instance_numeric->Initialize(*GetCoreferenceDictionary(),
-                                 static_cast<CoreferenceDocument*>(instance));
+                                 static_cast<CoreferenceDocument*>(instance),
+                                 add_gold_mentions);
     return instance_numeric;
   }
 
@@ -124,6 +127,12 @@ class CoreferencePipe : public Pipe {
                         int iteration,
                         const std::vector<double> &gold_output,
                         const std::vector<double> &predicted_output);
+
+  void TransformGold(Instance *instance,
+                     Parts *parts,
+                     const std::vector<double> &scores,
+                     std::vector<double> *gold_output,
+                     double *loss_inner);
 
   void LabelInstance(Parts *parts, const std::vector<double> &output,
                      Instance *instance);

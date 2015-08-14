@@ -7,9 +7,11 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
-train_algorithm=svm_mira # Training algorithm.
+train_algorithm=crf_sgd # Training algorithm.
 num_epochs=20 # Number of training epochs.
-regularization_parameter=0.01 #$2 #1e12 # The C parameter in MIRA.
+regularization_parameter=10 #0.01 #$2 #1e12 # The C parameter in MIRA.
+train_initial_learning_rate=0.1
+train_learning_rate_schedule=invsqrt
 train=true
 test=true
 false_anaphor_cost=0.1
@@ -73,6 +75,8 @@ then
         --coreference_file_pronouns=${coreference_file_pronouns} \
         --coreference_file_gender_number_statistics=${coreference_file_gender_number_statistics} \
         --train_algorithm=${train_algorithm} \
+        --train_initial_learning_rate=${train_initial_learning_rate} \
+        --train_learning_rate_schedule=${train_learning_rate_schedule} \
         --train_regularization_constant=${regularization_parameter} \
         --form_cutoff=${form_cutoff} \
         --false_anaphor_cost=${false_anaphor_cost} \

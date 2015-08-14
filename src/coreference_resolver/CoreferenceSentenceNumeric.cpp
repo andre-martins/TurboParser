@@ -26,7 +26,8 @@ const int kUnknownConstituent = 0xffff;
 
 void CoreferenceSentenceNumeric::Initialize(
     const CoreferenceDictionary &dictionary,
-    CoreferenceSentence* instance) {
+    CoreferenceSentence* instance,
+    bool add_gold_mentions) {
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   DependencyDictionary *dependency_dictionary =
     dictionary.GetDependencyDictionary();
@@ -67,6 +68,25 @@ void CoreferenceSentenceNumeric::Initialize(
     constituent_spans_[k] = new NumericSpan(start, end, id);
   }
 
+  std::map<std::string, int> span_names;
+  const std::vector<NamedSpan*> &coreference_spans =
+    instance->GetCoreferenceSpans();
+  coreference_spans_.resize(coreference_spans.size());
+  for (int k = 0; k < coreference_spans.size(); ++k) {
+    int start = coreference_spans[k]->start();
+    int end = coreference_spans[k]->end();
+    const std::string &name = coreference_spans[k]->name();
+    std::map<std::string, int>::const_iterator it = span_names.find(name);
+    int id = -1;
+    if (it == span_names.end()) {
+      id = span_names.size();
+      span_names[name] = id;
+    } else {
+      id = it->second;
+    }
+    coreference_spans_[k] = new NumericSpan(start, end, id);
+  }
+
   int length = instance->size();
   first_upper_.resize(length);
   for (int i = 0; i < length; ++i) {
@@ -77,6 +97,17 @@ void CoreferenceSentenceNumeric::Initialize(
 
   // Generate candidate mentions.
   GenerateMentions(dictionary, instance);
+
+  // Add gold mentions as candidates (only for training).
+  if (add_gold_mentions) AddGoldMentions(dictionary, instance);
+
+#if 0
+  // Print mention information (for debugging purposes).
+  LOG(INFO) << mentions_.size() << " found in sentence.";
+  for (int i = 0; i < mentions_.size(); ++i) {
+    mentions_[i]->Print(dictionary, instance);
+  }
+#endif
 }
 
 void CoreferenceSentenceNumeric::GenerateMentions(
@@ -128,12 +159,98 @@ void CoreferenceSentenceNumeric::GenerateMentions(
     AddMention(dictionary, instance, i, i, -1);
   }
 
-  // TODO(atm): Need to filter and sort mentions.
+  // Filter and sort mentions.
+  FilterAndSortMentions(dictionary, instance);
+}
 
-  // Print mention information (for debugging purposes).
-  for (int i = 0; i < mentions_.size(); ++i) {
-    mentions_[i]->Print(dictionary, instance);
+void CoreferenceSentenceNumeric::AddGoldMentions(
+    const CoreferenceDictionary &dictionary,
+    CoreferenceSentence* instance) {
+  int num_mentions = mentions_.size();
+  for (int i = 0; i < coreference_spans_.size(); ++i) {
+    NumericSpan *span = coreference_spans_[i];
+    // TODO(atm): add some specific stuff for PT and ES here.
+    // See if this mention exists already; if so, just update its label.
+    bool exists = false;
+    for (int j = 0; j < mentions_.size(); ++j) {
+      if (mentions_[j]->start() == span->start() &&
+          mentions_[j]->end() == span->end()) {
+        if (mentions_[j]->id() >= 0) {
+          std::string mention_string;
+          mentions_[j]->GetPhraseString(instance, &mention_string);
+          LOG(INFO) << "Repeated gold mention: "
+                    << mention_string
+                    << " [" << span->start() << ", "
+                    << span->end() << "]";
+        }
+        mentions_[j]->set_id(span->id());
+        exists = true;
+      }
+    }
+    // If this mention does not exist, add it.
+    if (!exists) {
+      AddMention(dictionary, instance, span->start(), span->end(), span->id());
+    }
   }
+#if 0
+  LOG(INFO) << "Added " << mentions_.size() - num_mentions << " mentions.";
+#endif
+}
+
+void CoreferenceSentenceNumeric::FilterAndSortMentions(
+    const CoreferenceDictionary &dictionary,
+    CoreferenceSentence* instance) {
+  std::vector<Mention*> sorted_mentions;
+  std::vector<std::vector<Mention*> > mentions_by_head(instance->size());
+
+  for (int i = 0; i < mentions_.size(); ++i) {
+    CHECK_GE(mentions_[i]->head_index(), 0);
+    CHECK_LT(mentions_[i]->head_index(), instance->size());
+    mentions_by_head[mentions_[i]->head_index()].push_back(mentions_[i]);
+  }
+
+  for (int h = 0; h < instance->size(); ++h) {
+    Mention *current_biggest = NULL;
+    for (int i = 0; i < mentions_by_head[h].size(); ++i) {
+      Mention *mention = mentions_by_head[h][i];
+      if (current_biggest &&
+          mention->OverlapNotNested(*static_cast<Span*>(current_biggest))) {
+        std::string mention_string, current_string;
+        mention->GetPhraseString(instance, &mention_string);
+        current_biggest->GetPhraseString(instance, &current_string);
+        LOG(INFO) <<
+          "Warning: Mentions with the same head but neither contains the other: "
+                  << mention_string
+                  << " vs. "
+                  << current_string;
+      }
+      if (!current_biggest ||
+          current_biggest->LiesInsideSpan(*static_cast<Span*>(mention))) {
+        current_biggest = mention;
+      }
+    }
+
+    if (current_biggest) sorted_mentions.push_back(current_biggest);
+
+    for (int i = 0; i < mentions_by_head[h].size(); ++i) {
+      Mention *mention = mentions_by_head[h][i];
+      if (mention == current_biggest) continue; // Inserted already.
+
+      // Don't remove appositives.
+      // TODO(atm): Make this English only.
+      bool is_appositive_like = ((mention->end() + 1 < instance->size()) &&
+        (instance->GetPosTag(mention->end() + 1) == "," ||
+         instance->GetPosTag(mention->end() + 1) == "CC"));
+      if (is_appositive_like) {
+        sorted_mentions.push_back(mention);
+        continue;
+      }
+      // TODO(atm): there are some stuff here to deal with gold mentions and
+      // gold speakers. Should we port it?
+      delete mention;
+    }
+  }
+  mentions_ = sorted_mentions;
 }
 
 void CoreferenceSentenceNumeric::AddMention(

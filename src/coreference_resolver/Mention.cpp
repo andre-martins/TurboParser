@@ -56,6 +56,12 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
     type_ = MentionType::NOMINAL;
   }
 
+  if (type_ == MentionType::PRONOMINAL) {
+    pronoun_ = dictionary.GetPronoun(head_word);
+  } else {
+    pronoun_ = NULL;
+  }
+
   // Compute gender and number.
   number_ = MentionNumber::SINGULAR;
   gender_ = MentionGender::MALE;
@@ -122,8 +128,22 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   }
 }
 
+void Mention::GetPhraseString(CoreferenceSentence *instance,
+                              std::string *phrase_string) {
+  *phrase_string = "";
+  for (int i = start_; i <= end_; ++i) {
+    *phrase_string += instance->GetForm(i);
+    if (i < end_) *phrase_string += " ";
+  }
+}
+
+void Mention::GetHeadString(CoreferenceSentence *instance,
+                            std::string *head_string) {
+  *head_string += instance->GetForm(head_index_);
+}
+
 void Mention::Print(const CoreferenceDictionary &dictionary,
-                    CoreferenceSentence* instance) {
+                    CoreferenceSentence *instance) {
   LOG(INFO) << "-----------------------------------------";
   std::string word_sequence = "";
   std::string pos_sequence = "";

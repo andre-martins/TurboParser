@@ -54,6 +54,10 @@ class CoreferencePronoun {
   CoreferencePronoun(const std::string &code_flags) { SetFlags(code_flags); }
   virtual ~CoreferencePronoun() {}
 
+  uint8_t person_flag() { return person_flag_; }
+  uint8_t number_flag() { return number_flag_; }
+  uint8_t gender_flag() { return gender_flag_; }
+
   void ClearFlags() {
     person_flag_ = 0x0;
     number_flag_ = 0x0;

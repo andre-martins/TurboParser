@@ -186,6 +186,16 @@ class Pipe {
   virtual void TouchParameters(Parts *parts, Features *features,
                                const vector<bool> &selected_parts);
 
+  // This is a no-op by default. But it's convenient to have it here to build
+  // latent-variable structured classifiers (e.g. for coreference resolution).
+  virtual void TransformGold(Instance *instance,
+                             Parts *parts,
+                             const std::vector<double> &scores,
+                             std::vector<double> *gold_output,
+                             double *loss_inner) {
+    *loss_inner = 0.0;
+  }
+
   // Given a vector of parts of a desired output, builds the output information
   // in the instance that corresponds to that output.
   // Note: this function is task-specific and needs to be implemented by the
