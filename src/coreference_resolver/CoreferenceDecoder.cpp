@@ -28,6 +28,50 @@ namespace Eigen {
 typedef Eigen::Matrix<LogValD, Dynamic, Dynamic> MatrixXlogd;
 }
 
+void CoreferenceDecoder::ComputeLinearCostFunction(
+    Instance *instance,
+    Parts *parts,
+    const std::vector<double> &gold_output,
+    std::vector<double> *p,
+    double *q) {
+  CoreferenceDocumentNumeric *document =
+    static_cast<CoreferenceDocumentNumeric*>(instance);
+  CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+  int num_parts = coreference_parts->size();
+  const std::vector<Mention*> &mentions = document->GetMentions();
+
+  // The cost fucntion is = p'*z + q.
+  *q = 0.0; // Always 0.0 in this case.
+  p->assign(num_parts, 0.0);
+
+  for (int j = 0; j < mentions.size(); ++j) {
+    int entity_id = mentions[j]->id(); // Gold entity.
+    // List all possible antecedents.
+    const std::vector<int> &arcs = coreference_parts->FindArcParts(j);
+    for (int k = 0; k < arcs.size(); ++k) {
+      int r = arcs[k];
+      int i = static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention();
+      // Gold parent entity.
+      int parent_entity_id = (i >= 0)? mentions[i]->id() : -1;
+      if (!document->IsMentionAnaphoric(j) && i >= 0) {
+        // Mention j starts a gold cluster, but this part doesn't.
+        (*p)[r] = pipe_->GetCoreferenceOptions()->false_anaphor_cost();
+      } else if (document->IsMentionAnaphoric(j) && i < 0) {
+        // Mention j does not start a gold cluster, but this part does.
+        (*p)[r] = pipe_->GetCoreferenceOptions()->false_new_cost();
+      } else if (document->IsMentionAnaphoric(j) &&
+                 entity_id != parent_entity_id) {
+        // Neither mention j or this part start a gold cluster, but the
+        // antecedents are different.
+        CHECK_GE(i, 0);
+        (*p)[r] = pipe_->GetCoreferenceOptions()->false_wrong_link_cost();
+      } else {
+        (*p)[r] = 0.0;
+      }
+    }
+  }
+}
+
 void CoreferenceDecoder::DecodeCostAugmented(
     Instance *instance, Parts *parts,
     const std::vector<double> &scores,
@@ -36,31 +80,74 @@ void CoreferenceDecoder::DecodeCostAugmented(
     double *cost,
     double *loss) {
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+  int num_parts = parts->size();
 
-  int offset_arcs = 0;
-  int num_arcs = coreference_parts->size();
+  std::vector<double> p;
+  double q;
+  ComputeLinearCostFunction(instance, parts, gold_output, &p, &q);
 
-  // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
-  double q = 0.0;
-  vector<double> p(num_arcs, 0.0);
-
-  vector<double> scores_cost = scores;
-  for (int r = 0; r < num_arcs; ++r) {
-    p[r] = 0.5 - gold_output[offset_arcs + r];
-    scores_cost[offset_arcs + r] += p[r];
-    q += 0.5*gold_output[offset_arcs + r];
+  std::vector<double> scores_cost = scores;
+  for (int r = 0; r < num_parts; ++r) {
+    scores_cost[r] += p[r];
   }
 
   Decode(instance, parts, scores_cost, predicted_output);
 
   *cost = q;
-  for (int r = 0; r < num_arcs; ++r) {
-    *cost += p[r] * (*predicted_output)[offset_arcs + r];
+  for (int r = 0; r < num_parts; ++r) {
+    *cost += p[r] * (*predicted_output)[r];
   }
 
   *loss = *cost;
-  for (int r = 0; r < parts->size(); ++r) {
+  for (int r = 0; r < num_parts; ++r) {
     *loss += scores[r] * ((*predicted_output)[r] - gold_output[r]);
+  }
+}
+
+void CoreferenceDecoder::DecodeCostAugmentedMarginals(
+    Instance *instance,
+    Parts *parts,
+    const std::vector<double> &scores,
+    const std::vector<double> &gold_output,
+    std::vector<double> *predicted_output,
+    double *entropy,
+    double *cost,
+    double *loss) {
+  CoreferenceDocumentNumeric *document =
+    static_cast<CoreferenceDocumentNumeric*>(instance);
+  CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+  int num_parts = coreference_parts->size();
+
+  predicted_output->clear();
+  predicted_output->resize(num_parts, 0.0);
+
+  std::vector<double> p;
+  double q;
+  ComputeLinearCostFunction(instance, parts, gold_output, &p, &q);
+
+  std::vector<double> scores_cost = scores;
+  for (int r = 0; r < num_parts; ++r) {
+    scores_cost[r] += p[r];
+  }
+
+  double log_partition_function;
+  DecodeBasicMarginals(instance, parts, scores_cost, predicted_output,
+                       &log_partition_function, entropy);
+
+  *cost = q;
+  for (int r = 0; r < num_parts; ++r) {
+    *cost += p[r] * (*predicted_output)[r];
+  }
+
+  *loss = *cost;
+  for (int r = 0; r < num_parts; ++r) {
+    *loss += scores[r] * ((*predicted_output)[r] - gold_output[r]);
+  }
+
+  *loss += *entropy;
+  if (*loss < 0.0) {
+    LOG(INFO) << "Loss truncated to zero (" << *loss << ")";
+    *loss = 0.0;
   }
 }
 
@@ -103,33 +190,19 @@ void CoreferenceDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   predicted_output->clear();
   predicted_output->resize(parts->size(), 0.0);
 
-#if 0
-  double log_partition_function_inner;
-  double entropy_inner;
-  std::vector<double> copied_scores = scores;
-  for (int r = 0; r < parts->size(); ++r) {
-    if (gold_output[r] < 0.5) {
-      copied_scores[r] = -std::numeric_limits<double>::infinity();
-    }
-  }
-  DecodeBasicMarginals(instance, parts, copied_scores, &gold_output,
-                       &log_partition_value_inner, entropy_inner);
-
-  //
-
-  *loss = log_partition_function - log_partition_function_inner;
-  *entropy -= entropy_inner; // This is now a difference of entropies.
-
-#endif
+  int offset_arcs = 0;
+  int num_arcs = coreference_parts->size();
 
   double log_partition_function;
   DecodeBasicMarginals(instance, parts, scores, predicted_output,
                        &log_partition_function, entropy);
 
-  *loss = *entropy;
+  *loss = 0.0;
   for (int r = 0; r < parts->size(); ++r) {
     *loss += scores[r] * ((*predicted_output)[r] - gold_output[r]);
   }
+
+  *loss += *entropy;
   if (*loss < 0.0) {
     LOG(INFO) << "Loss truncated to zero (" << *loss << ")";
     *loss = 0.0;
@@ -192,6 +265,9 @@ void CoreferenceDecoder::DecodeBasicMarginals(
   }
 
   *entropy += *log_partition_function;
+
+#if 0
   LOG(INFO) << "Log-partition function: " << *log_partition_function;
   LOG(INFO) << "Entropy: " << *entropy;
+#endif
 }

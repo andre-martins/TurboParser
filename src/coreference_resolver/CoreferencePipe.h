@@ -25,8 +25,7 @@
 #include "CoreferenceDictionary.h"
 #include "TokenDictionary.h"
 #include "CoreferenceDocumentNumeric.h"
-//#include "CoreferenceDocument.h"
-//#include "SequenceWriter.h"
+#include "CoreferenceWriter.h"
 #include "CoreferencePart.h"
 #include "CoreferenceFeatures.h"
 #include "CoreferenceDecoder.h"
@@ -71,7 +70,7 @@ class CoreferencePipe : public Pipe {
     GetCoreferenceDictionary()->SetSemanticDictionary(semantic_dictionary_);
   }
   void CreateReader() { reader_ = new CoreferenceReader; }
-  void CreateWriter() { } //writer_ = new SequenceWriter; }
+  void CreateWriter() { writer_ = new CoreferenceWriter; }
   void CreateDecoder() { decoder_ = new CoreferenceDecoder(this); }
   Parts *CreateParts() { return new CoreferenceParts; }
   Features *CreateFeatures() { return new CoreferenceFeatures(this); }

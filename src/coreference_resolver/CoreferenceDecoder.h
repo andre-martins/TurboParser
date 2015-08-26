@@ -40,18 +40,33 @@ class CoreferenceDecoder : public Decoder {
                            double *cost,
                            double *loss);
 
-  virtual void DecodeMarginals(Instance *instance, Parts *parts,
-                               const std::vector<double> &scores,
-                               const std::vector<double> &gold_output,
-                               std::vector<double> *predicted_output,
-                               double *entropy,
-                               double *loss);
+  void DecodeCostAugmentedMarginals(Instance *instance, Parts *parts,
+                                    const std::vector<double> &scores,
+                                    const std::vector<double> &gold_output,
+                                    std::vector<double> *predicted_output,
+                                    double *entropy,
+                                    double *cost,
+                                    double *loss);
+
+  void DecodeMarginals(Instance *instance, Parts *parts,
+                       const std::vector<double> &scores,
+                       const std::vector<double> &gold_output,
+                       std::vector<double> *predicted_output,
+                       double *entropy,
+                       double *loss);
 
   void DecodeBasicMarginals(Instance *instance, Parts *parts,
                             const std::vector<double> &scores,
                             std::vector<double> *predicted_output,
                             double *log_partition_function,
                             double *entropy);
+
+ protected:
+  void ComputeLinearCostFunction(Instance *instance,
+                                 Parts *parts,
+                                 const std::vector<double> &gold_output,
+                                 std::vector<double> *p,
+                                 double *q);
 
  protected:
   CoreferencePipe *pipe_;

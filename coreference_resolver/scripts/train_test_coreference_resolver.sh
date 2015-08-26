@@ -7,12 +7,12 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 
 # Set options.
 language=$1 # Example: "slovene" or "english_proj".
-train_algorithm=crf_sgd # Training algorithm.
-num_epochs=20 # Number of training epochs.
+train_algorithm=crf_margin_sgd # Training algorithm.
+num_epochs=2 #20 # Number of training epochs.
 regularization_parameter=10 #0.01 #$2 #1e12 # The C parameter in MIRA.
 train_initial_learning_rate=0.1
 train_learning_rate_schedule=invsqrt
-train=true
+train=true #false #true
 test=true
 false_anaphor_cost=0.1
 false_new_cost=3.0

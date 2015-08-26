@@ -55,6 +55,24 @@ public:
                                    double *cost,
                                    double *loss) = 0;
 
+  // Given an instance, a set of parts, a score for each part, and the gold
+  // output, find the posterior marginals for a combination of the score and
+  // a cost function with respect to the gold output (cost-augmented marginal
+  // decoding). This is used when training with softmax-margin MIRA or a
+  // subgradient algorithm for a structured softmax-margin classifier.
+  // This function should output the entropy of the distribution, the cost of
+  // the predicted output, and also the "loss" for this instance, i.e., the
+  // score difference plus the entropy and the cost ("predicted_output"
+  // maximizes this loss).
+  // NOTE: the loss must be non-negative.
+  virtual void DecodeCostAugmentedMarginals(Instance *instance, Parts *parts,
+                                   const vector<double> &scores,
+                                   const vector<double> &gold_output,
+                                   vector<double> *predicted_output,
+                                   double *entropy,
+                                   double *cost,
+                                   double *loss) = 0;
+
   // Given an instance, a set of parts, and a score for each part, find the
   // posterior marginals for the parts (marginal decoding). This is used when
   // training a CRF.

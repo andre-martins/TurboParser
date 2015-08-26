@@ -11,6 +11,7 @@ TurboCoreferenceResolver_SOURCES = TurboCoreferenceResolver.cpp \
 CoreferencePipe.cpp \
 CoreferenceOptions.cpp \
 CoreferenceReader.cpp \
+CoreferenceWriter.cpp \
 CoreferenceDocument.cpp \
 CoreferenceSentence.cpp \
 CoreferenceDictionary.cpp \
@@ -23,6 +24,7 @@ Mention.cpp \
 CoreferencePipe.h \
 CoreferenceOptions.h \
 CoreferenceReader.h \
+CoreferenceWriter.h \
 CoreferenceDocument.h \
 CoreferenceSentence.h \
 CoreferenceDictionary.h \

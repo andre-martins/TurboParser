@@ -37,6 +37,37 @@ class GenderNumberStatistics {
 
   void Clear() { phrase_counts_.clear(); }
 
+  void Save(FILE *fs) {
+    bool success;
+    success = WriteInteger(fs, phrase_counts_.size());
+    CHECK(success);
+    for (std::map<std::vector<int>, std::vector<int> >::iterator it =
+           phrase_counts_.begin();
+         it != phrase_counts_.end();
+         ++it) {
+      success = WriteIntegerVector(fs, it->first);
+      CHECK(success);
+      success = WriteIntegerVector(fs, it->second);
+      CHECK(success);
+    }
+  }
+
+  void Load(FILE *fs) {
+    bool success;
+    int length;
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      std::vector<int> phrase;
+      success = ReadIntegerVector(fs, &phrase);
+      CHECK(success);
+      std::vector<int> counts;
+      success = ReadIntegerVector(fs, &counts);
+      CHECK(success);
+      AddPhrase(phrase, counts);
+    }
+  }
+
   bool AddPhrase(const std::vector<int> &phrase,
                  const std::vector<int> &counts) {
     if (phrase_counts_.find(phrase) == phrase_counts_.end()) {
@@ -60,19 +91,96 @@ class CoreferenceDictionary : public Dictionary {
   CoreferenceDictionary(Pipe* pipe) : pipe_(pipe) {}
   virtual ~CoreferenceDictionary() { Clear(); }
 
-  virtual void Clear() {
+  void Clear() {
     // Don't clear token_dictionary, since this class does not own it.
     entity_alphabet_.clear();
     constituent_alphabet_.clear();
     word_alphabet_.clear();
     word_lower_alphabet_.clear();
+
+    // TODO(atm): clear all the other stuff!!!
   }
 
-  virtual void Save(FILE *fs) {
+  void Save(FILE *fs) {
     if (0 > entity_alphabet_.Save(fs)) CHECK(false);
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
     if (0 > word_alphabet_.Save(fs)) CHECK(false);
     if (0 > word_lower_alphabet_.Save(fs)) CHECK(false);
+
+    // Save gender/number statistics.
+    gender_number_statistics_.Save(fs);
+
+    // Save pronouns.
+    bool success;
+    int length = all_pronouns_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::map<int, CoreferencePronoun*>::iterator it =
+           all_pronouns_.begin();
+         it != all_pronouns_.end();
+         ++it) {
+      int id = it->first;
+      CoreferencePronoun *pronoun = it->second;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+      pronoun->Save(fs);
+    }
+
+    // Save various tags.
+    length = named_entity_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = named_entity_tags_.begin();
+         it != named_entity_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
+
+    length = person_entity_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = person_entity_tags_.begin();
+         it != person_entity_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
+
+    length = noun_phrase_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = noun_phrase_tags_.begin();
+         it != noun_phrase_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
+
+    length = proper_noun_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = proper_noun_tags_.begin();
+         it != proper_noun_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
+
+    length = pronominal_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = pronominal_tags_.begin();
+         it != pronominal_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
   }
 
   void Load(FILE *fs) {
@@ -85,6 +193,69 @@ class CoreferenceDictionary : public Dictionary {
     // TODO(atm): Remove this for memory efficiency.
     word_alphabet_.BuildNames();
     word_lower_alphabet_.BuildNames();
+
+    // Load gender/number statistics.
+    gender_number_statistics_.Load(fs);
+
+    // Load pronouns.
+    bool success;
+    int length;
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      CoreferencePronoun *pronoun = new CoreferencePronoun;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      pronoun->Load(fs);
+      all_pronouns_[id] = pronoun;
+    }
+
+    // Load various tags.
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      named_entity_tags_.insert(id);
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      person_entity_tags_.insert(id);
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      noun_phrase_tags_.insert(id);
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      proper_noun_tags_.insert(id);
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      pronominal_tags_.insert(id);
+    }
   }
 
   void AllowGrowth() {

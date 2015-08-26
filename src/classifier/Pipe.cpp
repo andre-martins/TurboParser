@@ -276,8 +276,10 @@ void Pipe::TrainEpoch(int epoch) {
 
     } else if (options_->GetTrainingAlgorithm() == "svm_mira" ||
                options_->GetTrainingAlgorithm() == "crf_mira" ||
+               options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
                options_->GetTrainingAlgorithm() == "svm_sgd" ||
-               options_->GetTrainingAlgorithm() == "crf_sgd") {
+               options_->GetTrainingAlgorithm() == "crf_sgd" ||
+               options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
       double loss;
       timeval start_decoding, end_decoding;
       gettimeofday(&start_decoding, NULL);
@@ -287,6 +289,15 @@ void Pipe::TrainEpoch(int epoch) {
         double cost;
         decoder_->DecodeCostAugmented(instance, parts, scores, gold_outputs,
                                       &predicted_outputs, &cost, &loss);
+        total_cost += cost;
+      } else if (options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
+                 options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
+        // Do cost-augmented marginal inference.
+        double entropy;
+        double cost;
+        decoder_->DecodeCostAugmentedMarginals(instance, parts, scores,
+                                               gold_outputs, &predicted_outputs,
+                                               &entropy, &cost, &loss);
         total_cost += cost;
       } else {
         // Do marginal inference.
@@ -314,7 +325,8 @@ void Pipe::TrainEpoch(int epoch) {
 
       // Get the stepsize.
       if (options_->GetTrainingAlgorithm() == "svm_mira" ||
-          options_->GetTrainingAlgorithm() == "crf_mira") {
+          options_->GetTrainingAlgorithm() == "crf_mira" ||
+          options_->GetTrainingAlgorithm() == "crf_margin_mira") {
         double squared_norm = difference.GetSquaredNorm();
         double threshold = 1e-9;
         if (loss < threshold || squared_norm < threshold) {

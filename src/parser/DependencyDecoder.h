@@ -50,6 +50,16 @@ class DependencyDecoder : public Decoder {
                            double *cost,
                            double *loss);
 
+  void DecodeCostAugmentedMarginals(Instance *instance, Parts *parts,
+                                    const vector<double> &scores,
+                                    const vector<double> &gold_output,
+                                    vector<double> *predicted_output,
+                                    double *entropy,
+                                    double *cost,
+                                    double *loss) {
+    CHECK(false) << "Not implemented yet.";
+  }
+
   void DecodeMarginals(Instance *instance, Parts *parts,
                        const vector<double> &scores,
                        const vector<double> &gold_output,

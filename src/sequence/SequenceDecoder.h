@@ -172,6 +172,16 @@ class SequenceDecoder : public Decoder {
                            double *cost,
                            double *loss);
 
+  virtual void DecodeCostAugmentedMarginals(Instance *instance, Parts *parts,
+                                            const vector<double> &scores,
+                                            const vector<double> &gold_output,
+                                            vector<double> *predicted_output,
+                                            double *entropy,
+                                            double *cost,
+                                            double *loss) {
+    CHECK(false) << "Not implemented yet.";
+  }
+
   virtual void DecodeMarginals(Instance *instance, Parts *parts,
                                  const vector<double> &scores,
                                  const vector<double> &gold_output,

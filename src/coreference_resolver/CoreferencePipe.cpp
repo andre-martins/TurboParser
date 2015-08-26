@@ -35,6 +35,8 @@ void CoreferencePipe::SaveModel(FILE* fs) {
   success = WriteUINT64(fs, kCoreferenceModelVersion);
   CHECK(success);
   token_dictionary_->Save(fs);
+  dependency_dictionary_->Save(fs);
+  semantic_dictionary_->Save(fs);
   Pipe::SaveModel(fs);
 }
 
@@ -50,12 +52,27 @@ void CoreferencePipe::LoadModel(FILE* fs) {
   CHECK(success);
   CHECK_GE(model_version, kOldestCompatibleCoreferenceModelVersion)
     << "The model file is too old and not supported anymore.";
+
   delete token_dictionary_;
   CreateTokenDictionary();
   token_dictionary_->Load(fs);
+
+  delete dependency_dictionary_;
+  CreateDependencyDictionary();
+  dependency_dictionary_->SetTokenDictionary(token_dictionary_);
+  dependency_dictionary_->Load(fs);
+
+  delete semantic_dictionary_;
+  CreateSemanticDictionary();
+  semantic_dictionary_->SetTokenDictionary(token_dictionary_);
+  semantic_dictionary_->SetDependencyDictionary(dependency_dictionary_);
+  semantic_dictionary_->Load(fs);
+
+  GetCoreferenceDictionary()->SetTokenDictionary(token_dictionary_);
+  GetCoreferenceDictionary()->SetDependencyDictionary(dependency_dictionary_);
+  GetCoreferenceDictionary()->SetSemanticDictionary(semantic_dictionary_);
+
   Pipe::LoadModel(fs);
-  //static_cast<SequenceDictionary*>(dictionary_)->
-  //  SetTokenDictionary(token_dictionary_);
 }
 
 void CoreferencePipe::PreprocessData() {
@@ -149,6 +166,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
   if (make_gold) gold_outputs->clear();
 
   const std::vector<Mention*> &mentions = document->GetMentions();
+  //std::set<int> entities;
 
   // Create arc parts departing from the artifical root (non-anaphoric
   // mentions).
@@ -156,7 +174,23 @@ void CoreferencePipe::MakeParts(Instance *instance,
     Part *part = coreference_parts->CreatePartArc(-1, j);
     coreference_parts->push_back(part);
     if (make_gold) {
-      gold_outputs->push_back(1.0);
+      if (!document->IsMentionAnaphoric(j)) {
+        gold_outputs->push_back(1.0);
+      } else {
+        gold_outputs->push_back(0.0);
+      }
+#if 0
+      if (mentions[j]->id() >= 0) {
+        if (entities.find(mentions[j]->id()) == entities.end()) {
+          entities.insert(mentions[j]->id()); // First instance of this entity.
+          gold_outputs->push_back(1.0);
+        } else {
+          gold_outputs->push_back(0.0);
+        }
+      } else {
+        gold_outputs->push_back(1.0); // Singleton mention.
+      }
+#endif
     }
   }
 

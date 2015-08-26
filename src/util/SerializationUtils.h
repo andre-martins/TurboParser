@@ -22,17 +22,22 @@
 #include <stdio.h>
 #include <string>
 #include <stdint.h>
+#include <vector>
 
 extern bool WriteString(FILE *fs, const std::string& data);
 extern bool WriteBool(FILE *fs, bool value);
 extern bool WriteInteger(FILE *fs, int value);
+extern bool WriteUINT8(FILE *fs, uint8_t value);
 extern bool WriteUINT64(FILE *fs, uint64_t value);
 extern bool WriteDouble(FILE *fs, double value);
+extern bool WriteIntegerVector(FILE *fs, const std::vector<int> &values);
 
 extern bool ReadString(FILE *fs, std::string *data);
 extern bool ReadBool(FILE *fs, bool *value);
 extern bool ReadInteger(FILE *fs, int *value);
+extern bool ReadUINT8(FILE *fs, uint8_t *value);
 extern bool ReadUINT64(FILE *fs, uint64_t *value);
 extern bool ReadDouble(FILE *fs, double *value);
+extern bool ReadIntegerVector(FILE *fs, std::vector<int> *values);
 
 #endif // SERIALIZATIONUTILS_H_

@@ -41,6 +41,7 @@ class CoreferenceDocumentNumeric : public Instance {
     coreference_spans_.clear();
     // TODO(atm): if document owns mentions, they should be deleted here.
     mentions_.clear();
+    entity_clusters_.clear();
     DeleteAllSentences();
   }
 
@@ -59,6 +60,16 @@ class CoreferenceDocumentNumeric : public Instance {
 
   // Returns the mentions.
   const std::vector<Mention*> &GetMentions() { return mentions_; }
+
+  // Returns the mentions.
+  const std::vector<std::vector<int> > &GetEntityClusters() {
+    return entity_clusters_;
+  }
+
+  bool IsMentionAnaphoric(int j) {
+    return mentions_[j]->id() >= 0 &&
+      entity_clusters_[mentions_[j]->id()][0] != j;
+  }
 
   // Get the sentence to which a word belongs.
   // Note: this takes linear time w.r.t. the number of sentences.
@@ -98,6 +109,8 @@ class CoreferenceDocumentNumeric : public Instance {
     sentences_.clear();
   }
 
+  void ComputeEntityClusters();
+
   void ComputeGlobalWordPositions(CoreferenceDocument* instance);
 
  private:
@@ -105,6 +118,7 @@ class CoreferenceDocumentNumeric : public Instance {
   std::vector<int> sentence_cumulative_lengths_;
   std::vector<NumericSpan*> coreference_spans_;
   std::vector<Mention*> mentions_;
+  std::vector<std::vector<int> > entity_clusters_;
 };
 
 #endif /* COREFERENCEDOCUMENTNUMERIC_H_ */

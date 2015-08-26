@@ -37,6 +37,11 @@ bool WriteInteger(FILE *fs, int value) {
   return true;
 }
 
+bool WriteUINT8(FILE *fs, uint8_t value) {
+  if (1 != fwrite(&value, sizeof(uint8_t), 1, fs)) return false;
+  return true;
+}
+
 bool WriteUINT64(FILE *fs, uint64_t value) {
   if (1 != fwrite(&value, sizeof(uint64_t), 1, fs)) return false;
   return true;
@@ -44,6 +49,16 @@ bool WriteUINT64(FILE *fs, uint64_t value) {
 
 bool WriteDouble(FILE *fs, double value) {
   if (1 != fwrite(&value, sizeof(double), 1, fs)) return false;
+  return true;
+}
+
+bool WriteIntegerVector(FILE *fs, const std::vector<int> &values) {
+  int length = values.size();
+  if (!WriteInteger(fs, length)) return false;
+  for (int i = 0; i < length; ++i) {
+    int value = values[i];
+    if (!WriteInteger(fs, value)) return false;
+  }
   return true;
 }
 
@@ -68,6 +83,11 @@ bool ReadInteger(FILE *fs, int *value) {
   return true;
 }
 
+bool ReadUINT8(FILE *fs, uint8_t *value) {
+  if (1 != fread(value, sizeof(uint8_t), 1, fs)) return false;
+  return true;
+}
+
 bool ReadUINT64(FILE *fs, uint64_t *value) {
   if (1 != fread(value, sizeof(uint64_t), 1, fs)) return false;
   return true;
@@ -75,5 +95,17 @@ bool ReadUINT64(FILE *fs, uint64_t *value) {
 
 bool ReadDouble(FILE *fs, double *value) {
   if (1 != fread(value, sizeof(double), 1, fs)) return false;
+  return true;
+}
+
+bool ReadIntegerVector(FILE *fs, std::vector<int> *values) {
+  int length;
+  if (!ReadInteger(fs, &length)) return false;
+  values->resize(length);
+  for (int i = 0; i < length; ++i) {
+    int value;
+    if (!ReadInteger(fs, &value)) return false;
+    (*values)[i] = value;
+  }
   return true;
 }

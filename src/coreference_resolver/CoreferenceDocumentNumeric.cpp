@@ -23,18 +23,6 @@ void CoreferenceDocumentNumeric::Initialize(
     const CoreferenceDictionary &dictionary,
     CoreferenceDocument* instance,
     bool add_gold_mentions) {
-#if 0
-  TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
-  DependencyDictionary *dependency_dictionary =
-    dictionary.GetDependencyDictionary();
-  SemanticDictionary *semantic_dictionary =
-    dictionary.GetSemanticDictionary();
-  SemanticInstance *semantic_instance =
-    static_cast<SemanticInstance*>(instance);
-  CoreferenceOptions *options =
-    static_cast<CoreferencePipe*>(dictionary.GetPipe())->GetCoreferenceOptions();
-#endif
-
   Clear();
 
   sentences_.resize(instance->GetNumSentences());
@@ -69,20 +57,6 @@ void CoreferenceDocumentNumeric::Initialize(
   mentions_.clear();
   Alphabet mention_head_strings;
   Alphabet mention_phrase_strings;
-  for (int i = 0; i < instance->GetNumSentences(); ++i) {
-    CoreferenceSentence *sentence_instance = instance->GetSentence(i);
-    const std::vector<NamedSpan*> &coreference_spans =
-      sentence_instance->GetCoreferenceSpans();
-    for (int k = 0; k < coreference_spans.size(); ++k) {
-      const std::string &label = coreference_spans[k]->name();
-      int id = coreference_labels.Insert(label);
-      int start = GetDocumentPosition(i, coreference_spans[k]->start());
-      int end = GetDocumentPosition(i, coreference_spans[k]->end());
-      NumericSpan *span = new NumericSpan(start, end, id);
-      coreference_spans_.push_back(span);
-    }
-  }
-
   for (int i = 0; i < sentences_.size(); ++i) {
     CoreferenceSentenceNumeric *sentence = sentences_[i];
     const vector<Mention*> &mentions = sentence->GetMentions();
@@ -125,6 +99,8 @@ void CoreferenceDocumentNumeric::Initialize(
     }
   }
 
+  ComputeEntityClusters();
+
 #if 1
   LOG(INFO) << "Found " << coreference_spans_.size()
             << " gold mentions organized into "
@@ -133,6 +109,18 @@ void CoreferenceDocumentNumeric::Initialize(
 #endif
 
   // GenerateMentions()?
+}
+
+void CoreferenceDocumentNumeric::ComputeEntityClusters() {
+  entity_clusters_.clear();
+  for (int j = 0; j < mentions_.size(); ++j) {
+    int entity_id = mentions_[j]->id();
+    if (entity_id < 0) continue;
+    if (entity_id >= entity_clusters_.size()) {
+      entity_clusters_.resize(entity_id + 1);
+    }
+    entity_clusters_[entity_id].push_back(j);
+  }
 }
 
 void CoreferenceDocumentNumeric::ComputeGlobalWordPositions(
