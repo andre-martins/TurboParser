@@ -32,8 +32,8 @@ class Writer {
   virtual ~Writer() {};
 
  public:
-  void Open(const string &filepath);
-  void Close();
+  virtual void Open(const string &filepath);
+  virtual void Close();
   virtual void Write(Instance *instance) = 0;
 
 protected:

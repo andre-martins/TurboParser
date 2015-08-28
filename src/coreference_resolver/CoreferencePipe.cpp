@@ -211,6 +211,8 @@ void CoreferencePipe::MakeParts(Instance *instance,
   }
 
   coreference_parts->BuildIndices(mentions.size());
+  // Necessary to store this information here for LabelInstance at test time.
+  coreference_parts->SetMentions(mentions);
 }
 
 void CoreferencePipe::MakeSelectedFeatures(
@@ -240,31 +242,58 @@ void CoreferencePipe::MakeSelectedFeatures(
 void CoreferencePipe::LabelInstance(Parts *parts,
                                     const std::vector<double> &output,
                                     Instance *instance) {
-#if 0
-  SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-  SequenceInstance *sequence_instance =
-      static_cast<SequenceInstance*>(instance);
-  int instance_length = sequence_instance->size();
-  for (int i = 0; i < instance_length; ++i) {
-    sequence_instance->SetTag(i, "NULL");
-  }
+  CoreferenceDocument *document =
+    static_cast<CoreferenceDocument*>(instance);
+  CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
+
+  const std::vector<Mention*> &mentions = coreference_parts->GetMentions();
+  std::vector<int> mention_clusters(mentions.size(), -1);
+  std::vector<std::vector<int> > entities;
+
   double threshold = 0.5;
-  int offset, size;
-  sequence_parts->GetOffsetUnigram(&offset, &size);
-  for (int r = 0; r < size; ++r) {
-    SequencePartUnigram *unigram =
-        static_cast<SequencePartUnigram*>((*sequence_parts)[offset + r]);
-    if (output[offset + r] >= threshold) {
-      int i = unigram->position();
-      int tag = unigram->tag();
-      CHECK(GetSequenceDictionary());
-      sequence_instance->SetTag(i,
-        GetSequenceDictionary()->GetTagName(tag));
+  for (int r = 0; r < coreference_parts->size(); ++r) {
+    if (output[r] < threshold) continue;
+    CoreferencePartArc *arc = static_cast<CoreferencePartArc*>((*parts)[r]);
+    CHECK_EQ(mention_clusters[arc->child_mention()], -1);
+    if (arc->parent_mention() < 0) {
+      // Non-anaphoric mention; create its own cluster.
+      mention_clusters[arc->child_mention()] = entities.size();
+      entities.push_back(std::vector<int>(1, arc->child_mention()));
+    } else {
+      int k = mention_clusters[arc->parent_mention()];
+      mention_clusters[arc->child_mention()] = k;
+      entities[k].push_back(arc->child_mention());
     }
   }
-  for (int i = 0; i < instance_length; ++i) {
-    CHECK(sequence_instance->GetTag(i) != "NULL");
+
+  // Clear gold coreference spans, if any.
+  for (int i = 0; i < document->GetNumSentences(); ++i) {
+    CoreferenceSentence *sentence = document->GetSentence(i);
+    sentence->ClearCoreferenceSpans();
   }
-#endif
+
+  // Add predicted coreference spans.
+  int num_entities = 0;
+  for (int k = 0; k < entities.size(); ++k) {
+    if (entities[k].size() > 1) {
+      ++num_entities;
+    }
+  }
+  for (int j = 0; j < mentions.size(); ++j) {
+    int k = mention_clusters[j];
+    if (entities[k].size() > 1) {
+      // Not a singleton cluster; add coreference span.
+      std::ostringstream ss;
+      ss << k;
+      const std::string &name(ss.str());
+      NamedSpan span(mentions[j]->start(), mentions[j]->end(), name);
+      int i = mentions[j]->sentence_index();
+      CoreferenceSentence *sentence = document->GetSentence(i);
+      sentence->AddCoreferenceSpan(span);
+    }
+  }
+
+  LOG(INFO) << "Predicted " << num_entities << " entities for " << mentions.size()
+            << " mentions.";
 }
 

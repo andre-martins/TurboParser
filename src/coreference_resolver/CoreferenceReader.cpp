@@ -99,7 +99,7 @@ Instance *CoreferenceReader::GetNext() {
 Instance *CoreferenceSentenceReader::GetNext() {
   // Fill all fields for the entire sentence.
   std::string name = "";
-  int part_number = 0;
+  //int part_number = 0;
   std::vector<std::vector<std::string> > sentence_fields;
   std::string line;
 
@@ -157,7 +157,11 @@ Instance *CoreferenceSentenceReader::GetNext() {
   for(int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
-    int offset = 3;
+    int offset = 0;
+    if (i == 0) {
+      name = info[offset] + "\t" + info[offset+1]; // Document name and part.
+    }
+    offset += 3;
 
     // Use splitted forms.
     forms[i+1] = info[offset];

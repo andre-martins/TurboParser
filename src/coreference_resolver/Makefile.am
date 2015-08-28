@@ -40,6 +40,8 @@ $(SEMANTIC_PARSER)/SemanticInstance.cpp \
 $(SEMANTIC_PARSER)/SemanticInstance.h \
 $(SEMANTIC_PARSER)/SemanticReader.cpp \
 $(SEMANTIC_PARSER)/SemanticReader.h \
+$(SEMANTIC_PARSER)/SemanticWriter.cpp \
+$(SEMANTIC_PARSER)/SemanticWriter.h \
 $(SEMANTIC_PARSER)/SemanticDictionary.cpp \
 $(SEMANTIC_PARSER)/SemanticDictionary.h \
 $(SEMANTIC_PARSER)/SemanticInstanceNumeric.cpp \
@@ -48,6 +50,8 @@ $(PARSER)/DependencyInstance.cpp \
 $(PARSER)/DependencyInstance.h \
 $(PARSER)/DependencyReader.cpp \
 $(PARSER)/DependencyReader.h \
+$(PARSER)/DependencyWriter.cpp \
+$(PARSER)/DependencyWriter.h \
 $(PARSER)/DependencyDictionary.cpp \
 $(PARSER)/DependencyDictionary.h \
 $(PARSER)/DependencyInstanceNumeric.cpp \

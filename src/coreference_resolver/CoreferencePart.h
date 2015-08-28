@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <vector>
 #include "Part.h"
+#include "Mention.h"
 
 using namespace std;
 
@@ -63,6 +64,12 @@ class CoreferenceParts : public Parts {
     return new CoreferencePartArc(parent_mention, child_mention);
   }
 
+  // Get/Set mentions.
+  const std::vector<Mention*> &GetMentions() const { return *mentions_; }
+  void SetMentions(const std::vector<Mention*> &mentions) {
+    mentions_ = &mentions;
+  }
+
  public:
   void DeleteAll();
 
@@ -74,7 +81,8 @@ class CoreferenceParts : public Parts {
   }
 
  private:
-  std::vector<vector<int> >  index_;
+  std::vector<vector<int> > index_;
+  const std::vector<Mention*> *mentions_;
 };
 
 #endif /* COREFERENCEPART_H_ */

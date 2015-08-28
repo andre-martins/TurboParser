@@ -98,8 +98,21 @@ void CoreferenceSentenceNumeric::Initialize(
   // Generate candidate mentions.
   GenerateMentions(dictionary, instance);
 
+  //LOG(INFO) << mentions_.size() << " found in sentence.";
+
   // Add gold mentions as candidates (only for training).
   if (add_gold_mentions) AddGoldMentions(dictionary, instance);
+
+
+#if 0
+  LOG(INFO) << mentions_.size() << " found in sentence.";
+  for (int i = 0; i < mentions_.size(); ++i) {
+    LOG(INFO) << "Mention "
+              << mentions_[i]->start() << " "
+              << mentions_[i]->end();
+
+  }
+#endif
 
 #if 0
   // Print mention information (for debugging purposes).
@@ -257,6 +270,10 @@ void CoreferenceSentenceNumeric::AddMention(
     const CoreferenceDictionary &dictionary,
     CoreferenceSentence* instance,
     int start, int end, int id) {
+  // If this mention already exists, do nothing.
+  for (int i = 0; i < mentions_.size(); ++i) {
+    if (mentions_[i]->start() == start && mentions_[i]->end() == end) return;
+  }
   Mention *mention = new Mention(start, end, id);
   mention->ComputeProperties(dictionary, instance, this);
   mentions_.push_back(mention);

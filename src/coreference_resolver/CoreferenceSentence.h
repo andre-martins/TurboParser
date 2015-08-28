@@ -55,12 +55,30 @@ class CoreferenceSentence : public SemanticInstance {
                   const std::vector<NamedSpan*> &constituent_spans,
                   const std::vector<NamedSpan*> &coreference_spans);
 
-  const std::vector<EntitySpan*>& GetEntitySpans() { return entity_spans_; }
-  const std::vector<NamedSpan*>& GetConstituentSpans() {
+  const std::vector<EntitySpan*>& GetEntitySpans() const {
+    return entity_spans_;
+  }
+  const std::vector<NamedSpan*>& GetConstituentSpans() const {
     return constituent_spans_;
   }
-  const std::vector<NamedSpan*>& GetCoreferenceSpans() {
+  const std::vector<NamedSpan*>& GetCoreferenceSpans() const {
     return coreference_spans_;
+  }
+  void ClearCoreferenceSpans() {
+    for (int i = 0; i < coreference_spans_.size(); ++i) {
+      delete coreference_spans_[i];
+    }
+    coreference_spans_.clear();
+  }
+  void SetCoreferenceSpans(const std::vector<NamedSpan*> &spans) {
+    ClearCoreferenceSpans();
+    coreference_spans_ = spans;
+  }
+  void AddCoreferenceSpan(const NamedSpan &span) {
+    NamedSpan *coreference_span = new NamedSpan(span.start(),
+                                                span.end(),
+                                                span.name());
+    coreference_spans_.push_back(coreference_span);
   }
 
  protected:

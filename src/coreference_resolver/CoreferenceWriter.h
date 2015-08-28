@@ -19,16 +19,64 @@
 #ifndef COREFERENCEWRITER_H_
 #define COREFERENCEWRITER_H_
 
-#include "Writer.h"
+#include "SemanticWriter.h"
+#include "EntitySpan.h"
+
+class CoreferenceSentenceWriter : public SemanticWriter {
+ public:
+  CoreferenceSentenceWriter() {
+    external_os_ = NULL;
+    options_ = NULL;
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  CoreferenceSentenceWriter(Options *options) {
+    external_os_ = NULL;
+    options_ = options;
+    use_sdp_format_ = false;
+    use_top_nodes_ = false;
+  }
+  virtual ~CoreferenceSentenceWriter() {}
+
+ public:
+  void SetOutputStream(std::ofstream *os) { external_os_ = os; }
+  void Write(Instance *instance);
+  void set_options(Options *options) { options_ = options; }
+
+ protected:
+  void ConstructTextFromCoreferenceSpans(int length,
+                                         const std::vector<NamedSpan*> &spans,
+                                         std::vector<std::string> *span_lines);
+
+ protected:
+  Options *options_;
+  std::ofstream *external_os_;
+};
 
 class CoreferenceWriter : public Writer {
 public:
-  CoreferenceWriter() {};
+  CoreferenceWriter() { options_ = NULL; }
+  CoreferenceWriter(Options *options) {
+    options_ = options;
+    sentence_writer_.set_options(options);
+  }
   virtual ~CoreferenceWriter() {};
 
 public:
+  void Open(const string &filepath) {
+    Writer::Open(filepath);
+    sentence_writer_.SetOutputStream(&os_);
+  }
+  void Close() {
+    Writer::Close();
+  }
   void Write(Instance *instance);
+
+  CoreferenceSentenceWriter *GetSentenceWriter() { return &sentence_writer_; }
+
+ protected:
+  CoreferenceSentenceWriter sentence_writer_;
+  Options *options_;
 };
 
 #endif /* COREFERENCEWRITER_H_ */
-

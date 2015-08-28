@@ -69,8 +69,8 @@ class CoreferencePipe : public Pipe {
     GetCoreferenceDictionary()->SetDependencyDictionary(dependency_dictionary_);
     GetCoreferenceDictionary()->SetSemanticDictionary(semantic_dictionary_);
   }
-  void CreateReader() { reader_ = new CoreferenceReader; }
-  void CreateWriter() { writer_ = new CoreferenceWriter; }
+  void CreateReader() { reader_ = new CoreferenceReader(options_); }
+  void CreateWriter() { writer_ = new CoreferenceWriter(options_); }
   void CreateDecoder() { decoder_ = new CoreferenceDecoder(this); }
   Parts *CreateParts() { return new CoreferenceParts; }
   Features *CreateFeatures() { return new CoreferenceFeatures(this); }

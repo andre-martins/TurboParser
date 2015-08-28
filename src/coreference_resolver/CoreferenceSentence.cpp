@@ -27,10 +27,7 @@ void CoreferenceSentence::DeleteAllSpans() {
     delete constituent_spans_[i];
   }
   constituent_spans_.clear();
-  for (int i = 0; i < coreference_spans_.size(); ++i) {
-    delete coreference_spans_[i];
-  }
-  coreference_spans_.clear();
+  ClearCoreferenceSpans();
 }
 
 void CoreferenceSentence::Initialize(

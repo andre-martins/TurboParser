@@ -41,6 +41,9 @@ class CoreferenceDocument : public Instance {
   int GetNumSentences() { return sentences_.size(); }
   CoreferenceSentence *GetSentence(int i) { return sentences_[i]; }
 
+  const std::string &name() { return name_; }
+  int part_number() { return part_number_; }
+
  protected:
   void DeleteAllSentences();
 
