@@ -60,6 +60,8 @@ class Mention : public NumericSpan {
   virtual ~Mention() {}
 
   int type() const { return type_; }
+  int gender() const { return gender_; }
+  int number() const { return number_; }
 
   int head_index() const { return head_index_; }
   void set_head_index(int head_index) { head_index_ = head_index; }
