@@ -42,7 +42,8 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
 
   void Initialize(const CoreferenceDictionary &dictionary,
                   CoreferenceSentence *instance,
-                  bool add_gold_mentions);
+                  bool add_gold_mentions,
+                  std::map<std::string, int> *coreference_span_names);
 
   const std::vector<NumericSpan*> &GetEntitySpans() {
     return entity_spans_;

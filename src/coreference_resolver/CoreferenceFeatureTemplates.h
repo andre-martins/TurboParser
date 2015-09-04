@@ -71,6 +71,41 @@ struct CoreferenceFeatureTemplateArc {
     PnW_Ct,          /* mention parent next word, child type */
     PnW_Ct_Pt,       /* mention parent next word, child type, parent type */
 
+    CP,             /* mention child head tag */
+    CP_Ct,          /* mention child head tag, child type */
+    CP_Ct_Pt,       /* mention child head tag, child type, parent type */
+    PP,             /* mention parent head tag */
+    PP_Ct,          /* mention parent head tag, child type */
+    PP_Ct_Pt,       /* mention parent head tag, child type, parent type */
+
+    CfP,             /* mention child first tag */
+    CfP_Ct,          /* mention child first tag, child type */
+    CfP_Ct_Pt,       /* mention child first tag, child type, parent type */
+    PfP,             /* mention parent first tag */
+    PfP_Ct,          /* mention parent first tag, child type */
+    PfP_Ct_Pt,       /* mention parent first tag, child type, parent type */
+
+    ClP,             /* mention child last tag */
+    ClP_Ct,          /* mention child last tag, child type */
+    ClP_Ct_Pt,       /* mention child last tag, child type, parent type */
+    PlP,             /* mention parent last tag */
+    PlP_Ct,          /* mention parent last tag, child type */
+    PlP_Ct_Pt,       /* mention parent last tag, child type, parent type */
+
+    CpP,             /* mention child preceding tag */
+    CpP_Ct,          /* mention child preceding tag, child type */
+    CpP_Ct_Pt,       /* mention child preceding tag, child type, parent type */
+    PpP,             /* mention parent preceding tag */
+    PpP_Ct,          /* mention parent preceding tag, child type */
+    PpP_Ct_Pt,       /* mention parent preceding tag, child type, parent type */
+
+    CnP,             /* mention child next tag */
+    CnP_Ct,          /* mention child next tag, child type */
+    CnP_Ct_Pt,       /* mention child next tag, child type, parent type */
+    PnP,             /* mention parent next tag */
+    PnP_Ct,          /* mention parent next tag, child type */
+    PnP_Ct_Pt,       /* mention parent next tag, child type, parent type */
+
     Pg,             /* mention parent gender */
     Pg_Ct,          /* mention parent gender, child type */
     Pg_Ct_Pt,       /* mention parent gender, child type, parent type */

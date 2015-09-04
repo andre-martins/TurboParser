@@ -146,6 +146,10 @@ void CoreferencePipe::TransformGold(Instance *instance,
   for (int r = 0; r < parts->size(); ++r) {
     if ((*gold_output)[r] < 0.5) {
       copied_scores[r] = -std::numeric_limits<double>::infinity();
+    } else {
+      CoreferencePartArc *arc = static_cast<CoreferencePartArc*>((*parts)[r]);
+      //LOG(INFO) << "Part[" << arc->parent_mention() << ", "
+      //          << arc->child_mention() << "] is gold.";
     }
   }
   static_cast<CoreferenceDecoder*>(decoder_)->
@@ -179,24 +183,19 @@ void CoreferencePipe::MakeParts(Instance *instance,
       } else {
         gold_outputs->push_back(0.0);
       }
-#if 0
-      if (mentions[j]->id() >= 0) {
-        if (entities.find(mentions[j]->id()) == entities.end()) {
-          entities.insert(mentions[j]->id()); // First instance of this entity.
-          gold_outputs->push_back(1.0);
-        } else {
-          gold_outputs->push_back(0.0);
-        }
-      } else {
-        gold_outputs->push_back(1.0); // Singleton mention.
-      }
-#endif
     }
   }
 
   // Create arc parts involving two mentions.
+  int mention_distance_threshold = -1; //100; // TODO(atm): put this in the options.
   for (int j = 0; j < mentions.size(); ++j) {
     for (int k = j+1; k < mentions.size(); ++k) {
+      if (mention_distance_threshold >= 0 &&
+          k - j > mention_distance_threshold &&
+          !(make_gold && (mentions[j]->id() >= 0 &&
+                          mentions[j]->id() == mentions[k]->id()))) {
+        continue;
+      }
       Part *part = coreference_parts->CreatePartArc(j, k);
       coreference_parts->push_back(part);
       if (make_gold) {

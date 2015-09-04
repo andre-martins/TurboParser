@@ -136,13 +136,40 @@ class CoreferencePipe : public Pipe {
   void LabelInstance(Parts *parts, const std::vector<double> &output,
                      Instance *instance);
 
+  void BeginEvaluation() {
+    num_tokens_ = 0;
+    gettimeofday(&start_clock_, NULL);
+  }
+
+  void EvaluateInstance(Instance *instance,
+                                Instance *output_instance,
+                                Parts *parts,
+                                const vector<double> &gold_outputs,
+                                const vector<double> &predicted_outputs) {
+    CoreferenceDocument *document =
+      static_cast<CoreferenceDocument*>(instance);
+    for (int i = 0; i < document->GetNumSentences(); ++i) {
+      num_tokens_ += document->GetSentence(i)->size() - 1;
+    }
+  }
+
+  void EndEvaluation() {
+    timeval end_clock;
+    gettimeofday(&end_clock, NULL);
+    double num_seconds =
+        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+    double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
+    LOG(INFO) << "Speed: "
+              << tokens_per_second << " tokens per second.";
+  }
+
  protected:
   TokenDictionary *token_dictionary_;
   DependencyDictionary *dependency_dictionary_;
   SemanticDictionary *semantic_dictionary_;
   //int num_tag_mistakes_;
-  //int num_tokens_;
-  //timeval start_clock_;
+  int num_tokens_;
+  timeval start_clock_;
 };
 
 #endif /* COREFERENCEPIPE_H_ */

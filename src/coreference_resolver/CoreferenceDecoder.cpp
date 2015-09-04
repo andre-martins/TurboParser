@@ -45,7 +45,7 @@ void CoreferenceDecoder::ComputeLinearCostFunction(
   p->assign(num_parts, 0.0);
 
   for (int j = 0; j < mentions.size(); ++j) {
-    int entity_id = mentions[j]->id(); // Gold entity.
+    int entity_id = mentions[j]->id(); // Gold entity (-1 if not gold mention).
     // List all possible antecedents.
     const std::vector<int> &arcs = coreference_parts->FindArcParts(j);
     for (int k = 0; k < arcs.size(); ++k) {
@@ -248,9 +248,11 @@ void CoreferenceDecoder::DecodeBasicMarginals(
       double marginal_value = marginal.as_float();
       (*predicted_output)[r] = marginal_value;
 #if 0
-      LOG(INFO) << "Marginal[" << j << ", "
-                << static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention()
-                << "] = " << marginal_value;
+      if (marginal_value > 0.0) {
+        LOG(INFO) << "Marginal[" << j << ", "
+                  << static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention()
+                  << "] = " << marginal_value;
+      }
 #endif
       if (scores[r] != -std::numeric_limits<double>::infinity()) {
         *entropy -= scores[r] * marginal_value;

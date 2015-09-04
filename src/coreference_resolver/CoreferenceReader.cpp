@@ -176,13 +176,15 @@ Instance *CoreferenceSentenceReader::GetNext() {
     // No morpho-syntactic information.
     feats[i+1].clear();
 
-    if (true) { //!semantic_options->use_dependency_syntactic_features()) {
+    // Dependency syntactic information.
+    if (false) { //!semantic_options->use_dependency_syntactic_features()) {
       heads[i+1] = 0;
       deprels[i+1] = "NULL";
     } else {
       std::stringstream ss(info[offset]);
       ++offset;
       ss >> heads[i+1];
+      //++heads[i+1]; // Note: heads start at -1 here!
       deprels[i+1] = info[offset];
       ++offset;
 

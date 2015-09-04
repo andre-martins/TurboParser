@@ -37,7 +37,7 @@ class Span {
   void set_end(int end) { end_ = end; }
 
   int GetLength() const { return end_ - start_ + 1; }
-  bool ContainsIndex(int i) const { return start_ <= i && end_ <= i; }
+  bool ContainsIndex(int i) const { return start_ <= i && end_ >= i; }
   bool LiesInsideSpan(const Span &span) const {
     return start_ >= span.start() && end_ <= span.end();
   }

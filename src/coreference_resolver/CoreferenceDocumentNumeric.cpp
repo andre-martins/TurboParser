@@ -25,11 +25,14 @@ void CoreferenceDocumentNumeric::Initialize(
     bool add_gold_mentions) {
   Clear();
 
+  // Temporary dictionary to hold coreference span names.
+  std::map<std::string, int> span_names;
   sentences_.resize(instance->GetNumSentences());
   for (int i = 0; i < instance->GetNumSentences(); ++i) {
     CoreferenceSentence *sentence_instance = instance->GetSentence(i);
     CoreferenceSentenceNumeric *sentence = new CoreferenceSentenceNumeric;
-    sentence->Initialize(dictionary, sentence_instance, add_gold_mentions);
+    sentence->Initialize(dictionary, sentence_instance, add_gold_mentions,
+                         &span_names);
     sentences_[i] = sentence;
   }
 

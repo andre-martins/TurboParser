@@ -85,26 +85,49 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   uint16_t CpWID, PpWID; // Child and parent preceding words.
   uint16_t CnWID, PnWID; // Child and parent next words.
 
+  uint8_t CPID, PPID; // Child and parent head tags.
+  uint8_t CfPID, PfPID; // Child and parent first tags.
+  uint8_t ClPID, PlPID; // Child and parent last tags.
+  uint8_t CpPID, PpPID; // Child and parent preceding tags.
+  uint8_t CnPID, PnPID; // Child and parent next tags.
+
   CoreferenceSentenceNumeric *child_sentence =
     document->GetSentence(child->sentence_index());
   CoreferenceSentenceNumeric *parent_sentence = (parent)?
     document->GetSentence(parent->sentence_index()) : NULL;
 
   // Use POS tags for now (instead of word forms).
-  CWID = child_sentence->GetPosId(child->head_index());
-  CfWID = child_sentence->GetPosId(child->start());
-  ClWID = child_sentence->GetPosId(child->end());
+  CWID = child_sentence->GetFormId(child->head_index());
+  CfWID = child_sentence->GetFormId(child->start());
+  ClWID = child_sentence->GetFormId(child->end());
   CpWID = (child->start() > 0)?
-    child_sentence->GetPosId(child->start()-1) : TOKEN_START;
+    child_sentence->GetFormId(child->start()-1) : TOKEN_START;
   CnWID = (child->end() < child_sentence->size() - 1)?
+    child_sentence->GetFormId(child->end()+1) : TOKEN_STOP;
+
+  CPID = child_sentence->GetPosId(child->head_index());
+  CfPID = child_sentence->GetPosId(child->start());
+  ClPID = child_sentence->GetPosId(child->end());
+  CpPID = (child->start() > 0)?
+    child_sentence->GetPosId(child->start()-1) : TOKEN_START;
+  CnPID = (child->end() < child_sentence->size() - 1)?
     child_sentence->GetPosId(child->end()+1) : TOKEN_STOP;
+
   if (parent) {
-    PWID = parent_sentence->GetPosId(parent->head_index());
-    PfWID = parent_sentence->GetPosId(parent->start());
-    PlWID = parent_sentence->GetPosId(parent->end());
+    PWID = parent_sentence->GetFormId(parent->head_index());
+    PfWID = parent_sentence->GetFormId(parent->start());
+    PlWID = parent_sentence->GetFormId(parent->end());
     PpWID = (parent->start() > 0)?
-      parent_sentence->GetPosId(parent->start()-1) : TOKEN_START;
+      parent_sentence->GetFormId(parent->start()-1) : TOKEN_START;
     PnWID = (parent->end() < parent_sentence->size() - 1)?
+      parent_sentence->GetFormId(parent->end()+1) : TOKEN_STOP;
+
+    PPID = parent_sentence->GetPosId(parent->head_index());
+    PfPID = parent_sentence->GetPosId(parent->start());
+    PlPID = parent_sentence->GetPosId(parent->end());
+    PpPID = (parent->start() > 0)?
+      parent_sentence->GetPosId(parent->start()-1) : TOKEN_START;
+    PnPID = (parent->end() < parent_sentence->size() - 1)?
       parent_sentence->GetPosId(parent->end()+1) : TOKEN_STOP;
   }
 
@@ -270,18 +293,16 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   }
 
   // Parent/child mention preceding word.
-  if (child->type() != MentionType::PRONOMINAL) {
-    fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CpW, flags,
-                                 CpWID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CpW_Ct, flags,
-                                  CpWID, CtID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CpW_Ct_Pt, flags,
-                                   CpWID, CtID, PtID);
-    AddFeature(fkey, features);
-  }
-  if (parent && parent->type() != MentionType::PRONOMINAL) {
+  fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CpW, flags,
+                               CpWID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CpW_Ct, flags,
+                                CpWID, CtID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CpW_Ct_Pt, flags,
+                                 CpWID, CtID, PtID);
+  AddFeature(fkey, features);
+  if (parent) {
     fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::PpW, flags,
                                  PpWID);
     AddFeature(fkey, features);
@@ -294,18 +315,16 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   }
 
   // Parent/child mention next word.
-  if (child->type() != MentionType::PRONOMINAL) {
-    fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CnW, flags,
-                                 CnWID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CnW_Ct, flags,
-                                  CnWID, CtID);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CnW_Ct_Pt, flags,
-                                   CnWID, CtID, PtID);
-    AddFeature(fkey, features);
-  }
-  if (parent && parent->type() != MentionType::PRONOMINAL) {
+  fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CnW, flags,
+                               CnWID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CnW_Ct, flags,
+                                CnWID, CtID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CnW_Ct_Pt, flags,
+                                 CnWID, CtID, PtID);
+  AddFeature(fkey, features);
+  if (parent) {
     fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::PnW, flags,
                                  PnWID);
     AddFeature(fkey, features);
@@ -314,6 +333,122 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
     AddFeature(fkey, features);
     fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::PnW_Ct_Pt, flags,
                                    PnWID, CtID, PtID);
+    AddFeature(fkey, features);
+  }
+
+  // Parent/child mention head tag.
+  if (child->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::CP, flags,
+                                 CPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::CP_Ct, flags,
+                                  CtID, CPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::CP_Ct_Pt, flags,
+                                   CtID, PtID, CPID);
+    AddFeature(fkey, features);
+  }
+  if (parent && parent->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::PP, flags,
+                                 PPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::PP_Ct, flags,
+                                  CtID, PPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::PP_Ct_Pt, flags,
+                                   CtID, PtID, PPID);
+    AddFeature(fkey, features);
+  }
+
+  // Parent/child mention first tag.
+  if (child->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::CfP, flags,
+                                 CfPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::CfP_Ct, flags,
+                                  CtID, CfPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::CfP_Ct_Pt, flags,
+                                   CtID, PtID, CfPID);
+    AddFeature(fkey, features);
+  }
+  if (parent && parent->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::PfP, flags,
+                                 PfPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::PfP_Ct, flags,
+                                  CtID, PfPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::PfP_Ct_Pt, flags,
+                                   CtID, PtID, PfPID);
+    AddFeature(fkey, features);
+  }
+
+  // Parent/child mention last tag.
+  if (child->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::ClP, flags,
+                                 ClPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::ClP_Ct, flags,
+                                  CtID, ClPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::ClP_Ct_Pt, flags,
+                                   CtID, PtID, ClPID);
+    AddFeature(fkey, features);
+  }
+  if (parent && parent->type() != MentionType::PRONOMINAL) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::PlP, flags,
+                                 PlPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::PlP_Ct, flags,
+                                  CtID, PlPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::PlP_Ct_Pt, flags,
+                                   CtID, PtID, PlPID);
+    AddFeature(fkey, features);
+  }
+
+  // Parent/child mention preceding tag.
+  fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::CpP, flags,
+                               CpPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::CpP_Ct, flags,
+                                CtID, CpPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::CpP_Ct_Pt, flags,
+                                 CtID, PtID, CpPID);
+  AddFeature(fkey, features);
+  if (parent) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::PpP, flags,
+                                 PpPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::PpP_Ct, flags,
+                                  CtID, PpPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::PpP_Ct_Pt, flags,
+                                   CtID, PtID, PpPID);
+    AddFeature(fkey, features);
+  }
+
+  // Parent/child mention next tag.
+  fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::CnP, flags,
+                               CnPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::CnP_Ct, flags,
+                                CtID, CnPID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::CnP_Ct_Pt, flags,
+                                 CtID, PtID, CnPID);
+  AddFeature(fkey, features);
+  if (parent) {
+    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::PnP, flags,
+                                 PnPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::PnP_Ct, flags,
+                                  CtID, PnPID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::PnP_Ct_Pt, flags,
+                                   CtID, PtID, PnPID);
     AddFeature(fkey, features);
   }
 
@@ -368,26 +503,28 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
                                    CtID, PtID, sentence_distance_code);
     AddFeature(fkey, features);
 
-    // Head match.
-    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::hm, flags,
-                                 head_match_code);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::hm_Ct, flags,
-                                  CtID, head_match_code);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::hm_Ct_Pt, flags,
-                                   CtID, PtID, head_match_code);
-    AddFeature(fkey, features);
+    if (child->type() != MentionType::PRONOMINAL) {
+      // Head match.
+      fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::hm, flags,
+                                   head_match_code);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::hm_Ct, flags,
+                                    CtID, head_match_code);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::hm_Ct_Pt, flags,
+                                     CtID, PtID, head_match_code);
+      AddFeature(fkey, features);
 
-    // Exact match.
-    fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::em, flags,
-                                 exact_match_code);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::em_Ct, flags,
-                                  CtID, exact_match_code);
-    AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::em_Ct_Pt, flags,
-                                   CtID, PtID, exact_match_code);
-    AddFeature(fkey, features);
+      // Exact match.
+      fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::em, flags,
+                                   exact_match_code);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::em_Ct, flags,
+                                    CtID, exact_match_code);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::em_Ct_Pt, flags,
+                                     CtID, PtID, exact_match_code);
+      AddFeature(fkey, features);
+    }
   }
 }

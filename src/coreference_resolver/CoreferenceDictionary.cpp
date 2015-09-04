@@ -156,6 +156,236 @@ void CoreferenceDictionary::CreateConstituentDictionary(
   }
 }
 
+#if 0
+void CoreferenceDictionary::CreateMentionWordDictionaries(
+    CoreferenceSentenceReader *reader) {
+  LOG(INFO) << "Creating mention word dictionary...";
+
+  int mention_lexical_cutoff = FLAGS_mention_lexical_cutoff;
+
+  std::vector<int> head_word_freqs;
+  std::vector<int> first_word_freqs;
+  std::vector<int> last_word_freqs;
+  std::vector<int> previous_word_freqs;
+  std::vector<int> next_word_freqs;
+
+  Alphabet head_word_alphabet;
+  Alphabet first_word_alphabet;
+  Alphabet last_word_alphabet;
+  Alphabet previous_word_alphabet;
+  Alphabet next_word_alphabet;
+
+  string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
+  special_symbols[TOKEN_START] = kTokenStart;
+  special_symbols[TOKEN_STOP] = kTokenStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    head_word_alphabet.Insert(special_symbols[i]);
+    first_word_alphabet.Insert(special_symbols[i]);
+    last_word_alphabet.Insert(special_symbols[i]);
+    previous_word_alphabet.Insert(special_symbols[i]);
+    next_word_alphabet.Insert(special_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    head_word_freqs.push_back(-1);
+    first_word_freqs.push_back(-1);
+    last_word_freqs.push_back(-1);
+    previous_word_freqs.push_back(-1);
+    next_word_freqs.push_back(-1);
+  }
+
+  // Go through the corpus and build the dictionaries,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  CoreferenceSentence *instance =
+    static_cast<CoreferenceSentence*>(reader->GetNext());
+  while (instance != NULL) {
+    // Need to create a numeric instance since mentions are generated there.
+    CoreferenceSentenceNumeric sentence;
+    sentence.Initialize(this, instance, true);
+    const std::vector<Mention*> &mentions = sentence.GetMentions();
+    for (int j = 0; j < mentions.size(); ++j) {
+      int id;
+      int i;
+      Mention *mention = (*mentions)[j];
+
+      // Add head word to alphabet.
+      i = mention->head_index();
+      std::string form = instance->GetForm(i);
+      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      id = head_word_alphabet_.Insert(form);
+      if (id >= head_word_freqs.size()) {
+        CHECK_EQ(id, head_word_freqs.size());
+        head_word_freqs.push_back(0);
+      }
+      ++head_word_freqs[id];
+
+      // Add first word to alphabet.
+      i = mention->start();
+      std::string form = instance->GetForm(i);
+      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      id = first_word_alphabet_.Insert(form);
+      if (id >= first_word_freqs.size()) {
+        CHECK_EQ(id, first_word_freqs.size());
+        first_word_freqs.push_back(0);
+      }
+      ++first_word_freqs[id];
+
+      // Add last word to alphabet.
+      i = mention->end();
+      std::string form = instance->GetForm(i);
+      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      id = last_word_alphabet_.Insert(form);
+      if (id >= last_word_freqs.size()) {
+        CHECK_EQ(id, last_word_freqs.size());
+        last_word_freqs.push_back(0);
+      }
+      ++last_word_freqs[id];
+
+      // Add previous word to alphabet.
+      i = mention->start()-1;
+      if (i >= 0) {
+        std::string form = instance->GetForm(i);
+        transform(form.begin(), form.end(), form.begin(), ::tolower);
+        id = previous_word_alphabet_.Insert(form);
+        if (id >= previous_word_freqs.size()) {
+          CHECK_EQ(id, previous_word_freqs.size());
+          previous_word_freqs.push_back(0);
+        }
+        ++previous_word_freqs[id];
+      }
+
+      // Add next word to alphabet.
+      i = mention->end()+1;
+      if (i < instance->size()) {
+        std::string form = instance->GetForm(i);
+        transform(form.begin(), form.end(), form.begin(), ::tolower);
+        id = next_word_alphabet_.Insert(form);
+        if (id >= next_word_freqs.size()) {
+          CHECK_EQ(id, next_word_freqs.size());
+          next_word_freqs.push_back(0);
+        }
+        ++next_word_freqs[id];
+      }
+    }
+
+    delete instance;
+    instance = static_cast<CoreferenceSentence*>(reader->GetNext());
+  }
+  reader->Close();
+
+  // Now adjust the cutoffs if necessary.
+  while (true) {
+    head_word_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      head_word_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = head_word_alphabet.begin();
+         iter != head_word_alphabet.end();
+         ++iter) {
+      if (head_word_freqs[iter->second] > head_word_cutoff) {
+        head_word_alphabet_.Insert(iter->first);
+      }
+    }
+    if (head_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
+    ++head_word_cutoff;
+    LOG(INFO) << "Incrementing head word cutoff to " << head_word_cutoff
+              << "...";
+  }
+
+  while (true) {
+    first_word_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      first_word_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = first_word_alphabet.begin();
+         iter != first_word_alphabet.end();
+         ++iter) {
+      if (first_word_freqs[iter->second] > first_word_cutoff) {
+        first_word_alphabet_.Insert(iter->first);
+      }
+    }
+    if (first_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
+    ++first_word_cutoff;
+    LOG(INFO) << "Incrementing first word cutoff to " << first_word_cutoff
+              << "...";
+  }
+
+  while (true) {
+    last_word_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      last_word_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = last_word_alphabet.begin();
+         iter != last_word_alphabet.end();
+         ++iter) {
+      if (last_word_freqs[iter->second] > last_word_cutoff) {
+        last_word_alphabet_.Insert(iter->first);
+      }
+    }
+    if (last_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
+    ++last_word_cutoff;
+    LOG(INFO) << "Incrementing head word cutoff to " << last_word_cutoff
+              << "...";
+  }
+
+  while (true) {
+    previous_word_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      previous_word_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = previous_word_alphabet.begin();
+         iter != previous_word_alphabet.end();
+         ++iter) {
+      if (previous_word_freqs[iter->second] > previous_word_cutoff) {
+        previous_word_alphabet_.Insert(iter->first);
+      }
+    }
+    if (previous_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
+    ++previous_word_cutoff;
+    LOG(INFO) << "Incrementing head word cutoff to " << previous_word_cutoff
+              << "...";
+  }
+
+  while (true) {
+    next_word_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      next_word_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = next_word_alphabet.begin();
+         iter != next_word_alphabet.end();
+         ++iter) {
+      if (next_word_freqs[iter->second] > next_word_cutoff) {
+        next_word_alphabet_.Insert(iter->first);
+      }
+    }
+    if (next_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
+    ++next_word_cutoff;
+    LOG(INFO) << "Incrementing head word cutoff to " << next_word_cutoff
+              << "...";
+  }
+
+  head_word_alphabet_.StopGrowth();
+  first_word_alphabet_.StopGrowth();
+  last_word_alphabet_.StopGrowth();
+  previous_word_alphabet_.StopGrowth();
+  next_word_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of head words: " << head_word_alphabet_.size() << endl
+            << "Number of first words: " << first_word_alphabet_.size() << endl
+            << "Number of last words: " << last_word_alphabet_.size() << endl
+            << "Number of previous words: " << previous_word_alphabet_.size() << endl
+            << "Number of next words: " << next_word_alphabet_.size() << endl;
+
+  CHECK_LT(head_word_alphabet_.size(), 0xffff);
+  CHECK_LT(first_word_alphabet_.size(), 0xffff);
+  CHECK_LT(last_word_alphabet_.size(), 0xffff);
+  CHECK_LT(previous_word_alphabet_.size(), 0xffff);
+  CHECK_LT(next_word_alphabet_.size(), 0xffff);
+}
+#endif
+
 void CoreferenceDictionary::CreateWordDictionaries(
     CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating word dictionary...";

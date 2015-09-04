@@ -27,7 +27,8 @@ const int kUnknownConstituent = 0xffff;
 void CoreferenceSentenceNumeric::Initialize(
     const CoreferenceDictionary &dictionary,
     CoreferenceSentence* instance,
-    bool add_gold_mentions) {
+    bool add_gold_mentions,
+    std::map<std::string, int> *coreference_span_names) {
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   DependencyDictionary *dependency_dictionary =
     dictionary.GetDependencyDictionary();
@@ -68,7 +69,7 @@ void CoreferenceSentenceNumeric::Initialize(
     constituent_spans_[k] = new NumericSpan(start, end, id);
   }
 
-  std::map<std::string, int> span_names;
+  //std::map<std::string, int> span_names;
   const std::vector<NamedSpan*> &coreference_spans =
     instance->GetCoreferenceSpans();
   coreference_spans_.resize(coreference_spans.size());
@@ -76,11 +77,12 @@ void CoreferenceSentenceNumeric::Initialize(
     int start = coreference_spans[k]->start();
     int end = coreference_spans[k]->end();
     const std::string &name = coreference_spans[k]->name();
-    std::map<std::string, int>::const_iterator it = span_names.find(name);
+    std::map<std::string, int>::const_iterator it =
+      coreference_span_names->find(name);
     int id = -1;
-    if (it == span_names.end()) {
-      id = span_names.size();
-      span_names[name] = id;
+    if (it == coreference_span_names->end()) {
+      id = coreference_span_names->size();
+      (*coreference_span_names)[name] = id;
     } else {
       id = it->second;
     }
