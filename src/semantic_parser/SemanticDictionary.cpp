@@ -144,7 +144,6 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   CHECK_LT(predicate_alphabet_.size(), kMaxPredicateAlphabetSize);
   CHECK_LT(role_alphabet_.size(), kMaxRoleAlphabetSize);
 
-
   // Prepare alphabets for dependency paths (relations and POS).
   vector<int> relation_path_freqs;
   Alphabet relation_path_alphabet;
@@ -171,7 +170,8 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
                          vector<vector<int> >(
                            token_dictionary_->GetNumPosTags()));
 
-  vector<vector<int> > existing_roles_with_relation_path;
+  vector<vector<int> > existing_roles_with_relation_path(NUM_SPECIAL_PATHS,
+                                                         std::vector<int>(0));
   vector<int> role_pair_freqs(GetNumRoleBigramLabels(), 0);
   // Initialize every label as deterministic.
   deterministic_roles_.assign(GetNumRoles(), true);
@@ -287,6 +287,7 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   while (true) {
     relation_path_alphabet_.clear();
     existing_roles_with_relation_path_.clear();
+    CHECK_GE(existing_roles_with_relation_path.size(), NUM_SPECIAL_PATHS);
     for (int i = 0; i < NUM_SPECIAL_PATHS; ++i) {
       int relation_path_id =
         relation_path_alphabet_.Insert(special_path_symbols[i]);

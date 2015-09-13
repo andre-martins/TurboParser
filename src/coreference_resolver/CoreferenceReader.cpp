@@ -200,12 +200,17 @@ Instance *CoreferenceSentenceReader::GetNext() {
     bool is_predicate = false;
     std::string predicate_name = info[offset];
     ++offset;
-    if (0 != predicate_name.compare("_") &&
-        0 != predicate_name.compare("-")) {
-      predicate_name += "." + info[offset]; // Predicate lemma+sense in PropBank.
+    std::string predicate_sense = info[offset];
+    ++offset;
+    // Added the comparison below due to the CONLL 2012 data.
+    if (0 != predicate_sense.compare("_") &&
+        0 != predicate_sense.compare("-")) {
+      predicate_name += "." + predicate_sense; // Predicate lemma+sense in PropBank.
       is_predicate = true;
     }
-    ++offset;
+    //    if (0 != predicate_name.compare("_") &&
+    //    0 != predicate_name.compare("-")) {
+    //}
 
     std::string word_sense = info[offset];
     ++offset;
@@ -217,8 +222,10 @@ Instance *CoreferenceSentenceReader::GetNext() {
     if (i == 0) {
       // Allocate space for predicates.
       num_predicates = info.size() - 1 - offset;
+      //LOG(INFO) << num_predicates;
       // Top nodes will be considered arguments of a special root node.
       if (use_top_nodes_) ++num_predicates;
+      //LOG(INFO) << num_predicates;
       predicate_names.resize(num_predicates);
       predicate_indices.resize(num_predicates);
       argument_roles.resize(num_predicates);

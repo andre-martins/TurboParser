@@ -9,12 +9,12 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 language=$1 # Example: "slovene" or "english_proj".
 train_algorithm=crf_margin_sgd # Training algorithm.
 num_epochs=20 # Number of training epochs.
-regularization_parameter=10 #0.01 #$2 #1e12 # The C parameter in MIRA.
-train_initial_learning_rate=0.1
+regularization_parameter=$2 #10 #0.01 #$2 #1e12 # The C parameter in MIRA.
+train_initial_learning_rate=$3 #0.1
 train_learning_rate_schedule=invsqrt
 train=true
 test=true
-false_anaphor_cost=0.0 #0.1
+false_anaphor_cost=$4 #0.0 #0.1
 false_new_cost=3.0
 false_wrong_link_cost=1.0
 #model_type=2 # Second-order model (trigrams).
@@ -41,7 +41,10 @@ coreference_file_mention_tags=${path_data}/${language}_mention_tags.txt
 coreference_file_pronouns=${path_data}/${language}_pronouns.txt
 coreference_file_gender_number_statistics=${path_data}/gender.data
 
-if [ "$language" == "english_ontonotes_wsj" ] || [ "$language" == "english_ontonotes" ]
+if [ "$language" == "english_ontonotes_wsj" ] || \
+    [ "$language" == "english_ontonotes" ] || \
+    [ "$language" == "english_ontonotes_conll2012_wsj" ] || \
+    [ "$language" == "english_ontonotes_conll2012" ]
 then
     file_train_orig=${path_data}/${language}_train.conll.coref
     files_test_orig[0]=${path_data}/${language}_test_blind.conll.coref
@@ -60,19 +63,23 @@ then
     files_gold[2]=${files_gold_orig[2]}_with_heads
 
     echo "Applying English head finder..."
-    python ${path_scripts}/head_finder/english_head_finder.py ${file_train_orig} 3 4 5 > ${file_train}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[0]} 3 4 5 > ${files_test[0]}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[1]} 3 4 5 > ${files_test[1]}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[2]} 3 4 5 > ${files_test[2]}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[0]} 3 4 5 > ${files_gold[0]}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[1]} 3 4 5 > ${files_gold[1]}
-    python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[2]} 3 4 5 > ${files_gold[2]}
+    run_head_finder=false
+    if $run_head_finder
+    then
+        python ${path_scripts}/head_finder/english_head_finder.py ${file_train_orig} 3 4 5 > ${file_train}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[0]} 3 4 5 > ${files_test[0]}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[1]} 3 4 5 > ${files_test[1]}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_test_orig[2]} 3 4 5 > ${files_test[2]}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[0]} 3 4 5 > ${files_gold[0]}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[1]} 3 4 5 > ${files_gold[1]}
+        python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[2]} 3 4 5 > ${files_gold[2]}
+    fi
 else
     file_train=${path_data}/${language}_train.conll.coref
     files_test[0]=${path_data}/${language}_test.conll.coref
     files_test[1]=${path_data}/${language}_dev.conll.coref
     files_gold[0]=${path_data}/${language}_test.conll.coref
-    files_gold[1]=${path_data}/${language}_test.conll.coref
+    files_gold[1]=${path_data}/${language}_dev.conll.coref
 fi
 
 # Obtain a prediction file path for each test file.
