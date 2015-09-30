@@ -541,7 +541,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
     std::ifstream is;
     std::string line;
 
-    // Read the pronouns, one per line.
+    // Read the gender/number statistics, one per line.
     is.open(options->file_gender_number_statistics().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
                      << options->file_gender_number_statistics() << ".";
@@ -598,6 +598,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
   LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
 }
 
+#if 0
 void CoreferenceDictionary::ReadPronouns() {
   CoreferenceOptions *options =
     static_cast<CoreferenceOptions*>(pipe_->GetOptions());
@@ -640,6 +641,120 @@ void CoreferenceDictionary::ReadPronouns() {
     }
     is.close();
   }
+}
+#endif
+
+void CoreferenceDictionary::ReadPronouns() {
+  CoreferenceOptions *options =
+    static_cast<CoreferenceOptions*>(pipe_->GetOptions());
+
+  word_alphabet_.AllowGrowth();
+  word_lower_alphabet_.AllowGrowth();
+
+  DeleteAllPronouns();
+
+  if (options->file_pronouns() != "") {
+    LOG(INFO) << "Loading pronouns file "
+              << options->file_pronouns() << "...";
+    std::ifstream is;
+    std::string line;
+
+    // Read the pronouns, one per line.
+    is.open(options->file_pronouns().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_pronouns() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        CHECK_EQ(fields.size(), 2);
+        const std::string &word = fields[0];
+        const std::string code_flags = fields[1];
+        std::string word_lower(word);
+        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                  ::tolower);
+        int id = word_lower_alphabet_.Lookup(word_lower);
+        if (id < 0) {
+          LOG(INFO) << "Adding unknown pronoun: "
+                    << word_lower;
+          id = word_lower_alphabet_.Insert(word_lower);
+        }
+        //int id = token_dictionary_->GetFormLowerId(form_lower);
+        //CHECK_LT(id, 0xffff);
+        //if (id < 0) {
+        //  LOG(INFO) << "Ignoring unknown word: "
+        //            << form_lower;
+        //  continue;
+        //}
+        CHECK(all_pronouns_.find(id) == all_pronouns_.end());
+        CoreferencePronoun *pronoun = new CoreferencePronoun(code_flags);
+        all_pronouns_[id] = pronoun;
+      }
+    }
+    is.close();
+  }
+
+  word_alphabet_.StopGrowth();
+  word_lower_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of words: " << word_alphabet_.size();
+  LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
+}
+
+void CoreferenceDictionary::ReadDeterminers() {
+  CoreferenceOptions *options =
+    static_cast<CoreferenceOptions*>(pipe_->GetOptions());
+
+  word_alphabet_.AllowGrowth();
+  word_lower_alphabet_.AllowGrowth();
+
+  DeleteAllDeterminers();
+
+  if (options->use_gender_number_determiners() &&
+      options->file_determiners() != "") {
+    LOG(INFO) << "Loading determiners file "
+              << options->file_determiners() << "...";
+    std::ifstream is;
+    std::string line;
+
+    // Read the determiners, one per line.
+    is.open(options->file_determiners().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+                     << options->file_determiners() << ".";
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line == "") continue; // Ignore blank lines.
+        std::vector<std::string> fields;
+        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        CHECK_EQ(fields.size(), 2);
+        const std::string &word = fields[0];
+        const std::string code_flags = fields[1];
+        std::string word_lower(word);
+        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                  ::tolower);
+        int id = word_lower_alphabet_.Lookup(word_lower);
+        if (id < 0) {
+          LOG(INFO) << "Adding unknown determiner: "
+                    << word_lower;
+          id = word_lower_alphabet_.Insert(word_lower);
+        }
+        CHECK(all_determiners_.find(id) == all_determiners_.end());
+        CoreferenceDeterminer *determiner =
+          new CoreferenceDeterminer(code_flags);
+        all_determiners_[id] = determiner;
+      }
+    }
+    is.close();
+  }
+
+  word_alphabet_.StopGrowth();
+  word_lower_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of words: " << word_alphabet_.size();
+  LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
 }
 
 void CoreferenceDictionary::ReadMentionTags() {

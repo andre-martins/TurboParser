@@ -28,10 +28,16 @@ DEFINE_string(coreference_file_mention_tags, "",
 DEFINE_string(coreference_file_pronouns, "",
               "Path to a file containing a list of pronouns classified by "
               "types.");
+DEFINE_string(coreference_file_determiners, "",
+              "Path to a file containing a list of determiners classified by "
+              "types.");
 DEFINE_string(coreference_file_gender_number_statistics, "",
               "Path to a file containing statistics of nouns' gender and number"
               "(e.g. Bergsma & Lin data file.");
-DEFINE_bool(use_gender_number_statistics, true,
+DEFINE_bool(use_gender_number_determiners, false,
+            "True if loading a file with determiners to find nouns' "
+            "gender/number.");
+DEFINE_bool(use_gender_number_statistics, false,
             "True if loading a file with nouns' gender/number statistics (see "
             "above.");
 DEFINE_bool(generate_noun_phrase_mentions_by_dependencies, true,
@@ -55,6 +61,8 @@ void CoreferenceOptions::Save(FILE* fs) {
   //CHECK(success);
   //success = WriteBool(fs, prune_tags_);
   //CHECK(success);
+  success = WriteBool(fs, use_gender_number_determiners_);
+  CHECK(success);
   success = WriteBool(fs, use_gender_number_statistics_);
   CHECK(success);
   success = WriteBool(fs, generate_noun_phrase_mentions_by_dependencies_);
@@ -81,7 +89,11 @@ void CoreferenceOptions::Load(FILE* fs) {
   //LOG(INFO) << "Setting --tagger_large_feature_set="
   //          << FLAGS_tagger_large_feature_set;
 
-  success = ReadBool(fs, &FLAGS_use_gender_number_statistics);
+  success = ReadBool(fs, &FLAGS_use_gender_number_determiners);
+  CHECK(success);
+  LOG(INFO) << "Setting --use_gender_number_determiners="
+            << FLAGS_use_gender_number_determiners;
+  success = ReadBool(fs, &FLAGS_use_gender_number_determiners);
   CHECK(success);
   LOG(INFO) << "Setting --use_gender_number_statistics="
             << FLAGS_use_gender_number_statistics;
@@ -109,11 +121,11 @@ void CoreferenceOptions::Initialize() {
 
   file_mention_tags_ = FLAGS_coreference_file_mention_tags;
   file_pronouns_ = FLAGS_coreference_file_pronouns;
+  file_determiners_ = FLAGS_coreference_file_determiners;
   file_gender_number_statistics_ =
     FLAGS_coreference_file_gender_number_statistics;
 
-  //model_type_ = FLAGS_sequence_model_type;
-  //prune_tags_ = FLAGS_sequence_prune_tags;
+  use_gender_number_determiners_ = FLAGS_use_gender_number_determiners;
   use_gender_number_statistics_ = FLAGS_use_gender_number_statistics;
   generate_noun_phrase_mentions_by_dependencies_ =
     FLAGS_generate_noun_phrase_mentions_by_dependencies;

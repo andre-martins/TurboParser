@@ -36,8 +36,12 @@ class CoreferenceOptions : public Options {
   // Get option flags.
   const std::string &file_mention_tags() { return file_mention_tags_; }
   const std::string &file_pronouns() { return file_pronouns_; }
+  const std::string &file_determiners() { return file_determiners_; }
   const std::string &file_gender_number_statistics() {
     return file_gender_number_statistics_;
+  }
+  bool use_gender_number_determiners() {
+    return use_gender_number_determiners_;
   }
   bool use_gender_number_statistics() {
     return use_gender_number_statistics_;
@@ -52,7 +56,9 @@ class CoreferenceOptions : public Options {
  protected:
   std::string file_mention_tags_;
   std::string file_pronouns_;
+  std::string file_determiners_;
   std::string file_gender_number_statistics_;
+  bool use_gender_number_determiners_;
   bool use_gender_number_statistics_;
   bool generate_noun_phrase_mentions_by_dependencies_;
   double false_anaphor_cost_;

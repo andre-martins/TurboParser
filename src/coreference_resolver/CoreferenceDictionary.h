@@ -27,6 +27,7 @@
 #include "SerializationUtils.h"
 #include "CoreferenceReader.h"
 #include "CoreferencePronoun.h"
+#include "CoreferenceDeterminer.h"
 
 class Pipe;
 
@@ -130,6 +131,21 @@ class CoreferenceDictionary : public Dictionary {
       pronoun->Save(fs);
     }
 
+    // Save determiners.
+    length = all_determiners_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::map<int, CoreferenceDeterminer*>::iterator it =
+           all_determiners_.begin();
+         it != all_determiners_.end();
+         ++it) {
+      int id = it->first;
+      CoreferenceDeterminer *determiner = it->second;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+      determiner->Save(fs);
+    }
+
     // Save various tags.
     length = named_entity_tags_.size();
     success = WriteInteger(fs, length);
@@ -228,6 +244,18 @@ class CoreferenceDictionary : public Dictionary {
       CHECK(success);
       pronoun->Load(fs);
       all_pronouns_[id] = pronoun;
+    }
+
+    // Load determiners.
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      CoreferenceDeterminer *determiner = new CoreferenceDeterminer;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
+      determiner->Load(fs);
+      all_determiners_[id] = determiner;
     }
 
     // Load various tags.
@@ -410,6 +438,7 @@ class CoreferenceDictionary : public Dictionary {
   void ReadGenderNumberStatistics();
   void ReadMentionTags();
   void ReadPronouns();
+  void ReadDeterminers();
 
   bool IsNamedEntity(int entity_tag) const {
     return named_entity_tags_.find(entity_tag) != named_entity_tags_.end();
@@ -435,47 +464,90 @@ class CoreferenceDictionary : public Dictionary {
     return pronominal_tags_.find(pos_tag) != pronominal_tags_.end();
   }
 
-  bool IsPronoun(int form_lower) const {
+  bool IsPronoun(int word_lower) const {
     std::map<int, CoreferencePronoun*>::const_iterator it =
-      all_pronouns_.find(form_lower);
+      all_pronouns_.find(word_lower);
     return it != all_pronouns_.end();
   }
 
-  CoreferencePronoun *GetPronoun(int form_lower) const {
+  CoreferencePronoun *GetPronoun(int word_lower) const {
     std::map<int, CoreferencePronoun*>::const_iterator it =
-      all_pronouns_.find(form_lower);
+      all_pronouns_.find(word_lower);
     if (it == all_pronouns_.end()) return NULL;
     return it->second;
   }
 
-  bool IsMalePronoun(int form_lower) const {
-    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+  bool IsMalePronoun(int word_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(word_lower);
     if (!pronoun) return false;
     return pronoun->IsGenderMale();
   }
 
-  bool IsFemalePronoun(int form_lower) const {
-    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+  bool IsFemalePronoun(int word_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(word_lower);
     if (!pronoun) return false;
     return pronoun->IsGenderFemale();
   }
 
-  bool IsNeutralPronoun(int form_lower) const {
-    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+  bool IsNeutralPronoun(int word_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(word_lower);
     if (!pronoun) return false;
     return pronoun->IsGenderNeutral();
   }
 
-  bool IsSingularPronoun(int form_lower) const {
-    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+  bool IsSingularPronoun(int word_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(word_lower);
     if (!pronoun) return false;
     return pronoun->IsNumberSingular();
   }
 
-  bool IsPluralPronoun(int form_lower) const {
-    CoreferencePronoun *pronoun = GetPronoun(form_lower);
+  bool IsPluralPronoun(int word_lower) const {
+    CoreferencePronoun *pronoun = GetPronoun(word_lower);
     if (!pronoun) return false;
     return pronoun->IsNumberPlural();
+  }
+
+  bool IsDeterminer(int word_lower) const {
+    std::map<int, CoreferenceDeterminer*>::const_iterator it =
+      all_determiners_.find(word_lower);
+    return it != all_determiners_.end();
+  }
+
+  CoreferenceDeterminer *GetDeterminer(int word_lower) const {
+    std::map<int, CoreferenceDeterminer*>::const_iterator it =
+      all_determiners_.find(word_lower);
+    if (it == all_determiners_.end()) return NULL;
+    return it->second;
+  }
+
+  bool IsMaleDeterminer(int word_lower) const {
+    CoreferenceDeterminer *determiner = GetDeterminer(word_lower);
+    if (!determiner) return false;
+    return determiner->IsGenderMale();
+  }
+
+  bool IsFemaleDeterminer(int word_lower) const {
+    CoreferenceDeterminer *determiner = GetDeterminer(word_lower);
+    if (!determiner) return false;
+    return determiner->IsGenderFemale();
+  }
+
+  bool IsNeutralDeterminer(int word_lower) const {
+    CoreferenceDeterminer *determiner = GetDeterminer(word_lower);
+    if (!determiner) return false;
+    return determiner->IsGenderNeutral();
+  }
+
+  bool IsSingularDeterminer(int word_lower) const {
+    CoreferenceDeterminer *determiner = GetDeterminer(word_lower);
+    if (!determiner) return false;
+    return determiner->IsNumberSingular();
+  }
+
+  bool IsPluralDeterminer(int word_lower) const {
+    CoreferenceDeterminer *determiner = GetDeterminer(word_lower);
+    if (!determiner) return false;
+    return determiner->IsNumberPlural();
   }
 
   // TODO(atm): this should not be here, but let us keep it for now...
@@ -496,6 +568,16 @@ class CoreferenceDictionary : public Dictionary {
     all_pronouns_.clear();
   }
 
+  void DeleteAllDeterminers() {
+    for (std::map<int, CoreferenceDeterminer*>::iterator it =
+           all_determiners_.begin();
+         it != all_determiners_.end();
+         ++it) {
+      delete it->second;
+    }
+    all_determiners_.clear();
+  }
+
  protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
@@ -513,6 +595,7 @@ class CoreferenceDictionary : public Dictionary {
   Alphabet bigram_ancestry_alphabet_;
   GenderNumberStatistics gender_number_statistics_;
   std::map<int, CoreferencePronoun*> all_pronouns_;
+  std::map<int, CoreferenceDeterminer*> all_determiners_;
   std::set<int> named_entity_tags_;
   std::set<int> person_entity_tags_;
   std::set<int> noun_tags_;

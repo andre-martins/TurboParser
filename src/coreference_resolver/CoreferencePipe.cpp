@@ -107,6 +107,7 @@ void CoreferencePipe::PreprocessData() {
 
   GetCoreferenceDictionary()->ReadMentionTags();
   GetCoreferenceDictionary()->ReadPronouns();
+  GetCoreferenceDictionary()->ReadDeterminers();
   GetCoreferenceDictionary()->ReadGenderNumberStatistics();
 }
 

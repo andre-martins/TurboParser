@@ -42,6 +42,7 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 coreference_file_mention_tags=${path_data}/${language}_mention_tags.txt
 coreference_file_pronouns=${path_data}/${language}_pronouns.txt
+coreference_file_determiners=${path_data}/${language}_determiners.txt
 coreference_file_gender_number_statistics=
 
 if [ "$language" == "english_ontonotes_wsj" ] || \
@@ -78,7 +79,8 @@ then
         python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[2]} 3 4 5 > ${files_gold[2]}
     fi
 
-    generate_noun_phrase_mentions_by_dependencies=true
+    generate_noun_phrase_mentions_by_dependencies=false
+    use_gender_number_determiners=false
     use_gender_number_statistics=true
     coreference_file_gender_number_statistics=${path_data}/gender.data
 
@@ -88,6 +90,16 @@ else
     files_test[1]=${path_data}/${language}_dev.conll.coref
     files_gold[0]=${path_data}/${language}_test.conll.coref
     files_gold[1]=${path_data}/${language}_dev.conll.coref
+
+    if [ "$language" == "spanish" ] || \
+        [ "$language" == "portuguese" ]
+    then
+        generate_noun_phrase_mentions_by_dependencies=true
+        use_gender_number_determiners=true
+        use_gender_number_statistics=false
+        #coreference_file_determiners=${path_data}/${language}_determiners.txt
+    fi
+
 fi
 
 # Obtain a prediction file path for each test file.
@@ -111,9 +123,11 @@ then
         --file_model=${file_model} \
         --file_train=${file_train} \
         --generate_noun_phrase_mentions_by_dependencies=${generate_noun_phrase_mentions_by_dependencies} \
+        --use_gender_number_determiners=${use_gender_number_determiners} \
         --use_gender_number_statistics=${use_gender_number_statistics} \
         --coreference_file_mention_tags=${coreference_file_mention_tags} \
         --coreference_file_pronouns=${coreference_file_pronouns} \
+        --coreference_file_determiners=${coreference_file_determiners} \
         --coreference_file_gender_number_statistics=${coreference_file_gender_number_statistics} \
         --train_algorithm=${train_algorithm} \
         --train_initial_learning_rate=${train_initial_learning_rate} \

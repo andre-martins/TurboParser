@@ -18,6 +18,7 @@
 
 #include "Mention.h"
 #include "CoreferenceSentenceNumeric.h"
+#include "CoreferencePipe.h"
 #include <algorithm>
 
 const int kUnknownUnigramAncestry = 0xffff;
@@ -26,6 +27,10 @@ const int kUnknownBigramAncestry = 0xffff;
 void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
                                 CoreferenceSentence* instance,
                                 CoreferenceSentenceNumeric *sentence) {
+  CoreferenceOptions *options =
+    static_cast<CoreferencePipe*>(dictionary.GetPipe())->
+    GetCoreferenceOptions();
+
   sentence_ = sentence;
   ComputeHead();
 
@@ -48,8 +53,17 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
   tags_.assign(sentence->GetPosIds().begin() + start_,
                sentence->GetPosIds().begin() + end_);
 
-  int head_word = sentence->GetFormLowerId(head_index_);
   int head_tag = sentence->GetPosId(head_index_);
+  int head_form = sentence->GetFormLowerId(head_index_);
+
+  const std::string &word = instance->GetForm(head_index_);
+  std::string word_lower(word);
+  transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+            ::tolower);
+  int id = dictionary.GetWordLowerAlphabet().Lookup(word_lower);
+  //if (id < 0) id = TOKEN_UNKNOWN;
+  int head_word = id; // This uses the extended word dictionary.
+
   if (dictionary.IsPronoun(head_word) ||
       dictionary.IsPronounTag(head_tag)) {
     type_ = MentionType::PRONOMINAL;
@@ -86,47 +100,84 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
       number_ = MentionNumber::UNKNOWN;
     }
   } else {
-    std::vector<int> phrase;
-    std::vector<int> phrase_lower;
-    for (int i = start_; i <= end_; ++i) {
-      const std::string &word = instance->GetForm(i);
-      std::string word_lower(word);
-      transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                ::tolower);
-      int id = dictionary.GetWordAlphabet().Lookup(word);
-      //if (id < 0) id = TOKEN_UNKNOWN;
-      phrase.push_back(id);
-      id = dictionary.GetWordLowerAlphabet().Lookup(word_lower);
-      //if (id < 0) id = TOKEN_UNKNOWN;
-      phrase_lower.push_back(id);
-    }
-    //number_ = ComputeNumber(phrase, phrase_lower, head_index_ - start_);
-    number_ = dictionary.GetGenderNumberStatistics().
-      ComputeNumber(phrase_lower, head_index_ - start_);
-    if (entity_tag_ >= 0 &&
-        dictionary.IsPersonEntity(entity_tag_)) {
-      //gender_ = ComputePersonGender(phrase, phrase_lower,
-      //                              head_index_ - start_);
-      // If the head is upper case, assume it's a last name.
-      if (sentence->FirstUpper(head_index_)) {
-        // If the word before the head is upper case, assume it's a first name,
-        // and decide based on that.
-        if (head_index_ > 0 && sentence->FirstUpper(head_index_ - 1)) {
-          gender_ = dictionary.GetGenderNumberStatistics().
-            ComputeGender(phrase_lower, head_index_ - 1 - start_);
+    if (options->use_gender_number_determiners()) {
+      // Compute number and gender by looking at the previous determiner form.
+      int i = head_index_ - 1;
+      if (i >= 0) {
+        const std::string &word = instance->GetForm(i);
+        std::string word_lower(word);
+        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                  ::tolower);
+        int word_lower_id =
+          dictionary.GetWordLowerAlphabet().Lookup(word_lower);
+        number_ = MentionNumber::UNKNOWN;
+        gender_ = MentionGender::UNKNOWN;
+        if (dictionary.IsDeterminer(word_lower_id)) {
+          if (dictionary.IsSingularDeterminer(word_lower_id)) {
+            number_ = MentionNumber::SINGULAR;
+          } else if (dictionary.IsPluralDeterminer(word_lower_id)) {
+            number_ = MentionNumber::PLURAL;
+          }
+          if (dictionary.IsMaleDeterminer(word_lower_id)) {
+            gender_ = MentionGender::MALE;
+          } else if (dictionary.IsFemaleDeterminer(word_lower_id)) {
+            gender_ = MentionGender::FEMALE;
+          } else if (dictionary.IsNeutralDeterminer(word_lower_id)) {
+            gender_ = MentionGender::NEUTRAL;
+          }
+        }
+        if (number_ == MentionNumber::UNKNOWN) {
+          const std::string &word = instance->GetForm(head_index_);
+          // Plurals end in "s" for several languages.
+          // TODO(atm): get rid of this hack.
+          if (word.length() > 0 && word[word.length()-1] == 's') {
+            number_ = MentionNumber::PLURAL;
+          }
+        }
+      }
+    } else {
+      std::vector<int> phrase;
+      std::vector<int> phrase_lower;
+      for (int i = start_; i <= end_; ++i) {
+        const std::string &word = instance->GetForm(i);
+        std::string word_lower(word);
+        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                  ::tolower);
+        int id = dictionary.GetWordAlphabet().Lookup(word);
+        //if (id < 0) id = TOKEN_UNKNOWN;
+        phrase.push_back(id);
+        id = dictionary.GetWordLowerAlphabet().Lookup(word_lower);
+        //if (id < 0) id = TOKEN_UNKNOWN;
+        phrase_lower.push_back(id);
+      }
+      //number_ = ComputeNumber(phrase, phrase_lower, head_index_ - start_);
+      number_ = dictionary.GetGenderNumberStatistics().
+        ComputeNumber(phrase_lower, head_index_ - start_);
+      if (entity_tag_ >= 0 &&
+          dictionary.IsPersonEntity(entity_tag_)) {
+        //gender_ = ComputePersonGender(phrase, phrase_lower,
+        //                              head_index_ - start_);
+        // If the head is upper case, assume it's a last name.
+        if (sentence->FirstUpper(head_index_)) {
+          // If the word before the head is upper case, assume it's a first name,
+          // and decide based on that.
+          if (head_index_ > 0 && sentence->FirstUpper(head_index_ - 1)) {
+            gender_ = dictionary.GetGenderNumberStatistics().
+              ComputeGender(phrase_lower, head_index_ - 1 - start_);
+          } else {
+            gender_ = dictionary.GetGenderNumberStatistics().
+              ComputeGender(phrase_lower, head_index_ - start_);
+          }
         } else {
           gender_ = dictionary.GetGenderNumberStatistics().
             ComputeGender(phrase_lower, head_index_ - start_);
         }
       } else {
+        //gender_ = ComputeNonPersonGender(phrase, phrase_lower,
+        //                                 head_index_ - start_);
         gender_ = dictionary.GetGenderNumberStatistics().
           ComputeGender(phrase_lower, head_index_ - start_);
       }
-    } else {
-      //gender_ = ComputeNonPersonGender(phrase, phrase_lower,
-      //                                 head_index_ - start_);
-      gender_ = dictionary.GetGenderNumberStatistics().
-        ComputeGender(phrase_lower, head_index_ - start_);
     }
   }
 

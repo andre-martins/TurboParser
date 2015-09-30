@@ -36,6 +36,7 @@ CoreferenceFeatureTemplates.h \
 CoreferenceDecoder.h \
 Mention.h \
 CoreferencePronoun.h \
+CoreferenceDeterminer.h \
 $(SEMANTIC_PARSER)/SemanticInstance.cpp \
 $(SEMANTIC_PARSER)/SemanticInstance.h \
 $(SEMANTIC_PARSER)/SemanticReader.cpp \
