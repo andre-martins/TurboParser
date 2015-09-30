@@ -448,8 +448,84 @@ void CoreferenceDictionary::CreateWordDictionaries(
   LOG(INFO) << "Number of lower-case words: " << word_lower_alphabet_.size();
 }
 
+void CoreferenceDictionary::ComputeDependencyAncestryStrings(
+    DependencyInstance *instance,
+    int i,
+    std::string *unigram_ancestry_string,
+    std::string *bigram_ancestry_string) const {
+  // Get syntactic head and grandparent.
+  int head = instance->GetHead(i);
+  int grandparent = (head > 0)? instance->GetHead(head) : -1;
+  std::string head_tag = (head > 0)? instance->GetPosTag(head) : "ROOT";
+  std::string grandparent_tag = (grandparent > 0)?
+    instance->GetPosTag(grandparent) : "ROOT";
+
+  *unigram_ancestry_string = "";
+  *bigram_ancestry_string = "";
+  if (head < i) {
+    *unigram_ancestry_string += "<" + head_tag;
+    *bigram_ancestry_string += "<" + head_tag;
+  } else {
+    *unigram_ancestry_string += ">" + head_tag;
+    *bigram_ancestry_string += ">" + head_tag;
+  }
+  if (grandparent < head) {
+    *bigram_ancestry_string += "<" + grandparent_tag;
+  } else {
+    *bigram_ancestry_string += ">" + grandparent_tag;
+  }
+}
+
+void CoreferenceDictionary::CreateAncestryDictionaries(
+    CoreferenceSentenceReader *reader) {
+  LOG(INFO) << "Creating ancestry dictionary...";
+  std::vector<int> unigram_ancestry_freqs;
+  std::vector<int> bigram_ancestry_freqs;
+
+  // Go through the corpus and build the label dictionary,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  CoreferenceSentence *instance =
+    static_cast<CoreferenceSentence*>(reader->GetNext());
+  while (instance != NULL) {
+    for (int i = 1; i < instance->size(); ++i) {
+      int id;
+
+      // Compute ancestry string and add it to alphabet.
+      std::string unigram_ancestry_string;
+      std::string bigram_ancestry_string;
+      ComputeDependencyAncestryStrings(instance, i, &unigram_ancestry_string,
+                                       &bigram_ancestry_string);
+      id = unigram_ancestry_alphabet_.Insert(unigram_ancestry_string);
+      if (id >= unigram_ancestry_freqs.size()) {
+        CHECK_EQ(id, unigram_ancestry_freqs.size());
+        unigram_ancestry_freqs.push_back(0);
+      }
+      ++unigram_ancestry_freqs[id];
+
+      id = bigram_ancestry_alphabet_.Insert(bigram_ancestry_string);
+      if (id >= bigram_ancestry_freqs.size()) {
+        CHECK_EQ(id, bigram_ancestry_freqs.size());
+        bigram_ancestry_freqs.push_back(0);
+      }
+      ++bigram_ancestry_freqs[id];
+    }
+    delete instance;
+    instance = static_cast<CoreferenceSentence*>(reader->GetNext());
+  }
+  reader->Close();
+  unigram_ancestry_alphabet_.StopGrowth();
+  bigram_ancestry_alphabet_.StopGrowth();
+
+  CHECK_LT(unigram_ancestry_alphabet_.size(), 0xffff);
+  LOG(INFO) << "Number of syntactic unigram ancestry strings: "
+            << unigram_ancestry_alphabet_.size();
+  CHECK_LT(bigram_ancestry_alphabet_.size(), 0xffff);
+  LOG(INFO) << "Number of syntactic bigram ancestry strings: "
+            << bigram_ancestry_alphabet_.size();
+}
+
 void CoreferenceDictionary::ReadGenderNumberStatistics() {
-  // TODO(atm): implement this.
   CoreferenceOptions *options =
     static_cast<CoreferenceOptions*>(pipe_->GetOptions());
 
@@ -458,7 +534,8 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
 
   gender_number_statistics_.Clear();
 
-  if (options->file_gender_number_statistics() != "") {
+  if (options->use_gender_number_statistics() &&
+      options->file_gender_number_statistics() != "") {
     LOG(INFO) << "Loading gender/number statistics file "
               << options->file_gender_number_statistics() << "...";
     std::ifstream is;
@@ -573,6 +650,7 @@ void CoreferenceDictionary::ReadMentionTags() {
   person_entity_tags_.clear();
   noun_phrase_tags_.clear();
   proper_noun_tags_.clear();
+  noun_tags_.clear();
   pronominal_tags_.clear();
 
   if (options->file_mention_tags() != "") {
@@ -628,6 +706,18 @@ void CoreferenceDictionary::ReadMentionTags() {
               continue;
             }
             noun_phrase_tags_.insert(id);
+          }
+        } else if (mention_tag_type == "noun_tags") {
+          for (int i = 1; i < fields.size(); ++i) {
+            const std::string &tag_name = fields[i];
+            int id = token_dictionary_->GetPosTagId(tag_name);
+            CHECK_LT(id, 0xff);
+            if (id < 0) {
+              LOG(INFO) << "Ignoring unknown POS tag: "
+                        << tag_name;
+              continue;
+            }
+            noun_tags_.insert(id);
           }
         } else if (mention_tag_type == "proper_noun_tags") {
           for (int i = 1; i < fields.size(); ++i) {

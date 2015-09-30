@@ -102,6 +102,8 @@ void CoreferencePipe::PreprocessData() {
     CreateConstituentDictionary(GetCoreferenceSentenceReader());
   GetCoreferenceDictionary()->
     CreateWordDictionaries(GetCoreferenceSentenceReader());
+  GetCoreferenceDictionary()->
+    CreateAncestryDictionaries(GetCoreferenceSentenceReader());
 
   GetCoreferenceDictionary()->ReadMentionTags();
   GetCoreferenceDictionary()->ReadPronouns();

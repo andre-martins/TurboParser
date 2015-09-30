@@ -62,6 +62,8 @@ class Mention : public NumericSpan {
   int type() const { return type_; }
   int gender() const { return gender_; }
   int number() const { return number_; }
+  int unigram_ancestry() const { return unigram_ancestry_; }
+  int bigram_ancestry() const { return bigram_ancestry_; }
 
   int head_index() const { return head_index_; }
   void set_head_index(int head_index) { head_index_ = head_index; }
@@ -78,6 +80,11 @@ class Mention : public NumericSpan {
   int global_end() const { return offset_ + end_; }
   int global_head_index() { return offset_ + head_index_; }
 
+  int speaker_id() const { return speaker_id_; }
+  void set_speaker_id(int speaker_id) {
+    speaker_id_ = speaker_id;
+  }
+
   int head_string_id() const { return head_string_id_; }
   void set_head_string_id(int head_string_id) {
     head_string_id_ = head_string_id;
@@ -88,6 +95,13 @@ class Mention : public NumericSpan {
     phrase_string_id_ = phrase_string_id;
   }
 
+  const std::vector<int> &all_word_string_ids() const {
+    return all_word_string_ids_;
+  }
+  void set_all_word_string_ids(const std::vector<int> &all_word_string_ids) {
+    all_word_string_ids_ = all_word_string_ids;
+  }
+
   CoreferencePronoun *pronoun() const { return pronoun_; }
 
  public:
@@ -95,9 +109,37 @@ class Mention : public NumericSpan {
                          CoreferenceSentence* instance,
                          CoreferenceSentenceNumeric *sentence);
 
+  bool ContainsMentionHead(const Mention &mention) const {
+    const std::vector<int> &all_word_string_ids = mention.all_word_string_ids();
+    int head_string_id = all_word_string_ids[mention.head_index() - start_];
+    for (int i = 0; i < all_word_string_ids_.size(); ++i) {
+      if (head_string_id == all_word_string_ids_[i]) return true;
+    }
+    return false;
+  }
+
+  bool ContainsMentionString(const Mention &mention) const {
+    const std::vector<int> &all_word_string_ids = mention.all_word_string_ids();
+    int maximum_start =
+      all_word_string_ids_.size() - all_word_string_ids.size();
+    for (int i = 0; i <= maximum_start; ++i) {
+      bool found_match = true;
+      for (int j = 0; j < all_word_string_ids.size(); ++j) {
+        if (all_word_string_ids[j] != all_word_string_ids_[i+j]) {
+          found_match = false;
+          break;
+        }
+      }
+      if (found_match) return true;
+    }
+    return false;
+  }
+
   // Print debug information about this mention.
   void Print(const CoreferenceDictionary &dictionary,
              CoreferenceSentence *instance);
+  void GetSpeaker(CoreferenceSentence *instance,
+                  std::string *speaker);
   void GetPhraseString(CoreferenceSentence *instance,
                        std::string *phrase_string);
   void GetHeadString(CoreferenceSentence *instance,
@@ -123,13 +165,17 @@ class Mention : public NumericSpan {
   int gender_; // Gender (male, female, neutral, unknown).
   int number_; // Number (singular, plural, unknown).
   int head_index_; // Position of the head word.
+  int unigram_ancestry_; // Dependency (syntactic) unigram ancestry.
+  int bigram_ancestry_; // Dependency (syntactic) bigram ancestry.
   std::vector<int> words_; // Mention words.
   std::vector<int> words_lower_; // Mention words in lower case.
   std::vector<int> tags_; // Mention POS tags.
   int offset_; // Global offset position (start of sentence at document level).
   int sentence_index_; // Index of the sentence to which this mention belongs.
+  int speaker_id_;
   int head_string_id_; // ID of head word to test head match w/ other mentions.
   int phrase_string_id_; // ID of the entire phrase to test exact match.
+  std::vector<int> all_word_string_ids_; // IDs of the all mention words.
 };
 
 #endif /* MENTION_H_ */

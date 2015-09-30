@@ -114,6 +114,28 @@ struct CoreferenceFeatureTemplateArc {
     Pn_Ct,          /* mention parent number, child type */
     Pn_Ct_Pt,       /* mention parent number, child type, parent type */
 
+    CA1,             /* mention child unigram ancestry */
+    CA1_Ct,          /* mention child unigram ancestry, child type */
+    CA1_Ct_Pt,       /* mention child unigram ancestry, child type, parent type */
+    PA1,             /* mention parent unigram ancestry */
+    PA1_Ct,          /* mention parent unigram ancestry, child type */
+    PA1_Ct_Pt,       /* mention parent unigram ancestry, child type, parent type */
+
+    CA2,             /* mention child bigram ancestry */
+    CA2_Ct,          /* mention child bigram ancestry, child type */
+    CA2_Ct_Pt,       /* mention child bigram ancestry, child type, parent type */
+    PA2,             /* mention parent bigram ancestry */
+    PA2_Ct,          /* mention parent bigram ancestry, child type */
+    PA2_Ct_Pt,       /* mention parent bigram ancestry, child type, parent type */
+
+    nest,             /* true if nested mentions */
+    nest_Ct,          /* true if nested mentions, child type */
+    nest_Ct_Pt,       /* true if nested mentions, child type, parent type */
+
+    speak,             /* true if different speakers */
+    speak_Ct,          /* true if different speakers, child type */
+    speak_Ct_Pt,       /* true if different speakers, child type, parent type */
+
     md,             /* mention distance between mentions */
     md_Ct,          /* mention distance between mentions, child type */
     md_Ct_Pt,       /* mention distance between mentions, child type, parent type */
@@ -129,6 +151,22 @@ struct CoreferenceFeatureTemplateArc {
     hm,             /* head match between mentions */
     hm_Ct,          /* head match between mentions, child type */
     hm_Ct_Pt,       /* head match between mentions, child type, parent type */
+
+    Cec,             /* child mention contained in parent mention */
+    Cec_Ct,          /* child mention contained in parent mention, child type */
+    Cec_Ct_Pt,       /* child mention contained in parent mention, child type, parent type */
+
+    Chc,             /* child head contained in parent mention */
+    Chc_Ct,          /* child head contained in parent mention, child type */
+    Chc_Ct_Pt,       /* child head contained in parent mention, child type, parent type */
+
+    Pec,             /* parent mention contained in child mention */
+    Pec_Ct,          /* parent mention contained in child mention, child type */
+    Pec_Ct_Pt,       /* parent mention contained in child mention, child type, parent type */
+
+    Phc,             /* parent head contained in child mention */
+    Phc_Ct,          /* parent head contained in child mention, child type */
+    Phc_Ct_Pt,       /* parent head contained in child mention, child type, parent type */
 
     COUNT
   };

@@ -36,8 +36,6 @@ void CoreferenceSentenceNumeric::Initialize(
     dictionary.GetSemanticDictionary();
   SemanticInstance *semantic_instance =
     static_cast<SemanticInstance*>(instance);
-  //CoreferenceOptions *options =
-  //  static_cast<CoreferencePipe*>(dictionary.GetPipe())->GetCoreferenceOptions();
 
   Clear();
 
@@ -128,6 +126,10 @@ void CoreferenceSentenceNumeric::Initialize(
 void CoreferenceSentenceNumeric::GenerateMentions(
     const CoreferenceDictionary &dictionary,
     CoreferenceSentence* instance) {
+  CoreferenceOptions *options =
+    static_cast<CoreferencePipe*>(dictionary.GetPipe())->
+    GetCoreferenceOptions();
+
   DeleteMentions();
 
   // Generate mentions for named entities.
@@ -160,10 +162,52 @@ void CoreferenceSentenceNumeric::GenerateMentions(
                -1);
   }
 
-  bool generate_noun_phrase_mentions_by_dependencies = false;
+  // If this flag is true, use dependencies and ignore constituents altogether
+  // (should be false for English Ontonotes).
+  bool generate_noun_phrase_mentions_by_dependencies =
+    options->generate_noun_phrase_mentions_by_dependencies();
   if (generate_noun_phrase_mentions_by_dependencies) {
-    // TODO(atm).
-    CHECK(false);
+    // Generate mentions for noun descendants *except* those contained in
+    // the named entity chunks (the named entity tagger seems more reliable than
+    // the parser).
+    std::vector<std::set<int> > descendants(size());
+    for (int i = 1; i < size(); ++i) {
+      descendants[i].insert(i);
+      std::vector<int> ancestors;
+      GetAllAncestors(heads_, i, &ancestors);
+      for (int j = 0; j < ancestors.size(); ++j) {
+        CHECK_GE(ancestors[j], 0);
+        CHECK_LT(ancestors[j], descendants.size());
+        descendants[ancestors[j]].insert(i);
+      }
+    }
+
+    for (int i = 0; i < size(); ++i) {
+      if (!dictionary.IsNoun(pos_ids_[i])) continue;
+      // Get largest continuous span of descendants.
+      int start = i;
+      while (start > 0 && descendants[i].find(start) != descendants[i].end()) {
+        --start;
+      }
+      ++start;
+      int end = i;
+      while (end < size() && descendants[i].find(end) != descendants[i].end()) {
+        ++end;
+      }
+      --end;
+      // TODO(atm): add some specificities for Portuguese.
+      if (start > 0 && end > 0 && end >= start) {
+        Span span(start, end);
+        if (span.FindCoveringSpan(named_entity_mentions)) {
+          continue;
+        }
+        AddMention(dictionary,
+                   instance,
+                   start,
+                   end,
+                   -1);
+      }
+    }
   }
 
   for (int i = 0; i < size(); ++i) {
@@ -260,8 +304,6 @@ void CoreferenceSentenceNumeric::FilterAndSortMentions(
         sorted_mentions.push_back(mention);
         continue;
       }
-      // TODO(atm): there are some stuff here to deal with gold mentions and
-      // gold speakers. Should we port it?
       delete mention;
     }
   }

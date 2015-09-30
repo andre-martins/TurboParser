@@ -20,6 +20,9 @@
 #include "CoreferenceSentenceNumeric.h"
 #include <algorithm>
 
+const int kUnknownUnigramAncestry = 0xffff;
+const int kUnknownBigramAncestry = 0xffff;
+
 void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
                                 CoreferenceSentence* instance,
                                 CoreferenceSentenceNumeric *sentence) {
@@ -126,6 +129,29 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
         ComputeGender(phrase_lower, head_index_ - start_);
     }
   }
+
+  // Compute syntactic ancestry.
+  std::string unigram_ancestry_string;
+  std::string bigram_ancestry_string;
+  dictionary.ComputeDependencyAncestryStrings(instance, head_index_,
+                                              &unigram_ancestry_string,
+                                              &bigram_ancestry_string);
+  int unigram_ancestry_id =
+    dictionary.GetUnigramAncestryAlphabet().Lookup(unigram_ancestry_string);
+  CHECK_LT(unigram_ancestry_id, 0xffff);
+  if (unigram_ancestry_id < 0) unigram_ancestry_id = kUnknownUnigramAncestry;
+  unigram_ancestry_ = unigram_ancestry_id;
+
+  int bigram_ancestry_id =
+    dictionary.GetBigramAncestryAlphabet().Lookup(bigram_ancestry_string);
+  CHECK_LT(bigram_ancestry_id, 0xffff);
+  if (bigram_ancestry_id < 0) bigram_ancestry_id = kUnknownBigramAncestry;
+  bigram_ancestry_ = bigram_ancestry_id;
+}
+
+void Mention::GetSpeaker(CoreferenceSentence *instance,
+                         std::string *speaker) {
+  *speaker = instance->GetSpeaker(head_index_);
 }
 
 void Mention::GetPhraseString(CoreferenceSentence *instance,
@@ -139,7 +165,7 @@ void Mention::GetPhraseString(CoreferenceSentence *instance,
 
 void Mention::GetHeadString(CoreferenceSentence *instance,
                             std::string *head_string) {
-  *head_string += instance->GetForm(head_index_);
+  *head_string = instance->GetForm(head_index_);
 }
 
 void Mention::Print(const CoreferenceDictionary &dictionary,

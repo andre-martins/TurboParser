@@ -14,7 +14,7 @@ train_initial_learning_rate=$3 #0.1
 train_learning_rate_schedule=invsqrt
 train=true
 test=true
-false_anaphor_cost=$4 #0.0 #0.1
+false_anaphor_cost=0.1 #$4 #0.0 #0.1
 false_new_cost=3.0
 false_wrong_link_cost=1.0
 #model_type=2 # Second-order model (trigrams).
@@ -22,6 +22,9 @@ form_cutoff=20 #1 # Word cutoff. Only words which occur more than these times wo
 #tagging_scheme=bilou # bio
 #file_gazetteer= # Empty gazetteer file by default.
 suffix=coreference_resolver
+generate_noun_phrase_mentions_by_dependencies=true
+use_gender_number_statistics=false
+use_gender_number_determiners=false
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
@@ -39,7 +42,7 @@ mkdir -p ${path_results}
 file_model=${path_models}/${language}_${suffix}.model
 coreference_file_mention_tags=${path_data}/${language}_mention_tags.txt
 coreference_file_pronouns=${path_data}/${language}_pronouns.txt
-coreference_file_gender_number_statistics=${path_data}/gender.data
+coreference_file_gender_number_statistics=
 
 if [ "$language" == "english_ontonotes_wsj" ] || \
     [ "$language" == "english_ontonotes" ] || \
@@ -63,7 +66,7 @@ then
     files_gold[2]=${files_gold_orig[2]}_with_heads
 
     echo "Applying English head finder..."
-    run_head_finder=false
+    run_head_finder=false #true #false
     if $run_head_finder
     then
         python ${path_scripts}/head_finder/english_head_finder.py ${file_train_orig} 3 4 5 > ${file_train}
@@ -74,6 +77,11 @@ then
         python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[1]} 3 4 5 > ${files_gold[1]}
         python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[2]} 3 4 5 > ${files_gold[2]}
     fi
+
+    generate_noun_phrase_mentions_by_dependencies=true
+    use_gender_number_statistics=true
+    coreference_file_gender_number_statistics=${path_data}/gender.data
+
 else
     file_train=${path_data}/${language}_train.conll.coref
     files_test[0]=${path_data}/${language}_test.conll.coref
@@ -102,6 +110,8 @@ then
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
         --file_train=${file_train} \
+        --generate_noun_phrase_mentions_by_dependencies=${generate_noun_phrase_mentions_by_dependencies} \
+        --use_gender_number_statistics=${use_gender_number_statistics} \
         --coreference_file_mention_tags=${coreference_file_mention_tags} \
         --coreference_file_pronouns=${coreference_file_pronouns} \
         --coreference_file_gender_number_statistics=${coreference_file_gender_number_statistics} \

@@ -33,6 +33,10 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   input_features_[r] = features;
 
   bool use_gender_number_features = true;
+  bool use_ancestry_features = true;
+  bool use_contained_features = true;
+  bool use_nested_feature = true;
+  bool use_speaker_feature = true;
 
   const vector<Mention*> &mentions = document->GetMentions();
   Mention *parent = (parent_mention >= 0)? mentions[parent_mention] : NULL;
@@ -40,6 +44,23 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   int sentence_distance = (parent)?
     child->sentence_index() - parent->sentence_index() : -1;
   int mention_distance = (parent)? child_mention - parent_mention : -1;
+
+  bool nested = false;
+  if (parent && child->sentence_index() == parent->sentence_index() &&
+      (child->LiesInsideSpan(*parent) || parent->LiesInsideSpan(*child))) {
+    nested = true;
+  }
+  uint8_t nested_flag = 0x0;
+  if (nested) nested_flag = 0x1;
+
+  bool same_speaker = true;
+  if (parent && child->speaker_id() != parent->speaker_id()) {
+    same_speaker = false;
+  }
+  bool conversation = document->is_conversation();
+  uint8_t speaker_flag = 0x0;
+  if (conversation) speaker_flag |= 0x1;
+  if (!same_speaker) speaker_flag |= 0x1 << 1;
 
   int num_bits = 0;
 
@@ -91,6 +112,9 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   uint8_t CpPID, PpPID; // Child and parent preceding tags.
   uint8_t CnPID, PnPID; // Child and parent next tags.
 
+  uint16_t CA1ID, PA1ID; // Child and parent unigram ancestry.
+  uint16_t CA2ID, PA2ID; // Child and parent bigram ancestry.
+
   CoreferenceSentenceNumeric *child_sentence =
     document->GetSentence(child->sentence_index());
   CoreferenceSentenceNumeric *parent_sentence = (parent)?
@@ -130,6 +154,11 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
     PnPID = (parent->end() < parent_sentence->size() - 1)?
       parent_sentence->GetPosId(parent->end()+1) : TOKEN_STOP;
   }
+
+  CA1ID = child->unigram_ancestry();
+  CA2ID = child->bigram_ancestry();
+  PA1ID = parent? parent->unigram_ancestry() : 0xffff;
+  PA2ID = parent? parent->bigram_ancestry() : 0xffff;
 
   uint8_t parent_gender_code = 0xff;
   uint8_t parent_number_code = 0xff;
@@ -184,6 +213,15 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   uint8_t head_match_code =
     (parent && (parent->head_string_id() == child->head_string_id()))?
     0x1 : 0x0;
+
+  uint8_t child_contained_code =
+    (parent && (parent->ContainsMentionString(*child)))? 0x1 : 0x0;
+  uint8_t child_head_contained_code =
+    (parent && (parent->ContainsMentionHead(*child)))? 0x1 : 0x0;
+  uint8_t parent_contained_code =
+    (parent && (child->ContainsMentionString(*parent)))? 0x1 : 0x0;
+  uint8_t parent_head_contained_code =
+    (parent && (child->ContainsMentionHead(*parent)))? 0x1 : 0x0;
 
   uint64_t fkey;
   uint8_t flags = 0x0;
@@ -480,6 +518,85 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
     }
   }
 
+  if (use_ancestry_features) {
+    // Child unigram ancestry.
+    fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CA1, flags,
+                                 CA1ID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CA1_Ct, flags,
+                                  CA1ID, CtID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CA1_Ct_Pt, flags,
+                                   CA1ID, CtID, PtID);
+    AddFeature(fkey, features);
+    if (parent) {
+      // Parent unigram ancestry.
+      fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::PA1, flags,
+                                   PA1ID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::PA1_Ct, flags,
+                                    PA1ID, CtID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::PA1_Ct_Pt, flags,
+                                     PA1ID, CtID, PtID);
+      AddFeature(fkey, features);
+    }
+
+    // Child bigram ancestry.
+    fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::CA2, flags,
+                                 CA2ID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::CA2_Ct, flags,
+                                  CA2ID, CtID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::CA2_Ct_Pt, flags,
+                                   CA2ID, CtID, PtID);
+    AddFeature(fkey, features);
+    if (parent) {
+      // Parent bigram ancestry.
+      fkey = encoder_.CreateFKey_W(CoreferenceFeatureTemplateArc::PA2, flags,
+                                   PA2ID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WW(CoreferenceFeatureTemplateArc::PA2_Ct, flags,
+                                    PA2ID, CtID);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWW(CoreferenceFeatureTemplateArc::PA2_Ct_Pt, flags,
+                                     PA2ID, CtID, PtID);
+      AddFeature(fkey, features);
+    }
+    // TODO(atm): implement joint child/parent ancestry.
+  }
+
+  if (use_nested_feature) {
+    if (parent) {
+      // True if mentions are nested.
+      fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::nest, flags,
+                                   nested_flag);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::nest_Ct, flags,
+                                    CtID, nested_flag);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::nest_Ct_Pt, flags,
+                                     CtID, PtID, nested_flag);
+      AddFeature(fkey, features);
+    }
+  }
+
+  if (use_speaker_feature) {
+    if (parent && parent->type() == MentionType::PRONOMINAL) {
+      // Speaker code (different speaker + document type).
+      fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::speak, flags,
+                                   speaker_flag);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::speak_Ct, flags,
+                                    CtID, speaker_flag);
+      AddFeature(fkey, features);
+      fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::speak_Ct_Pt, flags,
+                                     CtID, PtID, speaker_flag);
+      AddFeature(fkey, features);
+    }
+  }
+
   if (parent) {
     // Mention distance.
     fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::md, flags,
@@ -525,6 +642,52 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
       fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::em_Ct_Pt, flags,
                                      CtID, PtID, exact_match_code);
       AddFeature(fkey, features);
+
+      if (use_contained_features) {
+        // Child head contained.
+        fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::Chc, flags,
+                                     child_head_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::Chc_Ct, flags,
+                                      CtID, child_head_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::Chc_Ct_Pt, flags,
+                                       CtID, PtID, child_head_contained_code);
+        AddFeature(fkey, features);
+
+        // Parent head contained.
+        fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::Phc, flags,
+                                     parent_head_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::Phc_Ct, flags,
+                                      CtID, parent_head_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::Phc_Ct_Pt, flags,
+                                       CtID, PtID, parent_head_contained_code);
+        AddFeature(fkey, features);
+
+        // Exact child contained.
+        fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::Cec, flags,
+                                     child_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::Cec_Ct, flags,
+                                      CtID, child_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::Cec_Ct_Pt, flags,
+                                       CtID, PtID, child_contained_code);
+        AddFeature(fkey, features);
+
+        // Exact parent contained.
+        fkey = encoder_.CreateFKey_P(CoreferenceFeatureTemplateArc::Pec, flags,
+                                     parent_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WP(CoreferenceFeatureTemplateArc::Pec_Ct, flags,
+                                      CtID, parent_contained_code);
+        AddFeature(fkey, features);
+        fkey = encoder_.CreateFKey_WWP(CoreferenceFeatureTemplateArc::Pec_Ct_Pt, flags,
+                                       CtID, PtID, parent_contained_code);
+        AddFeature(fkey, features);
+      }
     }
   }
 }

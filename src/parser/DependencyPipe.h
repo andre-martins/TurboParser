@@ -273,9 +273,11 @@ class DependencyPipe : public Pipe {
               << tokens_per_second << " tokens per second.";
   }
 
+#if 0
   void GetAllAncestors(const vector<int> &heads,
                        int descend,
                        vector<int>* ancestors) const;
+#endif
   bool ExistsPath(const vector<int> &heads,
                   int ancest,
                   int descend) const;

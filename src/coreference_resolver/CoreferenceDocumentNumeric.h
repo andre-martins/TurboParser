@@ -25,7 +25,7 @@
 
 class CoreferenceDocumentNumeric : public Instance {
  public:
-  CoreferenceDocumentNumeric() {};
+  CoreferenceDocumentNumeric() { conversation_ = false; };
   virtual ~CoreferenceDocumentNumeric() { Clear(); };
 
   Instance* Copy() {
@@ -48,6 +48,9 @@ class CoreferenceDocumentNumeric : public Instance {
   void Initialize(const CoreferenceDictionary &dictionary,
                   CoreferenceDocument *instance,
                   bool add_gold_mentions);
+
+  // True if document is a conversation.
+  bool is_conversation() { return conversation_; }
 
   // Returns the number of sentences in the document.
   int GetNumSentences() { return sentences_.size(); }
@@ -114,6 +117,7 @@ class CoreferenceDocumentNumeric : public Instance {
   void ComputeGlobalWordPositions(CoreferenceDocument* instance);
 
  private:
+  bool conversation_;
   std::vector<CoreferenceSentenceNumeric*> sentences_;
   std::vector<int> sentence_cumulative_lengths_;
   std::vector<NumericSpan*> coreference_spans_;

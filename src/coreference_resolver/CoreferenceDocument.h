@@ -25,7 +25,7 @@
 
 class CoreferenceDocument : public Instance {
  public:
-  CoreferenceDocument() {}
+  CoreferenceDocument() { conversation_ = false; }
   virtual ~CoreferenceDocument() { DeleteAllSentences(); }
 
   Instance* Copy() {
@@ -43,6 +43,7 @@ class CoreferenceDocument : public Instance {
 
   const std::string &name() { return name_; }
   int part_number() { return part_number_; }
+  bool is_conversation() { return conversation_; }
 
  protected:
   void DeleteAllSentences();
@@ -51,6 +52,9 @@ class CoreferenceDocument : public Instance {
   // Document name and part number.
   std::string name_;
   int part_number_;
+
+  // True if conversation.
+  bool conversation_;
 
   // List of sentences composing this document.
   std::vector<CoreferenceSentence*> sentences_;

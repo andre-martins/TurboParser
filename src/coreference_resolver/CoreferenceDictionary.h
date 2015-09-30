@@ -97,6 +97,8 @@ class CoreferenceDictionary : public Dictionary {
     constituent_alphabet_.clear();
     word_alphabet_.clear();
     word_lower_alphabet_.clear();
+    unigram_ancestry_alphabet_.clear();
+    bigram_ancestry_alphabet_.clear();
 
     // TODO(atm): clear all the other stuff!!!
   }
@@ -106,6 +108,8 @@ class CoreferenceDictionary : public Dictionary {
     if (0 > constituent_alphabet_.Save(fs)) CHECK(false);
     if (0 > word_alphabet_.Save(fs)) CHECK(false);
     if (0 > word_lower_alphabet_.Save(fs)) CHECK(false);
+    if (0 > unigram_ancestry_alphabet_.Save(fs)) CHECK(false);
+    if (0 > bigram_ancestry_alphabet_.Save(fs)) CHECK(false);
 
     // Save gender/number statistics.
     gender_number_statistics_.Save(fs);
@@ -171,6 +175,17 @@ class CoreferenceDictionary : public Dictionary {
       CHECK(success);
     }
 
+    length = noun_tags_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (std::set<int>::iterator it = noun_tags_.begin();
+         it != noun_tags_.end();
+         ++it) {
+      int id = *it;
+      success = WriteInteger(fs, id);
+      CHECK(success);
+    }
+
     length = pronominal_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
@@ -188,11 +203,15 @@ class CoreferenceDictionary : public Dictionary {
     if (0 > constituent_alphabet_.Load(fs)) CHECK(false);
     if (0 > word_alphabet_.Load(fs)) CHECK(false);
     if (0 > word_lower_alphabet_.Load(fs)) CHECK(false);
+    if (0 > unigram_ancestry_alphabet_.Load(fs)) CHECK(false);
+    if (0 > bigram_ancestry_alphabet_.Load(fs)) CHECK(false);
     entity_alphabet_.BuildNames();
     constituent_alphabet_.BuildNames();
     // TODO(atm): Remove this for memory efficiency.
     word_alphabet_.BuildNames();
     word_lower_alphabet_.BuildNames();
+    unigram_ancestry_alphabet_.BuildNames();
+    bigram_ancestry_alphabet_.BuildNames();
 
     // Load gender/number statistics.
     gender_number_statistics_.Load(fs);
@@ -254,6 +273,15 @@ class CoreferenceDictionary : public Dictionary {
       int id;
       success = ReadInteger(fs, &id);
       CHECK(success);
+      noun_tags_.insert(id);
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    for (int i = 0; i < length; ++i) {
+      int id;
+      success = ReadInteger(fs, &id);
+      CHECK(success);
       pronominal_tags_.insert(id);
     }
   }
@@ -263,6 +291,8 @@ class CoreferenceDictionary : public Dictionary {
     constituent_alphabet_.AllowGrowth();
     word_alphabet_.AllowGrowth();
     word_lower_alphabet_.AllowGrowth();
+    unigram_ancestry_alphabet_.AllowGrowth();
+    bigram_ancestry_alphabet_.AllowGrowth();
     token_dictionary_->AllowGrowth();
     dependency_dictionary_->AllowGrowth();
     semantic_dictionary_->AllowGrowth();
@@ -272,6 +302,8 @@ class CoreferenceDictionary : public Dictionary {
     constituent_alphabet_.StopGrowth();
     word_alphabet_.StopGrowth();
     word_lower_alphabet_.StopGrowth();
+    unigram_ancestry_alphabet_.StopGrowth();
+    bigram_ancestry_alphabet_.StopGrowth();
     token_dictionary_->StopGrowth();
     dependency_dictionary_->StopGrowth();
     semantic_dictionary_->StopGrowth();
@@ -282,6 +314,8 @@ class CoreferenceDictionary : public Dictionary {
   void CreateConstituentDictionary(CoreferenceSentenceReader *reader);
 
   void CreateWordDictionaries(CoreferenceSentenceReader *reader);
+
+  void CreateAncestryDictionaries(CoreferenceSentenceReader *reader);
 
   void BuildEntityNames() {
     entity_alphabet_.BuildNames();
@@ -294,6 +328,11 @@ class CoreferenceDictionary : public Dictionary {
   void BuildWordNames() {
     word_alphabet_.BuildNames();
     word_lower_alphabet_.BuildNames();
+  }
+
+  void BuildAncestryNames() {
+    unigram_ancestry_alphabet_.BuildNames();
+    bigram_ancestry_alphabet_.BuildNames();
   }
 
   const string &GetEntityName(int tag) const {
@@ -311,6 +350,17 @@ class CoreferenceDictionary : public Dictionary {
   const string &GetWordLower(int word) const {
     return word_lower_alphabet_.GetName(word);
   }
+
+  const string &GetUnigramAncestry(int ancestry) const {
+    return unigram_ancestry_alphabet_.GetName(ancestry);
+  }
+
+  const string &GetBigramAncestry(int ancestry) const {
+    return bigram_ancestry_alphabet_.GetName(ancestry);
+  }
+
+
+  Pipe *GetPipe() const { return pipe_; }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
   DependencyDictionary *GetDependencyDictionary() const {
@@ -345,6 +395,14 @@ class CoreferenceDictionary : public Dictionary {
     return word_lower_alphabet_;
   };
 
+  const Alphabet &GetUnigramAncestryAlphabet() const {
+    return unigram_ancestry_alphabet_;
+  };
+
+  const Alphabet &GetBigramAncestryAlphabet() const {
+    return bigram_ancestry_alphabet_;
+  };
+
   const GenderNumberStatistics &GetGenderNumberStatistics() const {
     return gender_number_statistics_;
   };
@@ -367,6 +425,10 @@ class CoreferenceDictionary : public Dictionary {
 
   bool IsProperNoun(int pos_tag) const {
     return proper_noun_tags_.find(pos_tag) != proper_noun_tags_.end();
+  }
+
+  bool IsNoun(int pos_tag) const {
+    return noun_tags_.find(pos_tag) != noun_tags_.end();
   }
 
   bool IsPronounTag(int pos_tag) const {
@@ -416,6 +478,13 @@ class CoreferenceDictionary : public Dictionary {
     return pronoun->IsNumberPlural();
   }
 
+  // TODO(atm): this should not be here, but let us keep it for now...
+  void ComputeDependencyAncestryStrings(
+    DependencyInstance *instance,
+    int i,
+    std::string *unigram_ancestry_string,
+    std::string *bigram_ancestry_string) const;
+
  protected:
   void DeleteAllPronouns() {
     for (std::map<int, CoreferencePronoun*>::iterator it =
@@ -440,10 +509,13 @@ class CoreferenceDictionary : public Dictionary {
   // computation).
   Alphabet word_alphabet_;
   Alphabet word_lower_alphabet_;
+  Alphabet unigram_ancestry_alphabet_;
+  Alphabet bigram_ancestry_alphabet_;
   GenderNumberStatistics gender_number_statistics_;
   std::map<int, CoreferencePronoun*> all_pronouns_;
   std::set<int> named_entity_tags_;
   std::set<int> person_entity_tags_;
+  std::set<int> noun_tags_;
   std::set<int> noun_phrase_tags_;
   std::set<int> proper_noun_tags_;
   std::set<int> pronominal_tags_;

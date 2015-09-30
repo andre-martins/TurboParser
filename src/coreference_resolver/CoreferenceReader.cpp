@@ -139,6 +139,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
   std::vector<std::vector<std::string> > argument_roles; // Semantic roles.
   std::vector<std::vector<int> > argument_indices; // Positions of each argument.
   std::vector<std::string> parse_info(length+1);
+  std::vector<std::string> author_info(length+1);
   std::vector<std::string> entity_info(length+1);
   std::vector<std::string> coreference_info(length+1);
 
@@ -150,6 +151,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
   heads[0] = -1;
   feats[0] = std::vector<std::string>(1, "_root_");
   parse_info[0] = "*";
+  author_info[0] = "__";
   entity_info[0] = "*";
   coreference_info[0] = "-";
 
@@ -214,7 +216,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
 
     std::string word_sense = info[offset];
     ++offset;
-    std::string author_info = info[offset];
+    author_info[i+1] = info[offset];
     ++offset;
     entity_info[i+1] = info[offset];
     ++offset;
@@ -304,8 +306,8 @@ Instance *CoreferenceSentenceReader::GetNext() {
     instance = new CoreferenceSentence;
     instance->Initialize(name, forms, lemmas, cpos, pos, feats, deprels, heads,
                          predicate_names, predicate_indices, argument_roles,
-                         argument_indices, entity_spans, constituent_spans,
-                         coreference_spans);
+                         argument_indices, author_info, entity_spans,
+                         constituent_spans, coreference_spans);
   }
 
   return static_cast<Instance*>(instance);

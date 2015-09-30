@@ -25,6 +25,9 @@ void CoreferenceDocumentNumeric::Initialize(
     bool add_gold_mentions) {
   Clear();
 
+  // True if document is a conversation.
+  conversation_ = instance->is_conversation();
+
   // Temporary dictionary to hold coreference span names.
   std::map<std::string, int> span_names;
   sentences_.resize(instance->GetNumSentences());
@@ -58,8 +61,10 @@ void CoreferenceDocumentNumeric::Initialize(
   // Note: mentions are owned by CoreferenceSentenceNumeric.
   // TODO(atm): maybe copy the sentences' mentions?
   mentions_.clear();
+  Alphabet mention_speakers;
   Alphabet mention_head_strings;
   Alphabet mention_phrase_strings;
+  Alphabet mention_word_strings;
   for (int i = 0; i < sentences_.size(); ++i) {
     CoreferenceSentenceNumeric *sentence = sentences_[i];
     const vector<Mention*> &mentions = sentence->GetMentions();
@@ -90,6 +95,11 @@ void CoreferenceDocumentNumeric::Initialize(
       CoreferenceSentence *sentence_instance =
         instance->GetSentence(sentence_index);
 
+      std::string speaker;
+      mentions[j]->GetSpeaker(sentence_instance, &speaker);
+      int speaker_id = mention_speakers.Insert(speaker);
+      mentions[j]->set_speaker_id(speaker_id);
+
       std::string phrase_string;
       mentions[j]->GetPhraseString(sentence_instance, &phrase_string);
       int phrase_string_id = mention_phrase_strings.Insert(phrase_string);
@@ -99,6 +109,14 @@ void CoreferenceDocumentNumeric::Initialize(
       mentions[j]->GetHeadString(sentence_instance, &head_string);
       int head_string_id = mention_head_strings.Insert(head_string);
       mentions[j]->set_head_string_id(head_string_id);
+
+      std::vector<int> all_word_string_ids;
+      for (int k = mentions[j]->start(); k <= mentions[j]->end(); ++k) {
+        const std::string &word_string = sentence_instance->GetForm(k);
+        int word_string_id = mention_word_strings.Insert(word_string);
+        all_word_string_ids.push_back(word_string_id);
+      }
+      mentions[j]->set_all_word_string_ids(all_word_string_ids);
     }
   }
 

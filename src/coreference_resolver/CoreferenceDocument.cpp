@@ -32,6 +32,14 @@ void CoreferenceDocument::Initialize(
   name_ = name;
   part_number_ = part_number;
 
+  // This makes sense for the Ontonotes corpus only (got this from the Berkeley
+  // coreference system).
+  if (name_.compare(0, 2, "bc") == 0 || name_.compare(0, 2, "wb") == 0) {
+    conversation_ = true;
+  } else {
+    conversation_ = false;
+  }
+
   DeleteAllSentences();
   for (int i = 0; i < sentences.size(); ++i) {
     CoreferenceSentence* sentence =

@@ -62,6 +62,18 @@ public:
   void Initialize(const DependencyDictionary &dictionary,
                  DependencyInstance *instance);
 
+  void GetAllAncestors(const std::vector<int> &heads,
+                       int descend,
+                       std::vector<int>* ancestors) const {
+    ancestors->clear();
+    int h = heads[descend];
+    while (h >= 0) {
+      ancestors->push_back(h);
+      h = heads[h];
+    }
+  }
+
+
 #if 0
   // TODO(atm): this is repeated in other tasks. Should move some of these
   // functions to a common class and use inheritance.

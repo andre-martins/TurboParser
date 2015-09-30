@@ -35,6 +35,7 @@ class CoreferenceSentence : public SemanticInstance {
                          feats_, deprels_, heads_,
                          predicate_names_, predicate_indices_,
                          argument_roles_, argument_indices_,
+                         speakers_,
                          entity_spans_, constituent_spans_, coreference_spans_);
     return static_cast<Instance*>(instance);
   }
@@ -51,10 +52,12 @@ class CoreferenceSentence : public SemanticInstance {
                   const std::vector<int> &predicate_indices,
                   const std::vector<std::vector<std::string> > &argument_roles,
                   const std::vector<std::vector<int> > &argument_indices,
+                  const std::vector<std::string> &speakers,
                   const std::vector<EntitySpan*> &entity_spans,
                   const std::vector<NamedSpan*> &constituent_spans,
                   const std::vector<NamedSpan*> &coreference_spans);
 
+  const std::string& GetSpeaker(int i) const { return speakers_[i]; }
   const std::vector<EntitySpan*>& GetEntitySpans() const {
     return entity_spans_;
   }
@@ -85,6 +88,8 @@ class CoreferenceSentence : public SemanticInstance {
   void DeleteAllSpans();
 
  protected:
+  // Speakers (one per word): e.g. "__" or "Speaker#1".
+  std::vector<std::string> speakers_;
   // Entity spans: e.g. A "ORG" entity spanning word 6 to 8.
   std::vector<EntitySpan*> entity_spans_;
   // Constituent spans: e.g. Noun phrase "NP" spanning word 6 to 8.

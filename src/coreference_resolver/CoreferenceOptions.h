@@ -39,6 +39,12 @@ class CoreferenceOptions : public Options {
   const std::string &file_gender_number_statistics() {
     return file_gender_number_statistics_;
   }
+  bool use_gender_number_statistics() {
+    return use_gender_number_statistics_;
+  }
+  bool generate_noun_phrase_mentions_by_dependencies() {
+    return generate_noun_phrase_mentions_by_dependencies_;
+  }
   double false_anaphor_cost() { return false_anaphor_cost_; }
   double false_new_cost() { return false_new_cost_; }
   double false_wrong_link_cost() { return false_wrong_link_cost_; }
@@ -47,6 +53,8 @@ class CoreferenceOptions : public Options {
   std::string file_mention_tags_;
   std::string file_pronouns_;
   std::string file_gender_number_statistics_;
+  bool use_gender_number_statistics_;
+  bool generate_noun_phrase_mentions_by_dependencies_;
   double false_anaphor_cost_;
   double false_new_cost_;
   double false_wrong_link_cost_;

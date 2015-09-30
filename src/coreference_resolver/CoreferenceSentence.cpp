@@ -43,12 +43,14 @@ void CoreferenceSentence::Initialize(
     const std::vector<int> &predicate_indices,
     const std::vector<std::vector<std::string> > &argument_roles,
     const std::vector<std::vector<int> > &argument_indices,
+    const std::vector<std::string> &speakers,
     const std::vector<EntitySpan*> &entity_spans,
     const std::vector<NamedSpan*> &constituent_spans,
     const std::vector<NamedSpan*> &coreference_spans) {
   SemanticInstance::Initialize(name, forms, lemmas, cpos, pos, feats, deprels,
                                heads, predicate_names, predicate_indices,
                                argument_roles, argument_indices);
+  speakers_ = speakers;
   DeleteAllSpans();
   for (int i = 0; i < entity_spans.size(); ++i) {
     EntitySpan *span = new EntitySpan(entity_spans[i]->start(),

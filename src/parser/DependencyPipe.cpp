@@ -1217,6 +1217,7 @@ void DependencyPipe::MakePartsGlobal(Instance *instance,
       dependency_parts->size() - num_parts_initial);
 }
 
+#if 0
 void DependencyPipe::GetAllAncestors(const vector<int> &heads,
                                     int descend,
                                     vector<int>* ancestors) const {
@@ -1227,6 +1228,7 @@ void DependencyPipe::GetAllAncestors(const vector<int> &heads,
     ancestors->push_back(h);
   }
 }
+#endif
 
 bool DependencyPipe::ExistsPath(const vector<int> &heads,
                                 int ancest,
