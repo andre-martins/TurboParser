@@ -93,7 +93,7 @@ void CoreferenceOptions::Load(FILE* fs) {
   CHECK(success);
   LOG(INFO) << "Setting --use_gender_number_determiners="
             << FLAGS_use_gender_number_determiners;
-  success = ReadBool(fs, &FLAGS_use_gender_number_determiners);
+  success = ReadBool(fs, &FLAGS_use_gender_number_statistics);
   CHECK(success);
   LOG(INFO) << "Setting --use_gender_number_statistics="
             << FLAGS_use_gender_number_statistics;
