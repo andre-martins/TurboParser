@@ -79,7 +79,7 @@ then
         python ${path_scripts}/head_finder/english_head_finder.py ${files_gold_orig[2]} 3 4 5 > ${files_gold[2]}
     fi
 
-    generate_noun_phrase_mentions_by_dependencies=false
+    generate_noun_phrase_mentions_by_dependencies=true #false
     use_gender_number_determiners=false
     use_gender_number_statistics=true
     coreference_file_gender_number_statistics=${path_data}/gender.data

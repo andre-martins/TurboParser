@@ -5,13 +5,14 @@ TAGGER = ../src/tagger
 ENTITYRECOGNIZER = ../src/entity_recognizer
 PARSER = ../src/parser
 SEMANTICPARSER = ../src/semantic_parser
+COREFERENCERESOLVER = ../src/coreference_resolver
 AUXLIBS = ../deps/local/lib
 AUXINCLUDES = ../deps/local/include
 
-OBJS = TurboParserInterface.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o TaggerDictionary.o TaggerFeatures.o TaggerOptions.o TaggerPipe.o EntityDictionary.o EntityFeatures.o EntityInstance.o EntityInstanceNumeric.o EntityOptions.o EntityPipe.o EntityReader.o EntityWriter.o SequenceDecoder.o SequenceDictionary.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
+OBJS = TurboParserInterface.o CoreferenceDecoder.o CoreferenceDictionary.o CoreferenceFeatures.o CoreferenceDocumentNumeric.o CoreferenceSentenceNumeric.o Mention.o CoreferenceDocument.o CoreferenceSentence.o CoreferenceOptions.o CoreferencePart.o CoreferencePipe.o CoreferenceReader.o CoreferenceWriter.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o TaggerDictionary.o TaggerFeatures.o TaggerOptions.o TaggerPipe.o EntityDictionary.o EntityFeatures.o EntityInstance.o EntityInstanceNumeric.o EntityOptions.o EntityPipe.o EntityReader.o EntityWriter.o SequenceDecoder.o SequenceDictionary.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
 CC = g++
 DEBUG = -g
-INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(AUXINCLUDES)
+INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(COREFERENCERESOLVER) -I$(AUXINCLUDES)
 LIBS = -L/usr/local/lib/ -L$(AUXLIBS)
 CFLAGS = -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC $(INCLUDES)
 LFLAGS = $(LIBS) -lad3 -lgflags -lglog
@@ -21,8 +22,49 @@ all : libturboparser.a
 libturboparser.a : $(OBJS)
 	ar rcs libturboparser.a $(OBJS)
 
-TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/TaggerPipe.h $(ENTITYRECOGNIZER)/EntityPipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(UTIL)/Utils.h
+TurboParserInterface.o: TurboParserInterface.h TurboParserInterface.cpp $(TAGGER)/TaggerPipe.h $(ENTITYRECOGNIZER)/EntityPipe.h $(PARSER)/DependencyPipe.h $(SEMANTICPARSER)/SemanticPipe.h $(COREFERENCERESOLVER)/CoreferencePipe.h $(UTIL)/Utils.h
 	$(CC) $(CFLAGS) TurboParserInterface.cpp
+
+#####################
+
+CoreferenceDecoder.o: $(COREFERENCERESOLVER)/CoreferenceDecoder.h $(COREFERENCERESOLVER)/CoreferenceDecoder.cpp $(COREFERENCERESOLVER)/CoreferencePart.h $(COREFERENCERESOLVER)/CoreferencePipe.h $(UTIL)/AlgUtils.h $(UTIL)/logval.h $(CLASSIFIER)/Decoder.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceDecoder.cpp
+
+CoreferenceDictionary.o: $(COREFERENCERESOLVER)/CoreferenceDictionary.h $(COREFERENCERESOLVER)/CoreferenceDictionary.cpp $(COREFERENCERESOLVER)/CoreferencePipe.h $(CLASSIFIER)/Dictionary.h $(SEQUENCE)/TokenDictionary.h $(UTIL)/SerializationUtils.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceDictionary.cpp
+
+CoreferenceFeatures.o: $(COREFERENCERESOLVER)/CoreferenceFeatures.h $(COREFERENCERESOLVER)/CoreferenceFeatures.cpp $(COREFERENCERESOLVER)/CoreferencePipe.h $(COREFERENCERESOLVER)/CoreferencePart.h $(COREFERENCERESOLVER)/CoreferenceFeatureTemplates.h $(CLASSIFIER)/Features.h $(COREFERENCERESOLVER)/CoreferenceDocumentNumeric.h $(CLASSIFIER)/FeatureEncoder.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceFeatures.cpp
+
+CoreferenceDocument.o: $(COREFERENCERESOLVER)/CoreferenceDocument.h $(COREFERENCERESOLVER)/CoreferenceDocument.cpp $(COREFERENCERESOLVER)/CoreferenceSentence.h $(CLASSIFIER)/Instance.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceDocument.cpp
+
+CoreferenceSentence.o: $(COREFERENCERESOLVER)/CoreferenceSentence.h $(COREFERENCERESOLVER)/CoreferenceSentence.cpp $(CLASSIFIER)/Instance.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceSentence.cpp
+
+CoreferenceDocumentNumeric.o: $(COREFERENCERESOLVER)/CoreferenceDocumentNumeric.h $(COREFERENCERESOLVER)/CoreferenceDocumentNumeric.cpp $(COREFERENCERESOLVER)/CoreferenceSentenceNumeric.h $(COREFERENCERESOLVER)/CoreferenceDocument.h  $(COREFERENCERESOLVER)/CoreferenceDictionary.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceDocumentNumeric.cpp
+
+CoreferenceSentenceNumeric.o: $(COREFERENCERESOLVER)/CoreferenceSentenceNumeric.h $(COREFERENCERESOLVER)/CoreferenceSentenceNumeric.cpp $(COREFERENCERESOLVER)/CoreferenceSentence.h $(COREFERENCERESOLVER)/Mention.h $(COREFERENCERESOLVER)/CoreferenceDictionary.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceSentenceNumeric.cpp
+
+Mention.o: $(COREFERENCERESOLVER)/Mention.h $(COREFERENCERESOLVER)/Mention.cpp $(COREFERENCERESOLVER)/CoreferenceDictionary.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/Mention.cpp
+
+CoreferenceOptions.o: $(COREFERENCERESOLVER)/CoreferenceOptions.h $(COREFERENCERESOLVER)/CoreferenceOptions.cpp $(UTIL)/SerializationUtils.h $(CLASSIFIER)/Options.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceOptions.cpp
+
+CoreferencePart.o: $(COREFERENCERESOLVER)/CoreferencePart.h $(COREFERENCERESOLVER)/CoreferencePart.cpp $(CLASSIFIER)/Part.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferencePart.cpp
+
+CoreferencePipe.o: $(COREFERENCERESOLVER)/CoreferencePipe.h $(COREFERENCERESOLVER)/CoreferencePipe.cpp $(CLASSIFIER)/Pipe.h $(COREFERENCERESOLVER)/CoreferenceOptions.h $(COREFERENCERESOLVER)/CoreferenceReader.h $(COREFERENCERESOLVER)/CoreferenceDictionary.h $(SEQUENCE)/TokenDictionary.h $(COREFERENCERESOLVER)/CoreferenceDocumentNumeric.h $(COREFERENCERESOLVER)/CoreferenceWriter.h $(COREFERENCERESOLVER)/CoreferencePart.h $(COREFERENCERESOLVER)/CoreferenceFeatures.h $(COREFERENCERESOLVER)/CoreferenceDecoder.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferencePipe.cpp
+
+CoreferenceReader.o: $(COREFERENCERESOLVER)/CoreferenceReader.h $(COREFERENCERESOLVER)/CoreferenceReader.cpp $(COREFERENCERESOLVER)/CoreferenceDocument.h $(CLASSIFIER)/Reader.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceReader.cpp
+
+CoreferenceWriter.o: $(COREFERENCERESOLVER)/CoreferenceWriter.h $(COREFERENCERESOLVER)/CoreferenceWriter.cpp $(COREFERENCERESOLVER)/CoreferenceDocument.h $(CLASSIFIER)/Writer.h
+	$(CC) $(CFLAGS) $(COREFERENCERESOLVER)/CoreferenceWriter.cpp
 
 #####################
 

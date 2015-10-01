@@ -12,6 +12,7 @@ class NLPPipelineWorker:
         self.parser = None
         self.semantic_parser = None
         self.lemmatizer = None
+        self.coreference_resolver = None
 
         if language not in pipeline.models:
             print 'Error: no model for language %s.' % language
@@ -45,6 +46,9 @@ class NLPPipelineWorker:
         if 'semantic_parser' in pipeline.models[language]:
             self.semantic_parser = pipeline.turbo_interface.create_semantic_parser()
             self.semantic_parser.load_semantic_parser_model(pipeline.models[language]['semantic_parser'])
+        if 'coreference_resolver' in pipeline.models[language]:
+            self.coreference_resolver = pipeline.turbo_interface.create_coreference_resolver()
+            self.coreference_resolver.load_coreference_resolver_model(pipeline.models[language]['coreference_resolver'])
 
 
 class NLPPipeline:
@@ -181,6 +185,10 @@ class NLPPipeline:
         worker = self.get_worker(language)
         return (worker.semantic_parser != None)
 
+    def has_coreference_resolver(self, language):
+        worker = self.get_worker(language)
+        return (worker.coreference_resolver != None)
+
     def parse_semantic_dependencies(self, tokenized_sentence, tags, lemmas,
                                     heads, deprels, language):
         worker = self.get_worker(language)
@@ -211,6 +219,49 @@ class NLPPipeline:
             argument_lists.append(argument_list)
         f_conll_pred.close()
         return predicates, argument_lists
+
+    def resolve_coreferences(self, all_tokenized_sentences, all_tags,
+                             all_lemmas, all_heads, all_deprels,
+                             all_entity_tags, language):
+        worker = self.get_worker(language)
+        f_conll = open('conll.coref.tmp', 'w')
+        f_conll.write('#begin document (_); part 000\n')
+        for j, tokenized_sentence in enumerate(all_tokenized_sentences):
+            tags = all_tags[j]
+            lemmas = all_lemmas[j]
+            heads = all_heads[j]
+            deprels = all_deprels[j]
+            # For now, don't use this (must be coded as spans).
+            entity_tags = all_entity_tags[j]
+            for i, token in enumerate(tokenized_sentence):
+                tag = tags[i]
+                lemma = lemmas[i]
+                head = heads[i]
+                deprel = deprels[i]
+                f_conll.write('_\t0\t' + str(i+1) + '\t' + token + '\t' + \
+                                  tag + '\t*\t' + str(head) + '\t' + deprel + \
+                                  '\t-\t-\t-\t-\t*\t_\n')
+            f_conll.write('\n')
+        f_conll.write('#end document\n')
+        f_conll.close()
+        worker.coreference_resolvers.resolve_coreferences('conll.coref.tmp',
+                                                          'conll.coref.tmp.pred')
+        f_conll_pred = open('conll.coref.tmp.pred')
+        all_coref_info = [[] for j in len(xrange(all_tokenized_sentences))]
+        j = 0
+        for line in f_conll_pred:
+            line = line.rstrip('\n')
+            line = line.rstrip('\t')
+            if line.startswith('#begin') or line.startswith('#end'):
+                continue
+            if line == '':
+                j += 1
+                continue
+            fields = line.split('\t')
+            coref = fields[-1]
+            all_coref_info[j].append(coref)
+        f_conll_pred.close()
+        return all_coref_info
 
     def parse_conll(self, text, language):
         sentences = self.split_sentences(text, language)

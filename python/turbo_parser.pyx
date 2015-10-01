@@ -27,12 +27,18 @@ cdef extern from "../libturboparser/TurboParserInterface.h" namespace "TurboPars
         void LoadSemanticParserModel(string file_model)
         void ParseSemanticDependencies(string file_test, string file_prediction)
 
+    cdef cppclass TurboCoreferenceResolverWorker:
+        TurboCoreferenceResolverWorker()
+        void LoadCoreferenceResolverModel(string file_model)
+        void ResolveCoreferences(string file_test, string file_prediction)
+
     cdef cppclass TurboParserInterface:
         TurboParserInterface()
         TurboTaggerWorker* CreateTagger()
         TurboEntityRecognizerWorker* CreateEntityRecognizer()
         TurboParserWorker* CreateParser()
         TurboSemanticParserWorker* CreateSemanticParser()
+        TurboCoreferenceResolverWorker* CreateCoreferenceResolver()
 
 
 # Wrap them into python extension types.
@@ -68,6 +74,11 @@ cdef class PTurboParser:
         semantic_parser = PTurboSemanticParserWorker(allocate=False)
         semantic_parser.thisptr = self.thisptr.CreateSemanticParser()
         return semantic_parser
+
+    def create_coreference_resolver(self):
+        coreference_resolver = PTurboCoreferenceResolverWorker(allocate=False)
+        coreference_resolver.thisptr = self.thisptr.CreateCoreferenceResolver()
+        return coreference_resolver
 
 cdef class PTurboTaggerWorker:
     cdef TurboTaggerWorker *thisptr
@@ -140,3 +151,21 @@ cdef class PTurboSemanticParserWorker:
 
     def parse_semantic_dependencies(self, file_test, file_prediction):
         self.thisptr.ParseSemanticDependencies(file_test, file_prediction)
+
+cdef class PTurboCoreferenceResolverWorker:
+    cdef TurboCoreferenceResolverWorker *thisptr
+    cdef bool allocate
+    def __cinit__(self, allocate=False):
+        self.allocate = allocate
+        if allocate:
+            self.thisptr = new TurboCoreferenceResolverWorker()
+
+    def __dealloc__(self):
+        if self.allocate:
+          del self.thisptr
+
+    def load_coreference_resolver_model(self, file_model):
+        self.thisptr.LoadCoreferenceResolverModel(file_model)
+
+    def resolve_coreferences(self, file_test, file_prediction):
+        self.thisptr.ResolveCoreferences(file_test, file_prediction)

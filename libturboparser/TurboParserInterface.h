@@ -4,6 +4,7 @@
 #include "EntityPipe.h"
 #include "DependencyPipe.h"
 #include "SemanticPipe.h"
+#include "CoreferencePipe.h"
 
 namespace TurboParserInterface {
 
@@ -67,6 +68,21 @@ class TurboSemanticParserWorker {
   SemanticPipe *semantic_pipe_;
 };
 
+class TurboCoreferenceResolverWorker {
+ public:
+  TurboCoreferenceResolverWorker();
+  virtual ~TurboCoreferenceResolverWorker();
+
+  void LoadCoreferenceResolverModel(const std::string &file_model);
+
+  void ResolveCoreferences(const std::string &file_test,
+                           const std::string &file_prediction);
+
+ private:
+  CoreferenceOptions *coreference_options_;
+  CoreferencePipe *coreference_pipe_;
+};
+
 class TurboParserInterface {
  public:
   TurboParserInterface();
@@ -107,9 +123,17 @@ class TurboParserInterface {
   }
 
   TurboSemanticParserWorker *CreateSemanticParser() {
-    TurboSemanticParserWorker *semantic_parser = new TurboSemanticParserWorker();
+    TurboSemanticParserWorker *semantic_parser =
+      new TurboSemanticParserWorker();
     semantic_parsers_.push_back(semantic_parser);
     return semantic_parser;
+  }
+
+  TurboCoreferenceResolverWorker *CreateCoreferenceResolver() {
+    TurboCoreferenceResolverWorker *coreference_resolver =
+      new TurboCoreferenceResolverWorker();
+    coreference_resolvers_.push_back(coreference_resolver);
+    return coreference_resolver;
   }
 
   void DeleteAllTaggers() {
@@ -140,6 +164,13 @@ class TurboParserInterface {
     semantic_parsers_.clear();
   }
 
+  void DeleteAllCoreferenceResolvers() {
+    for (int i = 0; i < coreference_resolvers_.size(); ++i) {
+      delete coreference_resolvers_[i];
+    }
+    coreference_resolvers_.clear();
+  }
+
  private:
   int argc_;
   char** argv_;
@@ -147,6 +178,7 @@ class TurboParserInterface {
   std::vector<TurboParserWorker*> parsers_;
   std::vector<TurboSemanticParserWorker*> semantic_parsers_;
   std::vector<TurboEntityRecognizerWorker*> entity_recognizers_;
+  std::vector<TurboCoreferenceResolverWorker*> coreference_resolvers_;
 };
 
 } // namespace TurboParserInterface.

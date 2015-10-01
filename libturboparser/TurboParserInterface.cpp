@@ -213,6 +213,59 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
             << " sec." << endl;
 }
 
+TurboCoreferenceResolverWorker::TurboCoreferenceResolverWorker() {
+  coreference_options_ = new CoreferenceOptions;
+  coreference_options_->Initialize();
+
+  coreference_pipe_ = new CoreferencePipe(coreference_options_);
+  coreference_pipe_->Initialize();
+}
+
+TurboCoreferenceResolverWorker::~TurboCoreferenceResolverWorker() {
+  LOG(INFO) << "Deleting coreference pipe.";
+  delete coreference_pipe_;
+  LOG(INFO) << "Deleting coreference options.";
+  delete coreference_options_;
+}
+
+void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
+    const std::string &file_model) {
+  coreference_options_->SetModelFilePath(file_model);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  LOG(INFO) << "Loading model file " << file_model;
+
+  coreference_pipe_->LoadModelFile();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
+void TurboCoreferenceResolverWorker::ResolveCoreferences(
+    const std::string &file_test,
+    const std::string &file_prediction) {
+  coreference_options_->SetTestFilePath(file_test);
+  coreference_options_->SetOutputFilePath(file_prediction);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  coreference_pipe_->Run();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end,start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
+            << " sec." << endl;
+}
+
 TurboParserInterface::TurboParserInterface() {
   argc_ = 0;
   argv_ = NULL;
@@ -241,6 +294,9 @@ TurboParserInterface::~TurboParserInterface() {
 
   LOG(INFO) << "Deleting semantic parser workers.";
   DeleteAllSemanticParsers();
+
+  LOG(INFO) << "Deleting coreference resolver workers.";
+  DeleteAllCoreferenceResolvers();
 
   LOG(INFO) << "Clearing argument list.";
   ClearArgumentList();
