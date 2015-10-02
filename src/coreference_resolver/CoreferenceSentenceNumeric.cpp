@@ -147,25 +147,28 @@ void CoreferenceSentenceNumeric::GenerateMentions(
   std::vector<Span*> named_entity_mentions(mentions_.begin(),
                                            mentions_.end());
 
-  // Generate mentions for noun phrases and pronouns *except* those contained in
-  // the named entity chunks (the named entity tagger seems more reliable than
-  // the parser).
-  for (int k = 0; k < constituent_spans_.size(); ++k) {
-    if (!dictionary.IsNounPhrase(constituent_spans_[k]->id())) continue;
-    if (constituent_spans_[k]->FindCoveringSpan(named_entity_mentions)) {
-      continue;
-    }
-    AddMention(dictionary,
-               instance,
-               constituent_spans_[k]->start(),
-               constituent_spans_[k]->end(),
-               -1);
-  }
-
   // If this flag is true, use dependencies and ignore constituents altogether
   // (should be false for English Ontonotes).
   bool generate_noun_phrase_mentions_by_dependencies =
     options->generate_noun_phrase_mentions_by_dependencies();
+
+  // Generate mentions for noun phrases and pronouns *except* those contained in
+  // the named entity chunks (the named entity tagger seems more reliable than
+  // the parser).
+  if (!generate_noun_phrase_mentions_by_dependencies) {
+    for (int k = 0; k < constituent_spans_.size(); ++k) {
+      if (!dictionary.IsNounPhrase(constituent_spans_[k]->id())) continue;
+      if (constituent_spans_[k]->FindCoveringSpan(named_entity_mentions)) {
+        continue;
+      }
+      AddMention(dictionary,
+                 instance,
+                 constituent_spans_[k]->start(),
+                 constituent_spans_[k]->end(),
+                 -1);
+    }
+  }
+
   if (generate_noun_phrase_mentions_by_dependencies) {
     // Generate mentions for noun descendants *except* those contained in
     // the named entity chunks (the named entity tagger seems more reliable than

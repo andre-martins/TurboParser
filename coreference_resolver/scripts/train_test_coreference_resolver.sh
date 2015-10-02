@@ -25,6 +25,7 @@ suffix=coreference_resolver
 generate_noun_phrase_mentions_by_dependencies=true
 use_gender_number_statistics=false
 use_gender_number_determiners=false
+train_with_closest_antecedent=false
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
@@ -123,6 +124,7 @@ then
         --file_model=${file_model} \
         --file_train=${file_train} \
         --generate_noun_phrase_mentions_by_dependencies=${generate_noun_phrase_mentions_by_dependencies} \
+        --train_with_closest_antecedent=${train_with_closest_antecedent} \
         --use_gender_number_determiners=${use_gender_number_determiners} \
         --use_gender_number_statistics=${use_gender_number_statistics} \
         --coreference_file_mention_tags=${coreference_file_mention_tags} \

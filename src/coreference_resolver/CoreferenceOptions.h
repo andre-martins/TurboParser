@@ -40,6 +40,9 @@ class CoreferenceOptions : public Options {
   const std::string &file_gender_number_statistics() {
     return file_gender_number_statistics_;
   }
+  bool train_with_closest_antecedent() {
+    return train_with_closest_antecedent_;
+  }
   bool use_gender_number_determiners() {
     return use_gender_number_determiners_;
   }
@@ -58,6 +61,7 @@ class CoreferenceOptions : public Options {
   std::string file_pronouns_;
   std::string file_determiners_;
   std::string file_gender_number_statistics_;
+  bool train_with_closest_antecedent_;
   bool use_gender_number_determiners_;
   bool use_gender_number_statistics_;
   bool generate_noun_phrase_mentions_by_dependencies_;

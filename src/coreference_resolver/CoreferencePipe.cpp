@@ -143,22 +143,27 @@ void CoreferencePipe::TransformGold(Instance *instance,
                                     const std::vector<double> &scores,
                                     std::vector<double> *gold_output,
                                     double *loss_inner) {
-  double log_partition_function_inner;
-  double entropy_inner;
-  std::vector<double> copied_scores = scores;
-  for (int r = 0; r < parts->size(); ++r) {
-    if ((*gold_output)[r] < 0.5) {
-      copied_scores[r] = -std::numeric_limits<double>::infinity();
-    } else {
-      CoreferencePartArc *arc = static_cast<CoreferencePartArc*>((*parts)[r]);
-      //LOG(INFO) << "Part[" << arc->parent_mention() << ", "
-      //          << arc->child_mention() << "] is gold.";
+  CoreferenceOptions *options = static_cast<CoreferenceOptions*>(options_);
+  if (options->train_with_closest_antecedent()) {
+    *loss_inner = 0.0;
+  } else {
+    double log_partition_function_inner;
+    double entropy_inner;
+    std::vector<double> copied_scores = scores;
+    for (int r = 0; r < parts->size(); ++r) {
+      if ((*gold_output)[r] < 0.5) {
+        copied_scores[r] = -std::numeric_limits<double>::infinity();
+      } else {
+        CoreferencePartArc *arc = static_cast<CoreferencePartArc*>((*parts)[r]);
+        //LOG(INFO) << "Part[" << arc->parent_mention() << ", "
+        //          << arc->child_mention() << "] is gold.";
+      }
     }
+    static_cast<CoreferenceDecoder*>(decoder_)->
+      DecodeBasicMarginals(instance, parts, copied_scores, gold_output,
+                           &log_partition_function_inner, &entropy_inner);
+    *loss_inner = entropy_inner;
   }
-  static_cast<CoreferenceDecoder*>(decoder_)->
-    DecodeBasicMarginals(instance, parts, copied_scores, gold_output,
-                         &log_partition_function_inner, &entropy_inner);
-  *loss_inner = entropy_inner;
 }
 
 void CoreferencePipe::MakeParts(Instance *instance,
@@ -166,6 +171,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
                                 std::vector<double> *gold_outputs) {
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
+  CoreferenceOptions *options = static_cast<CoreferenceOptions*>(options_);
 
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
   coreference_parts->Initialize();
@@ -192,6 +198,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
   // Create arc parts involving two mentions.
   int mention_distance_threshold = -1; //100; // TODO(atm): put this in the options.
   for (int j = 0; j < mentions.size(); ++j) {
+    bool found_closest = false;
     for (int k = j+1; k < mentions.size(); ++k) {
       if (mention_distance_threshold >= 0 &&
           k - j > mention_distance_threshold &&
@@ -203,8 +210,13 @@ void CoreferencePipe::MakeParts(Instance *instance,
       coreference_parts->push_back(part);
       if (make_gold) {
         if (mentions[j]->id() >= 0 && mentions[j]->id() == mentions[k]->id()) {
-          gold_outputs->push_back(1.0);
           //LOG(INFO) << "Found coreferent mentions: " << j << ", " << k;
+          if (!options->train_with_closest_antecedent() || !found_closest) {
+            gold_outputs->push_back(1.0);
+            found_closest = true;
+          } else {
+            gold_outputs->push_back(0.0);
+          }
         } else {
           gold_outputs->push_back(0.0);
         }
