@@ -244,10 +244,10 @@ class NLPPipeline:
             f_conll.write('\n')
         f_conll.write('#end document\n')
         f_conll.close()
-        worker.coreference_resolvers.resolve_coreferences('conll.coref.tmp',
-                                                          'conll.coref.tmp.pred')
+        worker.coreference_resolver.resolve_coreferences('conll.coref.tmp',
+                                                         'conll.coref.tmp.pred')
         f_conll_pred = open('conll.coref.tmp.pred')
-        all_coref_info = [[] for j in len(xrange(all_tokenized_sentences))]
+        all_coref_info = [[] for j in xrange(len(all_tokenized_sentences))]
         j = 0
         for line in f_conll_pred:
             line = line.rstrip('\n')
