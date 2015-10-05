@@ -111,6 +111,7 @@ class NLPPipeline:
         f_tagging = open('tagging.tmp', 'w')
         for token in tokenized_sentence:
             f_tagging.write(token + '\t_\n')
+        f_tagging.write('\n')
         f_tagging.close()
         worker.tagger.tag('tagging.tmp', 'tagging.tmp.pred')
         f_tagging_pred = open('tagging.tmp.pred')
@@ -136,6 +137,7 @@ class NLPPipeline:
         for i, token in enumerate(tokenized_sentence):
             tag = tags[i]
             f_ner.write(token + '\t' + tag + '\t' + '\t_\n')
+        f_ner.write('\n')
         f_ner.close()
         worker.entity_recognizer.tag('ner.tmp', 'ner.tmp.pred')
         f_ner_pred = open('ner.tmp.pred')
@@ -158,6 +160,7 @@ class NLPPipeline:
             lemma = lemmas[i]
             f_conll.write(str(i+1) + '\t' + token + '\t' + lemma + '\t' +
                           tag + '\t' + tag + '\t_\t_\t_\n')
+        f_conll.write('\n')
         f_conll.close()
         worker.parser.parse('conll.tmp', 'conll.tmp.pred')
         f_conll_pred = open('conll.tmp.pred')
@@ -201,6 +204,7 @@ class NLPPipeline:
             f_conll.write(str(i+1) + '\t_\t_\t_\t_\t' + token + '\t' + lemma + \
                               '\t' + tag + '\t' + str(head) + '\t' + deprel + \
                               '\t_\n')
+        f_conll.write('\n')
         f_conll.close()
         worker.semantic_parser.parse_semantic_dependencies('conll2008.tmp',
                                                            'conll2008.tmp.pred')
