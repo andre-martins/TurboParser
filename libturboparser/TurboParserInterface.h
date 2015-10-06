@@ -18,6 +18,8 @@ class TurboTaggerWorker {
   void Tag(const std::string &file_test,
            const std::string &file_prediction);
 
+  void TagSentence(SequenceInstance *sentence);
+
  private:
   TaggerOptions *tagger_options_;
   TaggerPipe *tagger_pipe_;
@@ -32,6 +34,8 @@ class TurboEntityRecognizerWorker {
 
   void Tag(const std::string &file_test,
            const std::string &file_prediction);
+
+  void TagSentence(EntityInstance *sentence);
 
  private:
   EntityOptions *entity_options_;

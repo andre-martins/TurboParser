@@ -61,6 +61,9 @@ class Pipe {
   // Run a previously trained classifier on new data.
   void Run();
 
+  // Run a previously trained classifier on a single instance.
+  void ClassifyInstance(Instance *instance);
+
  protected:
   // Create basic objects.
   virtual void CreateDictionary() = 0;
@@ -240,11 +243,11 @@ class Pipe {
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO) << "Accuracy (parts): " << 
+    LOG(INFO) << "Accuracy (parts): " <<
       static_cast<double>(num_total_parts_ - num_mistakes_) /
         static_cast<double>(num_total_parts_);
   }
-  
+
  protected:
   Options *options_; // Classifier options.
   Dictionary *dictionary_; // Dictionary for the classifier.
@@ -256,7 +259,7 @@ class Pipe {
 
   // Number of mistakes and number of total parts at test time (used for
   // evaluation purposes).
-  int num_mistakes_;  
+  int num_mistakes_;
   int num_total_parts_;
 };
 

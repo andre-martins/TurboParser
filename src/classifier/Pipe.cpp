@@ -445,3 +445,25 @@ void Pipe::Run() {
 
   if (options_->evaluate()) EndEvaluation();
 }
+
+void Pipe::ClassifyInstance(Instance *instance) {
+  Parts *parts = CreateParts();
+  Features *features = CreateFeatures();
+  std::vector<double> gold_outputs;
+  std::vector<double> predicted_outputs;
+  std::vector<double> scores;
+
+  Instance *formatted_instance = GetFormattedInstance(instance);
+
+  MakeParts(formatted_instance, parts, &gold_outputs);
+  MakeFeatures(formatted_instance, parts, features);
+  ComputeScores(formatted_instance, parts, features, &scores);
+  decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
+
+  LabelInstance(parts, predicted_outputs, instance);
+
+  if (formatted_instance != instance) delete formatted_instance;
+
+  delete parts;
+  delete features;
+}

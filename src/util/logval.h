@@ -1,7 +1,7 @@
 #ifndef LOGVAL_H_
 #define LOGVAL_H_
 
-#define LOGVAL_CHECK_NEG false
+#define LOGVAL_CHECK_NEG 0
 
 #include <iostream>
 #include <cstdlib>

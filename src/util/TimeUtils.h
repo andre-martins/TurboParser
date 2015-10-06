@@ -20,9 +20,20 @@
 #define TIMEUTILS_H
 
 #ifdef _WIN32
-#include <gettimeofday.h>
+#include <time.h>
 #else
 #include <sys/time.h>
+#endif
+
+#ifdef _WIN32
+//#include <windows.h> //I've ommited this line.
+#ifndef _WINSOCKAPI_
+struct timeval {
+	long    tv_sec;         /* seconds */
+	long    tv_usec;        /* and microseconds */
+};
+#endif
+extern int gettimeofday(struct timeval *tv, struct timezone *tz);
 #endif
 using namespace std;
 

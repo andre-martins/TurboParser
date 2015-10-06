@@ -21,7 +21,7 @@
 #include <sstream>
 #include <vector>
 #ifdef _WIN32
-#include <gettimeofday.h>
+#include <time.h>
 #else
 #include <sys/time.h>
 #endif
