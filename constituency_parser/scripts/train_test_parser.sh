@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Root folder where TurboParser is installed.
-root_folder="`cd $(dirname $0);cd ..;pwd`"
+root_folder="`cd $(dirname $0);cd ../..;pwd`"
+task_folder="`cd $(dirname $0);cd ..;pwd`"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${root_folder}/deps/local/lib"
 
 # Set options.
@@ -12,7 +13,7 @@ num_epochs=10 # Number of training epochs.
 num_epochs_pruner=10 # Number of training epochs for the pruner.
 regularization_parameter=$2 #0.001 # The C parameter in MIRA.
 regularization_parameter_pruner=1e12 # Same for the pruner.
-train=false #true
+train=true
 test=true
 prune=true # This will revert to false if model_type=basic.
 train_external_pruner=false # If true, the pruner is trained separately.
@@ -23,8 +24,8 @@ large_feature_set=true # Use a large feature set (slower but more accurate).
 case_sensitive=false # Distinguish word upper/lower case.
 form_cutoff=0 # Cutoff in word occurrence.
 lemma_cutoff=0 # Cutoff in lemma occurrence.
-projective=false # If true, force single-rooted projective trees.
-model_type=standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
+projective=true #false # If true, force single-rooted projective trees.
+model_type=$3 #standard # Parts used in the model (subset of "af+cs+gp+as+hb+np+dp+gs+ts").
                     # Some shortcuts are: "standard" (means "af+cs+gp");
                     # "basic" (means "af"); and "full" (means "af+cs+gp+as+hb+gs+ts").
                     # Currently, flags np+dp are not recommended because they
@@ -41,10 +42,11 @@ suffix_pruner=parser_pruner_C-${regularization_parameter_pruner}
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
-path_scripts=${root_folder}/scripts # Folder containing scripts.
-path_data=${root_folder}/data/${language} # Folder with the data.
-path_models=${root_folder}/models/${language} # Folder where models are stored.
-path_results=${root_folder}/results/${language} # Folder for the results.
+path_scripts_parser=${root_folder}/scripts # Folder containing scripts for the parser.
+path_scripts=${task_folder}/scripts # Folder containing scripts.
+path_data=${task_folder}/data/${language} # Folder with the data.
+path_models=${task_folder}/models/${language} # Folder where models are stored.
+path_results=${task_folder}/results/${language} # Folder for the results.
 
 # Create folders if they don't exist.
 mkdir -p ${path_data}
@@ -57,10 +59,8 @@ file_pruner_model=${path_models}/${language}_${suffix_pruner}.model
 file_results=${path_results}/${language}_${suffix}.txt
 file_pruner_results=${path_results}/${language}_${suffix_pruner}.txt
 
-if [ "$language" == "english_proj" ] || [ "$language" == "english_proj_stanford" ]
+if [ "$language" == "english_ptb" ]
 then
-    projective=true
-
     file_train_orig=${path_data}/${language}_train.conll.predpos
     files_test_orig[0]=${path_data}/${language}_test.conll
     files_test_orig[1]=${path_data}/${language}_dev.conll
@@ -85,28 +85,27 @@ then
         awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
             > ${file_test}
     done
-elif [ "$language" == "english" ]
-then
-    file_train=${path_data}/${language}_train.conll
-    files_test[0]=${path_data}/${language}_test.conll
-    files_test[1]=${path_data}/${language}_dev.conll
-elif [ "$language" == "dutch" ]
-then
-    file_train=${path_data}/${language}_train.conll
-    files_test[0]=${path_data}/${language}_test.conll
 else
     # For all languages except english and dutch,
     # replace coarse tags by fine tags.
     file_train_orig=${path_data}/${language}_train.conll
-    file_test_orig=${path_data}/${language}_test.conll
+    files_test_orig[0]=${path_data}/${language}_test.conll
+    files_test_orig[1]=${path_data}/${language}_dev.conll
     file_train=${path_data}/${language}_ftags_train.conll
-    file_test=${path_data}/${language}_ftags_test.conll
-    rm -f file_train file_test
+    files_test[0]=${path_data}/${language}_ftags_test.conll
+    files_test[1]=${path_data}/${language}_ftags_dev.conll
+    rm -f file_train
     awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_train_orig} \
         > ${file_train}
-    awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
-        > ${file_test}
-    files_test[0]=${file_test}
+
+    for (( i=0; i<${#files_test[*]}; i++ ))
+    do
+        file_test_orig=${files_test_orig[$i]}
+        file_test=${files_test[$i]}
+        rm -f file_test
+        awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
+            > ${file_test}
+    done
 fi
 
 # Obtain a prediction file path for each test file.
@@ -163,7 +162,7 @@ then
         echo ""
         echo "Evaluating pruner..."
         touch ${file_pruner_results}
-        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_pruner_prediction} | tail -5 \
+        perl ${path_scripts_parser}/eval.pl -b -q -g ${file_test} -s ${file_pruner_prediction} | tail -5 \
             >> ${file_pruner_results}
         cat ${file_pruner_results}
     done
@@ -253,7 +252,7 @@ then
         echo ""
         echo "Evaluating..."
         touch ${file_results}
-        perl ${path_scripts}/eval.pl -b -q -g ${file_test} -s ${file_prediction} | tail -5 \
+        perl ${path_scripts_parser}/eval.pl -b -q -g ${file_test} -s ${file_prediction} | tail -5 \
             >> ${file_results}
         cat ${file_results}
     done

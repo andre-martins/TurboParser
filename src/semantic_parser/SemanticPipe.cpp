@@ -1546,30 +1546,6 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
 #endif
 }
 
-#if 0
-void SemanticPipe::GetAllAncestors(const vector<int> &heads,
-                                    int descend,
-                                    vector<int>* ancestors) {
-  ancestors->clear();
-  int h = heads[descend];
-  while (h >= 0) {
-    h = heads[h];
-    ancestors->push_back(h);
-  }
-}
-
-bool SemanticPipe::ExistsPath(const vector<int> &heads,
-                                int ancest,
-                                int descend) {
-  int h = heads[descend];
-  while (h != ancest && h >= 0) {
-    h = heads[h];
-  }
-  if (h != ancest) return false;  // No path from ancest to descend.
-  return true;
-}
-#endif
-
 void SemanticPipe::MakeSelectedFeatures(Instance *instance,
                                         Parts *parts,
                                         bool pruner,

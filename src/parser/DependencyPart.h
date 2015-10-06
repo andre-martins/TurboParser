@@ -402,7 +402,6 @@ class DependencyPartHeadBigram : public Part {
   int hp_; // Index of the head of the previous word (m_ - 1).
 };
 
-
 class DependencyParts : public Parts {
  public:
   DependencyParts() {};
@@ -555,7 +554,7 @@ class DependencyParts : public Parts {
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_DEPENDENCYPARTS - 1)? offsets_[i + 1] - (*offset) : 
+    *size =  (i < NUM_DEPENDENCYPARTS - 1)? offsets_[i + 1] - (*offset) :
       DependencyParts::size() - (*offset);
   }
 

@@ -312,7 +312,7 @@ void DependencyPipe::MakeParts(Instance *instance,
     dependency_parts->BuildOffsets();
     dependency_parts->BuildIndices(sentence_length,
         GetDependencyOptions()->labeled());
-  
+
     // Make global parts.
     MakePartsGlobal(instance, parts, gold_outputs);
     dependency_parts->BuildOffsets();
@@ -1227,8 +1227,8 @@ void DependencyPipe::GetAllAncestors(const vector<int> &heads,
   ancestors->clear();
   int h = heads[descend];
   while (h >= 0) {
-    h = heads[h];
     ancestors->push_back(h);
+    h = heads[h];
   }
 }
 #endif

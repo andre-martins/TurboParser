@@ -28,6 +28,10 @@ extern void StringSplit(const string &str,
                         const string &delim,
                         vector<string> *results);
 
+extern void StringJoin(const vector<string> &fields,
+                       const char delim,
+                       string *result);
+
 extern void GetFileNameFromPath(const string &delim, string *file_name);
 
 extern void TrimComments(const string &delim, string *line);

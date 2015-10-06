@@ -4879,7 +4879,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/tagger/Makefile src/parser/Makefile src/semantic_parser/Makefile src/entity_recognizer/Makefile src/coreference_resolver/Makefile"
+ac_config_files="$ac_config_files Makefile src/tagger/Makefile src/parser/Makefile src/semantic_parser/Makefile src/entity_recognizer/Makefile src/coreference_resolver/Makefile src/dependency_labeler/Makefile src/constituency_labeler/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5623,6 +5623,8 @@ do
     "src/semantic_parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/semantic_parser/Makefile" ;;
     "src/entity_recognizer/Makefile") CONFIG_FILES="$CONFIG_FILES src/entity_recognizer/Makefile" ;;
     "src/coreference_resolver/Makefile") CONFIG_FILES="$CONFIG_FILES src/coreference_resolver/Makefile" ;;
+    "src/dependency_labeler/Makefile") CONFIG_FILES="$CONFIG_FILES src/dependency_labeler/Makefile" ;;
+    "src/constituency_labeler/Makefile") CONFIG_FILES="$CONFIG_FILES src/constituency_labeler/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
