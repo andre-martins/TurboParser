@@ -13,7 +13,7 @@ train=true
 test=true
 model_type=2 # Second-order model (trigrams).
 form_cutoff=0 #1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
-tagging_scheme=bio # bilou
+tagging_scheme=bio #bilou
 file_gazetteer= # Empty gazetteer file by default.
 suffix=entity_recognizer
 
