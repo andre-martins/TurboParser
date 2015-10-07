@@ -18,11 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\semantic_parser\TurboSemanticParser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\classifier\classifier.vcxproj">
+      <Project>{572f3882-6014-4fb1-ae04-01a17d4eb041}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\entity_recognizer\entity_recognizer.vcxproj">
+      <Project>{26e7dfe3-2fc3-43c0-8499-b6a59669f20a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\parser\parser.vcxproj">
+      <Project>{a17d3ac6-4c67-4615-8d6b-ddeabbb7faa5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\semantic_parser\semantic_parser.vcxproj">
+      <Project>{37e3c8bc-2f79-4c9d-907f-b1cd10e20529}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\sequence\sequence.vcxproj">
+      <Project>{6ec765b9-c3cd-4a5d-94c8-851333497db1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\util\util.vcxproj">
+      <Project>{9811eff4-9d77-4000-b2b3-29155a8d722a}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{197CFAD9-2CB6-4AA3-95B9-EBD37280AB0B}</ProjectGuid>
+    <ProjectGuid>{A37E6B7D-23AC-44A3-ADD1-D09D35C6C06C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>turbotagger</RootNamespace>
-    <ProjectName>turbo_tagger</ProjectName>
+    <RootNamespace>turbo_semantic_parser</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -86,13 +109,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\Debug;..\..\deps\gflags-2.0\Debug;..\..\deps\AD3-2.0.2\vsprojects\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -120,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +151,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\Release;..\..\deps\gflags-2.0\Release;..\..\deps\AD3-2.0.2\vsprojects\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3.lib;libgflags.lib;libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3.lib;libgflags.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,43 +164,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;GOOGLE_GLOG_DLL_DECL=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\parser;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Release;..\..\deps\gflags-2.0\x64\Release;..\..\deps\AD3-2.0.2\vsprojects\x64\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>AD3.lib;libgflags.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Release;..\..\deps\gflags-2.0\x64\Release;..\..\deps\AD3-2.0.2\vsprojects\x64\Release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\tagger\TurboTagger.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\classifier\classifier.vcxproj">
-      <Project>{572f3882-6014-4fb1-ae04-01a17d4eb041}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\entity_recognizer\entity_recognizer.vcxproj">
-      <Project>{26e7dfe3-2fc3-43c0-8499-b6a59669f20a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\parser\parser.vcxproj">
-      <Project>{a17d3ac6-4c67-4615-8d6b-ddeabbb7faa5}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\sequence\sequence.vcxproj">
-      <Project>{6ec765b9-c3cd-4a5d-94c8-851333497db1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\tagger\tagger.vcxproj">
-      <Project>{06997825-6901-4fb0-94b6-5514aae2c460}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\util\util.vcxproj">
-      <Project>{9811eff4-9d77-4000-b2b3-29155a8d722a}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
