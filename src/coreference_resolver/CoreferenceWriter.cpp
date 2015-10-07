@@ -24,7 +24,13 @@
 void CoreferenceWriter::Write(Instance *instance) {
   CoreferenceDocument *document = static_cast<CoreferenceDocument*>(instance);
   char part_number[4];
-  snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
+
+  #ifdef _WIN32
+    _snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
+  #else
+    snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
+  #endif
+  
 
   //std::cout << "Document: " << document->name() << std::endl;
 

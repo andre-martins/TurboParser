@@ -20,7 +20,11 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#ifdef _WIN32
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 
 // Define the current model version and the oldest back-compatible version.
 // The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
