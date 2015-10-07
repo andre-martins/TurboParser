@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -19,15 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{37E3C8BC-2F79-4C9D-907F-B1CD10E20529}</ProjectGuid>
+    <ProjectGuid>{A0FFAD66-B8E3-4471-BEB0-E4F00B6D53A7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>semantic_parser</RootNamespace>
+    <RootNamespace>dependency_labeler</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -36,33 +44,28 @@
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -84,14 +87,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\Debug;..\..\deps\gflags-2.0\Debug;..\..\deps\AD3-2.0.2\vsprojects\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,8 +106,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\Debug;..\..\deps\gflags-2.0\Debug;..\..\deps\AD3-2.0.2\vsprojects\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,11 +116,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
@@ -136,48 +133,29 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\semantic_parser\SemanticDecoder.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticDictionary.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticFeatures.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticInstance.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticInstanceNumeric.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticOptions.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticPart.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticPipe.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticReader.cpp" />
-    <ClCompile Include="..\..\src\semantic_parser\SemanticWriter.cpp" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerDecoder.h" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerFeatures.h" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerFeatureTemplates.h" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerOptions.h" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerPart.h" />
+    <ClInclude Include="..\..\src\dependency_labeler\DependencyLabelerPipe.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\semantic_parser\FactorArgumentAutomaton.h" />
-    <ClInclude Include="..\..\src\semantic_parser\FactorPredicateAutomaton.h" />
-    <ClInclude Include="..\..\src\semantic_parser\FactorSemanticGraph.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticDecoder.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticDictionary.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticFeatures.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticFeatureTemplates.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticInstance.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticInstanceNumeric.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticOptions.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticPart.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticPipe.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticPredicate.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticReader.h" />
-    <ClInclude Include="..\..\src\semantic_parser\SemanticWriter.h" />
+    <ClCompile Include="..\..\src\dependency_labeler\DependencyLabelerDecoder.cpp" />
+    <ClCompile Include="..\..\src\dependency_labeler\DependencyLabelerFeatures.cpp" />
+    <ClCompile Include="..\..\src\dependency_labeler\DependencyLabelerOptions.cpp" />
+    <ClCompile Include="..\..\src\dependency_labeler\DependencyLabelerPart.cpp" />
+    <ClCompile Include="..\..\src\dependency_labeler\DependencyLabelerPipe.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

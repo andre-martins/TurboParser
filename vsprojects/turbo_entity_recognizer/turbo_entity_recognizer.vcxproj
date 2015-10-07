@@ -101,14 +101,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\parser;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\util;$(SolutionDir)..\deps\\AD3-2.0.2\ad3;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;GOOGLE_GLOG_DLL_DECL=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\parser;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\Debug;..\..\deps\gflags-2.0\Debug;..\..\deps\AD3-2.0.2\vsprojects\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Debug;..\..\deps\gflags-2.0\x64\Debug;..\..\deps\AD3-2.0.2\vsprojects\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>AD3.lib;libgflags-debug.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
