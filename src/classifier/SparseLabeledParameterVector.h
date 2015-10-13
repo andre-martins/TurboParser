@@ -477,7 +477,7 @@ class SparseLabeledParameterVector {
   void SetValue(LabeledParameterMap::iterator iterator, int label,
                 double value) {
 
-	#if USE_DN_OPTIMIZATIONS==0
+	#if USE_N_OPTIMIZATIONS==0
 		// TODO: Make this more efficient, avoiding two lookups in LabelWeights.
 		double current_value = GetValue(iterator, label);
 		squared_norm_ += value * value - current_value * current_value;
@@ -507,7 +507,7 @@ class SparseLabeledParameterVector {
   // Add weight for the specified label.
   void AddValue(LabeledParameterMap::iterator iterator, int label,
                 double value) {
-	#if USE_DN_OPTIMIZATIONS==0
+	#if USE_N_OPTIMIZATIONS==0
     // TODO: Make this more efficient, avoiding two lookups in LabelWeights.
 		double current_value = GetValue(iterator, label);
 		value += current_value;

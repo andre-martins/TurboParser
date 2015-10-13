@@ -11,6 +11,7 @@ deps/gflags-2.0/
 deps/glog-0.3.2/
 deps/eigen-eigen-c58038c56923/
 deps/local/
+data_local/
 ner/
 *.o
 *.obj

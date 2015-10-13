@@ -40,8 +40,8 @@ DECLARE_string(train_learning_rate_schedule);
 DECLARE_int32(parameters_max_num_buckets);
 
 //1 to use new developments regarding performance optimizations
-#ifndef USE_DN_OPTIMIZATIONS
-#define USE_DN_OPTIMIZATIONS 0 //1
+#ifndef USE_N_OPTIMIZATIONS
+#define USE_N_OPTIMIZATIONS 1 //0
 #endif
 
 // General training/test options.
