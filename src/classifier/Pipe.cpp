@@ -37,6 +37,7 @@ Pipe::~Pipe() {
   delete writer_;
   delete decoder_;
   delete parameters_;
+  DeleteInstances();
 }
 
 void Pipe::Initialize() {
@@ -153,6 +154,8 @@ void Pipe::Train() {
   }
 
   parameters_->Finalize(options_->GetNumEpochs() * instances_.size());
+
+  DeleteInstances();
 }
 
 void Pipe::CreateInstances() {
