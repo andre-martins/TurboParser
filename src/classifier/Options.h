@@ -32,6 +32,7 @@ DECLARE_bool(evaluate);
 DECLARE_string(train_algorithm);
 DECLARE_bool(only_supported_features);
 DECLARE_bool(use_averaging);
+DECLARE_bool(use_multithreading);
 DECLARE_int32(train_epochs);
 DECLARE_double(train_regularization_constant);
 DECLARE_double(train_initial_learning_rate);
@@ -134,6 +135,8 @@ class Options {
 
   bool only_supported_features_; // Use only supported features.
   bool use_averaging_; // Include a final averaging step during training.
+
+  bool use_multithreading_; //If multithreading is used
 };
 
 #endif /*OPTIONS_H_*/
