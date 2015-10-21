@@ -46,6 +46,7 @@ Instance *SequenceReader::GetNext() {
 
   for(int i = 0; i < length; ++i) {
     const vector<string> &info = sentence_fields[i];
+    CHECK_EQ(info.size(), 2);
     forms[i] = info[0];
     tags[i] = info[1];
   }
