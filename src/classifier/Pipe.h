@@ -32,6 +32,7 @@
 
 #include <thread>         // std::thread
 #include <list>			  // std::list
+#include <mutex>		  // std::mutex
 
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
@@ -65,7 +66,7 @@ class Pipe {
   // Run a previously trained classifier on new data.
   void Run();
 
-  // Run a previously trained classifier on new data.
+  // Run methods for multi-threaded version.
   void RunWithThreads();
   void RunThreaded(Instance * instance, Instance * formatted_instance,Instance *output_instance);
 
@@ -257,9 +258,13 @@ class Pipe {
                                 const vector<double> &predicted_outputs) {
     for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
+		if (running_multithreaded_) evaluation_lock_.lock();
         ++num_mistakes_;
+		if (running_multithreaded_) evaluation_lock_.unlock();
       }
+	  if (running_multithreaded_) evaluation_lock_.lock();
       ++num_total_parts_;
+	  if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
@@ -284,6 +289,9 @@ class Pipe {
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
+  
+  bool running_multithreaded_;
+  std::mutex evaluation_lock_;
   vector<std::thread> list_of_threads_;
 };
 

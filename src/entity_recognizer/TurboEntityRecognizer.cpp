@@ -77,8 +77,7 @@ void TestEntityRecognizer() {
   if (FLAGS_use_multithreading) {
 	  LOG(INFO) << "Using multithreaded version." << endl;
 	  pipe->RunWithThreads();
-  }
-  else {
+  } else {
 	  LOG(INFO) << "Using single-threaded version." << endl;
 	  pipe->Run();
   }

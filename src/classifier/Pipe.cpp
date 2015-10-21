@@ -49,6 +49,7 @@ void Pipe::Initialize() {
   CreateWriter();
   CreateDecoder();
   parameters_ = new Parameters;
+  running_multithreaded_ = false;
 }
 
 void Pipe::SaveModelByName(const string &model_name) {
@@ -466,11 +467,12 @@ void Pipe::RunWithThreads() {
 	int num_instances = 0;
 
 	
-	if (instances_.size() != 0)
-	{
+	if (instances_.size() != 0){
 		cerr << "Instances vector is not empty at start of Run procedure" << endl;
 		abort();
 	}
+
+	running_multithreaded_ = true;
 
 	Instance *instance = reader_->GetNext();
 	instances_.push_back(instance);
@@ -489,15 +491,13 @@ void Pipe::RunWithThreads() {
 		++num_instances;
 	}
 	//for every thread launched
-	for (int i = 0; i < list_of_threads_.size(); i++)
-	{
+	for (int i = 0; i < list_of_threads_.size(); i++) {
 		//wait for that thread
 		list_of_threads_[i].join();
 		//process its output data
 		writer_->Write(output_instances_[i] );
 		//discard memory objects
-		if (formatted_instances_[i] != instances_[i] )
-		{
+		if (formatted_instances_[i] != instances_[i] ){
 			delete formatted_instances_[i];
 		}
 		delete instances_[i];
@@ -525,21 +525,21 @@ void Pipe::RunThreaded(Instance *instance, Instance * formatted_instance, Instan
 	vector<double> scores;
 	vector<double> gold_outputs;
 	vector<double> predicted_outputs;
-		//Create parts for this instance
-		MakeParts(formatted_instance, parts, &gold_outputs);
-		//Create features for the parts of this instance
-		MakeFeatures(formatted_instance, parts, features);
-		//Compute scores based on the features and parts of this instance
-		ComputeScores(formatted_instance, parts, features, &scores);
-		//Decode, a.k.a., obtain output prediction
-		decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
-		//Obtain labels
-		LabelInstance(parts, predicted_outputs, output_instance);
-		//Compare with gold standard if 'evaluate' was an execution flag
-		if (options_->evaluate()) {
-			EvaluateInstance(instance, output_instance,
-				parts, gold_outputs, predicted_outputs);
-		}
+	//Create parts for this instance
+	MakeParts(formatted_instance, parts, &gold_outputs);
+	//Create features for the parts of this instance
+	MakeFeatures(formatted_instance, parts, features);
+	//Compute scores based on the features and parts of this instance
+	ComputeScores(formatted_instance, parts, features, &scores);
+	//Decode, a.k.a., obtain output prediction
+	decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
+	//Obtain labels
+	LabelInstance(parts, predicted_outputs, output_instance);
+	//Compare with gold standard if 'evaluate' was an execution flag
+	if (options_->evaluate()) {
+		EvaluateInstance(instance, output_instance,
+			parts, gold_outputs, predicted_outputs);
+	}
 	delete parts;
 	delete features;
 }
