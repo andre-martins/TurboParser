@@ -450,6 +450,10 @@ void Pipe::Run() {
   LOG(INFO) << "Number of instances: " << num_instances;
   LOG(INFO) << "Time: " << diff_ms(end,start);
 
+  LOG(INFO) << "Cache size: " << parameters_->caching_weights_.size();
+  LOG(INFO) << "Cache hits: " << parameters_->caching_weights_.hits();
+  LOG(INFO) << "Cache misses: " << parameters_->caching_weights_.misses();
+
   if (options_->evaluate()) EndEvaluation();
 }
 

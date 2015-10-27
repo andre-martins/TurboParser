@@ -137,16 +137,62 @@ class Parameters {
   // output labels. The vector scores, provided as output, contains the score
   // for each label.
   void ComputeLabelScores(const BinaryFeatures &features,
+	  const vector<int> &labels,
+	  vector<double> *scores) const {
+	  scores->clear();
+	  scores->resize(labels.size(), 0.0);
+	  vector<double> label_scores(labels.size(), 0.0);
+	  for (int j = 0; j < features.size(); ++j) {
+		  if (!Get(features[j], labels, &label_scores)) continue;
+		  for (int k = 0; k < labels.size(); ++k) {
+			  (*scores)[k] += label_scores[k];
+		  }
+	  }
+  }
+
+  // Compute the scores corresponding to a set of features, conjoined with
+  // output labels. The vector scores, provided as output, contains the score
+  // for each label, with the added functionality of using a cache for already computed scores.
+  void ComputeLabelScoresWithCache(const BinaryFeatures &features,
                           const vector<int> &labels,
                           vector<double> *scores) const {
+
+	FeatureLabelPair caching_key;
+	double caching_value;
+
+	vector<int> reduced_labels;
+	vector<int> adjust_new_index_reduced_labels;
+
     scores->clear();
     scores->resize(labels.size(), 0.0);
     vector<double> label_scores(labels.size(), 0.0);
     for (int j = 0; j < features.size(); ++j) {
-      if (!Get(features[j], labels, &label_scores)) continue;
+      
+      if (!ExistsLabeled(features[j]) ) continue;
+	  reduced_labels.clear();
+	  adjust_new_index_reduced_labels.clear();
+
       for (int k = 0; k < labels.size(); ++k) {
-        (*scores)[k] += label_scores[k];
-      }
+	    caching_key = { features[j], labels[k] };
+		if (!caching_weights_.find(caching_key, &caching_value)) {
+		  //add such label to reduced labels
+		    reduced_labels.push_back(labels[k]);
+			adjust_new_index_reduced_labels.push_back(k);
+			caching_weights_.increment_misses();
+		}else{
+			(*scores)[k] += caching_value;
+			caching_weights_.increment_hits();
+		}
+	  }
+	  if (reduced_labels.size() == 0) continue;
+      if (!Get(features[j], reduced_labels, &label_scores)) continue;
+      for (int k = 0; k < reduced_labels.size(); ++k) {
+        (*scores)[adjust_new_index_reduced_labels[k]] += label_scores[k];
+
+		caching_key = { features[j], reduced_labels[k] };
+		caching_value = label_scores[k];
+		caching_weights_.insert( caching_key, caching_value );
+	  }
     }
   }
 
@@ -225,6 +271,11 @@ class Parameters {
   // Weights and averaged weights for the "labeled" features.
   SparseLabeledParameterVector labeled_weights_;
   SparseLabeledParameterVector averaged_labeled_weights_;
+
+
+ public:  
+  //caches the weights for feature-label pairs : FeatureLabelPair = struct {feature; label}
+  mutable FeatureLabelCache caching_weights_;
 };
 
 #endif /*PARAMETERS_H_*/

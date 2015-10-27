@@ -54,7 +54,7 @@ DEFINE_double(train_regularization_constant, 1e12,
 DEFINE_int32(parameters_max_num_buckets, 50000000,
            "Maximum number of buckets in the hash table that stores the parameters.");
 
-DEFINE_bool(use_multithreading, true,
+DEFINE_bool(use_multithreading, false,
 	"True for multithreading usage.");
 
 void Options::Initialize() {
