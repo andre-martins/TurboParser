@@ -231,6 +231,11 @@ void Pipe::TrainEpoch(int epoch) {
   int time_scores = 0;
   int num_mistakes = 0;
 
+  if ( epoch == 0 ){
+    LOG(INFO) << "Lambda: " << lambda << "\t"
+    << "Regularization Constant: " << options_->GetRegularizationConstant() << "\t"
+    << "Num instances: " << num_instances << endl;
+  }
   LOG(INFO) << " Iteration #" << epoch + 1;
 
   dictionary_->StopGrowth();
@@ -391,10 +396,12 @@ void Pipe::TrainEpoch(int epoch) {
       options_->GetTrainingAlgorithm() == "mira") {
     LOG(INFO) << "Number of mistakes: " << num_mistakes;
   }
-  LOG(INFO) << "Total Cost: " << total_cost << "\t"
-            << "Total Loss: " << total_loss << "\t"
-            << "Total Reg: " << regularization_value << "\t"
-            << "Total Loss+Reg: " << total_loss + regularization_value << endl;
+
+  LOG(INFO) << "Total Cost: "               << total_cost << "\t"
+            << "Total Loss: "               << total_loss << "\t"
+            << "Total Reg: "                << regularization_value << "\t"
+            << "Total Loss+Reg: "           << total_loss + regularization_value << "\t"
+            << "Square norm: "              << parameters_->GetSquaredNorm() << endl;
 }
 
 void Pipe::Run() {
