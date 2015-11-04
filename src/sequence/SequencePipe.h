@@ -131,11 +131,15 @@ class SequencePipe : public Pipe {
       for (int k = 0; k < unigrams.size(); ++k) {
         int r = unigrams[k];
         if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-          ++num_tag_mistakes_;
+			if (running_multithreaded_) evaluation_lock_.lock();
+		  ++num_tag_mistakes_;
+		  if (running_multithreaded_) evaluation_lock_.unlock();
           break;
         }
       }
+	  if (running_multithreaded_) evaluation_lock_.lock();
       ++num_tokens_;
+	  if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {

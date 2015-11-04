@@ -29,6 +29,11 @@
 #include "Parameters.h"
 #include "AlgUtils.h"
 
+
+#include <thread>         // std::thread
+#include <list>			  // std::list
+#include <mutex>		  // std::mutex
+
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
 // instances, all of which are abstract classes.
@@ -61,6 +66,11 @@ class Pipe {
   // Run a previously trained classifier on new data.
   void Run();
 
+  // Run methods for multi-threaded version.
+  void RunWithThreads();
+  void RunThreaded(Instance * instance, Instance * formatted_instance,Instance *output_instance);
+
+
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
@@ -85,7 +95,18 @@ class Pipe {
       delete instances_[i];
     }
     instances_.clear();
+
+	for (int i = 0; i < formatted_instances_.size(); ++i) {
+		delete formatted_instances_[i];
+	}
+	formatted_instances_.clear();
+
+	for (int i = 0; i < output_instances_.size(); ++i) {
+		delete output_instances_[i];
+	}
+	output_instances_.clear();
   }
+
   void AddInstance(Instance *instance) {
     Instance *formatted_instance = GetFormattedInstance(instance);
     instances_.push_back(formatted_instance);
@@ -237,9 +258,13 @@ class Pipe {
                                 const vector<double> &predicted_outputs) {
     for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
+		if (running_multithreaded_) evaluation_lock_.lock();
         ++num_mistakes_;
+		if (running_multithreaded_) evaluation_lock_.unlock();
       }
+	  if (running_multithreaded_) evaluation_lock_.lock();
       ++num_total_parts_;
+	  if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
@@ -252,15 +277,22 @@ class Pipe {
   Options *options_; // Classifier options.
   Dictionary *dictionary_; // Dictionary for the classifier.
   Reader *reader_; // Reader for reading instances from a file.
-  Writer* writer_; // Writer for writing instance to a file.
-  Decoder* decoder_; // Decoder for this classification task.
+  Writer *writer_; // Writer for writing instance to a file.
+  Decoder *decoder_; // Decoder for this classification task.
   Parameters *parameters_; // Parameter vector.
-  vector<Instance*> instances_; // Set of training instances.
+  vector<Instance*> instances_; // Set of instances.
+  vector<Instance*> formatted_instances_;
+  vector<Instance*> output_instances_;
+
 
   // Number of mistakes and number of total parts at test time (used for
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
+  
+  bool running_multithreaded_;
+  std::mutex evaluation_lock_;
+  vector<std::thread> list_of_threads_;
 };
 
 #endif /* PIPE_H_ */
