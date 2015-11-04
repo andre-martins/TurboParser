@@ -13,6 +13,7 @@ This should create a file turbo_parser.so in local subfolder build/<something>
 python folder:
 
 ln -s build/lib.linux-x86_64-2.7/turboparser.so turboparser.so
+ln -s ../libturboparser/libturboparser.so libturboparser.so
 
 To test, open a Python shell and type:
 
