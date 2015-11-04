@@ -27,6 +27,11 @@ void StringSplit(const string &str,
   string tmp = str;
   while ((cutAt = tmp.find_first_of(delim)) != tmp.npos) {
     if(cutAt > 0) {
+      // Note: this "if" guarantees that every field is not empty.
+      // This complies with multiple consecutive occurrences of the
+      // delimiter (e.g. several consecutive occurrences of a whitespace
+      // will count as a single delimiter).
+      // To allow empty fields, this if-condition should be removed.
       results->push_back(tmp.substr(0,cutAt));
     }
     tmp = tmp.substr(cutAt+1);
