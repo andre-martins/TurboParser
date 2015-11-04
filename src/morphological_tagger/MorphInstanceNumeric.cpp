@@ -16,22 +16,30 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "EntityPipe.h"
+#include "MorphInstanceNumeric.h"
 #include <iostream>
-#include <sstream>
-#include <vector>
-#ifdef _WIN32
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
+#include <algorithm>
 
-void EntityPipe::PreprocessData() {
-  delete token_dictionary_;
-  CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)-> SetTokenDictionary(token_dictionary_);
-  // To get the right reader (instead of the default sequence reader).
-  static_cast<EntityTokenDictionary*>(token_dictionary_)->InitializeFromEntityReader(GetEntityReader());
-  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
+void MorphInstanceNumeric::Initialize(const MorphDictionary &dictionary,
+  MorphInstance* instance) {
+  SequenceInstanceNumeric::Initialize(dictionary, instance);
+
+  TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
+  int length = instance->size();
+
+  lemmas_ids_.resize(length);
+  cpostags_ids_.resize(length);
+  for (int i = 0; i < length; i++) {
+    int id;
+    //Lemma
+    id = token_dictionary->GetLemmaId(instance->GetLemma(i));
+    CHECK_LT(id, 0xffff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    lemmas_ids_[i] = id;
+    //CPosTag
+    id = token_dictionary->GetCoarsePosTagId(instance->GetCoarsePosTag(i));
+    CHECK_LT(id, 0xffff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    cpostags_ids_[i] = id;
+  }
 }
-

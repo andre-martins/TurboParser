@@ -26,3 +26,4 @@ vsprojects/*/Release
 vsprojects/Release/*
 vsprojects/*/*.vcxproj.user
 vsprojects/*/*.vcxproj.filters
+vsprojects/*.opensdf

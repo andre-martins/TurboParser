@@ -63,8 +63,7 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   return DecodeCPLEX(instance, parts, scores, false, predicted_output);
 #endif
 
-  SequenceInstanceNumeric *sentence =
-      static_cast<SequenceInstanceNumeric*>(instance);
+  SequenceInstanceNumeric *sentence = static_cast<SequenceInstanceNumeric*>(instance);
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   int offset, size;
 
@@ -348,8 +347,10 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
 
     // Recover the best path in the original second-order model.
     RecoverBestPath(transformed_best_path, &best_path);
-  } else {
+  } else if (pipe_->GetSequenceOptions()->markov_order() == 1) {
     value = RunViterbi(node_scores, edge_scores, &best_path);
+  }else{
+    value = SolveMarkovZeroOrder(node_scores, &best_path);
   }
 
   predicted_output->clear();
@@ -511,6 +512,42 @@ void SequenceDecoder::ConvertToFirstOrderModel(
       }
     }
   }
+}
+
+
+double SequenceDecoder::SolveMarkovZeroOrder( const std::vector<SequenceDecoderNodeScores> &node_scores,
+                                              std::vector<int> *best_path) {
+  int length = node_scores.size(); // Length of the sequence.
+  std::vector<int> temp_path(length);
+  std::vector<double> temp_scores(length);
+
+  for (int i = 0; i < length; ++i) {
+    int num_current_labels = node_scores[i].GetNumStates();
+
+    double current_score;
+    double best_value = -1e-12;
+    int best = -1;
+    for (int l = 0; l < num_current_labels; ++l) {
+      current_score = node_scores[i].GetScore(l);
+      if (best < 0 || current_score > best_value) {
+        best_value = current_score;
+        temp_scores[i] = best_value;
+        best = l;
+        temp_path[i] = best;
+      }
+    }
+    CHECK_GE(best, 0) << node_scores[i].GetNumStates() << " possible tags.";
+  }
+
+  // Termination.
+  // Convert to the actual node states.
+  best_path->resize(length);
+  double best_value =0.0;
+  for (int i = 0; i < length; ++i) {
+    (*best_path)[i] = node_scores[i].GetState(temp_path[i]);
+    best_value += temp_scores[i];
+  }
+  return best_value;
 }
 
 // TODO(atm): adapt description.

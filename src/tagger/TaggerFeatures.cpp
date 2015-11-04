@@ -37,23 +37,17 @@ void TaggerFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // Word on the left.
   uint16_t pWID = (position > 0)? (*word_ids)[position - 1] : TOKEN_START;
   // Word on the right.
-  uint16_t nWID = (position < sentence_length - 1)? 
-      (*word_ids)[position + 1] : TOKEN_STOP;
+  uint16_t nWID = (position < sentence_length - 1)? (*word_ids)[position + 1] : TOKEN_STOP;
   // Word two positions on the left.
   uint16_t ppWID = (position > 1)? (*word_ids)[position - 2] : TOKEN_START;
   // Word two positions on the right.
-  uint16_t nnWID = (position < sentence_length - 2)? 
-      (*word_ids)[position + 2] : TOKEN_STOP;
+  uint16_t nnWID = (position < sentence_length - 2)? (*word_ids)[position + 2] : TOKEN_STOP;
 
   // Prefixes/Suffixes.
   vector<uint16_t> AID(sentence->GetMaxPrefixLength(position), 0xffff);
   vector<uint16_t> ZID(sentence->GetMaxSuffixLength(position), 0xffff);
-  for (int l = 0; l < AID.size(); ++l) {
-    AID[l] = sentence->GetPrefixId(position, l+1);
-  }
-  for (int l = 0; l < ZID.size(); ++l) {
-    ZID[l] = sentence->GetSuffixId(position, l+1);
-  }
+  for (int l = 0; l < AID.size(); ++l) { AID[l] = sentence->GetPrefixId(position, l+1); }
+  for (int l = 0; l < ZID.size(); ++l) { ZID[l] = sentence->GetSuffixId(position, l+1); }
 
   // Several flags.
   uint8_t flag_digit = sentence->HasDigit(position)? 0x1 : 0x0;

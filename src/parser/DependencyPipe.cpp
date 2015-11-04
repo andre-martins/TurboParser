@@ -93,11 +93,9 @@ void DependencyPipe::LoadPrunerModelByName(const string &model_name) {
 void DependencyPipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<DependencyDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromDependencyReader(GetDependencyReader());
-  static_cast<DependencyDictionary*>(dictionary_)->
-    CreateLabelDictionary(GetDependencyReader());
+  static_cast<DependencyDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
+  static_cast<DependencyTokenDictionary*>(token_dictionary_)->InitializeFromDependencyReader(GetDependencyReader());
+  static_cast<DependencyDictionary*>(dictionary_)->CreateLabelDictionary(GetDependencyReader());
 }
 
 void DependencyPipe::ComputeScores(Instance *instance, Parts *parts,

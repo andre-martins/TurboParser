@@ -78,8 +78,7 @@ void CoreferencePipe::LoadModel(FILE* fs) {
 void CoreferencePipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  token_dictionary_->
-    InitializeFromDependencyReader(GetCoreferenceSentenceReader());
+  static_cast<DependencyTokenDictionary*>(token_dictionary_)->InitializeFromDependencyReader(GetCoreferenceSentenceReader());
 
   delete dependency_dictionary_;
   CreateDependencyDictionary();

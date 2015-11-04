@@ -223,3 +223,77 @@ void EntityDictionary::ReadGazetteerFiles() {
             << gazetteer_entity_tag_alphabet_.size();
 
 }
+
+
+
+void EntityTokenDictionary::InitializeFromEntityReader(EntityReader *reader) {
+  TokenDictionary::InitializeStarter();
+  TokenDictionary::InitializeFromSequenceReader(reader);
+
+  std::vector<int> pos_freqs;
+  Alphabet pos_alphabet;
+
+  std::string special_symbols[NUM_SPECIAL_TOKENS];
+  special_symbols[TOKEN_UNKNOWN] = kTokenUnknown;
+  special_symbols[TOKEN_START] = kTokenStart;
+  special_symbols[TOKEN_STOP] = kTokenStop;
+
+  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    pos_alphabet.Insert(special_symbols[i]);
+
+    // Counts of special symbols are set to -1:
+    pos_freqs.push_back(-1);
+  }
+
+  // Go through the corpus and build the dictionaries,
+  // counting the frequencies.
+  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
+  EntityInstance *instance =
+    static_cast<EntityInstance*>(reader->GetNext());
+  while (instance != NULL) {
+    int instance_length = instance->size();
+    for (int i = 0; i < instance_length; ++i) {
+      int id;
+      // Add POS to alphabet.
+      id = pos_alphabet.Insert(instance->GetPosTag(i));
+      if (id >= pos_freqs.size()) {
+        CHECK_EQ(id, pos_freqs.size());
+        pos_freqs.push_back(0);
+      }
+      ++pos_freqs[id];
+    }
+    delete instance;
+    instance = static_cast<EntityInstance*>(reader->GetNext());
+  }
+  reader->Close();
+
+  // Now adjust the cutoffs if necessary.
+  while (true) {
+    pos_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      pos_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = pos_alphabet.begin();
+    iter != pos_alphabet.end();
+      ++iter) {
+      if (pos_freqs[iter->second] > pos_cutoff) {
+        pos_alphabet_.Insert(iter->first);
+      }
+    }
+    if (pos_alphabet_.size() < kMaxPosAlphabetSize) break;
+    ++pos_cutoff;
+    LOG(INFO) << "Incrementing POS cutoff to " << pos_cutoff << "...";
+  }
+
+  form_alphabet_.StopGrowth();
+  form_lower_alphabet_.StopGrowth();
+  lemma_alphabet_.StopGrowth();
+  prefix_alphabet_.StopGrowth();
+  suffix_alphabet_.StopGrowth();
+  feats_alphabet_.StopGrowth();
+  pos_alphabet_.StopGrowth();
+  cpos_alphabet_.StopGrowth();
+
+  LOG(INFO) << "Number of pos: " << pos_alphabet_.size();
+  CHECK_LT(pos_alphabet_.size(), 0xff);
+}

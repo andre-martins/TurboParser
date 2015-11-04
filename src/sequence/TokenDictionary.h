@@ -22,8 +22,6 @@
 #include "Dictionary.h"
 #include "Alphabet.h"
 #include "SequenceReader.h"
-#include "DependencyReader.h"
-#include "EntityReader.h"
 
 DECLARE_int32(prefix_length);
 DECLARE_int32(suffix_length);
@@ -83,6 +81,7 @@ class TokenDictionary : public Dictionary {
   }
 
   int GetNumPosTags() const { return pos_alphabet_.size(); }
+  int GetNumCPosTags() const { return cpos_alphabet_.size(); }
   int GetNumForms() const { return form_alphabet_.size(); }
   int GetNumLemmas() const { return lemma_alphabet_.size(); }
 
@@ -119,9 +118,8 @@ class TokenDictionary : public Dictionary {
       "There is no notion of number of features in TokenDictionary.";
   }
 
-  void InitializeFromSequenceReader(SequenceReader *reader);
-  void InitializeFromDependencyReader(DependencyReader *reader);
-  void InitializeFromEntityReader(EntityReader *reader);
+  void TokenDictionary::InitializeStarter();
+  void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader);
 
   void BuildNames() {
     pos_alphabet_.BuildNames();
@@ -167,7 +165,7 @@ class TokenDictionary : public Dictionary {
     *shape = type;
   }
 
- private:
+ protected: //private:
   Pipe *pipe_;
   Alphabet form_alphabet_;
   Alphabet form_lower_alphabet_;
@@ -178,6 +176,30 @@ class TokenDictionary : public Dictionary {
   Alphabet pos_alphabet_;
   Alphabet cpos_alphabet_;
   Alphabet shape_alphabet_;
+
+  int form_cutoff;
+  int form_lower_cutoff;
+  int lemma_cutoff;
+  int feats_cutoff;
+  int pos_cutoff;
+  int cpos_cutoff;
+  int shape_cutoff;
+  int prefix_length;
+  int suffix_length;
+  bool form_case_sensitive;
+
+  // Special symbols.
+  const string kTokenUnknown = "_UNKNOWN_"; // Unknown word/lemma.
+  const string kTokenStart = "_START_"; // Start symbol.
+  const string kTokenStop = "_STOP_"; // Stop symbol.
+
+                                      // Maximum alphabet sizes.
+  const unsigned int kMaxFormAlphabetSize = 0xffff;
+  const unsigned int kMaxLemmaAlphabetSize = 0xffff;
+  const unsigned int kMaxShapeAlphabetSize = 0xffff;
+  const unsigned int kMaxPosAlphabetSize = 0xff;
+  const unsigned int kMaxCoarsePosAlphabetSize = 0xff;
+  const unsigned int kMaxFeatsAlphabetSize = 0xfff; //0xffff;
 };
 
 #endif /* TOKENDICTIONARY_H_ */

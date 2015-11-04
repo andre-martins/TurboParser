@@ -143,6 +143,7 @@ class SequencePipe : public Pipe {
     }
   }
   virtual void EndEvaluation() {
+    LOG(INFO) << "Correct predictions: " <<(num_tokens_ - num_tag_mistakes_) << " out of " << static_cast<double>(num_tokens_);
     LOG(INFO) << "Tagging accuracy: " <<
       static_cast<double>(num_tokens_ - num_tag_mistakes_) /
         static_cast<double>(num_tokens_);

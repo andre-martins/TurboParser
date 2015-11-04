@@ -16,22 +16,34 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "EntityPipe.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#ifdef _WIN32
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
+#ifndef MORPHFEATURES_H_
+#define MORPHFEATURES_H_
 
-void EntityPipe::PreprocessData() {
-  delete token_dictionary_;
-  CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)-> SetTokenDictionary(token_dictionary_);
-  // To get the right reader (instead of the default sequence reader).
-  static_cast<EntityTokenDictionary*>(token_dictionary_)->InitializeFromEntityReader(GetEntityReader());
-  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
-}
+#include "SequenceFeatures.h"
+#include "FeatureEncoder.h"
 
+class MorphFeatures : public SequenceFeatures {
+public:
+  MorphFeatures(Pipe* pipe) : SequenceFeatures(pipe) {}
+  virtual ~MorphFeatures() {};
+
+public:
+  void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
+    int position);
+
+  void AddBigramFeatures(SequenceInstanceNumeric *sentence,
+    int position);
+
+  void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
+    int position);
+
+protected:
+  void AddFeature(uint64_t fkey, BinaryFeatures* features) {
+    features->push_back(fkey);
+  }
+
+protected:
+  FeatureEncoder encoder_; // Encoder that converts features into a codeword.
+};
+
+#endif /* MORPHFEATURES_H_ */

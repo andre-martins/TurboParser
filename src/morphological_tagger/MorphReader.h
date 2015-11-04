@@ -16,22 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "EntityPipe.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#ifdef _WIN32
-#include <time.h>
-#else
-#include <sys/time.h>
-#endif
+#ifndef MORPHREADER_H_
+#define MORPHREADER_H_
 
-void EntityPipe::PreprocessData() {
-  delete token_dictionary_;
-  CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)-> SetTokenDictionary(token_dictionary_);
-  // To get the right reader (instead of the default sequence reader).
-  static_cast<EntityTokenDictionary*>(token_dictionary_)->InitializeFromEntityReader(GetEntityReader());
-  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
-}
+#include "MorphInstance.h"
+#include "SequenceReader.h"
+#include "Options.h"
+#include <fstream>
+
+class MorphReader : public SequenceReader {
+public:
+  MorphReader() { options_ = NULL; };
+  MorphReader(Options *options) { options_ = options; };
+  virtual ~MorphReader() {};
+
+public:
+  Instance *GetNext();
+
+protected:
+  Options *options_;
+};
+
+#endif /* MORPHREADER_H_ */
 
