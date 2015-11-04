@@ -105,28 +105,30 @@ class SparseLabelWeights : public LabelWeights {
   }
   // Sets new weight, normalize it and returns previous value of label_weights_[k].second, with k such that label == label_weights_[k].first
   double SetWeightAndNormalize(int label, double value, double scaling_factor) {
+    double weight = value / scaling_factor;
 	  double previous_value;
 	  for (int k = 0; k < label_weights_.size(); ++k) {
 		  if (label == label_weights_[k].first) {
 			  previous_value = label_weights_[k].second * scaling_factor;
-			  label_weights_[k].second = value / scaling_factor;
+			  label_weights_[k].second = weight;
 			  return previous_value;
 		  }
 	  }
-	  label_weights_.push_back(std::pair<int, double>(label, value / scaling_factor));
+	  label_weights_.push_back(std::pair<int, double>(label, weight));
 	  return 0.0;
   }
   // Add weight value to current weight, normalize it and returns previous value of label_weights_[k].second, with k such that label == label_weights_[k].first
   double AddWeightAndNormalize(int label, double value, double scaling_factor) {
+    double weight = value / scaling_factor;
 	  double previous_value;
 	  for (int k = 0; k < label_weights_.size(); ++k) {
 		  if (label == label_weights_[k].first) {
 			  previous_value = label_weights_[k].second * scaling_factor;
-			  label_weights_[k].second  +=  value / scaling_factor;
+			  label_weights_[k].second  += weight;
 			  return previous_value;
 		  }
 	  }
-	  label_weights_.push_back(std::pair<int, double>(label, value / scaling_factor ) );
+	  label_weights_.push_back(std::pair<int, double>(label, weight) );
 	  return 0.0;
   }
 
@@ -188,8 +190,9 @@ class DenseLabelWeights : public LabelWeights {
 	  if (label >= weights_.size()) {
 		  weights_.resize(label + 1, 0.0);
 	  }
+    double weight = value / scaling_factor;
 	  double previous_value = weights_[label] * scaling_factor;
-	  weights_[label] = value / scaling_factor;
+	  weights_[label] = weight;
 	  return previous_value;
   }
   // Add weight value to current weight, normalize it and returns previous value of weights_[label]
@@ -198,8 +201,9 @@ class DenseLabelWeights : public LabelWeights {
 	  if (label >= weights_.size()) {
 		  weights_.resize(label + 1, 0.0);
 	  }
+    double weight = value / scaling_factor;
 	  double previous_value = weights_[label] * scaling_factor;
-	  weights_[label] += value / scaling_factor;
+	  weights_[label] += weight;
 	  return previous_value;
   }
 
@@ -518,10 +522,12 @@ class SparseLabeledParameterVector {
 		label_weights->SetWeight(label, value / scale_factor_);
 	#else
 		LabelWeights *label_weights = iterator->second;
+    if (!label_weights)
+      label_weights = new SparseLabelWeights;
 		double previous_value = label_weights->AddWeightAndNormalize(label, value, scale_factor_);
-		//squared_norm_ = (value + previous_value) * (value + previous_value) - previous_value * previous_value;	 //step1 
-		//squared_norm_ = value * value + 2 * value * previous_value + ( previous_value * previous_value - previous_value * previous_value );	//step2
-		squared_norm_ = value * value + 2 * value * previous_value;		//step3
+		//squared_norm_ += (value + previous_value) * (value + previous_value) - previous_value * previous_value;	 //step1 
+		//squared_norm_ += value * value + 2 * value * previous_value + ( previous_value * previous_value - previous_value * previous_value );	//step2
+		squared_norm_ += value * value + 2 * value * previous_value;		//step3
 	#endif
 
 

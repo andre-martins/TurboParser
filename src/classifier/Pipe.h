@@ -274,12 +274,12 @@ class Pipe {
   }
 
  protected:
-  Options *options_;			// Classifier options.
-  Dictionary *dictionary_;		// Dictionary for the classifier.
-  Reader *reader_;				// Reader for reading instances from a file.
-  Writer *writer_;				// Writer for writing instance to a file.
-  Decoder *decoder_;			// Decoder for this classification task.
-  Parameters *parameters_;		// Parameter vector.
+  Options *options_; // Classifier options.
+  Dictionary *dictionary_; // Dictionary for the classifier.
+  Reader *reader_; // Reader for reading instances from a file.
+  Writer *writer_; // Writer for writing instance to a file.
+  Decoder *decoder_; // Decoder for this classification task.
+  Parameters *parameters_; // Parameter vector.
   vector<Instance*> instances_; // Set of instances.
   vector<Instance*> formatted_instances_;
   vector<Instance*> output_instances_;
