@@ -31,6 +31,10 @@ Instance *MorphReader::GetNext() {
     while (!is_.eof()) {
       getline(is_, line);
       if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
+        continue;
+      }
+      //LOG(INFO) << line;
       std::vector<std::string> fields;
       // Also allow to break on spaces for compatibility with CONLL 2002.
       StringSplit(line, " \t", &fields);
