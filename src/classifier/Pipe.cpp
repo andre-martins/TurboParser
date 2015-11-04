@@ -21,6 +21,8 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include <assert.h>
+
 
 Pipe::Pipe(Options* options) {
   options_ = options;
@@ -37,6 +39,8 @@ Pipe::~Pipe() {
   delete writer_;
   delete decoder_;
   delete parameters_;
+  DeleteInstances();
+  list_of_threads_.clear();
 }
 
 void Pipe::Initialize() {
@@ -45,6 +49,7 @@ void Pipe::Initialize() {
   CreateWriter();
   CreateDecoder();
   parameters_ = new Parameters;
+  running_multithreaded_ = false;
 }
 
 void Pipe::SaveModelByName(const string &model_name) {
@@ -153,6 +158,8 @@ void Pipe::Train() {
   }
 
   parameters_->Finalize(options_->GetNumEpochs() * instances_.size());
+
+  DeleteInstances();
 }
 
 void Pipe::CreateInstances() {
@@ -443,15 +450,110 @@ void Pipe::Run() {
   LOG(INFO) << "Number of instances: " << num_instances;
   LOG(INFO) << "Time: " << diff_ms(end,start);
 
+  LOG(INFO) << "Cache size: " << parameters_->caching_weights_.size();
+  LOG(INFO) << "Cache hits: " << parameters_->caching_weights_.hits();
+  LOG(INFO) << "Cache misses: " << parameters_->caching_weights_.misses();
+
   if (options_->evaluate()) EndEvaluation();
+}
+
+//Variant of void Pipe::Run() , that launches threads for processing each instance
+void Pipe::RunWithThreads() {
+
+	timeval start, end;
+	gettimeofday(&start, NULL);
+
+	if (options_->evaluate()) BeginEvaluation();
+
+	reader_->Open(options_->GetTestFilePath());
+	writer_->Open(options_->GetOutputFilePath());
+
+	int num_instances = 0;
+
+	
+	if (instances_.size() != 0){
+		cerr << "Instances vector is not empty at start of Run procedure" << endl;
+		abort();
+	}
+
+	running_multithreaded_ = true;
+
+	Instance *instance = reader_->GetNext();
+	instances_.push_back(instance);
+	while (instance) {
+		//Other instances-related objects 
+		Instance *formatted_instance = GetFormattedInstance(instance);
+		formatted_instances_.push_back(formatted_instance);
+		Instance *output_instance = instance->Copy();
+		output_instances_.push_back(output_instance);
+		//Launch thread
+		list_of_threads_.push_back(std::thread(&Pipe::RunThreaded, this, instance, formatted_instance, output_instance) );
+		
+		//Get next instance
+		instance = reader_->GetNext();
+		instances_.push_back(instance);
+		++num_instances;
+	}
+	//for every thread launched
+	for (int i = 0; i < list_of_threads_.size(); i++) {
+		//wait for that thread
+		list_of_threads_[i].join();
+		//process its output data
+		writer_->Write(output_instances_[i] );
+		//discard memory objects
+		if (formatted_instances_[i] != instances_[i] ){
+			delete formatted_instances_[i];
+		}
+		delete instances_[i];
+		delete output_instances_[i];
+	}
+	// clear std::vectors
+	list_of_threads_.clear();
+	instances_.clear();
+	formatted_instances_.clear();
+	output_instances_.clear();
+	//close channels
+	writer_->Close();
+	reader_->Close();	
+	//Logging
+	gettimeofday(&end, NULL);
+	LOG(INFO) << "Number of instances: " << num_instances;
+	LOG(INFO) << "Time: " << diff_ms(end, start);
+
+	if (options_->evaluate()) EndEvaluation();
+}
+
+void Pipe::RunThreaded(Instance *instance, Instance * formatted_instance, Instance *output_instance) {
+	Parts *parts =   CreateParts();
+	Features *features = CreateFeatures();
+	vector<double> scores;
+	vector<double> gold_outputs;
+	vector<double> predicted_outputs;
+	//Create parts for this instance
+	MakeParts(formatted_instance, parts, &gold_outputs);
+	//Create features for the parts of this instance
+	MakeFeatures(formatted_instance, parts, features);
+	//Compute scores based on the features and parts of this instance
+	ComputeScores(formatted_instance, parts, features, &scores);
+	//Decode, a.k.a., obtain output prediction
+	decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
+	//Obtain labels
+	LabelInstance(parts, predicted_outputs, output_instance);
+	//Compare with gold standard if 'evaluate' was an execution flag
+	if (options_->evaluate()) {
+		EvaluateInstance(instance, output_instance,
+			parts, gold_outputs, predicted_outputs);
+	}
+	delete parts;
+	delete features;
 }
 
 void Pipe::ClassifyInstance(Instance *instance) {
   Parts *parts = CreateParts();
   Features *features = CreateFeatures();
+  std::vector<double> scores;
   std::vector<double> gold_outputs;
   std::vector<double> predicted_outputs;
-  std::vector<double> scores;
 
   Instance *formatted_instance = GetFormattedInstance(instance);
 

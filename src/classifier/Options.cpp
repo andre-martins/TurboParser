@@ -54,6 +54,9 @@ DEFINE_double(train_regularization_constant, 1e12,
 DEFINE_int32(parameters_max_num_buckets, 50000000,
            "Maximum number of buckets in the hash table that stores the parameters.");
 
+DEFINE_bool(use_multithreading, false,
+	"True for multithreading usage.");
+
 void Options::Initialize() {
   file_train_ = FLAGS_file_train;
   file_test_ = FLAGS_file_test;
@@ -73,5 +76,7 @@ void Options::Initialize() {
   train_learning_rate_schedule_ = FLAGS_train_learning_rate_schedule;
   only_supported_features_ = FLAGS_only_supported_features;
   use_averaging_ = FLAGS_use_averaging;
+
+  use_multithreading_ = FLAGS_use_multithreading;
 }
 

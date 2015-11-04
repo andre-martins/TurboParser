@@ -68,7 +68,7 @@ bool ReadString(FILE *fs, std::string *data) {
   char *buffer = new char[length + 1];
   if (length != fread(buffer, sizeof(char), length, fs)) return false;
   buffer[length] = '\0';
-  *data = buffer;
+  (*data).assign(buffer, length);  //*data = buffer;
   delete[] buffer;
   return true;
 }

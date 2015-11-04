@@ -20,6 +20,8 @@
 #define ENTITYDICTIONARY_H_
 
 #include "SequenceDictionary.h"
+#include "TokenDictionary.h"
+#include "EntityReader.h"
 
 class EntityDictionary : public SequenceDictionary {
  public:
@@ -143,4 +145,10 @@ class EntityDictionary : public SequenceDictionary {
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
 };
 
+class EntityTokenDictionary : public TokenDictionary {
+public:
+  EntityTokenDictionary() {};
+  virtual ~EntityTokenDictionary() {};
+  void InitializeFromEntityReader(EntityReader *reader);
+};
 #endif /* ENTITYDICTIONARY_H_ */

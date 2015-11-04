@@ -33,6 +33,9 @@ int main(int argc, char** argv) {
     TestEntityRecognizer();
   }
 
+  // Destroy allocated memory regarding line flags.
+  google::ShutDownCommandLineFlags();
+  google::ShutdownGoogleLogging();
   return 0;
 }
 
@@ -70,7 +73,14 @@ void TestEntityRecognizer() {
   EntityPipe *pipe = new EntityPipe(options);
   pipe->Initialize();
   pipe->LoadModelFile();
-  pipe->Run();
+
+  if (FLAGS_use_multithreading) {
+	  LOG(INFO) << "Using multithreaded version." << endl;
+	  pipe->RunWithThreads();
+  } else {
+	  LOG(INFO) << "Using single-threaded version." << endl;
+	  pipe->Run();
+  }
 
   gettimeofday(&end, NULL);
   time = diff_ms(end,start);

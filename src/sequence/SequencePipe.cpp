@@ -67,11 +67,9 @@ void SequencePipe::LoadModel(FILE* fs) {
 void SequencePipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);
+  static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
   token_dictionary_->InitializeFromSequenceReader(GetSequenceReader());
-  static_cast<SequenceDictionary*>(dictionary_)->
-    CreateTagDictionary(GetSequenceReader());
+  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
 }
 
 void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
