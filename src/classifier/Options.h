@@ -63,34 +63,34 @@ class Options {
 
   // Get option values.
   const string &GetTrainingFilePath() { 
-	  return file_train_; };
+    return file_train_; };
   const string &GetTestFilePath() {
-	  return file_test_; };
+    return file_test_; };
   const string &GetModelFilePath() { 
-	  return file_model_; };
+    return file_model_; };
   const string &GetOutputFilePath() { 
-	  return file_prediction_; };
+    return file_prediction_; };
   int GetNumEpochs() { 
-	  return train_epochs_; };
+    return train_epochs_; };
   double GetRegularizationConstant() { 
-	  return train_regularization_constant_; }
+    return train_regularization_constant_; }
   const string &GetTrainingAlgorithm() {
-	  return train_algorithm_; }
+    return train_algorithm_; }
   double GetInitialLearningRate() { 
-	  return train_initial_learning_rate_; }
+    return train_initial_learning_rate_; }
   const string &GetLearningRateSchedule() {
     return train_learning_rate_schedule_;
   }
   bool use_averaging() { 
-	  return use_averaging_; }
+    return use_averaging_; }
   bool only_supported_features() { 
-	  return only_supported_features_; }
+    return only_supported_features_; }
   bool train() { 
-	  return train_; }
+    return train_; }
   bool test() { 
-	  return test_; }
+    return test_; }
   bool evaluate() { 
-	  return evaluate_; }
+    return evaluate_; }
 
   // Set option values.
   void SetTrainingFilePath(const string &file_train) {

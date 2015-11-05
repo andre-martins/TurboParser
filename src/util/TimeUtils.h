@@ -29,8 +29,8 @@
 //#include <windows.h> //I've ommited this line.
 #ifndef _WINSOCKAPI_
 struct timeval {
-	long    tv_sec;         /* seconds */
-	long    tv_usec;        /* and microseconds */
+  long    tv_sec;         /* seconds */
+  long    tv_usec;        /* and microseconds */
 };
 #endif
 extern int gettimeofday(struct timeval *tv, struct timezone *tz);

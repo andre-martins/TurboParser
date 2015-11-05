@@ -96,8 +96,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     has_upper_[i] = HasUpperCaseLetters(word, word_length);
     has_hyphen_[i] = HasHyphen(word, word_length);
     all_digits_[i] = AllDigits(word, word_length);
-    all_digits_with_punctuation_[i] = AllDigitsWithPunctuation(word,
-                                                               word_length);
+    all_digits_with_punctuation_[i] = AllDigitsWithPunctuation(word, word_length);
     all_upper_[i] = AllUpperCase(word, word_length);
     first_upper_[i] = IsCapitalized(word, word_length);
 

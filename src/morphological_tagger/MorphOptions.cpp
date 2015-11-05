@@ -28,10 +28,10 @@ DEFINE_string(morph_file_format, "conll",
               "the format used in CONLL-X, and ""text"" for tokenized"
               "sentences (one per line, with tokens separated "
               "by white-spaces.");
-DEFINE_bool(tagger_large_feature_set, false,
+DEFINE_bool(morph_tagger_large_feature_set, false,
   "True for using a large feature set. Taggers are usually more "
   "accurate but slower and have a larger memory footprint.");
-DEFINE_bool(tagger_prune_tags, true,
+DEFINE_bool(morph_tagger_prune_tags, true,
   "True for pruning the set of possible tags by using a dictionary.");
 
 // Save current option flags to the model file.
@@ -63,13 +63,13 @@ void MorphOptions::Load(FILE* fs) {
   //  FLAGS_morph_var;
 
   bool success;
-  success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
+  success = ReadBool(fs, &FLAGS_morph_tagger_large_feature_set);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_large_feature_set="
-    << FLAGS_tagger_large_feature_set;
-  success = ReadBool(fs, &FLAGS_tagger_prune_tags);
+    << FLAGS_morph_tagger_large_feature_set;
+  success = ReadBool(fs, &FLAGS_morph_tagger_prune_tags);
   CHECK(success);
-  LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_tagger_prune_tags;
+  LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_morph_tagger_prune_tags;
 
   Initialize();
 }
@@ -78,8 +78,8 @@ void MorphOptions::Initialize() {
   SequenceOptions::Initialize();
 
   file_format_ = FLAGS_morph_file_format;
-  large_feature_set_ = FLAGS_tagger_large_feature_set;
-  prune_tags_ = FLAGS_tagger_prune_tags;
+  large_feature_set_ = FLAGS_morph_tagger_large_feature_set;
+  prune_tags_ = FLAGS_morph_tagger_prune_tags;
 
 }
 

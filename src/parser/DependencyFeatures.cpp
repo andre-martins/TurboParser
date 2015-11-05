@@ -781,9 +781,9 @@ void DependencyFeatures::AddHeadBigramFeatures(
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
 
-	int sentence_length = sentence->size();
-	int left_position, right_position;
-	int span_length;
+  int sentence_length = sentence->size();
+  int left_position, right_position;
+  int span_length;
 
   uint8_t crossing_arcs = 0x0; // 0x1 is arcs are crossing, 0x0 otherwise.
   uint8_t direction_code; // 0x1 if right attachment, 0x0 otherwise.

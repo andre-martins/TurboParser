@@ -75,11 +75,11 @@ void TestEntityRecognizer() {
   pipe->LoadModelFile();
 
   if (FLAGS_use_multithreading) {
-	  LOG(INFO) << "Using multithreaded version." << endl;
-	  pipe->RunWithThreads();
+    LOG(INFO) << "Using multithreaded version." << endl;
+    pipe->RunWithThreads();
   } else {
-	  LOG(INFO) << "Using single-threaded version." << endl;
-	  pipe->Run();
+    LOG(INFO) << "Using single-threaded version." << endl;
+    pipe->Run();
   }
 
   gettimeofday(&end, NULL);
