@@ -55,7 +55,7 @@ DEFINE_int32(parameters_max_num_buckets, 50000000,
            "Maximum number of buckets in the hash table that stores the parameters.");
 
 DEFINE_bool(use_multithreading, false,
-	"True for multithreading usage.");
+  "True for multithreading usage.");
 
 void Options::Initialize() {
   file_train_ = FLAGS_file_train;

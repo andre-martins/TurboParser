@@ -29,37 +29,37 @@
 
 class MorphPipe : public SequencePipe {
 public:
-	MorphPipe(Options* options) : SequencePipe(options) {}
-	virtual ~MorphPipe() {}
+  MorphPipe(Options* options) : SequencePipe(options) {}
+  virtual ~MorphPipe() {}
 
-	MorphReader *GetMorphReader() {
-	  return static_cast<MorphReader*>(reader_);
-	};
-	MorphDictionary *GetMorphDictionary() {
-		return static_cast<MorphDictionary*>(dictionary_);
-	};
-	MorphOptions *GetMorphOptions() {
-		return static_cast<MorphOptions*>(options_);
-	};
+  MorphReader *GetMorphReader() {
+    return static_cast<MorphReader*>(reader_);
+  };
+  MorphDictionary *GetMorphDictionary() {
+    return static_cast<MorphDictionary*>(dictionary_);
+  };
+  MorphOptions *GetMorphOptions() {
+    return static_cast<MorphOptions*>(options_);
+  };
 
  protected:
-	void CreateDictionary() {
-	  dictionary_ = new MorphDictionary(this);
-	  GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
-	}
+  void CreateDictionary() {
+    dictionary_ = new MorphDictionary(this);
+    GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
+  }
 
   void CreateReader() { reader_ = new MorphReader(options_); }
   //void CreateWriter() { writer_ = new MorphWriter; }
-	Features *CreateFeatures() { return new MorphFeatures(this); };
+  Features *CreateFeatures() { return new MorphFeatures(this); };
 
-	void PreprocessData();
+  void PreprocessData();
 
-	Instance *GetFormattedInstance(Instance *instance) {
-		MorphInstanceNumeric *instance_numeric = new MorphInstanceNumeric;
-		instance_numeric->Initialize(*GetMorphDictionary(), static_cast<MorphInstance*>(instance));
-		return instance_numeric;
-	}
-	
+  Instance *GetFormattedInstance(Instance *instance) {
+    MorphInstanceNumeric *instance_numeric = new MorphInstanceNumeric;
+    instance_numeric->Initialize(*GetMorphDictionary(), static_cast<MorphInstance*>(instance));
+    return instance_numeric;
+  }
+  
 protected:
   //void SaveModel(FILE* fs);
   //void LoadModel(FILE* fs);

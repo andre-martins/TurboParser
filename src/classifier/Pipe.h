@@ -31,8 +31,8 @@
 
 
 #include <thread>         // std::thread
-#include <list>			  // std::list
-#include <mutex>		  // std::mutex
+#include <list>        // std::list
+#include <mutex>      // std::mutex
 
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
@@ -96,15 +96,15 @@ class Pipe {
     }
     instances_.clear();
 
-	for (int i = 0; i < formatted_instances_.size(); ++i) {
-		delete formatted_instances_[i];
-	}
-	formatted_instances_.clear();
+  for (int i = 0; i < formatted_instances_.size(); ++i) {
+    delete formatted_instances_[i];
+  }
+  formatted_instances_.clear();
 
-	for (int i = 0; i < output_instances_.size(); ++i) {
-		delete output_instances_[i];
-	}
-	output_instances_.clear();
+  for (int i = 0; i < output_instances_.size(); ++i) {
+    delete output_instances_[i];
+  }
+  output_instances_.clear();
   }
 
   void AddInstance(Instance *instance) {
@@ -258,13 +258,13 @@ class Pipe {
                                 const vector<double> &predicted_outputs) {
     for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-		if (running_multithreaded_) evaluation_lock_.lock();
+    if (running_multithreaded_) evaluation_lock_.lock();
         ++num_mistakes_;
-		if (running_multithreaded_) evaluation_lock_.unlock();
+    if (running_multithreaded_) evaluation_lock_.unlock();
       }
-	  if (running_multithreaded_) evaluation_lock_.lock();
+    if (running_multithreaded_) evaluation_lock_.lock();
       ++num_total_parts_;
-	  if (running_multithreaded_) evaluation_lock_.unlock();
+    if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {

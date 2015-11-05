@@ -30,7 +30,7 @@ class SequenceDictionary : public Dictionary {
   SequenceDictionary() {}
   SequenceDictionary(Pipe* pipe) : pipe_(pipe) {}
   virtual ~SequenceDictionary() { 
-	  Clear(); 
+    Clear(); 
   }
 
   virtual void Clear() {
@@ -48,9 +48,9 @@ class SequenceDictionary : public Dictionary {
   }
 
   void AllowGrowth() { 
-	  token_dictionary_->AllowGrowth(); }
+    token_dictionary_->AllowGrowth(); }
   void StopGrowth() { 
-	  token_dictionary_->StopGrowth(); }
+    token_dictionary_->StopGrowth(); }
 
   virtual void CreateTagDictionary(SequenceReader *reader);
 
@@ -65,12 +65,12 @@ class SequenceDictionary : public Dictionary {
   // By default, all bigrams are allowed. Override this function to
   // prevent some bigrams to be feasible (e.g. for BIO tagging).
   virtual bool IsAllowedBigram(int left_tag, 
-							   int tag) {
+                 int tag) {
     return true;
   }
 
   int GetBigramLabel(int left_tag, 
-					 int tag) {
+           int tag) {
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
     //return (left_tag * tag_alphabet_.size() +  tag);
@@ -78,8 +78,8 @@ class SequenceDictionary : public Dictionary {
   }
 
   int GetTrigramLabel(int left_left_tag, 
-					  int left_tag, 
-					  int tag) {
+            int left_tag, 
+            int tag) {
     CHECK_GE(left_left_tag, -1);
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
@@ -91,8 +91,8 @@ class SequenceDictionary : public Dictionary {
   }
 
   void GetBigramTags(int bigram_label, 
-					 int *left_tag, 
-					 int *tag) {
+           int *left_tag, 
+           int *tag) {
     *tag = (bigram_label % (1 + tag_alphabet_.size())) - 1;
     *left_tag = (bigram_label / (1 + tag_alphabet_.size())) - 1;
     CHECK_EQ(bigram_label, GetBigramLabel(*left_tag, *tag));
@@ -100,8 +100,8 @@ class SequenceDictionary : public Dictionary {
 
   // TODO(atm): need to test this.
   void GetTrigramTags(int trigram_label, 
-				      int *left_left_tag,
-					  int *left_tag,
+              int *left_left_tag,
+            int *left_tag,
                       int *tag) {
     *tag = (trigram_label % (1 + tag_alphabet_.size())) - 1;
     int bigram_label = (trigram_label / (1 + tag_alphabet_.size()));
@@ -111,14 +111,14 @@ class SequenceDictionary : public Dictionary {
   }
 
   TokenDictionary *GetTokenDictionary() const { 
-	return token_dictionary_; 
+  return token_dictionary_; 
   }
   void SetTokenDictionary(TokenDictionary *token_dictionary) {
     token_dictionary_ = token_dictionary;
   }
 
   const Alphabet &GetTagAlphabet() const { 
-	return tag_alphabet_; 
+  return tag_alphabet_; 
   };
 
  protected:

@@ -38,12 +38,12 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
       for (int s = m+1; s <= index_siblings_.size(); ++s) {
         //CHECK_GE(index_siblings_[m][s], 0);
         int index = index_siblings_[m][s];
-	if (index >= 0) {
-	  stream << " " << setprecision(9) << additional_log_potentials_[index];
-	  ++total;
-	} else {
-	  stream << " " << setprecision(9) << 0.0;
-	}	  
+  if (index >= 0) {
+    stream << " " << setprecision(9) << additional_log_potentials_[index];
+    ++total;
+  } else {
+    stream << " " << setprecision(9) << 0.0;
+  }    
       }
     }
     for (int m = 0; m < index_siblings_.size(); ++m) {
@@ -51,12 +51,12 @@ class FactorTrigramHeadAutomaton : public GenericFactor {
         for (int t = s+1; t <= index_siblings_.size(); ++t) {
           //CHECK_GE(index_trisiblings_[m][s][t], 0);
           int index = index_trisiblings_[m][s][t];
-	  if (index >= 0) {
-	    stream << " " << setprecision(9) << additional_log_potentials_[index];
-	    ++total;
-	  } else {
-	    stream << " " << setprecision(9) << 0.0;
-	  }	  
+    if (index >= 0) {
+      stream << " " << setprecision(9) << additional_log_potentials_[index];
+      ++total;
+    } else {
+      stream << " " << setprecision(9) << 0.0;
+    }    
         }
       }
     }
