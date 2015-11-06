@@ -37,6 +37,18 @@ scripts_srl/train_test_semantic_parser.sh \
 scripts_srl/train_test_submission_SDP2015.sh \
 scripts_srl/train_test_submission_closed.sh \
 scripts_srl/train_test_submission_open.sh \
+coreference_resolver/scripts/train_test_coreference_resolver.sh \
+coreference_resolver/scripts/head_finder/english_head_finder.py \
+coreference_resolver/scripts/head_finder/mod_collins_head_finder.py \
+coreference_resolver/scripts/head_finder/parse_tree.py \
+coreference_resolver/scripts/head_finder/span.py \
+constituency_parser/scripts/train_test_constituency_parser.sh \
+constituency_parser/scripts/train_test_parser.sh \
+constituency_parser/scripts/train_test_dependency_labeler.sh \
+constituency_parser/scripts/train_test_constituency_labeler.sh \
+constituency_parser/scripts/converter.jar \
+constituency_parser/scripts/delta_encode_labeling_indices.py \
+constituency_parser/scripts/escape_parenthesis.py \
 data/sample/sample_train.conll \
 data/sample/sample_test.conll \
 semeval2014_data/README \
@@ -65,6 +77,7 @@ libturboparser/TurboParserInterface.h \
 python/install_wrapper.sh \
 python/lemmatizer.py \
 python/nlp_pipeline.py \
+python/nlp_pipeline.config \
 python/README \
 python/setup.py \
 python/turbo_parser.pyx \

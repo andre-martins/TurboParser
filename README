@@ -9,7 +9,7 @@ This file is part of TurboParser, a project started at the computational
 linguistics research group, ARK (http://www.ark.cs.cmu.edu/), in Carnegie Mellon 
 University.
 
-This package contains a C++ implementation of the dependency parsers described 
+This package contains a C++ implementation of the dependency parsers described
 in:
 
 [1] André F. T. Martins, Noah A. Smith, and Eric P. Xing. 2009.
@@ -20,12 +20,12 @@ In Annual Meeting of the Association for Computational Linguistics (ACL).
 Polyhedral Outer Approximations with Application to Natural Language Parsing.
 In International Conference on Machine Learning (ICML).
 
-[3] André F. T. Martins, Noah A. Smith, Eric P. Xing, Pedro M. Q. Aguiar, and 
+[3] André F. T. Martins, Noah A. Smith, Eric P. Xing, Pedro M. Q. Aguiar, and
 Mário A. T. Figueiredo. 2010.
 TurboParsers: Dependency Parsing by Approximate Variational Inference.
 In Empirical Methods in Natural Language Processing (EMNLP).
 
-[4] André F. T. Martins, Noah A. Smith, Mário A. T. Figueiredo, 
+[4] André F. T. Martins, Noah A. Smith, Mário A. T. Figueiredo,
 Pedro M. Q. Aguiar. 2011.
 Dual Decomposition With Many Overlapping Components.
 In Empirical Methods in Natural Language Processing (EMNLP).
@@ -37,7 +37,11 @@ In Annual Meeting of the Association for Computational Linguistics (ACL).
 [6] André F. T. Martins and Mariana S. C. Almeida. 2014.
 Priberam: A Turbo Semantic Parser with Second Order Features.
 In International Workshop on Semantic Evaluation (SemEval), task 8:
-Broad-Coverage Semantic Dependency Parsing. 
+Broad-Coverage Semantic Dependency Parsing.
+
+[7] Daniel F.-González and André F. T. Martins. 2015.
+Parsing As Reduction.
+In Annual Meeting of the Association for Computational Linguistics (ACL).
 
 This package allows:
 - learning the parser from a treebank,
@@ -47,22 +51,31 @@ This package allows:
 This software has the following external dependencies: AD3, a library for
 approximate MAP inference (http://www.ark.cs.cmu.edu/AD3/); Eigen, a template
 library for linear algebra; glog, a library for logging; gflags, a library
-for commandline flag processing. All these libraries are free software and are 
+for commandline flag processing. All these libraries are free software and are
 provided as tarballs in this package.
 
 This package has been tested in several Linux platforms. It has also
-successfully compiled in Mac OS X and MS Windows (using MSVC). 
+successfully compiled in Mac OS X and MS Windows (using MSVC).
 
 Since version 2.2.x, the following is also provided:
 - a Python wrapper for the tagger and parser (requires Cython 0.19);
 - a semantic role labeler (TurboSemanticParser) implementing ref. [6] above.
 
+Since version 2.3.x, we also provide:
+- a named entity recognizer (TurboEntityRecognizer).
+- a coreference resolver (TurboCoreferenceResolver).
+- a constituent parser based on dependency-to-constituent reduction,
+implementing ref. [7] below.
+- a dependency labeler, TurboDependencyLabeler, that can optionally be applied
+after the dependency parser.
+- compatibility with MS Windows (using MSVC) and with C++0x.
+
 If there are any problems running the parser please email: afm [at] cs.cmu.edu
 I will only respond to questions not answered in this README.
 
-We would like to thank Ryan McDonald and Jason Baldridge by MSTParser 
-(available at http://sourceforge.net/projects/mstparser), in which the code in 
-this package was partly based. 
+We would like to thank Ryan McDonald and Jason Baldridge by MSTParser
+(available at http://sourceforge.net/projects/mstparser), in which the code in
+this package was partly based.
 
 ================================================================================
 

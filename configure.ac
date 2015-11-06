@@ -19,6 +19,9 @@ CPPFLAGS="-I${AUX_INCLUDES} -I${INCLUDES}/ad3"
 AC_SUBST(LFLAGS)
 AC_SUBST(CPPFLAGS)
 
+# Check for c++0x compile flag.
+AX_CHECK_COMPILE_FLAG([-std=c++0x], [CXXFLAGS="$CXXFLAGS -std=c++0x"])
+
 # Macros
 # This will make ILOG use STL libs
 #AC_DEFINE([IL_STD], [], [This is necessary to make ILOG use STL libs])
