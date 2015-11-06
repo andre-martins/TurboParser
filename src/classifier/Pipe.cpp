@@ -156,8 +156,6 @@ void Pipe::Train() {
   }
 
   parameters_->Finalize(options_->GetNumEpochs() * instances_.size());
-
-  DeleteInstances();
 }
 
 void Pipe::CreateInstances() {
@@ -231,8 +229,8 @@ void Pipe::TrainEpoch(int epoch) {
 
   if (epoch==0) {
     LOG(INFO)<<"Lambda: "<<lambda<<"\t"
-      <<"Regularization Constant: "<<options_->GetRegularizationConstant()<<"\t"
-      <<"Num instances: "<<num_instances<<endl;
+      <<"Regularization constant: "<<options_->GetRegularizationConstant()<<"\t"
+      <<"Number of instances: "<<num_instances<<endl;
   }
   LOG(INFO)<<" Iteration #"<<epoch+1;
 
@@ -399,7 +397,7 @@ void Pipe::TrainEpoch(int epoch) {
     <<"Total Loss: "<<total_loss<<"\t"
     <<"Total Reg: "<<regularization_value<<"\t"
     <<"Total Loss+Reg: "<<total_loss+regularization_value<<"\t"
-    <<"Square norm: "<<parameters_->GetSquaredNorm()<<endl;
+    <<"Squared norm: "<<parameters_->GetSquaredNorm()<<endl;
 }
 
 void Pipe::Run() {
@@ -455,14 +453,15 @@ void Pipe::Run() {
   LOG(INFO)<<"Number of instances: "<<num_instances;
   LOG(INFO)<<"Time: "<<diff_ms(end, start);
 
-  LOG(INFO)<<"Cache size: "<<parameters_->caching_weights_.size();
-  LOG(INFO)<<"Cache hits: "<<parameters_->caching_weights_.hits();
-  LOG(INFO)<<"Cache misses: "<<parameters_->caching_weights_.misses();
+  LOG(INFO)<<"Cache size: "<<parameters_->caching_weights_.size()<<"\t"
+    <<"Cache hits: "<<parameters_->caching_weights_.hits()<<"\t"
+    <<"Cache misses: "<<parameters_->caching_weights_.misses()<<endl;
 
   if (options_->evaluate()) EndEvaluation();
 }
 
-//Variant of void Pipe::Run() , that launches threads for processing each instance
+// Variant of void Pipe::Run(), that launches threads 
+// for processing each instance.
 void Pipe::RunWithThreads() {
 
   timeval start, end;
@@ -474,23 +473,15 @@ void Pipe::RunWithThreads() {
   writer_->Open(options_->GetOutputFilePath());
 
   int num_instances = 0;
-
-
-  if (instances_.size()!=0) {
-    cerr<<"Instances vector is not empty at start of Run procedure"<<endl;
-    abort();
-  }
+  // Instances vector is not empty at start of Run procedure.
+  CHECK_EQ(instances_.size(), 0);
 
   Instance *instance = reader_->GetNext();
   instances_.push_back(instance);
   while (instance) {
-    //Other instances-related objects 
-    Instance *formatted_instance = GetFormattedInstance(instance);
-    formatted_instances_.push_back(formatted_instance);
-    Instance *output_instance = instance->Copy();
-    output_instances_.push_back(output_instance);
     //Launch thread
-    threads_.push_back(std::thread(&Pipe::RunThreaded, this, instance, formatted_instance, output_instance));
+    threads_.push_back(std::thread(&Pipe::ClassifyInstance,
+                                   this, instance));
 
     //Get next instance
     instance = reader_->GetNext();
@@ -502,19 +493,13 @@ void Pipe::RunWithThreads() {
     //wait for that thread
     threads_[i].join();
     //process its output data
-    writer_->Write(output_instances_[i]);
+    writer_->Write(instances_[i]);
     //discard memory objects
-    if (formatted_instances_[i]!=instances_[i]) {
-      delete formatted_instances_[i];
-    }
     delete instances_[i];
-    delete output_instances_[i];
   }
   // clear std::vectors
   threads_.clear();
   instances_.clear();
-  formatted_instances_.clear();
-  output_instances_.clear();
   //close channels
   writer_->Close();
   reader_->Close();
@@ -526,31 +511,6 @@ void Pipe::RunWithThreads() {
   if (options_->evaluate()) EndEvaluation();
 }
 
-void Pipe::RunThreaded(Instance *instance, Instance * formatted_instance, Instance *output_instance) {
-  Parts *parts = CreateParts();
-  Features *features = CreateFeatures();
-  vector<double> scores;
-  vector<double> gold_outputs;
-  vector<double> predicted_outputs;
-  //Create parts for this instance
-  MakeParts(formatted_instance, parts, &gold_outputs);
-  //Create features for the parts of this instance
-  MakeFeatures(formatted_instance, parts, features);
-  //Compute scores based on the features and parts of this instance
-  ComputeScores(formatted_instance, parts, features, &scores);
-  //Decode, a.k.a., obtain output prediction
-  decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
-  //Obtain labels
-  LabelInstance(parts, predicted_outputs, output_instance);
-  //Compare with gold standard if 'evaluate' was an execution flag
-  if (options_->evaluate()) {
-    EvaluateInstance(instance, output_instance,
-                     parts, gold_outputs, predicted_outputs);
-  }
-  delete parts;
-  delete features;
-}
-
 void Pipe::ClassifyInstance(Instance *instance) {
   Parts *parts = CreateParts();
   Features *features = CreateFeatures();
@@ -560,12 +520,24 @@ void Pipe::ClassifyInstance(Instance *instance) {
 
   Instance *formatted_instance = GetFormattedInstance(instance);
 
+  //Create parts for this instance
   MakeParts(formatted_instance, parts, &gold_outputs);
+  //Create features for the parts of this instance
   MakeFeatures(formatted_instance, parts, features);
+  //Compute scores based on the features and parts of this instance
   ComputeScores(formatted_instance, parts, features, &scores);
+  //Decode, a.k.a., obtain output prediction
   decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
-
+  //Obtain labels
   LabelInstance(parts, predicted_outputs, instance);
+  //Compare with gold standard if 'evaluate' was an execution flag
+  if (options_->evaluate()) {
+    EvaluateInstance(instance,
+                     ((Instance*)NULL),
+                     parts,
+                     gold_outputs,
+                     predicted_outputs);
+  }
 
   if (formatted_instance!=instance) delete formatted_instance;
 

@@ -68,8 +68,6 @@ public:
 
   // Run methods for multi-threaded version.
   void RunWithThreads();
-  void RunThreaded(Instance * instance, Instance * formatted_instance, Instance *output_instance);
-
 
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
@@ -95,16 +93,6 @@ protected:
       delete instances_[i];
     }
     instances_.clear();
-
-    for (int i = 0; i<formatted_instances_.size(); ++i) {
-      delete formatted_instances_[i];
-    }
-    formatted_instances_.clear();
-
-    for (int i = 0; i<output_instances_.size(); ++i) {
-      delete output_instances_[i];
-    }
-    output_instances_.clear();
   }
 
   void AddInstance(Instance *instance) {
@@ -281,8 +269,6 @@ protected:
   Decoder *decoder_; // Decoder for this classification task.
   Parameters *parameters_; // Parameter vector.
   vector<Instance*> instances_; // Set of instances.
-  vector<Instance*> formatted_instances_;
-  vector<Instance*> output_instances_;
 
 
   // Number of mistakes and number of total parts at test time (used for
