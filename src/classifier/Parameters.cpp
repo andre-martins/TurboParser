@@ -29,6 +29,6 @@ void Parameters::Load(FILE *fs) {
   weights_.Load(fs);
   labeled_weights_.Load(fs);
 
-  LOG(INFO) << "Squared norm of the weight vector = " << GetSquaredNorm();
-  LOG(INFO) << "Number of features = " << Size();
+  LOG(INFO)<<"Squared norm of the weight vector = "<<GetSquaredNorm();
+  LOG(INFO)<<"Number of features = "<<Size();
 }

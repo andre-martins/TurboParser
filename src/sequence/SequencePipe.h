@@ -31,7 +31,7 @@
 #include "SequenceDecoder.h"
 
 class SequencePipe : public Pipe {
- public:
+public:
   SequencePipe(Options* options) : Pipe(options) { token_dictionary_ = NULL; }
   virtual ~SequencePipe() { delete token_dictionary_; }
 
@@ -45,7 +45,7 @@ class SequencePipe : public Pipe {
     return static_cast<SequenceOptions*>(options_);
   };
 
- protected:
+protected:
   virtual void CreateDictionary() {
     dictionary_ = new SequenceDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -64,13 +64,13 @@ class SequencePipe : public Pipe {
 
   virtual Instance *GetFormattedInstance(Instance *instance) {
     SequenceInstanceNumeric *instance_numeric =
-          new SequenceInstanceNumeric;
+      new SequenceInstanceNumeric;
     instance_numeric->Initialize(*GetSequenceDictionary(),
                                  static_cast<SequenceInstance*>(instance));
     return instance_numeric;
   }
 
- protected:
+protected:
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 
@@ -89,10 +89,10 @@ class SequencePipe : public Pipe {
   void MakeBigramParts(Instance *instance, Parts *parts,
                        vector<double> *gold_outputs);
   void MakeTrigramParts(Instance *instance, Parts *parts,
-                       vector<double> *gold_outputs);
+                        vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features);
+                            const vector<bool> &selected_parts, Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
                      vector<double> *scores);
@@ -126,37 +126,38 @@ class SequencePipe : public Pipe {
     SequenceInstance *sequence_instance =
       static_cast<SequenceInstance*>(instance);
     SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-    for (int i = 0; i < sequence_instance->size(); ++i) {
+    for (int i = 0; i<sequence_instance->size(); ++i) {
       const vector<int>& unigrams = sequence_parts->FindUnigramParts(i);
-      for (int k = 0; k < unigrams.size(); ++k) {
+      for (int k = 0; k<unigrams.size(); ++k) {
         int r = unigrams[k];
         if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-      if (running_multithreaded_) evaluation_lock_.lock();
-      ++num_tag_mistakes_;
-      if (running_multithreaded_) evaluation_lock_.unlock();
+          if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
+          ++num_tag_mistakes_;
+          if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
           break;
         }
       }
-    if (running_multithreaded_) evaluation_lock_.lock();
+      if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
       ++num_tokens_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+      if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO) << "Correct predictions: " <<(num_tokens_ - num_tag_mistakes_) << " out of " << static_cast<double>(num_tokens_);
-    LOG(INFO) << "Tagging accuracy: " <<
-      static_cast<double>(num_tokens_ - num_tag_mistakes_) /
-        static_cast<double>(num_tokens_);
+    LOG(INFO)<<"Correct predictions: "<<(num_tokens_-num_tag_mistakes_)
+      <<" out of "<<static_cast<double>(num_tokens_);
+    LOG(INFO)<<"Tagging accuracy: "<<
+      static_cast<double>(num_tokens_-num_tag_mistakes_)/
+      static_cast<double>(num_tokens_);
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
-    double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
-    LOG(INFO) << "Tagging speed: "
-              << tokens_per_second << " tokens per second.";
+      static_cast<double>(diff_ms(end_clock, start_clock_))/1000.0;
+    double tokens_per_second = static_cast<double>(num_tokens_)/num_seconds;
+    LOG(INFO)<<"Tagging speed: "
+      <<tokens_per_second<<" tokens per second.";
   }
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   int num_tag_mistakes_;
   int num_tokens_;

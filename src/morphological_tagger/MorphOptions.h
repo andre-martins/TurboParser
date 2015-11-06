@@ -36,7 +36,7 @@ public:
   // Get option flags.
   bool prune_tags() { return prune_tags_; }
   bool large_feature_set() { return large_feature_set_; }
-  
+
 protected:
   bool prune_tags_;
   string file_format_;

@@ -22,27 +22,27 @@
 #include "SequenceFeatures.h"
 #include "FeatureEncoder.h"
 
-class EntityFeatures: public SequenceFeatures {
- public:
+class EntityFeatures : public SequenceFeatures {
+public:
   EntityFeatures(Pipe* pipe) : SequenceFeatures(pipe) {}
   virtual ~EntityFeatures() {};
 
- public:
+public:
   void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
                           int position);
 
   void AddBigramFeatures(SequenceInstanceNumeric *sentence,
-                          int position);
+                         int position);
 
   void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
                           int position);
 
- protected:
+protected:
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 

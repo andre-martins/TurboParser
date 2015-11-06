@@ -24,7 +24,6 @@
 #ifdef _WIN32
 #include <stdint.h>
 #endif
-#include <string>
 #include <unordered_map>
 #include <functional>
 
@@ -38,11 +37,11 @@ class Pipe;
 // Abstract class for the feature handler. Task-specific handlers should derive
 // from this class and implement the pure virtual methods.
 class Features {
- public:
+public:
   Features() {};
   virtual ~Features() {};
 
- public:
+public:
   // Set a pointer to the pipe that owns this feature handler.
   void SetPipe(Pipe *pipe) { pipe_ = pipe; };
 
@@ -51,7 +50,7 @@ class Features {
   // Get the binary features corresponding to the r-th part (mutable).
   virtual BinaryFeatures *GetMutablePartFeatures(int r) const = 0;
 
- protected:
+protected:
   Pipe *pipe_; // The pipe that owns this feature handler.
 };
 
@@ -66,7 +65,7 @@ struct FeatureLabelPair {
 struct FeatureLabelPairMapper {
   template <typename TSeed>
   inline void HashCombine(TSeed value, TSeed *seed) const {
-    *seed ^= value + 0x9e3779b9 + (*seed << 6) + (*seed >> 2);
+    *seed ^= value+0x9e3779b9+(*seed<<6)+(*seed>>2);
   }
   //Hash function
   inline size_t operator()(const FeatureLabelPair& p) const {
@@ -78,7 +77,7 @@ struct FeatureLabelPairMapper {
   }
   //Comparison function
   inline bool operator()(const FeatureLabelPair &p, const FeatureLabelPair &q) const {
-    return p.feature == q.feature && p.label == q.label;
+    return p.feature==q.feature && p.label==q.label;
   }
 };
 
@@ -86,7 +85,7 @@ struct FeatureLabelPairMapper {
 typedef std::unordered_map<FeatureLabelPair, double, FeatureLabelPairMapper, FeatureLabelPairMapper > FeatureLabelPairHashMap;
 
 //class  FeatureLabelCache: Hash-table for caching FeatureLabelPair keys with corresponding values
-class FeatureLabelCache{
+class FeatureLabelCache {
 
 public:
   FeatureLabelCache() {
@@ -94,13 +93,13 @@ public:
     misses_ = 0;
   };
   virtual ~FeatureLabelCache() {};
-  
+
   int hits() const { return hits_; };
   int misses() const { return misses_; };
   int size() const { return cache_.size(); };
 
   void increment_hits() { hits_ += 1; };
-  void increment_misses() { misses_+= 1; };
+  void increment_misses() { misses_ += 1; };
 
   //Insert a new pair {key, value} in the hash-table
   void insert(FeatureLabelPair key, double value) {
@@ -113,14 +112,14 @@ public:
   bool find(FeatureLabelPair key, double * value) {
     FeatureLabelPairHashMap::const_iterator caching_iterator;
     caching_iterator = cache_.find(key);
-    if (caching_iterator != cache_.end()) {
+    if (caching_iterator!=cache_.end()) {
       *value = caching_iterator->second;
       return true;
     };
     return false;
   };
 
- protected:
+protected:
   FeatureLabelPairHashMap cache_;
   uint64_t hits_;
   uint64_t misses_;

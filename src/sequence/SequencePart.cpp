@@ -19,14 +19,14 @@
 #include "SequencePart.h"
 
 void SequenceParts::DeleteAll() {
-  for (int i = 0; i < NUM_SEQUENCEPARTS; ++i) {
+  for (int i = 0; i<NUM_SEQUENCEPARTS; ++i) {
     offsets_[i] = -1;
   }
 
   DeleteIndices();
 
-  for (iterator iter = begin(); iter != end(); iter++) {
-    if  ((*iter) != NULL) {
+  for (iterator iter = begin(); iter!=end(); iter++) {
+    if ((*iter)!=NULL) {
       delete (*iter);
       *iter = NULL;
     }
@@ -36,21 +36,21 @@ void SequenceParts::DeleteAll() {
 }
 
 void SequenceParts::DeleteUnigramIndices() {
-  for (int i = 0; i < index_.size(); ++i) {
+  for (int i = 0; i<index_.size(); ++i) {
     index_[i].clear();
   }
   index_.clear();
 }
 
 void SequenceParts::DeleteBigramIndices() {
-  for (int i = 0; i < index_bigrams_.size(); ++i) {
+  for (int i = 0; i<index_bigrams_.size(); ++i) {
     index_bigrams_[i].clear();
   }
   index_bigrams_.clear();
 }
 
 void SequenceParts::DeleteTrigramIndices() {
-  for (int i = 0; i < index_trigrams_.size(); ++i) {
+  for (int i = 0; i<index_trigrams_.size(); ++i) {
     index_trigrams_[i].clear();
   }
   index_trigrams_.clear();
@@ -68,39 +68,39 @@ void SequenceParts::BuildUnigramIndices(int sentence_length) {
 
   int offset, num_unigram_parts;
   GetOffsetUnigram(&offset, &num_unigram_parts);
-  for (int r = 0; r < num_unigram_parts; ++r) {
-    Part *part = (*this)[offset + r];
-    CHECK(part->type() == SEQUENCEPART_UNIGRAM);
+  for (int r = 0; r<num_unigram_parts; ++r) {
+    Part *part = (*this)[offset+r];
+    CHECK(part->type()==SEQUENCEPART_UNIGRAM);
     int i = static_cast<SequencePartUnigram*>(part)->position();
-    index_[i].push_back(offset + r);
+    index_[i].push_back(offset+r);
   }
 }
 
 void SequenceParts::BuildBigramIndices(int sentence_length) {
   DeleteBigramIndices();
-  index_bigrams_.resize(sentence_length + 1);
+  index_bigrams_.resize(sentence_length+1);
 
   int offset, num_bigram_parts;
   GetOffsetBigram(&offset, &num_bigram_parts);
-  for (int r = 0; r < num_bigram_parts; ++r) {
-    Part *part = (*this)[offset + r];
-    CHECK(part->type() == SEQUENCEPART_BIGRAM);
+  for (int r = 0; r<num_bigram_parts; ++r) {
+    Part *part = (*this)[offset+r];
+    CHECK(part->type()==SEQUENCEPART_BIGRAM);
     int i = static_cast<SequencePartBigram*>(part)->position();
-    index_bigrams_[i].push_back(offset + r);
+    index_bigrams_[i].push_back(offset+r);
   }
 }
 
 void SequenceParts::BuildTrigramIndices(int sentence_length) {
   DeleteTrigramIndices();
-  index_trigrams_.resize(sentence_length + 1);
+  index_trigrams_.resize(sentence_length+1);
 
   int offset, num_trigram_parts;
   GetOffsetTrigram(&offset, &num_trigram_parts);
-  for (int r = 0; r < num_trigram_parts; ++r) {
-    Part *part = (*this)[offset + r];
-    CHECK(part->type() == SEQUENCEPART_TRIGRAM);
+  for (int r = 0; r<num_trigram_parts; ++r) {
+    Part *part = (*this)[offset+r];
+    CHECK(part->type()==SEQUENCEPART_TRIGRAM);
     int i = static_cast<SequencePartTrigram*>(part)->position();
-    index_trigrams_[i].push_back(offset + r);
+    index_trigrams_[i].push_back(offset+r);
   }
 }
 

@@ -38,7 +38,7 @@ void EntityInstance::ConvertToTaggingScheme(int tagging_scheme) {
 void EntityInstance::SplitEntityTag(const std::string &tag,
                                     std::string *prefix,
                                     std::string *entity) const {
-  if (tag.length() == 1) {
+  if (tag.length()==1) {
     *prefix = tag;
     *entity = "";
   } else {
@@ -49,25 +49,25 @@ void EntityInstance::SplitEntityTag(const std::string &tag,
 }
 
 void EntityInstance::CreateSpansFromTags(
-    const std::vector<std::string> &tags,
-    std::vector<EntitySpan*> *spans) const {
+  const std::vector<std::string> &tags,
+  std::vector<EntitySpan*> *spans) const {
   spans->clear();
   EntitySpan *span = NULL;
-  for(int i = 0; i < tags.size(); ++i) {
+  for (int i = 0; i<tags.size(); ++i) {
     std::string prefix, entity;
     SplitEntityTag(tags[i], &prefix, &entity);
-    if (prefix == "B" || prefix == "U") {
+    if (prefix=="B"||prefix=="U") {
       if (span) spans->push_back(span);
       span = new EntitySpan(i, i, entity);
-    } else if (prefix == "I" || prefix == "L") {
-      if (span && span->name() == entity) {
+    } else if (prefix=="I"||prefix=="L") {
+      if (span && span->name()==entity) {
         span->set_end(i);
       } else {
         // This I is actually a B (maybe the file has IO encoding).
         if (span) spans->push_back(span);
         span = new EntitySpan(i, i, entity);
       }
-    } else if (prefix == "O") {
+    } else if (prefix=="O") {
       if (span) spans->push_back(span);
       span = NULL;
     }
@@ -76,39 +76,39 @@ void EntityInstance::CreateSpansFromTags(
 }
 
 void EntityInstance::DeleteSpans(std::vector<EntitySpan*> *spans) const {
-  for (int k = 0; k < spans->size(); ++k) {
+  for (int k = 0; k<spans->size(); ++k) {
     delete (*spans)[k];
   }
   spans->clear();
 }
 
 void EntityInstance::CreateTagsFromSpans(
-    int length,
-    const std::vector<EntitySpan*> &spans,
-    int tagging_scheme,
-    std::vector<std::string> *tags) const {
+  int length,
+  const std::vector<EntitySpan*> &spans,
+  int tagging_scheme,
+  std::vector<std::string> *tags) const {
   tags->assign(length, "O");
-  for (int k = 0; k < spans.size(); ++k) {
+  for (int k = 0; k<spans.size(); ++k) {
     EntitySpan *span = spans[k];
-    if (tagging_scheme == EntityTaggingSchemes::BILOU) {
-      if (span->start() == span->end()) {
-        (*tags)[span->start()] = "U-" + span->name();
+    if (tagging_scheme==EntityTaggingSchemes::BILOU) {
+      if (span->start()==span->end()) {
+        (*tags)[span->start()] = "U-"+span->name();
       } else {
-        (*tags)[span->start()] = "B-" + span->name();
-        (*tags)[span->end()] = "L-" + span->name();
+        (*tags)[span->start()] = "B-"+span->name();
+        (*tags)[span->end()] = "L-"+span->name();
       }
-      for (int i = span->start()+1; i < span->end(); ++i) {
-        (*tags)[i] = "I-" + span->name();
+      for (int i = span->start()+1; i<span->end(); ++i) {
+        (*tags)[i] = "I-"+span->name();
       }
-    } else if (tagging_scheme == EntityTaggingSchemes::BIO) {
-      (*tags)[span->start()] = "B-" + span->name();
-      for (int i = span->start()+1; i <= span->end(); ++i) {
-        (*tags)[i] = "I-" + span->name();
+    } else if (tagging_scheme==EntityTaggingSchemes::BIO) {
+      (*tags)[span->start()] = "B-"+span->name();
+      for (int i = span->start()+1; i<=span->end(); ++i) {
+        (*tags)[i] = "I-"+span->name();
       }
     } else {
       CHECK_EQ(tagging_scheme, EntityTaggingSchemes::IO);
-      for (int i = span->start(); i <= span->end(); ++i) {
-        (*tags)[i] = "I-" + span->name();
+      for (int i = span->start(); i<=span->end(); ++i) {
+        (*tags)[i] = "I-"+span->name();
       }
     }
   }

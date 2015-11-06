@@ -52,7 +52,7 @@ void EntityOptions::Load(FILE* fs) {
   bool success;
   success = ReadString(fs, &FLAGS_entity_tagging_scheme);
   CHECK(success);
-  LOG(INFO) << "Setting --entity_tagging_scheme=" <<
+  LOG(INFO)<<"Setting --entity_tagging_scheme="<<
     FLAGS_entity_tagging_scheme;
 
   Initialize();
@@ -64,13 +64,13 @@ void EntityOptions::Initialize() {
   file_format_ = FLAGS_entity_file_format;
   file_gazetteer_ = FLAGS_entity_file_gazetteer;
   tagging_scheme_name_ = FLAGS_entity_tagging_scheme;
-  if (tagging_scheme_name_ == "io") {
+  if (tagging_scheme_name_=="io") {
     tagging_scheme_ = EntityTaggingSchemes::IO;
-  } else if (tagging_scheme_name_ == "bio") {
+  } else if (tagging_scheme_name_=="bio") {
     tagging_scheme_ = EntityTaggingSchemes::BIO;
-  } else if (tagging_scheme_name_ == "bilou") {
+  } else if (tagging_scheme_name_=="bilou") {
     tagging_scheme_ = EntityTaggingSchemes::BILOU;
   } else {
-    CHECK(false) << "Unknown entity scheme: " << tagging_scheme_name_;
+    CHECK(false)<<"Unknown entity scheme: "<<tagging_scheme_name_;
   }
 }

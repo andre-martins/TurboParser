@@ -28,10 +28,10 @@ public:
 
   Instance* Copy() {
     MorphInstance* instance = new MorphInstance();
-    instance->Initialize(forms_, 
-                        lemmas_, 
-                        cpostags_, 
-                        tags_); //feats_);
+    instance->Initialize(forms_,
+                         lemmas_,
+                         cpostags_,
+                         tags_); //feats_);
     return static_cast<Instance*>(instance);
   }
 

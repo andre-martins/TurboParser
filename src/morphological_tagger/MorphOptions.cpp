@@ -29,10 +29,10 @@ DEFINE_string(morph_file_format, "conll",
               "sentences (one per line, with tokens separated "
               "by white-spaces.");
 DEFINE_bool(morph_tagger_large_feature_set, false,
-  "True for using a large feature set. Taggers are usually more "
-  "accurate but slower and have a larger memory footprint.");
+            "True for using a large feature set. Taggers are usually more "
+            "accurate but slower and have a larger memory footprint.");
 DEFINE_bool(morph_tagger_prune_tags, true,
-  "True for pruning the set of possible tags by using a dictionary.");
+            "True for pruning the set of possible tags by using a dictionary.");
 
 // Save current option flags to the model file.
 void MorphOptions::Save(FILE* fs) {
@@ -65,11 +65,11 @@ void MorphOptions::Load(FILE* fs) {
   bool success;
   success = ReadBool(fs, &FLAGS_morph_tagger_large_feature_set);
   CHECK(success);
-  LOG(INFO) << "Setting --tagger_large_feature_set="
-    << FLAGS_morph_tagger_large_feature_set;
+  LOG(INFO)<<"Setting --tagger_large_feature_set="
+    <<FLAGS_morph_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_morph_tagger_prune_tags);
   CHECK(success);
-  LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_morph_tagger_prune_tags;
+  LOG(INFO)<<"Setting --tagger_prune_tags="<<FLAGS_morph_tagger_prune_tags;
 
   Initialize();
 }

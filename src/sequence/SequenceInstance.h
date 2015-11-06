@@ -24,7 +24,7 @@
 #include "Instance.h"
 
 class SequenceInstance : public Instance {
- public:
+public:
   SequenceInstance() {}
   virtual ~SequenceInstance() {}
 
@@ -46,7 +46,7 @@ class SequenceInstance : public Instance {
 
   void SetTag(int i, const std::string &tag) { tags_[i] = tag; }
 
- protected:
+protected:
   std::vector<std::string> forms_;
   std::vector<std::string> tags_;
 };

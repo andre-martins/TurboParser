@@ -22,7 +22,7 @@
 #include "SequenceDictionary.h"
 
 class TaggerDictionary : public SequenceDictionary {
- public:
+public:
   TaggerDictionary() {}
   TaggerDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~TaggerDictionary() {}
@@ -38,7 +38,7 @@ class TaggerDictionary : public SequenceDictionary {
     int length = unknown_word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+    for (int j = 0; j<unknown_word_tags_.size(); ++j) {
       int tag = unknown_word_tags_[j];
       success = WriteInteger(fs, tag);
       CHECK(success);
@@ -47,11 +47,11 @@ class TaggerDictionary : public SequenceDictionary {
     length = word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i < word_tags_.size(); ++i) {
+    for (int i = 0; i<word_tags_.size(); ++i) {
       length = word_tags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
+      for (int j = 0; j<word_tags_[i].size(); ++j) {
         int tag = word_tags_[i][j];
         success = WriteInteger(fs, tag);
         CHECK(success);
@@ -66,7 +66,7 @@ class TaggerDictionary : public SequenceDictionary {
     success = ReadInteger(fs, &length);
     CHECK(success);
     unknown_word_tags_.resize(length);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+    for (int j = 0; j<unknown_word_tags_.size(); ++j) {
       int tag;
       success = ReadInteger(fs, &tag);
       CHECK(success);
@@ -75,11 +75,11 @@ class TaggerDictionary : public SequenceDictionary {
     success = ReadInteger(fs, &length);
     CHECK(success);
     word_tags_.resize(length);
-    for (int i = 0; i < word_tags_.size(); ++i) {
+    for (int i = 0; i<word_tags_.size(); ++i) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       word_tags_[i].resize(length);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
+      for (int j = 0; j<word_tags_[i].size(); ++j) {
         int tag;
         success = ReadInteger(fs, &tag);
         CHECK(success);
@@ -102,7 +102,7 @@ class TaggerDictionary : public SequenceDictionary {
     }
   }
 
- protected:
+protected:
   vector<vector<int> > word_tags_;
   vector<int> unknown_word_tags_;
 };

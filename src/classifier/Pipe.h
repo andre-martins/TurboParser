@@ -30,9 +30,9 @@
 #include "AlgUtils.h"
 
 
-#include <thread>         // std::thread
-#include <list>        // std::list
-#include <mutex>      // std::mutex
+#include <thread>
+#include <list>
+#include <mutex>
 
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
@@ -40,7 +40,7 @@
 // Task-specific classifiers should derive from this class and implement the
 // pure virtual methods.
 class Pipe {
- public:
+public:
   // Constructor/destructor.
   Pipe() {};
   Pipe(Options* options);
@@ -68,13 +68,11 @@ class Pipe {
 
   // Run methods for multi-threaded version.
   void RunWithThreads();
-  void RunThreaded(Instance * instance, Instance * formatted_instance,Instance *output_instance);
-
 
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
- protected:
+protected:
   // Create basic objects.
   virtual void CreateDictionary() = 0;
   virtual void CreateReader() = 0;
@@ -91,26 +89,16 @@ class Pipe {
 
   // Create/add/delete instances.
   void DeleteInstances() {
-    for (int i = 0; i < instances_.size(); ++i) {
+    for (int i = 0; i<instances_.size(); ++i) {
       delete instances_[i];
     }
     instances_.clear();
-
-  for (int i = 0; i < formatted_instances_.size(); ++i) {
-    delete formatted_instances_[i];
-  }
-  formatted_instances_.clear();
-
-  for (int i = 0; i < output_instances_.size(); ++i) {
-    delete output_instances_[i];
-  }
-  output_instances_.clear();
   }
 
   void AddInstance(Instance *instance) {
     Instance *formatted_instance = GetFormattedInstance(instance);
     instances_.push_back(formatted_instance);
-    if (instance != formatted_instance) delete instance;
+    if (instance!=formatted_instance) delete instance;
   }
 
   // Obtain a "formatted" instance. Override this function for task-specific
@@ -145,7 +133,7 @@ class Pipe {
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features) = 0;
+                                    const vector<bool> &selected_parts, Features *features) = 0;
 
   // Given an instance, parts, and features, compute the scores. This will
   // look at the current parameters. Each part will receive a score, so the
@@ -180,10 +168,10 @@ class Pipe {
   // prediction.
   // In CRFs, it is the vector of posterior marginals for the parts.
   virtual void MakeFeatureDifference(Parts *parts,
-                                   Features *features,
-                                   const vector<double> &gold_output,
-                                   const vector<double> &predicted_output,
-                                   FeatureVector *difference);
+                                     Features *features,
+                                     const vector<double> &gold_output,
+                                     const vector<double> &predicted_output,
+                                     FeatureVector *difference);
 
   // Given an instance, a vector of parts, and features for those parts,
   // remove all the features which are not supported, i.e., that were not
@@ -256,24 +244,24 @@ class Pipe {
                                 Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
-    for (int r = 0; r < parts->size(); ++r) {
+    for (int r = 0; r<parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-    if (running_multithreaded_) evaluation_lock_.lock();
+        if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
         ++num_mistakes_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+        if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
       }
-    if (running_multithreaded_) evaluation_lock_.lock();
+      if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
       ++num_total_parts_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+      if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO) << "Accuracy (parts): " <<
-      static_cast<double>(num_total_parts_ - num_mistakes_) /
-        static_cast<double>(num_total_parts_);
+    LOG(INFO)<<"Accuracy (parts): "<<
+      static_cast<double>(num_total_parts_-num_mistakes_)/
+      static_cast<double>(num_total_parts_);
   }
 
- protected:
+protected:
   Options *options_; // Classifier options.
   Dictionary *dictionary_; // Dictionary for the classifier.
   Reader *reader_; // Reader for reading instances from a file.
@@ -281,18 +269,15 @@ class Pipe {
   Decoder *decoder_; // Decoder for this classification task.
   Parameters *parameters_; // Parameter vector.
   vector<Instance*> instances_; // Set of instances.
-  vector<Instance*> formatted_instances_;
-  vector<Instance*> output_instances_;
 
 
   // Number of mistakes and number of total parts at test time (used for
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
-  
-  bool running_multithreaded_;
+
   std::mutex evaluation_lock_;
-  vector<std::thread> list_of_threads_;
+  vector<std::thread> threads_;
 };
 
 #endif /* PIPE_H_ */
