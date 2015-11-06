@@ -24,20 +24,20 @@ using namespace std;
 
 // TODO: Implement the reader for "text".
 DEFINE_string(tagger_file_format, "conll",
-              "Format of the input file containing the data. Use ""conll"" for "
-              "the format used in CONLL-X, and ""text"" for tokenized"
-              "sentences (one per line, with tokens separated "
-              "by white-spaces.");
+  "Format of the input file containing the data. Use ""conll"" for "
+  "the format used in CONLL-X, and ""text"" for tokenized"
+  "sentences (one per line, with tokens separated "
+  "by white-spaces.");
 //DEFINE_int32(tagger_model_type, 2,
 //             "Model type. 1 is a bigram model, 2 is a trigram model.");
 DEFINE_bool(tagger_large_feature_set, false,
-            "True for using a large feature set. Taggers are usually more "
-            "accurate but slower and have a larger memory footprint.");
+  "True for using a large feature set. Taggers are usually more "
+  "accurate but slower and have a larger memory footprint.");
 DEFINE_bool(tagger_prune_tags, true,
-            "True for pruning the set of possible tags by using a dictionary.");
+  "True for pruning the set of possible tags by using a dictionary.");
 DEFINE_string(file_unknown_word_tags, "",
-              "Path to the file containing the possible tags to be assigned "
-              "to out-of-vocabulary words.");
+  "Path to the file containing the possible tags to be assigned "
+  "to out-of-vocabulary words.");
 
 // Save current option flags to the model file.
 void TaggerOptions::Save(FILE* fs) {
@@ -67,7 +67,7 @@ void TaggerOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_large_feature_set="
-            << FLAGS_tagger_large_feature_set;
+    << FLAGS_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_tagger_prune_tags);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_tagger_prune_tags;

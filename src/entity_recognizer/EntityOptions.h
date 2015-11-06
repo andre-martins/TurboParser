@@ -30,7 +30,7 @@ struct EntityTaggingSchemes {
 };
 
 class EntityOptions : public SequenceOptions {
- public:
+public:
   EntityOptions() {};
   virtual ~EntityOptions() {};
 
@@ -45,7 +45,7 @@ class EntityOptions : public SequenceOptions {
   int tagging_scheme() { return tagging_scheme_; }
   const std::string &file_gazetteer() { return file_gazetteer_; }
 
- protected:
+protected:
   std::string file_format_;
   std::string tagging_scheme_name_;
   std::string file_gazetteer_;

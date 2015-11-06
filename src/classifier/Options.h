@@ -42,12 +42,12 @@ DECLARE_int32(parameters_max_num_buckets);
 
 //1 to use new developments regarding performance optimizations
 #ifndef USE_N_OPTIMIZATIONS
-#define USE_N_OPTIMIZATIONS 1 //0
+#define USE_N_OPTIMIZATIONS 0 //1
 #endif
 
 // General training/test options.
 class Options {
- public:
+public:
   Options() {};
   virtual ~Options() {};
 
@@ -62,35 +62,22 @@ class Options {
   virtual void Initialize();
 
   // Get option values.
-  const string &GetTrainingFilePath() { 
-    return file_train_; };
-  const string &GetTestFilePath() {
-    return file_test_; };
-  const string &GetModelFilePath() { 
-    return file_model_; };
-  const string &GetOutputFilePath() { 
-    return file_prediction_; };
-  int GetNumEpochs() { 
-    return train_epochs_; };
-  double GetRegularizationConstant() { 
-    return train_regularization_constant_; }
-  const string &GetTrainingAlgorithm() {
-    return train_algorithm_; }
-  double GetInitialLearningRate() { 
-    return train_initial_learning_rate_; }
+  const string &GetTrainingFilePath() { return file_train_; };
+  const string &GetTestFilePath() { return file_test_; };
+  const string &GetModelFilePath() { return file_model_; };
+  const string &GetOutputFilePath() { return file_prediction_; };
+  int GetNumEpochs() { return train_epochs_; };
+  double GetRegularizationConstant() { return train_regularization_constant_; }
+  const string &GetTrainingAlgorithm() { return train_algorithm_; }
+  double GetInitialLearningRate() { return train_initial_learning_rate_; }
   const string &GetLearningRateSchedule() {
     return train_learning_rate_schedule_;
   }
-  bool use_averaging() { 
-    return use_averaging_; }
-  bool only_supported_features() { 
-    return only_supported_features_; }
-  bool train() { 
-    return train_; }
-  bool test() { 
-    return test_; }
-  bool evaluate() { 
-    return evaluate_; }
+  bool use_averaging() { return use_averaging_; }
+  bool only_supported_features() { return only_supported_features_; }
+  bool train() { return train_; }
+  bool test() { return test_; }
+  bool evaluate() { return evaluate_; }
 
   // Set option values.
   void SetTrainingFilePath(const string &file_train) {
@@ -106,7 +93,7 @@ class Options {
     file_prediction_ = file_prediction;
   }
 
- protected:
+protected:
   string file_train_;
   string file_test_;
   string file_model_;

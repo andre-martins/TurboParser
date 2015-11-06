@@ -37,7 +37,7 @@ struct MorphFeatureTemplateUnigram {
     nW,         /* word on the right (next) */
     ppW,        /* word two positions on the left (previous) */
     nnW,        /* word two positions on the right (next) */
-                
+
     Z,          /* suffix n letters */
     pZ,         /* suffix n letters word on the left (previous) */
     ppZ,        /* suffix n letters word two positions on the left (previous) */
@@ -49,7 +49,7 @@ struct MorphFeatureTemplateUnigram {
     nA,          /* prefix n letters word on the right (next) */
     nnA,        /* prefix n letters word two positions on the right (next) */
 
-    
+
     WP,          /* word + POS tag */
 
     P,          /* POS */                               // 'cpostag'

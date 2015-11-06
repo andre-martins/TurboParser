@@ -73,30 +73,30 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   uint16_t nnSID = (position < sentence_length - 2) ? sentence->GetShapeId(position + 2) : TOKEN_STOP;
 
   // Prefixes/Suffixes.
-  vector<uint16_t> AID( (position < sentence_length) ? sentence->GetMaxPrefixLength(position) : 0, 0xffff);
-  vector<uint16_t> ZID( (position < sentence_length) ? sentence->GetMaxSuffixLength(position) : 0, 0xffff);
+  vector<uint16_t> AID((position < sentence_length) ? sentence->GetMaxPrefixLength(position) : 0, 0xffff);
+  vector<uint16_t> ZID((position < sentence_length) ? sentence->GetMaxSuffixLength(position) : 0, 0xffff);
   // Prefixes/Suffixes on the left.
-  vector<uint16_t> pAID( (position > 0) ? sentence->GetMaxPrefixLength(position - 1) : 0, 0xffff);
-  vector<uint16_t> pZID( (position > 0) ? sentence->GetMaxSuffixLength(position - 1) : 0, 0xffff);
+  vector<uint16_t> pAID((position > 0) ? sentence->GetMaxPrefixLength(position - 1) : 0, 0xffff);
+  vector<uint16_t> pZID((position > 0) ? sentence->GetMaxSuffixLength(position - 1) : 0, 0xffff);
   // Prefixes/Suffixes on the right.
-  vector<uint16_t> nAID( (position < sentence_length - 1) ? sentence->GetMaxPrefixLength(position + 1) : 0, 0xffff);
-  vector<uint16_t> nZID( (position < sentence_length - 1) ? sentence->GetMaxSuffixLength(position + 1) : 0, 0xffff);
+  vector<uint16_t> nAID((position < sentence_length - 1) ? sentence->GetMaxPrefixLength(position + 1) : 0, 0xffff);
+  vector<uint16_t> nZID((position < sentence_length - 1) ? sentence->GetMaxSuffixLength(position + 1) : 0, 0xffff);
   // Prefixes/Suffixes two positions on the left.
-  vector<uint16_t> ppAID( (position > 1) ? sentence->GetMaxPrefixLength(position - 2) : 0, 0xffff);
-  vector<uint16_t> ppZID( (position > 1) ? sentence->GetMaxSuffixLength(position - 2) : 0, 0xffff);
+  vector<uint16_t> ppAID((position > 1) ? sentence->GetMaxPrefixLength(position - 2) : 0, 0xffff);
+  vector<uint16_t> ppZID((position > 1) ? sentence->GetMaxSuffixLength(position - 2) : 0, 0xffff);
   // Prefixes/Suffixes two positions on the right.
-  vector<uint16_t> nnAID( (position < sentence_length - 2) ? sentence->GetMaxPrefixLength(position + 2) : 0, 0xffff);
-  vector<uint16_t> nnZID( (position < sentence_length - 2) ? sentence->GetMaxSuffixLength(position + 2) : 0, 0xffff);
+  vector<uint16_t> nnAID((position < sentence_length - 2) ? sentence->GetMaxPrefixLength(position + 2) : 0, 0xffff);
+  vector<uint16_t> nnZID((position < sentence_length - 2) ? sentence->GetMaxSuffixLength(position + 2) : 0, 0xffff);
 
-  for (int l = 0; l < AID.size()  ; ++l) { AID[l]   = sentence->GetPrefixId(position    , l + 1); }
-  for (int l = 0; l < pAID.size() ; ++l) { pAID[l]  = sentence->GetPrefixId(position - 1, l + 1); }
-  for (int l = 0; l < nAID.size() ; ++l) { nAID[l]  = sentence->GetPrefixId(position + 1, l + 1); }
+  for (int l = 0; l < AID.size(); ++l) { AID[l] = sentence->GetPrefixId(position, l + 1); }
+  for (int l = 0; l < pAID.size(); ++l) { pAID[l] = sentence->GetPrefixId(position - 1, l + 1); }
+  for (int l = 0; l < nAID.size(); ++l) { nAID[l] = sentence->GetPrefixId(position + 1, l + 1); }
   for (int l = 0; l < ppAID.size(); ++l) { ppAID[l] = sentence->GetPrefixId(position - 2, l + 1); }
   for (int l = 0; l < nnAID.size(); ++l) { nnAID[l] = sentence->GetPrefixId(position + 2, l + 1); }
 
-  for (int l = 0; l < ZID.size()  ; ++l) { ZID[l]   = sentence->GetSuffixId(position    , l + 1); }
-  for (int l = 0; l < pZID.size() ; ++l) { pZID[l]  = sentence->GetSuffixId(position - 1, l + 1); }
-  for (int l = 0; l < nZID.size() ; ++l) { nZID[l]  = sentence->GetSuffixId(position + 1, l + 1); }
+  for (int l = 0; l < ZID.size(); ++l) { ZID[l] = sentence->GetSuffixId(position, l + 1); }
+  for (int l = 0; l < pZID.size(); ++l) { pZID[l] = sentence->GetSuffixId(position - 1, l + 1); }
+  for (int l = 0; l < nZID.size(); ++l) { nZID[l] = sentence->GetSuffixId(position + 1, l + 1); }
   for (int l = 0; l < ppZID.size(); ++l) { ppZID[l] = sentence->GetSuffixId(position - 2, l + 1); }
   for (int l = 0; l < nnZID.size(); ++l) { nnZID[l] = sentence->GetSuffixId(position + 2, l + 1); }
 
@@ -106,9 +106,9 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   uint8_t flag_upper = position > 0 && sentence->HasUpper(position) ? 0x1 : 0x0;
   uint8_t flag_hyphen = sentence->HasHyphen(position) ? 0x1 : 0x0;
 
-  flag_digit  = 0x0 | (flag_digit   << 4);
-  flag_upper  = 0x1 | (flag_upper   << 4);
-  flag_hyphen = 0x2 | (flag_hyphen  << 4);
+  flag_digit = 0x0 | (flag_digit << 4);
+  flag_upper = 0x1 | (flag_upper << 4);
+  flag_hyphen = 0x2 | (flag_hyphen << 4);
 
   uint64_t fkey;
   uint8_t flags = 0x0;
@@ -120,7 +120,7 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
 
   // Bias feature.
   // ** removing to test performance (start) **
-  fkey = encoder_.CreateFKey_NONE(MorphFeatureTemplateUnigram::BIAS, flags);  
+  fkey = encoder_.CreateFKey_NONE(MorphFeatureTemplateUnigram::BIAS, flags);
   AddFeature(fkey, features);
   // ** removing to test performance (end) **
 
@@ -161,9 +161,9 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
   // ** removing to test performance (start) **
   fkey = encoder_.CreateFKey_PPP(MorphFeatureTemplateUnigram::PnPnnP, flags, PID, nPID, nnPID);
-  AddFeature(fkey, features); 
+  AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_PPP(MorphFeatureTemplateUnigram::PpPnP, flags, PID, pPID, nPID);
-  AddFeature(fkey, features); 
+  AddFeature(fkey, features);
   // ** removing to test performance (end) **
 
   // Shape features.
@@ -314,19 +314,19 @@ void MorphFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   vector<uint16_t> nnZID((position < sentence_length - 2) ? sentence->GetMaxSuffixLength(position + 2) : 0, 0xffff);
 
 
-  for (int l = 0; l < AID.size()  ; ++l) { AID[l]   = sentence->GetPrefixId(position    , l + 1); }
-  for (int l = 0; l < pAID.size() ; ++l) { pAID[l]  = sentence->GetPrefixId(position - 1, l + 1); }
-  for (int l = 0; l < nAID.size() ; ++l) { nAID[l]  = sentence->GetPrefixId(position + 1, l + 1); }
+  for (int l = 0; l < AID.size(); ++l) { AID[l] = sentence->GetPrefixId(position, l + 1); }
+  for (int l = 0; l < pAID.size(); ++l) { pAID[l] = sentence->GetPrefixId(position - 1, l + 1); }
+  for (int l = 0; l < nAID.size(); ++l) { nAID[l] = sentence->GetPrefixId(position + 1, l + 1); }
   for (int l = 0; l < ppAID.size(); ++l) { ppAID[l] = sentence->GetPrefixId(position - 2, l + 1); }
   for (int l = 0; l < nnAID.size(); ++l) { nnAID[l] = sentence->GetPrefixId(position + 2, l + 1); }
 
-  for (int l = 0; l < ZID.size()  ; ++l) { ZID[l]   = sentence->GetSuffixId(position    , l + 1); }
-  for (int l = 0; l < pZID.size() ; ++l) { pZID[l]  = sentence->GetSuffixId(position - 1, l + 1); }
-  for (int l = 0; l < nZID.size() ; ++l) { nZID[l]  = sentence->GetSuffixId(position + 1, l + 1); }
+  for (int l = 0; l < ZID.size(); ++l) { ZID[l] = sentence->GetSuffixId(position, l + 1); }
+  for (int l = 0; l < pZID.size(); ++l) { pZID[l] = sentence->GetSuffixId(position - 1, l + 1); }
+  for (int l = 0; l < nZID.size(); ++l) { nZID[l] = sentence->GetSuffixId(position + 1, l + 1); }
   for (int l = 0; l < ppZID.size(); ++l) { ppZID[l] = sentence->GetSuffixId(position - 2, l + 1); }
   for (int l = 0; l < nnZID.size(); ++l) { nnZID[l] = sentence->GetSuffixId(position + 2, l + 1); }
 
- 
+
   // Maximum is 255 feature templates.
   CHECK_LT(MorphFeatureTemplateUnigram::COUNT, 256);
 

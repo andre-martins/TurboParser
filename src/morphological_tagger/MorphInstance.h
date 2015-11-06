@@ -28,17 +28,17 @@ public:
 
   Instance* Copy() {
     MorphInstance* instance = new MorphInstance();
-    instance->Initialize(forms_, 
-                        lemmas_, 
-                        cpostags_, 
-                        tags_); //feats_);
+    instance->Initialize(forms_,
+      lemmas_,
+      cpostags_,
+      tags_); //feats_);
     return static_cast<Instance*>(instance);
   }
 
   void Initialize(const std::vector<std::string> &forms,
-                  const std::vector<std::string> &lemmas,
-                  const std::vector<std::string> &cpostags,
-                  const std::vector<std::string> &tags); //&feats);
+    const std::vector<std::string> &lemmas,
+    const std::vector<std::string> &cpostags,
+    const std::vector<std::string> &tags); //&feats);
 
   const std::string &GetLemma(int i) const { return lemmas_[i]; }
   const std::string &GetCoarsePosTag(int i) const { return cpostags_[i]; }

@@ -40,7 +40,7 @@
 // Task-specific classifiers should derive from this class and implement the
 // pure virtual methods.
 class Pipe {
- public:
+public:
   // Constructor/destructor.
   Pipe() {};
   Pipe(Options* options);
@@ -68,13 +68,13 @@ class Pipe {
 
   // Run methods for multi-threaded version.
   void RunWithThreads();
-  void RunThreaded(Instance * instance, Instance * formatted_instance,Instance *output_instance);
+  void RunThreaded(Instance * instance, Instance * formatted_instance, Instance *output_instance);
 
 
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
- protected:
+protected:
   // Create basic objects.
   virtual void CreateDictionary() = 0;
   virtual void CreateReader() = 0;
@@ -96,15 +96,15 @@ class Pipe {
     }
     instances_.clear();
 
-  for (int i = 0; i < formatted_instances_.size(); ++i) {
-    delete formatted_instances_[i];
-  }
-  formatted_instances_.clear();
+    for (int i = 0; i < formatted_instances_.size(); ++i) {
+      delete formatted_instances_[i];
+    }
+    formatted_instances_.clear();
 
-  for (int i = 0; i < output_instances_.size(); ++i) {
-    delete output_instances_[i];
-  }
-  output_instances_.clear();
+    for (int i = 0; i < output_instances_.size(); ++i) {
+      delete output_instances_[i];
+    }
+    output_instances_.clear();
   }
 
   void AddInstance(Instance *instance) {
@@ -130,7 +130,7 @@ class Pipe {
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeParts(Instance *instance, Parts *parts,
-                         vector<double> *gold_outputs) = 0;
+    vector<double> *gold_outputs) = 0;
 
   // Construct the vector of features for a particular instance and given the
   // parts. The vector will be of the same size as the vector of parts.
@@ -145,7 +145,7 @@ class Pipe {
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features) = 0;
+    const vector<bool> &selected_parts, Features *features) = 0;
 
   // Given an instance, parts, and features, compute the scores. This will
   // look at the current parameters. Each part will receive a score, so the
@@ -154,8 +154,8 @@ class Pipe {
   // to handle labeled features, etc.).
   // TODO: handle labeled features here instead of having to override.
   virtual void ComputeScores(Instance *instance, Parts *parts,
-                             Features *features,
-                             vector<double> *scores);
+    Features *features,
+    vector<double> *scores);
 
   // Perform a gradient step with stepsize eta. The iteration number is
   // provided as input since it may be necessary to keep track of the averaged
@@ -168,9 +168,9 @@ class Pipe {
   // TODO: use "FeatureVector *difference" as input (see function
   // MakeFeatureDifference(...) instead of computing on the fly).
   virtual void MakeGradientStep(Parts *parts, Features *features, double eta,
-                                int iteration,
-                                const vector<double> &gold_output,
-                                const vector<double> &predicted_output);
+    int iteration,
+    const vector<double> &gold_output,
+    const vector<double> &predicted_output);
 
   // Compute the difference between the predicted feature vector and the gold
   // one.
@@ -180,17 +180,17 @@ class Pipe {
   // prediction.
   // In CRFs, it is the vector of posterior marginals for the parts.
   virtual void MakeFeatureDifference(Parts *parts,
-                                   Features *features,
-                                   const vector<double> &gold_output,
-                                   const vector<double> &predicted_output,
-                                   FeatureVector *difference);
+    Features *features,
+    const vector<double> &gold_output,
+    const vector<double> &predicted_output,
+    FeatureVector *difference);
 
   // Given an instance, a vector of parts, and features for those parts,
   // remove all the features which are not supported, i.e., that were not
   // previously created in the parameter vector. This is used for training
   // with supported features (flag --only_supported_features).
   void RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-                                 Features *features) {
+    Features *features) {
     vector<bool> selected_parts(parts->size(), true);
     RemoveUnsupportedFeatures(instance, parts, selected_parts, features);
   }
@@ -199,8 +199,8 @@ class Pipe {
   // parts, remove all the features which are not supported. See description
   // above.
   virtual void RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-                                         const vector<bool> &selected_parts,
-                                         Features *features);
+    const vector<bool> &selected_parts,
+    Features *features);
 
   // Given a vector of parts, and features for those parts, "touch" all the
   // parameters corresponding to those features. This will be a no-op for the
@@ -208,15 +208,15 @@ class Pipe {
   // weight otherwise. This is used in a preprocessing stage for training
   // with supported features (flag --only_supported_features).
   virtual void TouchParameters(Parts *parts, Features *features,
-                               const vector<bool> &selected_parts);
+    const vector<bool> &selected_parts);
 
   // This is a no-op by default. But it's convenient to have it here to build
   // latent-variable structured classifiers (e.g. for coreference resolution).
   virtual void TransformGold(Instance *instance,
-                             Parts *parts,
-                             const std::vector<double> &scores,
-                             std::vector<double> *gold_output,
-                             double *loss_inner) {
+    Parts *parts,
+    const std::vector<double> &scores,
+    std::vector<double> *gold_output,
+    double *loss_inner) {
     *loss_inner = 0.0;
   }
 
@@ -225,7 +225,7 @@ class Pipe {
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void LabelInstance(Parts *parts, const vector<double> &output,
-                             Instance *instance) = 0;
+    Instance *instance) = 0;
 
   // Preprocess an instance before training begins. Override this function for
   // task-specific instance preprocessing.
@@ -252,28 +252,28 @@ class Pipe {
   // task-specific evaluation.
   virtual void BeginEvaluation() { num_mistakes_ = 0; num_total_parts_ = 0; }
   virtual void EvaluateInstance(Instance *instance,
-                                Instance *output_instance,
-                                Parts *parts,
-                                const vector<double> &gold_outputs,
-                                const vector<double> &predicted_outputs) {
+    Instance *output_instance,
+    Parts *parts,
+    const vector<double> &gold_outputs,
+    const vector<double> &predicted_outputs) {
     for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-    if (running_multithreaded_) evaluation_lock_.lock();
+        if (running_multithreaded_) evaluation_lock_.lock();
         ++num_mistakes_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+        if (running_multithreaded_) evaluation_lock_.unlock();
       }
-    if (running_multithreaded_) evaluation_lock_.lock();
+      if (running_multithreaded_) evaluation_lock_.lock();
       ++num_total_parts_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+      if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
     LOG(INFO) << "Accuracy (parts): " <<
       static_cast<double>(num_total_parts_ - num_mistakes_) /
-        static_cast<double>(num_total_parts_);
+      static_cast<double>(num_total_parts_);
   }
 
- protected:
+protected:
   Options *options_; // Classifier options.
   Dictionary *dictionary_; // Dictionary for the classifier.
   Reader *reader_; // Reader for reading instances from a file.
@@ -289,10 +289,10 @@ class Pipe {
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
-  
+
   bool running_multithreaded_;
   std::mutex evaluation_lock_;
-  vector<std::thread> list_of_threads_;
+  vector<std::thread> threads_;
 };
 
 #endif /* PIPE_H_ */

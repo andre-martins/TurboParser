@@ -39,7 +39,7 @@ Pipe::~Pipe() {
   delete decoder_;
   delete parameters_;
   DeleteInstances();
-  list_of_threads_.clear();
+  threads_.clear();
 }
 
 void Pipe::Initialize() {
@@ -83,7 +83,7 @@ void Pipe::LoadModel(FILE* fs) {
 //                                  vector<vector<int> > *labels,
 //                                  vector<vector<double> > *scores);
 void Pipe::ComputeScores(Instance *instance, Parts *parts, Features *features,
-                         vector<double> *scores) {
+  vector<double> *scores) {
   scores->resize(parts->size());
   for (int r = 0; r < parts->size(); ++r) {
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
@@ -92,9 +92,9 @@ void Pipe::ComputeScores(Instance *instance, Parts *parts, Features *features,
 }
 
 void Pipe::MakeGradientStep(Parts *parts, Features *features, double eta,
-                            int iteration,
-                            const vector<double> &gold_output,
-                            const vector<double> &predicted_output) {
+  int iteration,
+  const vector<double> &gold_output,
+  const vector<double> &predicted_output) {
   for (int r = 0; r < parts->size(); ++r) {
     if (predicted_output[r] == gold_output[r]) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
@@ -104,7 +104,7 @@ void Pipe::MakeGradientStep(Parts *parts, Features *features, double eta,
 }
 
 void Pipe::TouchParameters(Parts *parts, Features *features,
-                           const vector<bool> &selected_parts) {
+  const vector<bool> &selected_parts) {
   for (int r = 0; r < parts->size(); ++r) {
     if (!selected_parts[r]) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
@@ -113,23 +113,23 @@ void Pipe::TouchParameters(Parts *parts, Features *features,
 }
 
 void Pipe::MakeFeatureDifference(Parts *parts,
-                                 Features *features,
-                                 const vector<double> &gold_output,
-                                 const vector<double> &predicted_output,
-                                 FeatureVector *difference) {
+  Features *features,
+  const vector<double> &gold_output,
+  const vector<double> &predicted_output,
+  FeatureVector *difference) {
   for (int r = 0; r < parts->size(); ++r) {
     if (predicted_output[r] == gold_output[r]) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
     for (int j = 0; j < part_features.size(); ++j) {
       difference->mutable_weights()->Add(part_features[j],
-                                         predicted_output[r] - gold_output[r]);
+        predicted_output[r] - gold_output[r]);
     }
   }
 }
 
 void Pipe::RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-                                     const vector<bool> &selected_parts,
-                                     Features *features) {
+  const vector<bool> &selected_parts,
+  Features *features) {
   for (int r = 0; r < parts->size(); ++r) {
     if (!selected_parts[r]) continue;
     BinaryFeatures *part_features = features->GetMutablePartFeatures(r);
@@ -179,7 +179,7 @@ void Pipe::CreateInstances() {
   LOG(INFO) << "Number of instances: " << instances_.size();
 
   gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
 }
 
 void Pipe::MakeSupportedParameters() {
@@ -222,18 +222,18 @@ void Pipe::TrainEpoch(int epoch) {
   double total_loss = 0.0;
   double eta;
   int num_instances = instances_.size();
-  double lambda = 1.0/(options_->GetRegularizationConstant() *
-                       (static_cast<double>(num_instances)));
+  double lambda = 1.0 / (options_->GetRegularizationConstant() *
+    (static_cast<double>(num_instances)));
   timeval start, end;
   gettimeofday(&start, NULL);
   int time_decoding = 0;
   int time_scores = 0;
   int num_mistakes = 0;
 
-  if ( epoch == 0 ){
+  if (epoch == 0) {
     LOG(INFO) << "Lambda: " << lambda << "\t"
-    << "Regularization Constant: " << options_->GetRegularizationConstant() << "\t"
-    << "Num instances: " << num_instances << endl;
+      << "Regularization Constant: " << options_->GetRegularizationConstant() << "\t"
+      << "Num instances: " << num_instances << endl;
   }
   LOG(INFO) << " Iteration #" << epoch + 1;
 
@@ -264,7 +264,7 @@ void Pipe::TrainEpoch(int epoch) {
     TransformGold(instance, parts, scores, &gold_outputs, &inner_loss);
 
     if (options_->GetTrainingAlgorithm() == "perceptron" ||
-        options_->GetTrainingAlgorithm() == "mira" ) {
+      options_->GetTrainingAlgorithm() == "mira") {
       timeval start_decoding, end_decoding;
       gettimeofday(&start_decoding, NULL);
       decoder_->Decode(instance, parts, scores, &predicted_outputs);
@@ -278,43 +278,47 @@ void Pipe::TrainEpoch(int epoch) {
           }
         }
         eta = 1.0;
-      } else {
+      }
+      else {
         CHECK(false) << "Plain mira is not implemented yet.";
       }
 
       MakeGradientStep(parts, features, eta, t, gold_outputs,
-                       predicted_outputs);
+        predicted_outputs);
 
-    } else if (options_->GetTrainingAlgorithm() == "svm_mira" ||
-               options_->GetTrainingAlgorithm() == "crf_mira" ||
-               options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
-               options_->GetTrainingAlgorithm() == "svm_sgd" ||
-               options_->GetTrainingAlgorithm() == "crf_sgd" ||
-               options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
+    }
+    else if (options_->GetTrainingAlgorithm() == "svm_mira" ||
+      options_->GetTrainingAlgorithm() == "crf_mira" ||
+      options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
+      options_->GetTrainingAlgorithm() == "svm_sgd" ||
+      options_->GetTrainingAlgorithm() == "crf_sgd" ||
+      options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
       double loss;
       timeval start_decoding, end_decoding;
       gettimeofday(&start_decoding, NULL);
       if (options_->GetTrainingAlgorithm() == "svm_mira" ||
-          options_->GetTrainingAlgorithm() == "svm_sgd") {
+        options_->GetTrainingAlgorithm() == "svm_sgd") {
         // Do cost-augmented inference.
         double cost;
         decoder_->DecodeCostAugmented(instance, parts, scores, gold_outputs,
-                                      &predicted_outputs, &cost, &loss);
+          &predicted_outputs, &cost, &loss);
         total_cost += cost;
-      } else if (options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
-                 options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
+      }
+      else if (options_->GetTrainingAlgorithm() == "crf_margin_mira" ||
+        options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
         // Do cost-augmented marginal inference.
         double entropy;
         double cost;
         decoder_->DecodeCostAugmentedMarginals(instance, parts, scores,
-                                               gold_outputs, &predicted_outputs,
-                                               &entropy, &cost, &loss);
+          gold_outputs, &predicted_outputs,
+          &entropy, &cost, &loss);
         total_cost += cost;
-      } else {
+      }
+      else {
         // Do marginal inference.
         double entropy;
         decoder_->DecodeMarginals(instance, parts, scores, gold_outputs,
-                                  &predicted_outputs, &entropy, &loss);
+          &predicted_outputs, &entropy, &loss);
         CHECK_GE(entropy, 0.0);
       }
       gettimeofday(&end_decoding, NULL);
@@ -332,37 +336,43 @@ void Pipe::TrainEpoch(int epoch) {
       // Compute difference between predicted and gold feature vectors.
       FeatureVector difference;
       MakeFeatureDifference(parts, features, gold_outputs, predicted_outputs,
-                            &difference);
+        &difference);
 
       // Get the stepsize.
       if (options_->GetTrainingAlgorithm() == "svm_mira" ||
-          options_->GetTrainingAlgorithm() == "crf_mira" ||
-          options_->GetTrainingAlgorithm() == "crf_margin_mira") {
+        options_->GetTrainingAlgorithm() == "crf_mira" ||
+        options_->GetTrainingAlgorithm() == "crf_margin_mira") {
         double squared_norm = difference.GetSquaredNorm();
         double threshold = 1e-9;
         if (loss < threshold || squared_norm < threshold) {
           eta = 0.0;
-        } else {
+        }
+        else {
           eta = loss / squared_norm;
           if (eta > options_->GetRegularizationConstant()) {
             eta = options_->GetRegularizationConstant();
           }
         }
-      } else {
+      }
+      else {
         if (options_->GetLearningRateSchedule() == "fixed") {
           eta = options_->GetInitialLearningRate();
-        } else if (options_->GetLearningRateSchedule() == "invsqrt") {
+        }
+        else if (options_->GetLearningRateSchedule() == "invsqrt") {
           eta = options_->GetInitialLearningRate() /
-            sqrt(static_cast<double>(t+1));
-        } else if (options_->GetLearningRateSchedule() == "inv") {
+            sqrt(static_cast<double>(t + 1));
+        }
+        else if (options_->GetLearningRateSchedule() == "inv") {
           eta = options_->GetInitialLearningRate() /
-            static_cast<double>(t+1);
-        } else if (options_->GetLearningRateSchedule() == "lecun") {
+            static_cast<double>(t + 1);
+        }
+        else if (options_->GetLearningRateSchedule() == "lecun") {
           eta = options_->GetInitialLearningRate() /
             (1.0 + (static_cast<double>(t) / static_cast<double>(num_instances)));
-        } else {
+        }
+        else {
           CHECK(false) << "Unknown learning rate schedule: "
-                       << options_->GetLearningRateSchedule();
+            << options_->GetLearningRateSchedule();
         }
 
         // Scale the parameter vector (only for SGD).
@@ -372,35 +382,36 @@ void Pipe::TrainEpoch(int epoch) {
       }
 
       MakeGradientStep(parts, features, eta, t, gold_outputs,
-                       predicted_outputs);
-    } else {
+        predicted_outputs);
+    }
+    else {
       CHECK(false) << "Unknown algorithm: " << options_->GetTrainingAlgorithm();
     }
   }
 
   // Compute the regularization value (halved squared L2 norm of the weights).
   double regularization_value =
-      lambda * static_cast<double>(num_instances) *
-      parameters_->GetSquaredNorm() / 2.0;
+    lambda * static_cast<double>(num_instances) *
+    parameters_->GetSquaredNorm() / 2.0;
 
   delete parts;
   delete features;
 
   gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
   LOG(INFO) << "Time to score: " << time_scores;
   LOG(INFO) << "Time to decode: " << time_decoding;
   LOG(INFO) << "Number of Features: " << parameters_->Size();
   if (options_->GetTrainingAlgorithm() == "perceptron" ||
-      options_->GetTrainingAlgorithm() == "mira") {
+    options_->GetTrainingAlgorithm() == "mira") {
     LOG(INFO) << "Number of mistakes: " << num_mistakes;
   }
 
-  LOG(INFO) << "Total Cost: "               << total_cost << "\t"
-            << "Total Loss: "               << total_loss << "\t"
-            << "Total Reg: "                << regularization_value << "\t"
-            << "Total Loss+Reg: "           << total_loss + regularization_value << "\t"
-            << "Square norm: "              << parameters_->GetSquaredNorm() << endl;
+  LOG(INFO) << "Total Cost: " << total_cost << "\t"
+    << "Total Loss: " << total_loss << "\t"
+    << "Total Reg: " << regularization_value << "\t"
+    << "Total Loss+Reg: " << total_loss + regularization_value << "\t"
+    << "Square norm: " << parameters_->GetSquaredNorm() << endl;
 }
 
 void Pipe::Run() {
@@ -433,7 +444,7 @@ void Pipe::Run() {
 
     if (options_->evaluate()) {
       EvaluateInstance(instance, output_instance,
-                       parts, gold_outputs, predicted_outputs);
+        parts, gold_outputs, predicted_outputs);
     }
 
     writer_->Write(output_instance);
@@ -454,7 +465,7 @@ void Pipe::Run() {
 
   gettimeofday(&end, NULL);
   LOG(INFO) << "Number of instances: " << num_instances;
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
 
   LOG(INFO) << "Cache size: " << parameters_->caching_weights_.size();
   LOG(INFO) << "Cache hits: " << parameters_->caching_weights_.hits();
@@ -476,8 +487,8 @@ void Pipe::RunWithThreads() {
 
   int num_instances = 0;
 
-  
-  if (instances_.size() != 0){
+
+  if (instances_.size() != 0) {
     cerr << "Instances vector is not empty at start of Run procedure" << endl;
     abort();
   }
@@ -493,34 +504,34 @@ void Pipe::RunWithThreads() {
     Instance *output_instance = instance->Copy();
     output_instances_.push_back(output_instance);
     //Launch thread
-    list_of_threads_.push_back(std::thread(&Pipe::RunThreaded, this, instance, formatted_instance, output_instance) );
-    
+    threads_.push_back(std::thread(&Pipe::RunThreaded, this, instance, formatted_instance, output_instance));
+
     //Get next instance
     instance = reader_->GetNext();
     instances_.push_back(instance);
     ++num_instances;
   }
   //for every thread launched
-  for (int i = 0; i < list_of_threads_.size(); i++) {
+  for (int i = 0; i < threads_.size(); i++) {
     //wait for that thread
-    list_of_threads_[i].join();
+    threads_[i].join();
     //process its output data
-    writer_->Write(output_instances_[i] );
+    writer_->Write(output_instances_[i]);
     //discard memory objects
-    if (formatted_instances_[i] != instances_[i] ){
+    if (formatted_instances_[i] != instances_[i]) {
       delete formatted_instances_[i];
     }
     delete instances_[i];
     delete output_instances_[i];
   }
   // clear std::vectors
-  list_of_threads_.clear();
+  threads_.clear();
   instances_.clear();
   formatted_instances_.clear();
   output_instances_.clear();
   //close channels
   writer_->Close();
-  reader_->Close();  
+  reader_->Close();
   //Logging
   gettimeofday(&end, NULL);
   LOG(INFO) << "Number of instances: " << num_instances;
@@ -530,7 +541,7 @@ void Pipe::RunWithThreads() {
 }
 
 void Pipe::RunThreaded(Instance *instance, Instance * formatted_instance, Instance *output_instance) {
-  Parts *parts =   CreateParts();
+  Parts *parts = CreateParts();
   Features *features = CreateFeatures();
   vector<double> scores;
   vector<double> gold_outputs;

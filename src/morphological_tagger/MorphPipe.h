@@ -42,7 +42,7 @@ public:
     return static_cast<MorphOptions*>(options_);
   };
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new MorphDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -59,7 +59,7 @@ public:
     instance_numeric->Initialize(*GetMorphDictionary(), static_cast<MorphInstance*>(instance));
     return instance_numeric;
   }
-  
+
 protected:
   //void SaveModel(FILE* fs);
   //void LoadModel(FILE* fs);

@@ -24,7 +24,6 @@
 #ifdef _WIN32
 #include <stdint.h>
 #endif
-#include <string>
 #include <unordered_map>
 #include <functional>
 
@@ -38,11 +37,11 @@ class Pipe;
 // Abstract class for the feature handler. Task-specific handlers should derive
 // from this class and implement the pure virtual methods.
 class Features {
- public:
+public:
   Features() {};
   virtual ~Features() {};
 
- public:
+public:
   // Set a pointer to the pipe that owns this feature handler.
   void SetPipe(Pipe *pipe) { pipe_ = pipe; };
 
@@ -51,7 +50,7 @@ class Features {
   // Get the binary features corresponding to the r-th part (mutable).
   virtual BinaryFeatures *GetMutablePartFeatures(int r) const = 0;
 
- protected:
+protected:
   Pipe *pipe_; // The pipe that owns this feature handler.
 };
 
@@ -86,7 +85,7 @@ struct FeatureLabelPairMapper {
 typedef std::unordered_map<FeatureLabelPair, double, FeatureLabelPairMapper, FeatureLabelPairMapper > FeatureLabelPairHashMap;
 
 //class  FeatureLabelCache: Hash-table for caching FeatureLabelPair keys with corresponding values
-class FeatureLabelCache{
+class FeatureLabelCache {
 
 public:
   FeatureLabelCache() {
@@ -94,13 +93,13 @@ public:
     misses_ = 0;
   };
   virtual ~FeatureLabelCache() {};
-  
+
   int hits() const { return hits_; };
   int misses() const { return misses_; };
   int size() const { return cache_.size(); };
 
   void increment_hits() { hits_ += 1; };
-  void increment_misses() { misses_+= 1; };
+  void increment_misses() { misses_ += 1; };
 
   //Insert a new pair {key, value} in the hash-table
   void insert(FeatureLabelPair key, double value) {
@@ -120,7 +119,7 @@ public:
     return false;
   };
 
- protected:
+protected:
   FeatureLabelPairHashMap cache_;
   uint64_t hits_;
   uint64_t misses_;

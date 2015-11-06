@@ -53,10 +53,10 @@ Instance *MorphReader::GetNext() {
 
   for (int i = 0; i < length; ++i) {
     const vector<string> &info = sentence_fields[i];
-    forms[i]    = info[1];
-    lemmas[i]   = info[2];
+    forms[i] = info[1];
+    lemmas[i] = info[2];
     cpostags[i] = info[3];
-    feats[i]    = info[5];
+    feats[i] = info[5];
   }
 
   MorphInstance *instance = NULL;

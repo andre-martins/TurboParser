@@ -31,7 +31,7 @@
 #include "SequenceDecoder.h"
 
 class SequencePipe : public Pipe {
- public:
+public:
   SequencePipe(Options* options) : Pipe(options) { token_dictionary_ = NULL; }
   virtual ~SequencePipe() { delete token_dictionary_; }
 
@@ -45,7 +45,7 @@ class SequencePipe : public Pipe {
     return static_cast<SequenceOptions*>(options_);
   };
 
- protected:
+protected:
   virtual void CreateDictionary() {
     dictionary_ = new SequenceDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -64,54 +64,54 @@ class SequencePipe : public Pipe {
 
   virtual Instance *GetFormattedInstance(Instance *instance) {
     SequenceInstanceNumeric *instance_numeric =
-          new SequenceInstanceNumeric;
+      new SequenceInstanceNumeric;
     instance_numeric->Initialize(*GetSequenceDictionary(),
-                                 static_cast<SequenceInstance*>(instance));
+      static_cast<SequenceInstance*>(instance));
     return instance_numeric;
   }
 
- protected:
+protected:
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 
   // Return the allowed tags for the i-th word. An empty vector means that all
   // tags are allowed.
   virtual void GetAllowedTags(Instance *instance, int i,
-                              vector<int> *allowed_tags) {
+    vector<int> *allowed_tags) {
     // By default, allow all tags.
     allowed_tags->clear();
   }
 
   void MakeParts(Instance *instance, Parts *parts,
-                 vector<double> *gold_outputs);
+    vector<double> *gold_outputs);
   void MakeUnigramParts(Instance *instance, Parts *parts,
-                        vector<double> *gold_outputs);
+    vector<double> *gold_outputs);
   void MakeBigramParts(Instance *instance, Parts *parts,
-                       vector<double> *gold_outputs);
+    vector<double> *gold_outputs);
   void MakeTrigramParts(Instance *instance, Parts *parts,
-                       vector<double> *gold_outputs);
+    vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features);
+    const vector<bool> &selected_parts, Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
-                     vector<double> *scores);
+    vector<double> *scores);
 
   void MakeFeatureDifference(Parts *parts,
-                             Features *features,
-                             const vector<double> &gold_output,
-                             const vector<double> &predicted_output,
-                             FeatureVector *difference);
+    Features *features,
+    const vector<double> &gold_output,
+    const vector<double> &predicted_output,
+    FeatureVector *difference);
 
   void MakeGradientStep(Parts *parts,
-                        Features *features,
-                        double eta,
-                        int iteration,
-                        const vector<double> &gold_output,
-                        const vector<double> &predicted_output);
+    Features *features,
+    double eta,
+    int iteration,
+    const vector<double> &gold_output,
+    const vector<double> &predicted_output);
 
   void LabelInstance(Parts *parts, const vector<double> &output,
-                     Instance *instance);
+    Instance *instance);
 
   virtual void BeginEvaluation() {
     num_tag_mistakes_ = 0;
@@ -119,10 +119,10 @@ class SequencePipe : public Pipe {
     gettimeofday(&start_clock_, NULL);
   }
   virtual void EvaluateInstance(Instance *instance,
-                                Instance *output_instance,
-                                Parts *parts,
-                                const vector<double> &gold_outputs,
-                                const vector<double> &predicted_outputs) {
+    Instance *output_instance,
+    Parts *parts,
+    const vector<double> &gold_outputs,
+    const vector<double> &predicted_outputs) {
     SequenceInstance *sequence_instance =
       static_cast<SequenceInstance*>(instance);
     SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
@@ -131,32 +131,33 @@ class SequencePipe : public Pipe {
       for (int k = 0; k < unigrams.size(); ++k) {
         int r = unigrams[k];
         if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-      if (running_multithreaded_) evaluation_lock_.lock();
-      ++num_tag_mistakes_;
-      if (running_multithreaded_) evaluation_lock_.unlock();
+          if (running_multithreaded_) evaluation_lock_.lock();
+          ++num_tag_mistakes_;
+          if (running_multithreaded_) evaluation_lock_.unlock();
           break;
         }
       }
-    if (running_multithreaded_) evaluation_lock_.lock();
+      if (running_multithreaded_) evaluation_lock_.lock();
       ++num_tokens_;
-    if (running_multithreaded_) evaluation_lock_.unlock();
+      if (running_multithreaded_) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO) << "Correct predictions: " <<(num_tokens_ - num_tag_mistakes_) << " out of " << static_cast<double>(num_tokens_);
+    LOG(INFO) << "Correct predictions: " << (num_tokens_ - num_tag_mistakes_)
+      << " out of " << static_cast<double>(num_tokens_);
     LOG(INFO) << "Tagging accuracy: " <<
       static_cast<double>(num_tokens_ - num_tag_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Tagging speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   int num_tag_mistakes_;
   int num_tokens_;

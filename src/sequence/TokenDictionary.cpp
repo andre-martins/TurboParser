@@ -25,21 +25,21 @@ using namespace std;
 
 
 DEFINE_int32(form_cutoff, 0,
-             "Ignore word forms whose frequency is less than this.");
+  "Ignore word forms whose frequency is less than this.");
 DEFINE_int32(lemma_cutoff, 0,
-             "Ignore word lemmas whose frequency is less than this.");
+  "Ignore word lemmas whose frequency is less than this.");
 DEFINE_int32(feats_cutoff, 0,
-             "Ignore morphological features whose frequency is less than this.");
+  "Ignore morphological features whose frequency is less than this.");
 DEFINE_int32(pos_cutoff, 0,
-             "Ignore POS tags whose frequency is less than this.");
+  "Ignore POS tags whose frequency is less than this.");
 DEFINE_int32(cpos_cutoff, 0,
-             "Ignore CPOS tags whose frequency is less than this.");
+  "Ignore CPOS tags whose frequency is less than this.");
 DEFINE_int32(prefix_length, 4,
-             "Length of prefixes.");
+  "Length of prefixes.");
 DEFINE_int32(suffix_length, 4,
-             "Length of suffixes.");
+  "Length of suffixes.");
 DEFINE_bool(form_case_sensitive, false,
-            "Distinguish upper/lower case of word forms.");
+  "Distinguish upper/lower case of word forms.");
 
 void TokenDictionary::Load(FILE* fs) {
   bool success;

@@ -72,12 +72,13 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
     for (int i = 0; i < tag_alphabet_.size(); ++i) {
       unknown_word_tags_.push_back(i);
     }
-  } else {
+  }
+  else {
     LOG(INFO) << "Loading file with unknown word tags...";
     std::ifstream is;
     is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->GetUnknownWordTagsFilePath() << ".";
+      << options->GetUnknownWordTagsFilePath() << ".";
     vector<vector<string> > sentence_fields;
     string line;
     if (is.is_open()) {

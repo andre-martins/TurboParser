@@ -29,7 +29,7 @@
 void EntityPipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)-> SetTokenDictionary(token_dictionary_);
+  static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
   // To get the right reader (instead of the default sequence reader).
   static_cast<EntityTokenDictionary*>(token_dictionary_)->InitializeFromEntityReader(GetEntityReader());
   static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());

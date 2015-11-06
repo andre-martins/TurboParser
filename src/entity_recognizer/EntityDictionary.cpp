@@ -32,7 +32,7 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   // Display information about the entity tags.
   LOG(INFO) << "Found " << tag_alphabet_.size() << " entity tags:";
   for (Alphabet::iterator it = tag_alphabet_.begin();
-       it != tag_alphabet_.end(); ++it) {
+  it != tag_alphabet_.end(); ++it) {
     std::string entity_tag = it->first;
     LOG(INFO) << entity_tag;
 
@@ -49,13 +49,13 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   LOG(INFO) << "Computing allowed bigrams...";
   // Every bigram is allowed by default.
   allowed_bigrams_.assign(1 + tag_alphabet_.size(),
-                          std::vector<bool>(1 + tag_alphabet_.size(), true));
+    std::vector<bool>(1 + tag_alphabet_.size(), true));
   // Now add the BIO-like constraints.
   for (Alphabet::iterator it = entities.begin(); it != entities.end(); ++it) {
     std::string entity = it->first;
     LOG(INFO) << "Processing entity " << entity << "...";
     if (static_cast<EntityPipe*>(pipe_)->GetEntityOptions()->tagging_scheme() ==
-        EntityTaggingSchemes::BIO) {
+      EntityTaggingSchemes::BIO) {
       int tag_begin = tag_alphabet_.Lookup("B-" + entity);
       int tag_inside = tag_alphabet_.Lookup("I-" + entity);
       if (tag_inside < 0) continue;
@@ -63,11 +63,12 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
       // entity.
       for (int left_tag = -1; left_tag < tag_alphabet_.size(); ++left_tag) {
         if (left_tag != tag_begin && left_tag != tag_inside) {
-          allowed_bigrams_[1+tag_inside][1+left_tag] = false;
+          allowed_bigrams_[1 + tag_inside][1 + left_tag] = false;
         }
       }
-    } else if (static_cast<EntityPipe*>(pipe_)->GetEntityOptions()->
-               tagging_scheme() == EntityTaggingSchemes::BILOU) {
+    }
+    else if (static_cast<EntityPipe*>(pipe_)->GetEntityOptions()->
+      tagging_scheme() == EntityTaggingSchemes::BILOU) {
       int tag_begin = tag_alphabet_.Lookup("B-" + entity);
       int tag_inside = tag_alphabet_.Lookup("I-" + entity);
       int tag_last = tag_alphabet_.Lookup("L-" + entity);
@@ -76,10 +77,10 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
       for (int left_tag = -1; left_tag < tag_alphabet_.size(); ++left_tag) {
         if (left_tag != tag_begin && left_tag != tag_inside) {
           if (tag_inside >= 0) {
-            allowed_bigrams_[1+tag_inside][1+left_tag] = false;
+            allowed_bigrams_[1 + tag_inside][1 + left_tag] = false;
           }
           if (tag_last >= 0) {
-            allowed_bigrams_[1+tag_last][1+left_tag] = false;
+            allowed_bigrams_[1 + tag_last][1 + left_tag] = false;
           }
         }
       }
@@ -88,10 +89,10 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
       for (int right_tag = -1; right_tag < tag_alphabet_.size(); ++right_tag) {
         if (right_tag != tag_last && right_tag != tag_inside) {
           if (tag_inside >= 0) {
-            allowed_bigrams_[1+right_tag][1+tag_inside] = false;
+            allowed_bigrams_[1 + right_tag][1 + tag_inside] = false;
           }
           if (tag_begin >= 0) {
-            allowed_bigrams_[1+right_tag][1+tag_begin] = false;
+            allowed_bigrams_[1 + right_tag][1 + tag_begin] = false;
           }
         }
       }
@@ -103,15 +104,15 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   for (int tag = -1; tag < tag_alphabet_.size(); ++tag) {
     for (int left_tag = -1; left_tag < tag_alphabet_.size(); ++left_tag) {
       if (IsAllowedBigram(left_tag, tag)) {
-        std::string left_tag_name = (left_tag >= 0)?
+        std::string left_tag_name = (left_tag >= 0) ?
           tag_alphabet_.GetName(left_tag) : "START";
-        std::string tag_name = (tag >= 0)?
+        std::string tag_name = (tag >= 0) ?
           tag_alphabet_.GetName(tag) : "STOP";
 
         LOG(INFO) << "Allowed bigram: "
-                  << left_tag_name
-                  << " -> "
-                  << tag_name;
+          << left_tag_name
+          << " -> "
+          << tag_name;
 
         ++num_allowed_bigrams;
       }
@@ -132,7 +133,7 @@ void EntityDictionary::ReadGazetteerFiles() {
 
   if (options->file_gazetteer() != "") {
     LOG(INFO) << "Loading gazetteer file "
-              << options->file_gazetteer() << "...";
+      << options->file_gazetteer() << "...";
     std::ifstream is;
     std::string line;
 
@@ -140,7 +141,7 @@ void EntityDictionary::ReadGazetteerFiles() {
     // dictionaries.
     is.open(options->file_gazetteer().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_gazetteer() << ".";
+      << options->file_gazetteer() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
@@ -166,7 +167,7 @@ void EntityDictionary::ReadGazetteerFiles() {
     gazetteer_word_entity_tags_.resize(gazetteer_word_alphabet_.size());
     is.open(options->file_gazetteer().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_gazetteer() << ".";
+      << options->file_gazetteer() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
@@ -191,16 +192,19 @@ void EntityDictionary::ReadGazetteerFiles() {
           int entity_type_id = -1;
           if (fields.size() == 2) {
             entity_type_id = entity_type_unique_id;
-          } else if (k == 1) {
+          }
+          else if (k == 1) {
             entity_type_id = entity_type_begin_id;
-          } else if (k == fields.size() - 1) {
+          }
+          else if (k == fields.size() - 1) {
             entity_type_id = entity_type_last_id;
-          } else {
+          }
+          else {
             entity_type_id = entity_type_inside_id;
           }
           int l = -1;
           for (l = 0; l < gazetteer_word_entity_tags_[word_id].size();
-               ++l) {
+          ++l) {
             if (gazetteer_word_entity_tags_[word_id][l] == entity_type_id) {
               break;
             }
@@ -218,9 +222,9 @@ void EntityDictionary::ReadGazetteerFiles() {
   gazetteer_word_alphabet_.StopGrowth();
   gazetteer_entity_tag_alphabet_.StopGrowth();
   LOG(INFO) << "Number of gazetteer words: "
-            << gazetteer_word_alphabet_.size();
+    << gazetteer_word_alphabet_.size();
   LOG(INFO) << "Number of gazetteer entity tags: "
-            << gazetteer_entity_tag_alphabet_.size();
+    << gazetteer_entity_tag_alphabet_.size();
 
 }
 

@@ -24,7 +24,7 @@
 #include "EntityReader.h"
 
 class EntityDictionary : public SequenceDictionary {
- public:
+public:
   EntityDictionary() {}
   EntityDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~EntityDictionary() {}
@@ -98,9 +98,9 @@ class EntityDictionary : public SequenceDictionary {
     gazetteer_word_alphabet_.StopGrowth();
     gazetteer_entity_tag_alphabet_.StopGrowth();
     LOG(INFO) << "Number of gazetteer words: "
-              << gazetteer_word_alphabet_.size();
+      << gazetteer_word_alphabet_.size();
     LOG(INFO) << "Number of gazetteer entity tags: "
-              << gazetteer_entity_tag_alphabet_.size();
+      << gazetteer_entity_tag_alphabet_.size();
 
     success = ReadInteger(fs, &length);
     CHECK(success);
@@ -123,12 +123,12 @@ class EntityDictionary : public SequenceDictionary {
   void ReadGazetteerFiles();
 
   void GetWordGazetteerIds(const std::string &word,
-                           std::vector<int> *gazetteer_ids) const {
+    std::vector<int> *gazetteer_ids) const {
     gazetteer_ids->clear();
     int id = gazetteer_word_alphabet_.Lookup(word);
     if (id >= 0) {
       gazetteer_ids->assign(gazetteer_word_entity_tags_[id].begin(),
-                            gazetteer_word_entity_tags_[id].end());
+        gazetteer_word_entity_tags_[id].end());
     }
   }
 
@@ -138,7 +138,7 @@ class EntityDictionary : public SequenceDictionary {
     return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
- protected:
+protected:
   std::vector<std::vector<bool> > allowed_bigrams_;
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;

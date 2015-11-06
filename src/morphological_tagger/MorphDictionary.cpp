@@ -178,7 +178,7 @@ void MorphTokenDictionary::InitializeFromMorphReader(MorphReader *reader) {
 
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
-      int form_length = static_cast<int>( form.length() );
+      int form_length = static_cast<int>(form.length());
       std::string form_lower(form);
       transform(form_lower.begin(), form_lower.end(), form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
@@ -207,11 +207,11 @@ void MorphTokenDictionary::InitializeFromMorphReader(MorphReader *reader) {
 
       // Add prefix/suffix to alphabet.
       //using varying lengths : [1; desired_size].
-      for (int numbchar = 1; numbchar <= std::min( prefix_length, form_length ); numbchar++) {
+      for (int numbchar = 1; numbchar <= std::min(prefix_length, form_length); numbchar++) {
         std::string prefix = form.substr(0, numbchar);
         id = prefix_alphabet_.Insert(prefix);
       }
-      for (int numbchar = 1; numbchar <= std::min( suffix_length, form_length ); numbchar++) {
+      for (int numbchar = 1; numbchar <= std::min(suffix_length, form_length); numbchar++) {
         int start = form_length - numbchar;
         if (start < 0) start = 0;
         std::string suffix = form.substr(start, numbchar);

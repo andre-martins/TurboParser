@@ -22,37 +22,37 @@
 using namespace std;
 
 DEFINE_string(file_train, "",
-              "Path to the file containing the training data.");
+  "Path to the file containing the training data.");
 DEFINE_string(file_test, "",
-              "Path to the file containing the test data.");
+  "Path to the file containing the test data.");
 DEFINE_string(file_model, "",
-              "Path to the file containing the model.");
+  "Path to the file containing the model.");
 DEFINE_string(file_prediction, "",
-              "Path to the file where the predictions are output.");
+  "Path to the file where the predictions are output.");
 DEFINE_bool(train, false,
-            "True for training the parser.");
+  "True for training the parser.");
 DEFINE_bool(test, false,
-            "True for testing the parser.");
+  "True for testing the parser.");
 DEFINE_bool(evaluate, false,
-            "True for evaluating the parser (requires --test).");
+  "True for evaluating the parser (requires --test).");
 DEFINE_string(train_algorithm, "svm_mira",
-             "Training algorithm. Options are perceptron, mira, svm_mira,"
-             "crf_mira, svm_sgd, crf_sgd.");
+  "Training algorithm. Options are perceptron, mira, svm_mira,"
+  "crf_mira, svm_sgd, crf_sgd.");
 DEFINE_double(train_initial_learning_rate, 0.01,
-              "Initial learning rate (for SGD only).");
+  "Initial learning rate (for SGD only).");
 DEFINE_string(train_learning_rate_schedule, "invsqrt",
-              "Learning rate annealing schedule (for SGD only). Options are "
-              "fixed, lecun, invsqrt, inv.");
+  "Learning rate annealing schedule (for SGD only). Options are "
+  "fixed, lecun, invsqrt, inv.");
 DEFINE_bool(only_supported_features, false,
-            "True for using supported features only (should be true for CRFs).");
+  "True for using supported features only (should be true for CRFs).");
 DEFINE_bool(use_averaging, true,
-            "True for averaging the weight vector at the end of training.");
+  "True for averaging the weight vector at the end of training.");
 DEFINE_int32(train_epochs, 10,
-             "Number of training epochs.");
+  "Number of training epochs.");
 DEFINE_double(train_regularization_constant, 1e12,
-              "Regularization parameter C.");
+  "Regularization parameter C.");
 DEFINE_int32(parameters_max_num_buckets, 50000000,
-           "Maximum number of buckets in the hash table that stores the parameters.");
+  "Maximum number of buckets in the hash table that stores the parameters.");
 
 DEFINE_bool(use_multithreading, false,
   "True for multithreading usage.");
@@ -76,7 +76,6 @@ void Options::Initialize() {
   train_learning_rate_schedule_ = FLAGS_train_learning_rate_schedule;
   only_supported_features_ = FLAGS_only_supported_features;
   use_averaging_ = FLAGS_use_averaging;
-
   use_multithreading_ = FLAGS_use_multithreading;
 }
 

@@ -22,7 +22,7 @@
 #include "SequenceDictionary.h"
 
 class TaggerDictionary : public SequenceDictionary {
- public:
+public:
   TaggerDictionary() {}
   TaggerDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~TaggerDictionary() {}
@@ -97,12 +97,13 @@ class TaggerDictionary : public SequenceDictionary {
     // fill it with the unknown tags elsewhere.
     if (!word_tags_[word].empty()) {
       return word_tags_[word];
-    } else {
+    }
+    else {
       return unknown_word_tags_;
     }
   }
 
- protected:
+protected:
   vector<vector<int> > word_tags_;
   vector<int> unknown_word_tags_;
 };
