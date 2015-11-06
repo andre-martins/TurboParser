@@ -33,3 +33,16 @@
   * Added a semantic parser, TurboSemanticParser (as described in our SemEval
   2014 paper)
   * Added a tokenizer for Portuguese.
+
+2015-11-06 TurboParser 2.3.0 afm@cs.cmu.edu
+  New release with some additional features:
+  * Added a named entity recognizer, TurboEntityRecognizer, based on the
+  Illinois Entity Tagger.
+  * Added a coreference resolver, TurboCoreferenceResolver, based on the
+  Berkeley Coreference Resolution System.
+  * Implemented a constituent parser by reducing that problem to dependency
+  parser followed by unary recovery (as described in our ACL 2015 paper).
+  * As a by-product, implemented an external dependency labeler,
+  TurboDependencyLabeler, to be applied optionally after the dependency parser.
+  * Compatible with C++0x.
+  * Windows-compatible (tested under MSVC; thanks to David Nogueira).

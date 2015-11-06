@@ -34,6 +34,7 @@ wget http://www.ark.cs.cmu.edu/TurboParser/sample_models/english_proj_tagger.tar
 wget http://www.ark.cs.cmu.edu/TurboParser/sample_models/english_proj_parser.tar.gz
 
 Unzip these files and place them in <root folder>/models/english_proj. 
+Then, update your nlp_pipeline.config file with the correct paths to your models.
 You can do the following test in your Python shell:
 
 >>> import nlp_pipeline
