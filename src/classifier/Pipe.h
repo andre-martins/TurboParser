@@ -30,9 +30,9 @@
 #include "AlgUtils.h"
 
 
-#include <thread>         // std::thread
-#include <list>        // std::list
-#include <mutex>      // std::mutex
+#include <thread>
+#include <list>
+#include <mutex>
 
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and

@@ -103,7 +103,8 @@ public:
     }
     label_weights_.push_back(std::pair<int, double>(label, weight));
   }
-  // Sets new weight, normalize it and returns previous value of label_weights_[k].second, with k such that label == label_weights_[k].first
+  // Sets new weight, normalize it and returns previous value of 
+  // label_weights_[k].second, with k such that label == label_weights_[k].first.
   double SetWeightAndNormalize(int label, double value, double scaling_factor) {
     double weight = value/scaling_factor;
     double previous_value;
@@ -117,7 +118,9 @@ public:
     label_weights_.push_back(std::pair<int, double>(label, weight));
     return 0.0;
   }
-  // Add weight value to current weight, normalize it and returns previous value of label_weights_[k].second, with k such that label == label_weights_[k].first
+  // Add weight value to current weight, normalize it and 
+  // returns previous value of label_weights_[k].second, 
+  // with k such that label == label_weights_[k].first.
   double AddWeightAndNormalize(int label, double value, double scaling_factor) {
     double weight = value/scaling_factor;
     double previous_value;
@@ -184,7 +187,7 @@ public:
     }
     weights_[label] += weight;
   }
-  // Sets new weight, normalize it and returns previous value of weights_[label]
+  // Sets new weight, normalize it and returns previous value of weights_[label].
   double SetWeightAndNormalize(int label, double value, double scaling_factor) {
     CHECK_GE(label, 0);
     if (label>=weights_.size()) {
@@ -195,7 +198,8 @@ public:
     weights_[label] = weight;
     return previous_value;
   }
-  // Add weight value to current weight, normalize it and returns previous value of weights_[label]
+  // Add weight value to current weight, 
+  // normalize it and returns previous value of weights_[label].
   double AddWeightAndNormalize(int label, double value, double scaling_factor) {
     CHECK_GE(label, 0);
     if (label>=weights_.size()) {
@@ -489,7 +493,9 @@ protected:
     label_weights->SetWeight(label, value/scale_factor_);
 #else
     LabelWeights *label_weights = iterator->second;
-    double previous_value = label_weights->SetWeightAndNormalize(label, value, scale_factor_);
+    double previous_value = label_weights->SetWeightAndNormalize(label, 
+                                                                 value,
+                                                                 scale_factor_);
     squared_norm_ += value * value-previous_value * previous_value;
 #endif
 
@@ -524,7 +530,9 @@ protected:
     LabelWeights *label_weights = iterator->second;
     if (!label_weights)
       label_weights = new SparseLabelWeights;
-    double previous_value = label_weights->AddWeightAndNormalize(label, value, scale_factor_);
+    double previous_value = label_weights->AddWeightAndNormalize(label, 
+                                                                 value, 
+                                                                 scale_factor_);
     //squared_norm_ += (value + previous_value) * (value + previous_value) - previous_value * previous_value;   //step1 
     //squared_norm_ += value * value + 2 * value * previous_value + ( previous_value * previous_value - previous_value * previous_value );  //step2
     squared_norm_ += value * value+2*value * previous_value;    //step3
