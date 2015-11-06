@@ -35,7 +35,7 @@ public:
   }
 
   void Initialize(const MorphDictionary &dictionary,
-    MorphInstance *instance);
+                  MorphInstance *instance);
 
   const std::vector<int> &GetCPosTagIds()     const { return cpostags_ids_; }
   const std::vector<int> &GetLemmaIds(int i)  const { return lemmas_ids_; }

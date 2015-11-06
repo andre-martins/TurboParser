@@ -104,7 +104,7 @@ protected:
     SemanticInstanceNumeric *instance_numeric =
       new SemanticInstanceNumeric;
     instance_numeric->Initialize(*GetSemanticDictionary(),
-      static_cast<SemanticInstance*>(instance));
+                                 static_cast<SemanticInstance*>(instance));
     return instance_numeric;
   }
 
@@ -115,91 +115,91 @@ protected:
   void LoadPrunerModelByName(const string &model_name);
 
   void MakeParts(Instance *instance, Parts *parts,
-    vector<double> *gold_outputs);
+                 vector<double> *gold_outputs);
   void MakePartsBasic(Instance *instance, Parts *parts,
-    vector<double> *gold_outputs);
+                      vector<double> *gold_outputs);
   void MakePartsBasic(Instance *instance, bool add_labeled_parts, Parts *parts,
-    vector<double> *gold_outputs);
+                      vector<double> *gold_outputs);
   void MakePartsGlobal(Instance *instance, Parts *parts,
-    vector<double> *gold_outputs);
+                       vector<double> *gold_outputs);
   void MakePartsArbitrarySiblings(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                                  Parts *parts,
+                                  vector<double> *gold_outputs);
   void MakePartsLabeledArbitrarySiblings(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                                         Parts *parts,
+                                         vector<double> *gold_outputs);
   void MakePartsConsecutiveSiblings(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                                    Parts *parts,
+                                    vector<double> *gold_outputs);
   void MakePartsGrandparents(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                             Parts *parts,
+                             vector<double> *gold_outputs);
   void MakePartsCoparents(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                          Parts *parts,
+                          vector<double> *gold_outputs);
   void MakePartsConsecutiveCoparents(Instance *instance,
-    Parts *parts,
-    vector<double> *gold_outputs);
+                                     Parts *parts,
+                                     vector<double> *gold_outputs);
 
   void MakeFeatures(Instance *instance, Parts *parts, bool pruner,
-    Features *features) {
+                    Features *features) {
     vector<bool> selected_parts(parts->size(), true);
     MakeSelectedFeatures(instance, parts, pruner, selected_parts, features);
   }
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-    const vector<bool>& selected_parts, Features *features) {
+                            const vector<bool>& selected_parts, Features *features) {
     // Set pruner = false unless we're training the pruner.
     MakeSelectedFeatures(instance, parts, train_pruner_, selected_parts,
-      features);
+                         features);
   }
   void MakeSelectedFeatures(Instance *instance,
-    Parts *parts,
-    bool pruner,
-    const vector<bool>& selected_parts,
-    Features *features);
+                            Parts *parts,
+                            bool pruner,
+                            const vector<bool>& selected_parts,
+                            Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
-    vector<double> *scores) {
+                     vector<double> *scores) {
     // Set pruner = false unless we're training the pruner.
     ComputeScores(instance, parts, features, train_pruner_, scores);
   }
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
-    bool pruner, vector<double> *scores);
+                     bool pruner, vector<double> *scores);
 
   void RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-    bool pruner,
-    const vector<bool> &selected_parts,
-    Features *features);
+                                 bool pruner,
+                                 const vector<bool> &selected_parts,
+                                 Features *features);
 
   void RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
-    const vector<bool> &selected_parts,
-    Features *features) {
+                                 const vector<bool> &selected_parts,
+                                 Features *features) {
     // Set pruner = false unless we're training the pruner.
     RemoveUnsupportedFeatures(instance, parts, train_pruner_, selected_parts,
-      features);
+                              features);
   }
 
   void MakeFeatureDifference(Parts *parts,
-    Features *features,
-    const vector<double> &gold_output,
-    const vector<double> &predicted_output,
-    FeatureVector *difference);
+                             Features *features,
+                             const vector<double> &gold_output,
+                             const vector<double> &predicted_output,
+                             FeatureVector *difference);
 
   void MakeGradientStep(Parts *parts,
-    Features *features,
-    double eta,
-    int iteration,
-    const vector<double> &gold_output,
-    const vector<double> &predicted_output);
+                        Features *features,
+                        double eta,
+                        int iteration,
+                        const vector<double> &gold_output,
+                        const vector<double> &predicted_output);
 
   void TouchParameters(Parts *parts, Features *features,
-    const vector<bool> &selected_parts);
+                       const vector<bool> &selected_parts);
 
   void LabelInstance(Parts *parts, const vector<double> &output,
-    Instance *instance);
+                     Instance *instance);
 
   void Prune(Instance *instance, Parts *parts, vector<double> *gold_outputs,
-    bool preserve_gold);
+             bool preserve_gold);
 
   virtual void BeginEvaluation() {
     num_predicted_unlabeled_arcs_ = 0;
@@ -218,10 +218,10 @@ protected:
     gettimeofday(&start_clock_, NULL);
   }
   virtual void EvaluateInstance(Instance *instance,
-    Instance *output_instance,
-    Parts *parts,
-    const vector<double> &gold_outputs,
-    const vector<double> &predicted_outputs) {
+                                Instance *output_instance,
+                                Parts *parts,
+                                const vector<double> &gold_outputs,
+                                const vector<double> &predicted_outputs) {
     int num_possible_unlabeled_arcs = 0;
     int num_possible_labeled_arcs = 0;
     int num_gold_unlabeled_arcs = 0;
@@ -229,22 +229,22 @@ protected:
     SemanticInstance *semantic_instance =
       static_cast<SemanticInstance*>(instance);
     SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
-    for (int p = 0; p < semantic_instance->size(); ++p) {
+    for (int p = 0; p<semantic_instance->size(); ++p) {
       const vector<int> &senses = semantic_parts->GetSenses(p);
-      for (int a = 1; a < semantic_instance->size(); ++a) {
-        for (int k = 0; k < senses.size(); ++k) {
+      for (int a = 1; a<semantic_instance->size(); ++a) {
+        for (int k = 0; k<senses.size(); ++k) {
           int s = senses[k];
           int r = semantic_parts->FindArc(p, a, s);
-          if (r < 0) continue;
+          if (r<0) continue;
           ++num_possible_unlabeled_arcs;
-          if (gold_outputs[r] >= 0.5) {
+          if (gold_outputs[r]>=0.5) {
             CHECK_EQ(gold_outputs[r], 1.0);
             if (NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
               ++num_matched_unlabeled_arcs_;
             }
             ++num_gold_unlabeled_arcs;
           }
-          if (predicted_outputs[r] >= 0.5) {
+          if (predicted_outputs[r]>=0.5) {
             CHECK_EQ(predicted_outputs[r], 1.0);
             ++num_predicted_unlabeled_arcs_;
 
@@ -257,11 +257,11 @@ protected:
           if (GetSemanticOptions()->labeled()) {
             const vector<int> &labeled_arcs =
               semantic_parts->FindLabeledArcs(p, a, s);
-            for (int k = 0; k < labeled_arcs.size(); ++k) {
+            for (int k = 0; k<labeled_arcs.size(); ++k) {
               int r = labeled_arcs[k];
-              if (r < 0) continue;
+              if (r<0) continue;
               ++num_possible_labeled_arcs;
-              if (gold_outputs[r] >= 0.5) {
+              if (gold_outputs[r]>=0.5) {
                 CHECK_EQ(gold_outputs[r], 1.0);
                 if (NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
                   ++num_matched_labeled_arcs_;
@@ -273,7 +273,7 @@ protected:
                 }
                 ++num_gold_labeled_arcs;
               }
-              if (predicted_outputs[r] >= 0.5) {
+              if (predicted_outputs[r]>=0.5) {
                 CHECK_EQ(predicted_outputs[r], 1.0);
                 ++num_predicted_labeled_arcs_;
               }
@@ -288,14 +288,14 @@ protected:
     }
 
     int num_actual_gold_arcs = 0;
-    for (int k = 0; k < semantic_instance->GetNumPredicates(); ++k) {
+    for (int k = 0; k<semantic_instance->GetNumPredicates(); ++k) {
       num_actual_gold_arcs +=
         semantic_instance->GetNumArgumentsPredicate(k);
     }
     num_gold_unlabeled_arcs_ += num_actual_gold_arcs;
     num_gold_labeled_arcs_ += num_actual_gold_arcs;
-    int missed_unlabeled = num_actual_gold_arcs - num_gold_unlabeled_arcs;
-    int missed_labeled = num_actual_gold_arcs - num_gold_labeled_arcs;
+    int missed_unlabeled = num_actual_gold_arcs-num_gold_unlabeled_arcs;
+    int missed_labeled = num_actual_gold_arcs-num_gold_labeled_arcs;
     //if (missed > 0) {
     //  LOG(INFO) << "Missed " << missed << " unlabeled arcs.";
     //}
@@ -307,87 +307,87 @@ protected:
 
   virtual void EndEvaluation() {
     double unlabeled_precision =
-      static_cast<double>(num_matched_unlabeled_arcs_) /
+      static_cast<double>(num_matched_unlabeled_arcs_)/
       static_cast<double>(num_predicted_unlabeled_arcs_);
     double unlabeled_recall =
-      static_cast<double>(num_matched_unlabeled_arcs_) /
+      static_cast<double>(num_matched_unlabeled_arcs_)/
       static_cast<double>(num_gold_unlabeled_arcs_);
-    double unlabeled_F1 = 2.0 * unlabeled_precision * unlabeled_recall /
-      (unlabeled_precision + unlabeled_recall);
+    double unlabeled_F1 = 2.0 * unlabeled_precision * unlabeled_recall/
+      (unlabeled_precision+unlabeled_recall);
     double pruning_unlabeled_recall =
-      static_cast<double>(num_gold_unlabeled_arcs_ -
-        num_pruned_gold_unlabeled_arcs_) /
+      static_cast<double>(num_gold_unlabeled_arcs_-
+                          num_pruned_gold_unlabeled_arcs_)/
       static_cast<double>(num_gold_unlabeled_arcs_);
     double pruning_unlabeled_efficiency =
-      static_cast<double>(num_possible_unlabeled_arcs_) /
+      static_cast<double>(num_possible_unlabeled_arcs_)/
       static_cast<double>(num_tokens_);
 
     double labeled_precision =
-      static_cast<double>(num_matched_labeled_arcs_) /
+      static_cast<double>(num_matched_labeled_arcs_)/
       static_cast<double>(num_predicted_labeled_arcs_);
     double labeled_recall =
-      static_cast<double>(num_matched_labeled_arcs_) /
+      static_cast<double>(num_matched_labeled_arcs_)/
       static_cast<double>(num_gold_labeled_arcs_);
-    double labeled_F1 = 2.0 * labeled_precision * labeled_recall /
-      (labeled_precision + labeled_recall);
+    double labeled_F1 = 2.0 * labeled_precision * labeled_recall/
+      (labeled_precision+labeled_recall);
     double pruning_labeled_recall =
-      static_cast<double>(num_gold_labeled_arcs_ -
-        num_pruned_gold_labeled_arcs_) /
+      static_cast<double>(num_gold_labeled_arcs_-
+                          num_pruned_gold_labeled_arcs_)/
       static_cast<double>(num_gold_labeled_arcs_);
     double pruning_labeled_efficiency =
-      static_cast<double>(num_possible_labeled_arcs_) /
+      static_cast<double>(num_possible_labeled_arcs_)/
       static_cast<double>(num_tokens_);
 
-    LOG(INFO) << "Unlabeled precision: " << unlabeled_precision
-      << " (" << num_matched_unlabeled_arcs_ << "/"
-      << num_predicted_unlabeled_arcs_ << ")";
-    LOG(INFO) << "Unlabeled recall: " << unlabeled_recall
-      << " (" << num_matched_unlabeled_arcs_ << "/"
-      << num_gold_unlabeled_arcs_ << ")";
-    LOG(INFO) << "Unlabeled F1: " << unlabeled_F1;
-    LOG(INFO) << "Pruning unlabeled recall: " << pruning_unlabeled_recall
-      << " ("
-      << num_gold_unlabeled_arcs_ - num_pruned_gold_unlabeled_arcs_
-      << "/"
-      << num_gold_unlabeled_arcs_ << ")";
-    LOG(INFO) << "Pruning unlabeled efficiency: " << pruning_unlabeled_efficiency
-      << " possible unlabeled arcs per token"
-      << " (" << num_possible_unlabeled_arcs_ << "/"
-      << num_tokens_ << ")";
+    LOG(INFO)<<"Unlabeled precision: "<<unlabeled_precision
+      <<" ("<<num_matched_unlabeled_arcs_<<"/"
+      <<num_predicted_unlabeled_arcs_<<")";
+    LOG(INFO)<<"Unlabeled recall: "<<unlabeled_recall
+      <<" ("<<num_matched_unlabeled_arcs_<<"/"
+      <<num_gold_unlabeled_arcs_<<")";
+    LOG(INFO)<<"Unlabeled F1: "<<unlabeled_F1;
+    LOG(INFO)<<"Pruning unlabeled recall: "<<pruning_unlabeled_recall
+      <<" ("
+      <<num_gold_unlabeled_arcs_-num_pruned_gold_unlabeled_arcs_
+      <<"/"
+      <<num_gold_unlabeled_arcs_<<")";
+    LOG(INFO)<<"Pruning unlabeled efficiency: "<<pruning_unlabeled_efficiency
+      <<" possible unlabeled arcs per token"
+      <<" ("<<num_possible_unlabeled_arcs_<<"/"
+      <<num_tokens_<<")";
 
-    LOG(INFO) << "Labeled precision: " << labeled_precision
-      << " (" << num_matched_labeled_arcs_ << "/"
-      << num_predicted_labeled_arcs_ << ")";
-    LOG(INFO) << "Labeled recall: " << labeled_recall
-      << " (" << num_matched_labeled_arcs_ << "/"
-      << num_gold_labeled_arcs_ << ")";
-    LOG(INFO) << "Labeled F1: " << labeled_F1;
-    LOG(INFO) << "Pruning labeled recall: " << pruning_labeled_recall
-      << " ("
-      << num_gold_labeled_arcs_ - num_pruned_gold_labeled_arcs_
-      << "/"
-      << num_gold_labeled_arcs_ << ")";
-    LOG(INFO) << "Pruning labeled efficiency: " << pruning_labeled_efficiency
-      << " possible labeled arcs per token"
-      << " (" << num_possible_labeled_arcs_ << "/"
-      << num_tokens_ << ")";
+    LOG(INFO)<<"Labeled precision: "<<labeled_precision
+      <<" ("<<num_matched_labeled_arcs_<<"/"
+      <<num_predicted_labeled_arcs_<<")";
+    LOG(INFO)<<"Labeled recall: "<<labeled_recall
+      <<" ("<<num_matched_labeled_arcs_<<"/"
+      <<num_gold_labeled_arcs_<<")";
+    LOG(INFO)<<"Labeled F1: "<<labeled_F1;
+    LOG(INFO)<<"Pruning labeled recall: "<<pruning_labeled_recall
+      <<" ("
+      <<num_gold_labeled_arcs_-num_pruned_gold_labeled_arcs_
+      <<"/"
+      <<num_gold_labeled_arcs_<<")";
+    LOG(INFO)<<"Pruning labeled efficiency: "<<pruning_labeled_efficiency
+      <<" possible labeled arcs per token"
+      <<" ("<<num_possible_labeled_arcs_<<"/"
+      <<num_tokens_<<")";
 
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
-    double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
-    LOG(INFO) << "Speed: "
-      << tokens_per_second << " tokens per second.";
+      static_cast<double>(diff_ms(end_clock, start_clock_))/1000.0;
+    double tokens_per_second = static_cast<double>(num_tokens_)/num_seconds;
+    LOG(INFO)<<"Speed: "
+      <<tokens_per_second<<" tokens per second.";
   }
 
 #if 0
   void GetAllAncestors(const vector<int> &heads,
-    int descend,
-    vector<int>* ancestors);
+                       int descend,
+                       vector<int>* ancestors);
   bool ExistsPath(const vector<int> &heads,
-    int ancest,
-    int descend);
+                  int ancest,
+                  int descend);
 #endif
 protected:
   TokenDictionary *token_dictionary_;

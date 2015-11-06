@@ -38,7 +38,7 @@ public:
     int length = unknown_word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+    for (int j = 0; j<unknown_word_tags_.size(); ++j) {
       int tag = unknown_word_tags_[j];
       success = WriteInteger(fs, tag);
       CHECK(success);
@@ -47,11 +47,11 @@ public:
     length = word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i < word_tags_.size(); ++i) {
+    for (int i = 0; i<word_tags_.size(); ++i) {
       length = word_tags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
+      for (int j = 0; j<word_tags_[i].size(); ++j) {
         int tag = word_tags_[i][j];
         success = WriteInteger(fs, tag);
         CHECK(success);
@@ -66,7 +66,7 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     unknown_word_tags_.resize(length);
-    for (int j = 0; j < unknown_word_tags_.size(); ++j) {
+    for (int j = 0; j<unknown_word_tags_.size(); ++j) {
       int tag;
       success = ReadInteger(fs, &tag);
       CHECK(success);
@@ -75,11 +75,11 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     word_tags_.resize(length);
-    for (int i = 0; i < word_tags_.size(); ++i) {
+    for (int i = 0; i<word_tags_.size(); ++i) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       word_tags_[i].resize(length);
-      for (int j = 0; j < word_tags_[i].size(); ++j) {
+      for (int j = 0; j<word_tags_[i].size(); ++j) {
         int tag;
         success = ReadInteger(fs, &tag);
         CHECK(success);
@@ -97,8 +97,7 @@ public:
     // fill it with the unknown tags elsewhere.
     if (!word_tags_[word].empty()) {
       return word_tags_[word];
-    }
-    else {
+    } else {
       return unknown_word_tags_;
     }
   }

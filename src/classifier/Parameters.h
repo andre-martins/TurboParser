@@ -44,7 +44,7 @@ public:
     return &labeled_weights_;
   }
   double GetSquaredNorm() const {
-    return weights_.GetSquaredNorm() + labeled_weights_.GetSquaredNorm();
+    return weights_.GetSquaredNorm()+labeled_weights_.GetSquaredNorm();
   }
 
 protected:
@@ -95,7 +95,7 @@ public:
   // Get the number of parameters.
   // NOTE: this counts the parameters of the features that are conjoined with
   // output labels as a single parameter.
-  int Size() const { return weights_.Size() + labeled_weights_.Size(); }
+  int Size() const { return weights_.Size()+labeled_weights_.Size(); }
 
   // Checks if a feature exists.
   bool Exists(uint64_t key) const { return weights_.Exists(key); }
@@ -114,20 +114,20 @@ public:
   // Return false if the feature does not exist, in which case the label_scores
   // will be an empty vector.
   bool Get(uint64_t key,
-    const vector<int> &labels,
-    vector<double> *label_scores) const {
+           const vector<int> &labels,
+           vector<double> *label_scores) const {
     return labeled_weights_.Get(key, labels, label_scores);
   }
 
   // Get the squared norm of the parameter vector.
   double GetSquaredNorm() const {
-    return weights_.GetSquaredNorm() + labeled_weights_.GetSquaredNorm();
+    return weights_.GetSquaredNorm()+labeled_weights_.GetSquaredNorm();
   }
 
   // Compute the score corresponding to a set of "simple" features.
   double ComputeScore(const BinaryFeatures &features) const {
     double score = 0.0;
-    for (int j = 0; j < features.size(); ++j) {
+    for (int j = 0; j<features.size(); ++j) {
       score += Get(features[j]);
     }
     return score;
@@ -137,14 +137,14 @@ public:
   // output labels. The vector scores, provided as output, contains the score
   // for each label.
   void ComputeLabelScores(const BinaryFeatures &features,
-    const vector<int> &labels,
-    vector<double> *scores) const {
+                          const vector<int> &labels,
+                          vector<double> *scores) const {
     scores->clear();
     scores->resize(labels.size(), 0.0);
     vector<double> label_scores(labels.size(), 0.0);
-    for (int j = 0; j < features.size(); ++j) {
+    for (int j = 0; j<features.size(); ++j) {
       if (!Get(features[j], labels, &label_scores)) continue;
-      for (int k = 0; k < labels.size(); ++k) {
+      for (int k = 0; k<labels.size(); ++k) {
         (*scores)[k] += label_scores[k];
       }
     }
@@ -152,10 +152,11 @@ public:
 
   // Compute the scores corresponding to a set of features, conjoined with
   // output labels. The vector scores, provided as output, contains the score
-  // for each label, with the added functionality of using a cache for already computed scores.
+  // for each label, with the added functionality 
+  // of using a cache for already computed scores.
   void ComputeLabelScoresWithCache(const BinaryFeatures &features,
-    const vector<int> &labels,
-    vector<double> *scores) {
+                                   const vector<int> &labels,
+                                   vector<double> *scores) {
 
     FeatureLabelPair caching_key;
     double caching_value;
@@ -166,28 +167,27 @@ public:
     scores->clear();
     scores->resize(labels.size(), 0.0);
     vector<double> label_scores(labels.size(), 0.0);
-    for (int j = 0; j < features.size(); ++j) {
+    for (int j = 0; j<features.size(); ++j) {
 
       if (!ExistsLabeled(features[j])) continue;
       reduced_labels.clear();
       adjust_new_index_reduced_labels.clear();
 
-      for (int k = 0; k < labels.size(); ++k) {
+      for (int k = 0; k<labels.size(); ++k) {
         caching_key = { features[j], labels[k] };
         if (!caching_weights_.find(caching_key, &caching_value)) {
           // Add such label to reduced labels.
           reduced_labels.push_back(labels[k]);
           adjust_new_index_reduced_labels.push_back(k);
           caching_weights_.increment_misses();
-        }
-        else {
+        } else {
           (*scores)[k] += caching_value;
           caching_weights_.increment_hits();
         }
       }
-      if (reduced_labels.size() == 0) continue;
+      if (reduced_labels.size()==0) continue;
       if (!Get(features[j], reduced_labels, &label_scores)) continue;
-      for (int k = 0; k < reduced_labels.size(); ++k) {
+      for (int k = 0; k<reduced_labels.size(); ++k) {
         (*scores)[adjust_new_index_reduced_labels[k]] += label_scores[k];
 
         caching_key = { features[j], reduced_labels[k] };
@@ -208,17 +208,17 @@ public:
   // The iteration number is provided as input since it is necessary to
   // update the wanna-be "averaged parameters" in an efficient manner.
   void MakeGradientStep(const BinaryFeatures &features,
-    double eta,
-    int iteration,
-    double gradient) {
-    for (int j = 0; j < features.size(); ++j) {
+                        double eta,
+                        int iteration,
+                        double gradient) {
+    for (int j = 0; j<features.size(); ++j) {
       weights_.Add(features[j], -eta * gradient);
       if (use_average_) {
         // perceptron/mira:
         // T*u1 + (T-1)*u2 + ... u_T = T*(u1 + u2 + ...) - u2 - 2*u3 - (T-1)*u_T
         // = T*w_T - u2 - 2*u3 - (T-1)*u_T
         averaged_weights_.Add(features[j],
-          static_cast<double>(iteration) * eta * gradient);
+                              static_cast<double>(iteration) * eta * gradient);
       }
     }
   }
@@ -228,18 +228,18 @@ public:
   // The iteration number is provided as input since it is necessary to
   // update the wanna-be "averaged parameters" in an efficient manner.
   void MakeLabelGradientStep(const BinaryFeatures &features,
-    double eta,
-    int iteration,
-    int label,
-    double gradient) {
-    for (int j = 0; j < features.size(); ++j) {
+                             double eta,
+                             int iteration,
+                             int label,
+                             double gradient) {
+    for (int j = 0; j<features.size(); ++j) {
       labeled_weights_.Add(features[j], label, -eta * gradient);
     }
 
     if (use_average_) {
-      for (int j = 0; j < features.size(); ++j) {
+      for (int j = 0; j<features.size(); ++j) {
         averaged_labeled_weights_.Add(features[j], label,
-          static_cast<double>(iteration) * eta * gradient);
+                                      static_cast<double>(iteration) * eta * gradient);
       }
     }
   }
@@ -249,13 +249,13 @@ public:
   // parameters are finally computed and replace the original parameters.
   void Finalize(int num_iterations) {
     if (use_average_) {
-      LOG(INFO) << "Averaging the weights...";
+      LOG(INFO)<<"Averaging the weights...";
 
-      averaged_weights_.Scale(1.0 / static_cast<double>(num_iterations));
+      averaged_weights_.Scale(1.0/static_cast<double>(num_iterations));
       weights_.Add(averaged_weights_);
 
       averaged_labeled_weights_.Scale(
-        1.0 / static_cast<double>(num_iterations));
+        1.0/static_cast<double>(num_iterations));
 
       labeled_weights_.Add(averaged_labeled_weights_);
     }

@@ -23,7 +23,7 @@
 #include "EntitySpan.h"
 
 class EntityInstance : public SequenceInstance {
- public:
+public:
   EntityInstance() {}
   virtual ~EntityInstance() {}
 
@@ -58,7 +58,7 @@ class EntityInstance : public SequenceInstance {
   // Destroy the spans.
   void DeleteSpans(std::vector<EntitySpan*> *spans) const;
 
- protected:
+protected:
   std::vector<std::string> pos_;
 };
 

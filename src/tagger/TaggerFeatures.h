@@ -29,13 +29,13 @@ public:
 
 public:
   void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
-    int position);
+                          int position);
 
   void AddBigramFeatures(SequenceInstanceNumeric *sentence,
-    int position);
+                         int position);
 
   void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
-    int position);
+                          int position);
 
 protected:
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {

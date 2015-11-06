@@ -30,8 +30,8 @@ Instance *SequenceReader::GetNext() {
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
-      if (line.length() <= 0) break;
-      if (0 == line.substr(0, 1).compare("#")) {
+      if (line.length()<=0) break;
+      if (0==line.substr(0, 1).compare("#")) {
         continue;
       }
       //LOG(INFO) << line;
@@ -48,7 +48,7 @@ Instance *SequenceReader::GetNext() {
   vector<string> forms(length);
   vector<string> tags(length);
 
-  for(int i = 0; i < length; ++i) {
+  for (int i = 0; i<length; ++i) {
     const vector<string> &info = sentence_fields[i];
     CHECK_EQ(info.size(), 2);
     forms[i] = info[0];
@@ -56,7 +56,7 @@ Instance *SequenceReader::GetNext() {
   }
 
   SequenceInstance *instance = NULL;
-  if (length > 0) {
+  if (length>0) {
     instance = new SequenceInstance;
     instance->Initialize(forms, tags);
   }

@@ -24,16 +24,16 @@ using namespace std;
 
 // TODO: Implement the reader for "text".
 DEFINE_string(entity_file_format, "conll",
-  "Format of the input file containing the data. Use ""conll"" for "
-  "the format used in CONLL-X, and ""text"" for tokenized"
-  "sentences (one per line, with tokens separated "
-  "by white-spaces.");
+              "Format of the input file containing the data. Use ""conll"" for "
+              "the format used in CONLL-X, and ""text"" for tokenized"
+              "sentences (one per line, with tokens separated "
+              "by white-spaces.");
 DEFINE_string(entity_tagging_scheme, "bio",
-  "The encoding scheme to represent entity spans as tags. Either "
-  """io"", ""bio"", or ""bilou"".");
+              "The encoding scheme to represent entity spans as tags. Either "
+              """io"", ""bio"", or ""bilou"".");
 DEFINE_string(entity_file_gazetteer, "",
-  "Path to a gazetteer file (one entity per line with the "
-  "corresponding class, separated by tabs.");
+              "Path to a gazetteer file (one entity per line with the "
+              "corresponding class, separated by tabs.");
 
 // Save current option flags to the model file.
 void EntityOptions::Save(FILE* fs) {
@@ -52,7 +52,7 @@ void EntityOptions::Load(FILE* fs) {
   bool success;
   success = ReadString(fs, &FLAGS_entity_tagging_scheme);
   CHECK(success);
-  LOG(INFO) << "Setting --entity_tagging_scheme=" <<
+  LOG(INFO)<<"Setting --entity_tagging_scheme="<<
     FLAGS_entity_tagging_scheme;
 
   Initialize();
@@ -64,16 +64,13 @@ void EntityOptions::Initialize() {
   file_format_ = FLAGS_entity_file_format;
   file_gazetteer_ = FLAGS_entity_file_gazetteer;
   tagging_scheme_name_ = FLAGS_entity_tagging_scheme;
-  if (tagging_scheme_name_ == "io") {
+  if (tagging_scheme_name_=="io") {
     tagging_scheme_ = EntityTaggingSchemes::IO;
-  }
-  else if (tagging_scheme_name_ == "bio") {
+  } else if (tagging_scheme_name_=="bio") {
     tagging_scheme_ = EntityTaggingSchemes::BIO;
-  }
-  else if (tagging_scheme_name_ == "bilou") {
+  } else if (tagging_scheme_name_=="bilou") {
     tagging_scheme_ = EntityTaggingSchemes::BILOU;
-  }
-  else {
-    CHECK(false) << "Unknown entity scheme: " << tagging_scheme_name_;
+  } else {
+    CHECK(false)<<"Unknown entity scheme: "<<tagging_scheme_name_;
   }
 }

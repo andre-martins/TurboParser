@@ -56,7 +56,7 @@ protected:
   Instance *GetFormattedInstance(Instance *instance) {
     EntityInstanceNumeric *instance_numeric = new EntityInstanceNumeric;
     instance_numeric->Initialize(*GetEntityDictionary(),
-      static_cast<EntityInstance*>(instance));
+                                 static_cast<EntityInstance*>(instance));
     return instance_numeric;
   }
 

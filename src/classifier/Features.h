@@ -65,7 +65,7 @@ struct FeatureLabelPair {
 struct FeatureLabelPairMapper {
   template <typename TSeed>
   inline void HashCombine(TSeed value, TSeed *seed) const {
-    *seed ^= value + 0x9e3779b9 + (*seed << 6) + (*seed >> 2);
+    *seed ^= value+0x9e3779b9+(*seed<<6)+(*seed>>2);
   }
   //Hash function
   inline size_t operator()(const FeatureLabelPair& p) const {
@@ -77,7 +77,7 @@ struct FeatureLabelPairMapper {
   }
   //Comparison function
   inline bool operator()(const FeatureLabelPair &p, const FeatureLabelPair &q) const {
-    return p.feature == q.feature && p.label == q.label;
+    return p.feature==q.feature && p.label==q.label;
   }
 };
 
@@ -112,7 +112,7 @@ public:
   bool find(FeatureLabelPair key, double * value) {
     FeatureLabelPairHashMap::const_iterator caching_iterator;
     caching_iterator = cache_.find(key);
-    if (caching_iterator != cache_.end()) {
+    if (caching_iterator!=cache_.end()) {
       *value = caching_iterator->second;
       return true;
     };

@@ -32,7 +32,7 @@ public:
 
 public:
   void Clear() {
-    for (int i = 0; i < input_features_unigrams_.size(); ++i) {
+    for (int i = 0; i<input_features_unigrams_.size(); ++i) {
       if (!input_features_unigrams_[i]) continue;
       input_features_unigrams_[i]->clear();
       delete input_features_unigrams_[i];
@@ -40,7 +40,7 @@ public:
     }
     input_features_unigrams_.clear();
 
-    for (int i = 0; i < input_features_bigrams_.size(); ++i) {
+    for (int i = 0; i<input_features_bigrams_.size(); ++i) {
       if (!input_features_bigrams_[i]) continue;
       input_features_bigrams_[i]->clear();
       delete input_features_bigrams_[i];
@@ -48,7 +48,7 @@ public:
     }
     input_features_bigrams_.clear();
 
-    for (int i = 0; i < input_features_trigrams_.size(); ++i) {
+    for (int i = 0; i<input_features_trigrams_.size(); ++i) {
       if (!input_features_trigrams_[i]) continue;
       input_features_trigrams_[i]->clear();
       delete input_features_trigrams_[i];
@@ -61,20 +61,20 @@ public:
     Clear();
     int length = static_cast<SequenceInstanceNumeric*>(instance)->size();
     input_features_unigrams_.resize(length, static_cast<BinaryFeatures*>(NULL));
-    input_features_bigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
+    input_features_bigrams_.resize(length+1, static_cast<BinaryFeatures*>(NULL));
     // Make this optional?
-    input_features_trigrams_.resize(length + 1, static_cast<BinaryFeatures*>(NULL));
+    input_features_trigrams_.resize(length+1, static_cast<BinaryFeatures*>(NULL));
   }
 
   const BinaryFeatures &GetPartFeatures(int r) const {
-    CHECK(false) << "All part features are specific to unigrams, bigrams, "
+    CHECK(false)<<"All part features are specific to unigrams, bigrams, "
       "or trigrams.";
     // Do this to avoid compilation error.
     return *new BinaryFeatures;
   };
 
   BinaryFeatures *GetMutablePartFeatures(int r) const {
-    CHECK(false) << "All part features are specific to unigrams, bigrams, "
+    CHECK(false)<<"All part features are specific to unigrams, bigrams, "
       "or trigrams.";
     return NULL;
   };
@@ -93,7 +93,7 @@ public:
 
 public:
   virtual void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
-    int position) {
+                                  int position) {
     // Add an empty feature vector.
     CHECK(!input_features_unigrams_[position]);
     BinaryFeatures *features = new BinaryFeatures;
@@ -101,7 +101,7 @@ public:
   }
 
   virtual void AddBigramFeatures(SequenceInstanceNumeric *sentence,
-    int position) {
+                                 int position) {
     // Add an empty feature vector.
     CHECK(!input_features_bigrams_[position]);
     BinaryFeatures *features = new BinaryFeatures;
@@ -109,7 +109,7 @@ public:
   }
 
   virtual void AddTrigramFeatures(SequenceInstanceNumeric *sentence,
-    int position) {
+                                  int position) {
     // Add an empty feature vector.
     CHECK(!input_features_trigrams_[position]);
     BinaryFeatures *features = new BinaryFeatures;

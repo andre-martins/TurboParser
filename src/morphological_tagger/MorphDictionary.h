@@ -40,7 +40,7 @@ public:
     int length = unknown_cpostag_morphtags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j < unknown_cpostag_morphtags_.size(); ++j) {
+    for (int j = 0; j<unknown_cpostag_morphtags_.size(); ++j) {
       int tag = unknown_cpostag_morphtags_[j];
       success = WriteInteger(fs, tag);
       CHECK(success);
@@ -49,11 +49,11 @@ public:
     length = cpostag_morphtags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i < cpostag_morphtags_.size(); ++i) {
+    for (int i = 0; i<cpostag_morphtags_.size(); ++i) {
       length = cpostag_morphtags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int j = 0; j < cpostag_morphtags_[i].size(); ++j) {
+      for (int j = 0; j<cpostag_morphtags_[i].size(); ++j) {
         int tag = cpostag_morphtags_[i][j];
         success = WriteInteger(fs, tag);
         CHECK(success);
@@ -68,7 +68,7 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     unknown_cpostag_morphtags_.resize(length);
-    for (int j = 0; j < unknown_cpostag_morphtags_.size(); ++j) {
+    for (int j = 0; j<unknown_cpostag_morphtags_.size(); ++j) {
       int tag;
       success = ReadInteger(fs, &tag);
       CHECK(success);
@@ -77,11 +77,11 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     cpostag_morphtags_.resize(length);
-    for (int i = 0; i < cpostag_morphtags_.size(); ++i) {
+    for (int i = 0; i<cpostag_morphtags_.size(); ++i) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       cpostag_morphtags_[i].resize(length);
-      for (int j = 0; j < cpostag_morphtags_[i].size(); ++j) {
+      for (int j = 0; j<cpostag_morphtags_[i].size(); ++j) {
         int tag;
         success = ReadInteger(fs, &tag);
         CHECK(success);
@@ -99,8 +99,7 @@ public:
     // fill it with the unknown tags elsewhere.
     if (!cpostag_morphtags_[cpostag].empty()) {
       return cpostag_morphtags_[cpostag];
-    }
-    else {
+    } else {
       return unknown_cpostag_morphtags_;
     }
   }

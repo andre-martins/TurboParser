@@ -21,9 +21,9 @@
 #include "MorphOptions.h"
 
 void MorphInstance::Initialize(const std::vector<std::string> &forms,
-  const std::vector<std::string> &lemmas,
-  const std::vector<std::string> &cpostags,
-  const std::vector<std::string> &tags) { //&feats) {
+                               const std::vector<std::string> &lemmas,
+                               const std::vector<std::string> &cpostags,
+                               const std::vector<std::string> &tags) { //&feats) {
   forms_ = forms;
   lemmas_ = lemmas;
   cpostags_ = cpostags;
