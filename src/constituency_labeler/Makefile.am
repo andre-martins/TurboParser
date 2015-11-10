@@ -40,7 +40,6 @@ ConstituencyInstanceNumeric.cpp \
 ConstituencyInstanceNumeric.h \
 ParseTree.cpp \
 ParseTree.h \
-Span.h \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(SEQUENCE)/SequenceDictionary.cpp $(SEQUENCE)/SequenceDictionary.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp $(SEQUENCE)/SequenceInstanceNumeric.h \

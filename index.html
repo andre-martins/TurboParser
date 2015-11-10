@@ -35,20 +35,67 @@ approximate inference can greatly increase performance.
 
 <p>
 This package contains a C++ implementation of a 
-dependency parser based on the papers [1,2,3,4,5] below.
-</p>
+dependency parser based on the papers [1,2,3,4,5] below. 
+The latest version of this package also contains C++ implementations of 
+a POS tagger, a semantic role labeler, a entity tagger, 
+a coreference resolver, and a constituent (phrase-based) parser. 
+The relevant references are the papers [6,7,8,9] below. 
 <p>
 This package allows:
 <ul>
-<li>learning a parser/tagger from a treebank,</li>
-<li>running a parser/tagger on new data,</li>
+<li>learning a parser/tagger/semantic parser/entity tagger/coreference resolver from a treebank,</li>
+<li>running a parser/tagger/semantic parser/entity tagger/coreference resolver on new data,</li>
 <li>evaluating the results against a gold-standard.</li>
 </ul>
 </p>
 
 <br/>
 
+<h3>Demo</h3>
+<ul>
+<li>
+  <a href="http://demo.ark.cs.cmu.edu/parse">ARK Syntactic &amp; Semantic Parsing Demo</a>
+</li>
+</ul>
+
 <h3>News</h3>
+<p>
+<b>We released TurboParser v2.3 on November 6th, 2015!</b>
+This version introduces some new features:
+<ul>
+<li>
+A named entity recognizer (TurboEntityRecognizer) based on the 
+Illinois Entity Tagger (ref. [7] below).
+</li>
+<li>
+A coreference resolver (TurboCoreferenceResolver) based on the
+Berkeley Coreference Resolution System (ref. [8] below).
+</li>
+<li>
+A constituent parser based on dependency-to-constituent reduction, 
+implementing ref. [9] below.
+</li>
+<li>
+A dependency labeler, TurboDependencyLabeler, that can optionally be applied 
+after the dependency parser.
+</li>
+<li>
+Compatibility with MS Windows (using MSVC) and with C++0x.
+</li>
+</ul>
+</p>
+<p>
+<b>We released TurboParser v2.2 on June 26th, 2014!</b>
+This version introduces some new features:
+<ul>
+<li>
+A Python wrapper for the tagger and parser (requires Cython 0.19).
+</li>
+<li>
+A semantic role labeler (TurboSemanticParser) implementing ref. [6] below.
+</li>
+</ul>
+</p>
 <p>
 <b>We released TurboParser v2.1 on May 23th, 2013!</b>
 This version introduces some new features:
@@ -146,6 +193,30 @@ Andr&eacute; F. T. Martins, Miguel B. Almeida, Noah A. Smith.<br />
 <a href="http://www.cs.cmu.edu/~afm/Home_files/acl2013short.pdf">Turning on the Turbo: Fast Third-Order Non-Projective Turbo Parsers</a>.<br />
 In Annual Meeting of the Association for Computational Linguistics (ACL'13), Sofia, Bulgaria, August 2013.<br>
 </td></tr>
+<tr valign="top"><td>[6]&nbsp;</td>
+<td>
+Andr&eacute; F. T. Martins and Mariana S. C. Almeida.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/semeval2014_task8.pdf">Priberam: A Turbo Semantic Parser with Second Order Features</a>.<br />
+In International Workshop on Semantic Evaluation (SemEval), task 8: Broad-Coverage Semantic Dependency Parsing, Dublin, August 2014.<br>
+</td></tr>
+<tr valign="top"><td>[7]&nbsp;</td>
+<td>
+Lev Ratinov and Dan Roth.<br />
+<a href="http://cogcomp.cs.illinois.edu/papers/RatinovRo09.pdf">Design Challenges and Misconceptions in Named Entity Recognition</a>.<br />
+In International Conference on Natural Language Learning (CoNLL'09), 2009.<br>
+</td></tr>
+<tr valign="top"><td>[8]&nbsp;</td>
+<td>
+Greg Durrett and Dan Klein.<br />
+<a href="http://www.eecs.berkeley.edu/~gdurrett/papers/durrett-klein-emnlp2013.pdf">Easy Victories and Uphill Battles in Coreference Resolution</a>.<br />
+Empirical Methods in Natural Language Processing (EMNLP'13), 2013.<br>
+</td></tr>
+<tr valign="top"><td>[9]&nbsp;</td>
+<td>
+Daniel F.-Gonz&aacute;lez and Andr&eacute; F. T. Martins.<br />
+<a href="http://www.cs.cmu.edu/~afm/Home_files/acl2015_reduction.pdf">Parsing As Reduction</a>.<br />
+In Annual Meeting of the Association for Computational Linguistics (ACL'15), Beijing, China, August 2015.<br>
+</td></tr>
 </table>
 </p>
 
@@ -153,17 +224,17 @@ In Annual Meeting of the Association for Computational Linguistics (ACL'13), Sof
 
 <h3>Download</h3>
 <p>
-The latest version of TurboParser is <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.1.0.tar.gz">TurboParser v2.1.0 [~2.5MB,.tar.gz format]</a>. 
+The latest version of TurboParser is <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.3.0.tar.gz">TurboParser v2.3.0 [~5.4MB,.tar.gz format]</a>. 
 See the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> file for instructions for compilation, running, and file formatting. 
 It does <i>not</i> include the data sets used in the papers; 
-for information about how to get these data sets, please go to <a href="http://ilk.uvt.nl/conll/">http://ilk.uvt.nl/conll/</a>.
+for information about how to get these data sets, please go to <a href="http://nextens.uvt.nl/~conll">http://nextens.uvt.nl/~conll</a>. 
 Bear in mind that some data sets must be separately licensed through the <a href="http://www.ldc.upenn.edu/">LDC</a>.
 </p>
 <p>
 In addition, we provide separately the following pre-trained models (notice that these are very large files):
 <ul>
 <li>An English tagger trained on the sections 02-21 of the Penn Treebank. 
-Click <a href="sample_models/english_proj_tagger.tar.gz">here</a> to download this model [~2.1MB, .tar.gz format].
+Click <a href="sample_models/english_proj_tagger.tar.gz">here</a> to download this model [~3.3MB, .tar.gz format].
 Then, uncompress this model and save it in a local folder (e.g. as models/english_proj_tagger.model). 
 To tag a new file &lt;input-file&gt;, type:<br/>
  <br/>
@@ -176,7 +247,7 @@ To tag a new file &lt;input-file&gt;, type:<br/>
 </div>
 <br/>
 Check the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> for file formatting instructions and additional options.
-<li>First and second-order English parsers trained on the sections 02-21 of the Penn Treebank, 
+<li>First, second, and third-order English parsers trained on the sections 02-21 of the Penn Treebank, 
 with dependencies extracted using the head-rules of Yamada and Matsumoto, through <a href="http://w3.msi.vxu.se/~nivre/research/Penn2Malt.html">Penn2Malt</a>.
 Click <a href="sample_models/english_proj_parser.tar.gz">here</a> to download these models [~1.8GB, .tar.gz format].
 Uncompress this file and save the models in a local folder (e.g. as models/english_proj_parser_model-{basic,standard,full}.model). 
@@ -200,7 +271,7 @@ Click <a href="sample_models/english.tar.gz">here</a> to download this model [~1
 <li>A model trained in the Arabic dataset provided in the CoNLL-X shared task. <br>
 Click <a href="sample_models/arabic.tar.gz">here</a> to download this model [~225 MB, .tar.gz format].
 <-->
-<li>First and second-order Arabic parsers trained in the Arabic dataset provided in the CoNLL-X shared task. 
+<li>First, second, and third-order Arabic parsers trained in the Arabic dataset provided in the CoNLL-X shared task. 
 Click <a href="sample_models/arabic_parser.tar.gz">here</a> to download these models [~520 MB, .tar.gz format].
 Uncompress this file and save the models in a local folder (e.g. as models/arabic_model-{basic,standard,full}.model). 
 To parse a new file &lt;input-file&gt; in CoNLL format, type:<br/>
@@ -215,11 +286,16 @@ To parse a new file &lt;input-file&gt; in CoNLL format, type:<br/>
 <br/>
 Check the <a href="http://www.cs.cmu.edu/~afm/TurboParser/README">README</a> for file formatting instructions and additional options.
 
-<li>Taggers and parsers for <a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/kin-turbo-v1.0.tgz">Kinyarwanda</a> and
-<a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/mlg-turbo-v1.0.tgz">Malagasy</a>.
+<li>Taggers and parsers for <a href="nasmith_models/kin-turbo-v1.0.tgz">Kinyarwanda</a> and
+<a href="nasmith_models/mlg-turbo-v1.0.tgz">Malagasy</a>.
 There is
-a <a href="http://www.ark.cs.cmu.edu/TurboParser/nasmith_models/README">README</a>
-specifically for these models.
+a <a href="nasmith_models/README">README</a>
+specifically for these models.  They require TurboParser v. 2.0.2.
+<li>Farsi parser trained on the <a href="http://dadegan.ir/en">Dadegan Persian treebank</a>. Click <a href="sample_models/farsi_parser.tar.gz">here</a> to download the model [~530 MB, .tar.gz format]. This model requires TurboParser v 2.0.2.
+Associated Farsi NLP tools can be found <a href="https://github.com/wfeely/farsiNLPTools">here</a>.
+
+<li>Parsers that generate Stanford-style dependencies can be found <a href="http://www.ark.cs.cmu.edu/TBSD/">here</a>.</li>
+<li>A parser trained on the English Web Treebank for Stanford basic dependencies can be found <a href="../LexSem/#syntax">here</a>.</li>
 </ul>
 
 <p>
@@ -277,6 +353,10 @@ yields
 </p>
 <p> Older versions: 
 <ul>
+<li>
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.2.0.tar.gz">TurboParser v2.2.0 [~2.8MB,.tar.gz format]</a>. 
+<li>
+<a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.1.0.tar.gz">TurboParser v2.1.0 [~2.5MB,.tar.gz format]</a>. 
 <li>
 <a href="http://www.cs.cmu.edu/~afm/TurboParser/TurboParser-2.0.2.tar.gz">TurboParser v2.0.2 [~2.5MB,.tar.gz format]</a>. 
 <li>
