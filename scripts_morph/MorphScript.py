@@ -3,13 +3,13 @@ import os
 import subprocess
 import time
 
+dir = os.path.dirname(__file__)
+
 NumberOfRuns=1
 NumberWarmUps=0
 
-
-#Programs = ['C:\\Projects\\TurboParser_DN\\vsprojects\\x64\\Release\\turbo_morphological_tagger.exe'] #create a copy in other folder to allow development of the code without interfering with the experiment
-Programs = ['C:\\Projects\\TurboParser_DN\\scripts_morph\\turbo_morphological_tagger.exe']
-
+#Programs = [os.path.join(dir, '..\\vsprojects\\x64\\Release\\turbo_morphological_tagger.exe')] #create a copy in other folder to allow development of the code without interfering with the experiment
+Programs = [os.path.join(dir, 'turbo_morphological_tagger.exe')]
 
 Languages = ['basque',
 'bulgarian',
@@ -23,10 +23,10 @@ Languages = ['basque',
 'italian',
 'swedish']
 
-TrainFiles_template      = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_data\\*__LANGUAGE__*-ud-train.conllu'] #Replace *__LANGUAGE__* by Languages[i]
-TestFiles_template       = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_data\\*__LANGUAGE__*-ud-test.conllu'] #Replace *__LANGUAGE__* by Languages[i]
-ModelFiles_template      = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_models\\*__LANGUAGE__*_morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*'] #Replace '*__LANGUAGE__*','__MARKOV_ORDER__*' '*__FEATURES__*', '*__REGCONST__*', '*__PREFIX__*', '*__SUFFIX__*'
-PredictionFiles_template = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_out\\*__LANGUAGE__*-train-test.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted'] 
+TrainFiles_template      = [os.path.join(dir, '..\\data_local\\morph_data\\*__LANGUAGE__*-ud-train.conllu')] #Replace *__LANGUAGE__* by Languages[i]
+TestFiles_template       = [os.path.join(dir, '..\\data_local\\morph_data\\*__LANGUAGE__*-ud-test.conllu')] #Replace *__LANGUAGE__* by Languages[i]
+ModelFiles_template      = [os.path.join(dir, '..\\data_local\\morph_models\\*__LANGUAGE__*_morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*')] #Replace '*__LANGUAGE__*','__MARKOV_ORDER__*' '*__FEATURES__*', '*__REGCONST__*', '*__PREFIX__*', '*__SUFFIX__*'
+PredictionFiles_template = [os.path.join(dir, '..\\data_local\\morph_out\\*__LANGUAGE__*-train-test.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted')]
 TrainFiles               = []     
 TestFiles                = []  
 ModelFiles               = []
@@ -43,8 +43,8 @@ SuffixLength                = ['0','2','3'] #--suffix_length=3
 #--logtostderr              
 
 OutputDesiredPrefix     = "turbo_morphological_tagger_run"
-OutputFolder            = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_out\\'] 
-OutputFolderBenchmarks  = ['C:\\Projects\\TurboParser_DN\\data_local\\morph_out\\']
+OutputFolder            = [os.path.join(dir, '..\\data_local\\morph_out\\')]
+OutputFolderBenchmarks  = [os.path.join(dir, '..\\data_local\\morph_out\\')]
 
 if not os.path.exists(os.path.dirname(OutputFolderBenchmarks[0])):
     os.makedirs(os.path.dirname(OutputFolderBenchmarks[0]))
@@ -54,8 +54,6 @@ csv = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".csv","w")
 log = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".log","w")
 err = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".err","w")
 pylog = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".pylog","w")
-
-
  
 string_to_write=""
 string_to_write=string_to_write+"Program, Language, Features, Markov Order, Train Algorithm, Regularization Constant, Train Epochs, Form cutoff, Prefix Length, Suffix Length"
@@ -108,7 +106,6 @@ for program in Programs:
                                         PredictionFile  = PredictionFile.replace('*__PREFIX__*', prefix_length)
                                         PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)
                                         
-                                        
                                         #TRAIN
                                         command = []
                                         #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
@@ -125,7 +122,6 @@ for program in Programs:
                                         command.append("--suffix_length="+suffix_length)
                                         command.append("--morph_tagger_large_feature_set="+features)
                                         command.append("--logtostderr")
-
 
                                         print "Executing: " + ' '.join(command)
                                         sys.stdout.flush()
@@ -175,10 +171,8 @@ for program in Programs:
                                         command.append("--file_prediction="+PredictionFile)    
                                         command.append("--logtostderr")
 
-
                                         print "Executing: " + ' '.join(command)
                                         sys.stdout.flush()
-                                        
                                     
                                         #warm-up X iterations
                                         for iteration in range(0,NumberWarmUps):
@@ -232,8 +226,7 @@ for program in Programs:
                                                     print       "Correct predictions: "+correct_predictions[iteration]+"\n"
                                                     sys.stdout.flush()
                                                     pylog.write("Correct predictions: "+correct_predictions[iteration]+"\n")
-                                                    log.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")                                              
-                                                
+                                                    log.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
                                                 
                                                 where=line.find("Tagging accuracy: ")
                                                 if where != -1:
@@ -244,7 +237,6 @@ for program in Programs:
                                                     sys.stdout.flush()
                                                     pylog.write("Tagging accuracy = "+str(accuracy[iteration])+"\n")
                                                     log.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
-                                               
                                                
                                                 where=line.find("Tagging speed: ")  
                                                 if where != -1:    
@@ -276,7 +268,6 @@ for program in Programs:
                                         string_to_write=string_to_write+","+prefix_length
                                         string_to_write=string_to_write+","+suffix_length
                                         
-                                        
                                         #string_to_write=string_to_write+","+str(train_time) #Commented for Windows execution; turn on in Linux environment
 
                                         for i in range(NumberOfRuns):
@@ -292,7 +283,7 @@ for program in Programs:
                                         log.flush()
                                         pylog.flush()
                                         err.flush()
-                                                   
+
 #CLOSING						
 csv.close()
 print "Script finished\n"
