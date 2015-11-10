@@ -16,21 +16,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-//#ifndef MORPHWRITER_H_
-//#define MORPHWRITER_H_
-//
-//#include "Writer.h"
-//
-//using namespace std;
-//
-//class MorphWriter : public Writer {
-//public:
-//  MorphWriter() {};
-//  virtual ~MorphWriter() {};
-//
-//public:
-//  void Write(Instance *instance);
-//};
-//
-//#endif /* MORPHWRITER_H_ */
-//
+#include "MorphologicalInstance.h"
+#include <glog/logging.h>
+#include "MorphologicalOptions.h"
+
+void MorphInstance::Initialize(const std::vector<std::string> &forms,
+                               const std::vector<std::string> &lemmas,
+                               const std::vector<std::string> &cpostags,
+                               const std::vector<std::string> &tags) { //&feats) {
+  forms_ = forms;
+  lemmas_ = lemmas;
+  cpostags_ = cpostags;
+  tags_ = tags; //feats_ = feats;
+}

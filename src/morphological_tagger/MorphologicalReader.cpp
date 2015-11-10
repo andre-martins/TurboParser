@@ -19,8 +19,8 @@
 #include "Utils.h"
 #include <iostream>
 #include <sstream>
-#include "MorphReader.h"
-#include "MorphOptions.h"
+#include "MorphologicalReader.h"
+#include "MorphologicalOptions.h"
 
 
 Instance *MorphReader::GetNext() {
@@ -52,7 +52,7 @@ Instance *MorphReader::GetNext() {
   std::vector<std::string> feats(length); //aka, morphological features, feats
 
   for (int i = 0; i<length; ++i) {
-    const vector<string> &info = sentence_fields[i];
+    const std::vector<std::string> &info = sentence_fields[i];
     forms[i] = info[1];
     lemmas[i] = info[2];
     cpostags[i] = info[3];

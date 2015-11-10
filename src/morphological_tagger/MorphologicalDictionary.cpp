@@ -16,63 +16,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphDictionary.h"
-#include "MorphReader.h"
-#include "MorphOptions.h"
-#include "MorphPipe.h"
+#include "MorphologicalDictionary.h"
+#include "MorphologicalReader.h"
+#include "MorphologicalOptions.h"
+#include "MorphologicalPipe.h"
 #include <algorithm>
 
 
-// Version with word_form-morphtag dictionary instead of cpostag-morphtag dictionary
-//void MorphDictionary::CreateTagDictionary(SequenceReader *reader) {
-//  SequenceDictionary::CreateTagDictionary(reader);
-//
-//  LOG(INFO) << "Creating word-tag dictionary...";
-//  bool form_case_sensitive = FLAGS_form_case_sensitive;
-//
-//  // Go through the corpus and build the existing tags for each word.
-//  word_tags_.clear();
-//  word_tags_.resize(token_dictionary_->GetNumForms());
-//
-//  reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-//  SequenceInstance *instance =
-//    static_cast<SequenceInstance*>(reader->GetNext());
-//  while (instance != NULL) {
-//    int instance_length = instance->size();
-//    for (int i = 0; i < instance_length; ++i) {
-//      int id;
-//      string form = instance->GetForm(i);
-//      if (!form_case_sensitive) {
-//        transform(form.begin(), form.end(), form.begin(), ::tolower);
-//      }
-//      int word_id = token_dictionary_->GetFormId(form);
-//      //CHECK_GE(word_id, 0);
-//
-//      id = tag_alphabet_.Lookup(instance->GetTag(i));
-//      CHECK_GE(id, 0);
-//
-//      // Insert new tag in the set of word tags, if it is not there
-//      // already. NOTE: this is inefficient, maybe we should be using a
-//      // different data structure.
-//      if (word_id >= 0) {
-//        vector<int> &tags = word_tags_[word_id];
-//        int j;
-//        for (j = 0; j < tags.size(); ++j) {
-//          if (tags[j] == id) break;
-//        }
-//        if (j == tags.size()) tags.push_back(id);
-//      }
-//    }
-//    delete instance;
-//    instance = static_cast<SequenceInstance*>(reader->GetNext());
-//  }
-//  reader->Close();
-//
-//  for (int i = 0; i < tag_alphabet_.size(); ++i) {
-//    unknown_word_tags_.push_back(i);
-//  }
-//  LOG(INFO) << "Number of unknown word tags: " << unknown_word_tags_.size();
-//}
+
 
 
 void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
@@ -82,8 +33,8 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
   bool form_case_sensitive = FLAGS_form_case_sensitive;
 
   // Go through the corpus and build the existing tags for each word.
-  cpostag_morphtags_.clear();
-  cpostag_morphtags_.resize(token_dictionary_->GetNumCPosTags());
+  cpostag_morphologicaltags_.clear();
+  cpostag_morphologicaltags_.resize(token_dictionary_->GetNumCPosTags());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
   MorphInstance *instance = static_cast<MorphInstance*>(reader->GetNext());
@@ -91,7 +42,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
     int instance_length = instance->size();
     for (int i = 0; i<instance_length; ++i) {
       int id;
-      string cpostag = instance->GetCoarsePosTag(i);
+      std::string cpostag = instance->GetCoarsePosTag(i);
       int cpostag_id = token_dictionary_->GetCoarsePosTagId(cpostag);
       //CHECK_GE(cpostag_id, 0);
 
@@ -102,7 +53,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
       // already. NOTE: this is inefficient, maybe we should be using a
       // different data structure.
       if (cpostag_id>=0) {
-        vector<int> &tags = cpostag_morphtags_[cpostag_id];
+        vector<int> &tags = cpostag_morphologicaltags_[cpostag_id];
         int j;
         for (j = 0; j<tags.size(); ++j) {
           if (tags[j]==id) break;
@@ -116,15 +67,11 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
   reader->Close();
 
   for (int i = 0; i<tag_alphabet_.size(); ++i) {
-    unknown_cpostag_morphtags_.push_back(i);
+    unknown_cpostag_morphologicaltags_.push_back(i);
   }
-  LOG(INFO)<<"Number of unknown cpostag morphtags: "<<unknown_cpostag_morphtags_.size();
+  LOG(INFO)<<"Number of unknown morphological tags: "
+    <<unknown_cpostag_morphologicaltags_.size();
 }
-
-
-
-
-
 
 void MorphTokenDictionary::InitializeFromMorphReader(MorphReader *reader) {
   TokenDictionary::InitializeStarter();

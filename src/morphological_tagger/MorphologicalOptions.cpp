@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphOptions.h"
+#include "MorphologicalOptions.h"
 #include "SerializationUtils.h"
 #include <glog/logging.h>
 
@@ -28,9 +28,9 @@ DEFINE_string(morph_file_format, "conll",
               "the format used in CONLL-X, and ""text"" for tokenized"
               "sentences (one per line, with tokens separated "
               "by white-spaces.");
-DEFINE_bool(morph_tagger_large_feature_set, false,
-            "True for using a large feature set. Taggers are usually more "
-            "accurate but slower and have a larger memory footprint.");
+DEFINE_int32(morph_tagger_large_feature_set, 0,
+             "The greater the value, the larger feature set used. Taggers are "
+             "usually more accurate but slower and have a larger memory footprint.");
 DEFINE_bool(morph_tagger_prune_tags, true,
             "True for pruning the set of possible tags by using a dictionary.");
 
@@ -44,7 +44,7 @@ void MorphOptions::Save(FILE* fs) {
   //CHECK(success);
 
   bool success;
-  success = WriteBool(fs, large_feature_set_);
+  success = WriteInteger(fs, large_feature_set_);
   CHECK(success);
   success = WriteBool(fs, prune_tags_);
   CHECK(success);
@@ -63,13 +63,13 @@ void MorphOptions::Load(FILE* fs) {
   //  FLAGS_morph_var;
 
   bool success;
-  success = ReadBool(fs, &FLAGS_morph_tagger_large_feature_set);
+  success = ReadInteger(fs, &FLAGS_morph_tagger_large_feature_set);
   CHECK(success);
-  LOG(INFO)<<"Setting --tagger_large_feature_set="
+  LOG(INFO)<<"Setting --morph_tagger_large_feature_set="
     <<FLAGS_morph_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_morph_tagger_prune_tags);
   CHECK(success);
-  LOG(INFO)<<"Setting --tagger_prune_tags="<<FLAGS_morph_tagger_prune_tags;
+  LOG(INFO)<<"Setting --morph_tagger_prune_tags="<<FLAGS_morph_tagger_prune_tags;
 
   Initialize();
 }

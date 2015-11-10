@@ -82,8 +82,8 @@ protected:
   virtual Features *CreateFeatures() = 0;
 
   // Save/load model.
-  void SaveModelByName(const string &model_name);
-  void LoadModelByName(const string &model_name);
+  void SaveModelByName(const std::string &model_name);
+  void LoadModelByName(const std::string &model_name);
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 

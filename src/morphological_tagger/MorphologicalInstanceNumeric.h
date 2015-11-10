@@ -20,8 +20,8 @@
 #define MORPHINSTANCENUMERIC_H_
 
 #include "SequenceInstanceNumeric.h"
-#include "MorphInstance.h"
-#include "MorphDictionary.h"
+#include "MorphologicalInstance.h"
+#include "MorphologicalDictionary.h"
 
 class MorphInstanceNumeric : public SequenceInstanceNumeric {
 public:
@@ -37,8 +37,8 @@ public:
   void Initialize(const MorphDictionary &dictionary,
                   MorphInstance *instance);
 
-  const std::vector<int> &GetCPosTagIds()     const { return cpostags_ids_; }
-  const std::vector<int> &GetLemmaIds(int i)  const { return lemmas_ids_; }
+  const std::vector<int> &GetCPosTagIds() const { return cpostags_ids_; }
+  const std::vector<int> &GetLemmaIds(int i) const { return lemmas_ids_; }
 
   int GetCPosTagId(int i) { return cpostags_ids_[i]; }
   int GetLemmaId(int i) { return lemmas_ids_[i]; }

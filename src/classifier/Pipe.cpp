@@ -50,14 +50,14 @@ void Pipe::Initialize() {
   parameters_ = new Parameters;
 }
 
-void Pipe::SaveModelByName(const string &model_name) {
+void Pipe::SaveModelByName(const std::string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "wb");
   CHECK(fs)<<"Could not open model file for writing: "<<model_name;
   SaveModel(fs);
   fclose(fs);
 }
 
-void Pipe::LoadModelByName(const string &model_name) {
+void Pipe::LoadModelByName(const std::string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "rb");
   CHECK(fs)<<"Could not open model file for reading: "<<model_name;
   LoadModel(fs);
@@ -453,7 +453,7 @@ void Pipe::Run() {
   LOG(INFO)<<"Number of instances: "<<num_instances;
   LOG(INFO)<<"Time: "<<diff_ms(end, start);
 
-  LOG(INFO)<<"Cache size: "<<parameters_->caching_weights_.size()<<"\t"
+  LOG(INFO)<<"Cache size: "<<parameters_->caching_weights_.GetSize()<<"\t"
     <<"Cache hits: "<<parameters_->caching_weights_.hits()<<"\t"
     <<"Cache misses: "<<parameters_->caching_weights_.misses()<<endl;
 

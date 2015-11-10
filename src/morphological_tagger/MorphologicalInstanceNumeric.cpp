@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphInstanceNumeric.h"
+#include "MorphologicalInstanceNumeric.h"
 #include <iostream>
 #include <algorithm>
 

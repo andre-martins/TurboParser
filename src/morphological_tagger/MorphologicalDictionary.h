@@ -21,7 +21,7 @@
 
 #include "SequenceDictionary.h"
 #include "TokenDictionary.h"
-#include "MorphReader.h"
+#include "MorphologicalReader.h"
 
 class MorphDictionary : public SequenceDictionary {
 public:
@@ -31,30 +31,30 @@ public:
 
   void Clear() {
     SequenceDictionary::Clear();
-    cpostag_morphtags_.clear();
+    cpostag_morphologicaltags_.clear();
   }
 
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
     bool success;
-    int length = unknown_cpostag_morphtags_.size();
+    int length = unknown_cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j<unknown_cpostag_morphtags_.size(); ++j) {
-      int tag = unknown_cpostag_morphtags_[j];
+    for (int j = 0; j<unknown_cpostag_morphologicaltags_.size(); ++j) {
+      int tag = unknown_cpostag_morphologicaltags_[j];
       success = WriteInteger(fs, tag);
       CHECK(success);
     }
 
-    length = cpostag_morphtags_.size();
+    length = cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i<cpostag_morphtags_.size(); ++i) {
-      length = cpostag_morphtags_[i].size();
+    for (int i = 0; i<cpostag_morphologicaltags_.size(); ++i) {
+      length = cpostag_morphologicaltags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int j = 0; j<cpostag_morphtags_[i].size(); ++j) {
-        int tag = cpostag_morphtags_[i][j];
+      for (int j = 0; j<cpostag_morphologicaltags_[i].size(); ++j) {
+        int tag = cpostag_morphologicaltags_[i][j];
         success = WriteInteger(fs, tag);
         CHECK(success);
       }
@@ -67,46 +67,46 @@ public:
     int length;
     success = ReadInteger(fs, &length);
     CHECK(success);
-    unknown_cpostag_morphtags_.resize(length);
-    for (int j = 0; j<unknown_cpostag_morphtags_.size(); ++j) {
+    unknown_cpostag_morphologicaltags_.resize(length);
+    for (int j = 0; j<unknown_cpostag_morphologicaltags_.size(); ++j) {
       int tag;
       success = ReadInteger(fs, &tag);
       CHECK(success);
-      unknown_cpostag_morphtags_[j] = tag;
+      unknown_cpostag_morphologicaltags_[j] = tag;
     }
     success = ReadInteger(fs, &length);
     CHECK(success);
-    cpostag_morphtags_.resize(length);
-    for (int i = 0; i<cpostag_morphtags_.size(); ++i) {
+    cpostag_morphologicaltags_.resize(length);
+    for (int i = 0; i<cpostag_morphologicaltags_.size(); ++i) {
       success = ReadInteger(fs, &length);
       CHECK(success);
-      cpostag_morphtags_[i].resize(length);
-      for (int j = 0; j<cpostag_morphtags_[i].size(); ++j) {
+      cpostag_morphologicaltags_[i].resize(length);
+      for (int j = 0; j<cpostag_morphologicaltags_[i].size(); ++j) {
         int tag;
         success = ReadInteger(fs, &tag);
         CHECK(success);
-        cpostag_morphtags_[i][j] = tag;
+        cpostag_morphologicaltags_[i][j] = tag;
       }
     }
   }
 
   void CreateTagDictionary(MorphReader *reader);
 
-  const vector<int> &GetCpostagMorphtags(int cpostag) {
-    // return cpostag_morphtags_[cpostag];
+  const std::vector<int> &GetAllowedMorphologicalTags(int cpostag) {
+    // return cpostag_morphologicaltags_[cpostag];
     // TODO: Not sure is this should be done here...
     // It may be cleaner to return an empty vector here and 
     // fill it with the unknown tags elsewhere.
-    if (!cpostag_morphtags_[cpostag].empty()) {
-      return cpostag_morphtags_[cpostag];
+    if (!cpostag_morphologicaltags_[cpostag].empty()) {
+      return cpostag_morphologicaltags_[cpostag];
     } else {
-      return unknown_cpostag_morphtags_;
+      return unknown_cpostag_morphologicaltags_;
     }
   }
 
 protected:
-  vector<vector<int> > cpostag_morphtags_;
-  vector<int> unknown_cpostag_morphtags_;
+  std::vector<std::vector<int> > cpostag_morphologicaltags_;
+  std::vector<int> unknown_cpostag_morphologicaltags_;
 };
 
 

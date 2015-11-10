@@ -8,7 +8,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "Utils.h"
-#include "MorphPipe.h"
+#include "MorphologicalPipe.h"
 
 using namespace std;
 

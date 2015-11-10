@@ -126,11 +126,11 @@ public:
     form_alphabet_.BuildNames();
   }
 
-  const string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
-  const string &GetFormName(int id) { return form_alphabet_.GetName(id); }
+  const std::string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
+  const std::string &GetFormName(int id) { return form_alphabet_.GetName(id); }
 
   void GetWordShape(const std::string &word, std::string *shape) {
-    string type = "";
+    std::string type = "";
     char last = '\0';
     for (int i = 0; i<word.size(); ++i) {
       if (word[i]>='A' && word[i]<='Z') {
@@ -187,9 +187,9 @@ protected: //private:
   bool form_case_sensitive;
 
   // Special symbols.
-  const string kTokenUnknown = "_UNKNOWN_"; // Unknown word/lemma.
-  const string kTokenStart = "_START_"; // Start symbol.
-  const string kTokenStop = "_STOP_"; // Stop symbol.
+  const std::string kTokenUnknown = "_UNKNOWN_"; // Unknown word/lemma.
+  const std::string kTokenStart = "_START_"; // Start symbol.
+  const std::string kTokenStop = "_STOP_"; // Stop symbol.
 
                                       // Maximum alphabet sizes.
   const unsigned int kMaxFormAlphabetSize = 0xffff;

@@ -53,8 +53,7 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // Gazetteer tags.
   std::vector<int> empty_GIDs;
   // Current gazetter tag.
-  const std::vector<int> &GIDs =
-    entity_sentence->GetGazetteerIds(position);
+  const std::vector<int> &GIDs = entity_sentence->GetGazetteerIds(position);
   // Gazetteer tag on the left.
   const std::vector<int> &pGIDs = (position > 0) ?
     entity_sentence->GetGazetteerIds(position-1) : empty_GIDs;

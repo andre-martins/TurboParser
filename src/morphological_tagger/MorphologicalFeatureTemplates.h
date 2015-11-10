@@ -49,7 +49,6 @@ struct MorphFeatureTemplateUnigram {
     nA,          /* prefix n letters word on the right (next) */
     nnA,        /* prefix n letters word two positions on the right (next) */
 
-
     WP,          /* word + POS tag */
 
     P,          /* POS */                               // 'cpostag'

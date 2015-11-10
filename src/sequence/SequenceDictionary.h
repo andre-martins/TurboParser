@@ -60,7 +60,7 @@ public:
     tag_alphabet_.BuildNames();
   }
 
-  const string &GetTagName(int tag) const {
+  const std::string &GetTagName(int tag) const {
     return tag_alphabet_.GetName(tag);
   }
 

@@ -20,12 +20,12 @@
 #define MORPHPIPE_H_
 
 #include "SequencePipe.h"
-#include "MorphOptions.h"
-#include "MorphReader.h"
-#include "MorphDictionary.h"
-#include "MorphInstanceNumeric.h"
-#include "MorphWriter.h"
-#include "MorphFeatures.h"
+#include "MorphologicalOptions.h"
+#include "MorphologicalReader.h"
+#include "MorphologicalDictionary.h"
+#include "MorphologicalInstanceNumeric.h"
+#include "MorphologicalWriter.h"
+#include "MorphologicalFeatures.h"
 
 class MorphPipe : public SequencePipe {
 public:
@@ -49,7 +49,7 @@ protected:
   }
 
   void CreateReader() { reader_ = new MorphReader(options_); }
-  //void CreateWriter() { writer_ = new MorphWriter; }
+  void CreateWriter() { writer_ = new MorphWriter; }
   Features *CreateFeatures() { return new MorphFeatures(this); };
 
   void PreprocessData();
@@ -75,7 +75,7 @@ protected:
     MorphDictionary *morph_dictionary = GetMorphDictionary();
 
     int cpostag_id = sentence->GetCPosTagId(i);
-    *allowed_tags = morph_dictionary->GetCpostagMorphtags(cpostag_id);
+    *allowed_tags = morph_dictionary->GetAllowedMorphologicalTags(cpostag_id);
   }
 
 };
