@@ -146,7 +146,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         if (fields.size() < 2) continue;
         const std::string &entity_type = fields[0];
         gazetteer_entity_tag_alphabet_.Insert("B-" + entity_type);
@@ -172,7 +172,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         if (fields.size() < 2) continue;
         const std::string &entity_type = fields[0];
         int entity_type_begin_id =

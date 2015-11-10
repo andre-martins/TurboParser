@@ -81,7 +81,7 @@ public:
   }
 
   int GetNumPosTags() const { return pos_alphabet_.size(); }
-  int GetNumCPosTags() const { return cpos_alphabet_.size(); }
+  int GetNumCoarsePosTags() const { return cpos_alphabet_.size(); }
   int GetNumForms() const { return form_alphabet_.size(); }
   int GetNumLemmas() const { return lemma_alphabet_.size(); }
 

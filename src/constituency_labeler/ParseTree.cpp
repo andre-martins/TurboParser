@@ -99,7 +99,7 @@ void ParseTreeNode::ExpandSingletonSpines() {
   std::vector<std::string> labels;
   std::string delim = "";
   delim += kParseTreeLabelSeparator;
-  StringSplit(label_, delim, &labels);
+  StringSplit(label_, delim, &labels, true);
   if (labels.size() > 1) {
     // Bottom node.
     ParseTreeNode *child = new ParseTreeNode();

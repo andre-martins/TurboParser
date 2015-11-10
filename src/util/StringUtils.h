@@ -26,7 +26,8 @@ using namespace std;
 
 extern void StringSplit(const std::string &str,
                         const std::string &delim,
-                        std::vector<std::string> *results);
+                        std::vector<std::string> *results,
+                        bool ignore_multiple_separators);
 
 extern void StringJoin(const std::vector<std::string> &fields,
                        const char delim,

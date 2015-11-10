@@ -83,7 +83,7 @@ Instance *ConstituencyLabelerReader::GetNext() {
         std::vector<std::string> labels;
         std::string delim = "";
         delim += kParseTreeLabelSeparator;
-        StringSplit(full_label, delim, &labels);
+        StringSplit(full_label, delim, &labels, true);
         if (labels.size() > 1) {
           non_terminals[i]->set_label(labels.back());
           labels.pop_back();
@@ -166,7 +166,7 @@ void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
     *lemma = "_";
     morph_feats->clear();
   } else {
-    StringSplit(feat_seq, "|", morph_feats);
+    StringSplit(feat_seq, "|", morph_feats, true);
     for (int j = 0; j < morph_feats->size(); ++j) {
       std::string lemma_prefix = "lem=";
       if ((*morph_feats)[j].compare(0, lemma_prefix.length(),

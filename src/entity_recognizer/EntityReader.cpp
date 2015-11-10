@@ -33,7 +33,7 @@ Instance *EntityReader::GetNext() {
       if (line.length() <= 0) break;
       std::vector<std::string> fields;
       // Also allow to break on spaces for compatibility with CONLL 2002.
-      StringSplit(line, " \t", &fields);
+      StringSplit(line, " \t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }

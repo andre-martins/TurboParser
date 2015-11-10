@@ -36,7 +36,7 @@ Instance *SequenceReader::GetNext() {
       }
       //LOG(INFO) << line;
       vector<string> fields;
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }

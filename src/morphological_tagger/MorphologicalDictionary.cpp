@@ -34,7 +34,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
 
   // Go through the corpus and build the existing tags for each word.
   cpostag_morphologicaltags_.clear();
-  cpostag_morphologicaltags_.resize(token_dictionary_->GetNumCPosTags());
+  cpostag_morphologicaltags_.resize(token_dictionary_->GetNumCoarsePosTags());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
   MorphInstance *instance = static_cast<MorphInstance*>(reader->GetNext());
