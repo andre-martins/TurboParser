@@ -114,7 +114,7 @@ public:
   }
 
   int GetNumFeatures() {
-    CHECK(false)<<
+    CHECK(false) <<
       "There is no notion of number of features in TokenDictionary.";
   }
 
@@ -132,26 +132,26 @@ public:
   void GetWordShape(const std::string &word, std::string *shape) {
     std::string type = "";
     char last = '\0';
-    for (int i = 0; i<word.size(); ++i) {
-      if (word[i]>='A' && word[i]<='Z') {
-        if (last!='A') {
+    for (int i = 0; i < word.size(); ++i) {
+      if (word[i] >= 'A' && word[i] <= 'Z') {
+        if (last != 'A') {
           type += 'A';
           last = 'A';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      } else if (word[i]>='a' && word[i]<='z') {
-        if (last!='a') {
+      } else if (word[i] >= 'a' && word[i] <= 'z') {
+        if (last != 'a') {
           type += 'a';
           last = 'a';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      } else if (word[i]>='0' && word[i]<='9') {
-        if (last!='0') {
+      } else if (word[i] >= '0' && word[i] <= '9') {
+        if (last != '0') {
           type += '0';
           last = '0';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
           last = '0';
         }

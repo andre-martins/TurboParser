@@ -40,7 +40,7 @@ public:
     int length = unknown_cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j<unknown_cpostag_morphologicaltags_.size(); ++j) {
+    for (int j = 0; j < unknown_cpostag_morphologicaltags_.size(); ++j) {
       int tag = unknown_cpostag_morphologicaltags_[j];
       success = WriteInteger(fs, tag);
       CHECK(success);
@@ -49,11 +49,11 @@ public:
     length = cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int i = 0; i<cpostag_morphologicaltags_.size(); ++i) {
+    for (int i = 0; i < cpostag_morphologicaltags_.size(); ++i) {
       length = cpostag_morphologicaltags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int j = 0; j<cpostag_morphologicaltags_[i].size(); ++j) {
+      for (int j = 0; j < cpostag_morphologicaltags_[i].size(); ++j) {
         int tag = cpostag_morphologicaltags_[i][j];
         success = WriteInteger(fs, tag);
         CHECK(success);
@@ -68,7 +68,7 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     unknown_cpostag_morphologicaltags_.resize(length);
-    for (int j = 0; j<unknown_cpostag_morphologicaltags_.size(); ++j) {
+    for (int j = 0; j < unknown_cpostag_morphologicaltags_.size(); ++j) {
       int tag;
       success = ReadInteger(fs, &tag);
       CHECK(success);
@@ -77,11 +77,11 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     cpostag_morphologicaltags_.resize(length);
-    for (int i = 0; i<cpostag_morphologicaltags_.size(); ++i) {
+    for (int i = 0; i < cpostag_morphologicaltags_.size(); ++i) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       cpostag_morphologicaltags_[i].resize(length);
-      for (int j = 0; j<cpostag_morphologicaltags_[i].size(); ++j) {
+      for (int j = 0; j < cpostag_morphologicaltags_[i].size(); ++j) {
         int tag;
         success = ReadInteger(fs, &tag);
         CHECK(success);

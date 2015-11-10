@@ -64,7 +64,7 @@ void Options::Initialize() {
   file_prediction_ = FLAGS_file_prediction;
   if (!FLAGS_train && !FLAGS_test) {
     FLAGS_test = true;
-    LOG(INFO)<<"Setting --test="<<FLAGS_test;
+    LOG(INFO) << "Setting --test=" << FLAGS_test;
   }
   train_ = FLAGS_train;
   test_ = FLAGS_test;

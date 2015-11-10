@@ -29,17 +29,17 @@ void MorphInstanceNumeric::Initialize(const MorphDictionary &dictionary,
 
   lemmas_ids_.resize(length);
   cpostags_ids_.resize(length);
-  for (int i = 0; i<length; i++) {
+  for (int i = 0; i < length; i++) {
     int id;
     //Lemma
     id = token_dictionary->GetLemmaId(instance->GetLemma(i));
     CHECK_LT(id, 0xffff);
-    if (id<0) id = TOKEN_UNKNOWN;
+    if (id < 0) id = TOKEN_UNKNOWN;
     lemmas_ids_[i] = id;
     //CPosTag
     id = token_dictionary->GetCoarsePosTagId(instance->GetCoarsePosTag(i));
     CHECK_LT(id, 0xffff);
-    if (id<0) id = TOKEN_UNKNOWN;
+    if (id < 0) id = TOKEN_UNKNOWN;
     cpostags_ids_[i] = id;
   }
 }

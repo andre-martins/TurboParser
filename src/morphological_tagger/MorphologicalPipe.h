@@ -60,10 +60,6 @@ protected:
     return instance_numeric;
   }
 
-protected:
-  //void SaveModel(FILE* fs);
-  //void LoadModel(FILE* fs);
-
   void GetAllowedTags(Instance *instance, int i, vector<int> *allowed_tags) {
     // Make word-tag dictionary pruning.
     allowed_tags->clear();

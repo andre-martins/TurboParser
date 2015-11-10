@@ -66,11 +66,11 @@ void TaggerOptions::Load(FILE* fs) {
   //LOG(INFO) << "Setting --tagger_model_type=" << FLAGS_tagger_model_type;
   success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
   CHECK(success);
-  LOG(INFO)<<"Setting --tagger_large_feature_set="
-    <<FLAGS_tagger_large_feature_set;
+  LOG(INFO) << "Setting --tagger_large_feature_set="
+    << FLAGS_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_tagger_prune_tags);
   CHECK(success);
-  LOG(INFO)<<"Setting --tagger_prune_tags="<<FLAGS_tagger_prune_tags;
+  LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_tagger_prune_tags;
 
   // TODO: Maybe we should load/save also the list of tags for unknown
   // words?

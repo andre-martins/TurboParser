@@ -106,7 +106,7 @@ public:
 
   void Initialize() {
     DeleteAll();
-    for (int i = 0; i<NUM_SEQUENCEPARTS; ++i) {
+    for (int i = 0; i < NUM_SEQUENCEPARTS; ++i) {
       offsets_[i] = -1;
     }
   };
@@ -146,9 +146,9 @@ public:
 
   // Set/Get offsets:
   void BuildOffsets() {
-    for (int i = NUM_SEQUENCEPARTS-1; i>=0; --i) {
-      if (offsets_[i]<0) {
-        offsets_[i] = (i==NUM_SEQUENCEPARTS-1) ? size() : offsets_[i+1];
+    for (int i = NUM_SEQUENCEPARTS - 1; i >= 0; --i) {
+      if (offsets_[i] < 0) {
+        offsets_[i] = (i == NUM_SEQUENCEPARTS - 1) ? size() : offsets_[i + 1];
       }
     }
   };
@@ -175,14 +175,14 @@ private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size = (i<NUM_SEQUENCEPARTS-1) ? offsets_[i+1]-(*offset) :
-      SequenceParts::size()-(*offset);
+    *size = (i < NUM_SEQUENCEPARTS - 1) ? offsets_[i + 1] - (*offset) :
+      SequenceParts::size() - (*offset);
   }
 
   // Set offset from part index.
   void SetOffset(int i, int offset, int size) {
     offsets_[i] = offset;
-    if (i<NUM_SEQUENCEPARTS-1) offsets_[i+1] = offset+size;
+    if (i < NUM_SEQUENCEPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
 private:

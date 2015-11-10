@@ -78,16 +78,16 @@ public:
   int Size() const { return label_weights_.size(); }
 
   double GetWeight(int label) const {
-    for (int k = 0; k<label_weights_.size(); ++k) {
-      if (label==label_weights_[k].first) {
+    for (int k = 0; k < label_weights_.size(); ++k) {
+      if (label == label_weights_[k].first) {
         return label_weights_[k].second;
       }
     }
     return 0.0;
   }
   void SetWeight(int label, double weight) {
-    for (int k = 0; k<label_weights_.size(); ++k) {
-      if (label==label_weights_[k].first) {
+    for (int k = 0; k < label_weights_.size(); ++k) {
+      if (label == label_weights_[k].first) {
         label_weights_[k].second = weight;
         return;
       }
@@ -95,8 +95,8 @@ public:
     label_weights_.push_back(std::pair<int, double>(label, weight));
   }
   void AddWeight(int label, double weight) {
-    for (int k = 0; k<label_weights_.size(); ++k) {
-      if (label==label_weights_[k].first) {
+    for (int k = 0; k < label_weights_.size(); ++k) {
+      if (label == label_weights_[k].first) {
         label_weights_[k].second += weight;
         return;
       }
@@ -106,10 +106,10 @@ public:
   // Sets new weight, normalize it and returns previous value of 
   // label_weights_[k].second, with k such that label == label_weights_[k].first.
   double SetWeightAndNormalize(int label, double value, double scale_factor) {
-    double weight = value/scale_factor;
+    double weight = value / scale_factor;
     double previous_value;
-    for (int k = 0; k<label_weights_.size(); ++k) {
-      if (label==label_weights_[k].first) {
+    for (int k = 0; k < label_weights_.size(); ++k) {
+      if (label == label_weights_[k].first) {
         previous_value = label_weights_[k].second * scale_factor;
         label_weights_[k].second = weight;
         return previous_value;
@@ -122,10 +122,10 @@ public:
   // returns previous value of label_weights_[k].second, 
   // with k such that label == label_weights_[k].first.
   double AddWeightAndNormalize(int label, double value, double scale_factor) {
-    double weight = value/scale_factor;
+    double weight = value / scale_factor;
     double previous_value;
-    for (int k = 0; k<label_weights_.size(); ++k) {
-      if (label==label_weights_[k].first) {
+    for (int k = 0; k < label_weights_.size(); ++k) {
+      if (label == label_weights_[k].first) {
         previous_value = label_weights_[k].second * scale_factor;
         label_weights_[k].second += weight;
         return previous_value;
@@ -156,7 +156,7 @@ public:
   DenseLabelWeights() {};
   DenseLabelWeights(LabelWeights *label_weights) {
     CHECK(label_weights->IsSparse());
-    for (int k = 0; k<label_weights->Size(); ++k) {
+    for (int k = 0; k < label_weights->Size(); ++k) {
       int label;
       double weight;
       label_weights->GetLabelWeightByPosition(k, &label, &weight);
@@ -170,31 +170,31 @@ public:
   int Size() const { return weights_.size(); }
 
   double GetWeight(int label) const {
-    if (label>=weights_.size()) return 0.0;
+    if (label >= weights_.size()) return 0.0;
     return weights_[label];
   }
   void SetWeight(int label, double weight) {
     CHECK_GE(label, 0);
-    if (label>=weights_.size()) {
-      weights_.resize(label+1, 0.0);
+    if (label >= weights_.size()) {
+      weights_.resize(label + 1, 0.0);
     }
     weights_[label] = weight;
   }
   void AddWeight(int label, double weight) {
     CHECK_GE(label, 0);
-    if (label>=weights_.size()) {
-      weights_.resize(label+1, 0.0);
+    if (label >= weights_.size()) {
+      weights_.resize(label + 1, 0.0);
     }
     weights_[label] += weight;
   }
   // Sets new weight, normalize it and returns previous value of weights_[label].
   double SetWeightAndNormalize(int label, double value, double scaling_factor) {
     CHECK_GE(label, 0);
-    if (label>=weights_.size()) {
-      weights_.resize(label+1, 0.0);
+    if (label >= weights_.size()) {
+      weights_.resize(label + 1, 0.0);
     }
-    double weight = value/scaling_factor;
-    double previous_value = weights_[label]*scaling_factor;
+    double weight = value / scaling_factor;
+    double previous_value = weights_[label] * scaling_factor;
     weights_[label] = weight;
     return previous_value;
   }
@@ -202,11 +202,11 @@ public:
   // normalize it and returns previous value of weights_[label].
   double AddWeightAndNormalize(int label, double value, double scaling_factor) {
     CHECK_GE(label, 0);
-    if (label>=weights_.size()) {
-      weights_.resize(label+1, 0.0);
+    if (label >= weights_.size()) {
+      weights_.resize(label + 1, 0.0);
     }
-    double weight = value/scaling_factor;
-    double previous_value = weights_[label]*scaling_factor;
+    double weight = value / scaling_factor;
+    double previous_value = weights_[label] * scaling_factor;
     weights_[label] += weight;
     return previous_value;
   }
@@ -259,7 +259,7 @@ public:
   // Clear the parameter vector.
   void Clear() {
     for (LabeledParameterMap::iterator iterator = values_.begin();
-    iterator!=values_.end();
+    iterator != values_.end();
       ++iterator) {
       delete iterator->second;
     }
@@ -272,7 +272,7 @@ public:
     success = WriteInteger(fs, Size());
     CHECK(success);
     for (LabeledParameterMap::const_iterator iterator = values_.begin();
-    iterator!=values_.end();
+    iterator != values_.end();
       ++iterator) {
       success = WriteUINT64(fs, iterator->first);
       CHECK(success);
@@ -282,7 +282,7 @@ public:
       CHECK(success);
       int label;
       double value;
-      for (int k = 0; k<length; ++k) {
+      for (int k = 0; k < length; ++k) {
         label_weights->GetLabelWeightByPosition(k, &label, &value);
         CHECK_GE(label, 0);
         success = WriteInteger(fs, label);
@@ -299,7 +299,7 @@ public:
     Initialize();
     success = ReadInteger(fs, &num_features);
     CHECK(success);
-    for (int i = 0; i<num_features; ++i) {
+    for (int i = 0; i < num_features; ++i) {
       uint64_t key;
       success = ReadUINT64(fs, &key);
       CHECK(success);
@@ -308,7 +308,7 @@ public:
       CHECK(success);
       int label;
       double value;
-      for (int k = 0; k<length; ++k) {
+      for (int k = 0; k < length; ++k) {
         success = ReadInteger(fs, &label);
         CHECK(success);
         success = ReadDouble(fs, &value);
@@ -324,7 +324,7 @@ public:
     int num_total = 0;
     int num_labels_sparse = 0;
     for (LabeledParameterMap::iterator iterator = values_.begin();
-    iterator!=values_.end();
+    iterator != values_.end();
       ++iterator) {
       LabelWeights *label_weights = iterator->second;
       if (label_weights->IsSparse()) {
@@ -334,10 +334,10 @@ public:
       }
       ++num_total;
     }
-    LOG(INFO)<<"Statistics for labeled parameter vector:";
-    LOG(INFO)<<"Features with sparse labels: "<<num_sparse
-      <<" Total: "<<num_total
-      <<" Sparse labels: "<<num_labels_sparse;
+    LOG(INFO) << "Statistics for labeled parameter vector:";
+    LOG(INFO) << "Features with sparse labels: " << num_sparse
+      << " Total: " << num_total
+      << " Sparse labels: " << num_labels_sparse;
 #endif
   }
 
@@ -355,7 +355,7 @@ public:
   // True if this feature key is already instantiated.
   bool Exists(uint64_t key) const {
     LabeledParameterMap::const_iterator iterator = values_.find(key);
-    if (iterator==values_.end()) return false;
+    if (iterator == values_.end()) return false;
     return true;
   }
 
@@ -364,7 +364,7 @@ public:
   bool Get(uint64_t key, const vector<int> &labels,
            vector<double> *weights) const {
     LabeledParameterMap::const_iterator iterator = values_.find(key);
-    if (iterator==values_.end()) {
+    if (iterator == values_.end()) {
       weights->clear();
       return false;
     }
@@ -389,7 +389,7 @@ public:
   bool Set(uint64_t key, int label, double value) {
     CHECK_GE(label, 0);
     LabeledParameterMap::iterator iterator = FindOrInsert(key);
-    if (iterator!=values_.end()) {
+    if (iterator != values_.end()) {
       SetValue(iterator, label, value);
       return true;
     } else {
@@ -403,7 +403,7 @@ public:
   // w'[id] = w[id] + val
   bool Add(uint64_t key, int label, double value) {
     LabeledParameterMap::iterator iterator = FindOrInsert(key);
-    if (iterator!=values_.end()) {
+    if (iterator != values_.end()) {
       AddValue(iterator, label, value);
       return true;
     } else {
@@ -418,7 +418,7 @@ public:
   void Add(uint64_t key, const vector<int> &labels,
            const vector<double> &values) {
     LabeledParameterMap::iterator iterator = FindOrInsert(key);
-    for (int k = 0; k<labels.size(); ++k) {
+    for (int k = 0; k < labels.size(); ++k) {
       AddValue(iterator, labels[k], values[k]);
     }
   }
@@ -428,7 +428,7 @@ public:
   // w'[id] = w[id] + val
   void Add(const vector<uint64_t> &keys, const vector<int> &labels,
            const vector<double> &values) {
-    for (int i = 0; i<keys.size(); ++i) {
+    for (int i = 0; i < keys.size(); ++i) {
       Add(keys[i], labels[i], values[i]);
     }
   }
@@ -439,13 +439,13 @@ public:
   void Add(const SparseLabeledParameterVector &parameters) {
     for (LabeledParameterMap::const_iterator iterator =
          parameters.values_.begin();
-         iterator!=parameters.values_.end();
+         iterator != parameters.values_.end();
          ++iterator) {
       uint64_t key = iterator->first;
       LabelWeights *label_weights = iterator->second;
       int label;
       double value;
-      for (int k = 0; k<label_weights->Size(); ++k) {
+      for (int k = 0; k < label_weights->Size(); ++k) {
         label_weights->GetLabelWeightByPosition(k, &label, &value);
         value *= parameters.scale_factor_;
         CHECK_EQ(value, value);
@@ -462,7 +462,7 @@ protected:
                  vector<double> *values) const {
     values->resize(labels.size());
     LabelWeights *label_weights = iterator->second;
-    for (int i = 0; i<labels.size(); ++i) {
+    for (int i = 0; i < labels.size(); ++i) {
       (*values)[i] = label_weights->GetWeight(labels[i]) * scale_factor_;
     }
   }
@@ -488,21 +488,21 @@ protected:
 #if USE_N_OPTIMIZATIONS==0
     // TODO: Make this more efficient, avoiding two lookups in LabelWeights.
     double current_value = GetValue(iterator, label);
-    squared_norm_ += value * value-current_value * current_value;
+    squared_norm_ += value * value - current_value * current_value;
     LabelWeights *label_weights = iterator->second;
-    label_weights->SetWeight(label, value/scale_factor_);
+    label_weights->SetWeight(label, value / scale_factor_);
 #else
     LabelWeights *label_weights = iterator->second;
     double previous_value = label_weights->SetWeightAndNormalize(label,
                                                                  value,
                                                                  scale_factor_);
-    squared_norm_ += value * value-previous_value * previous_value;
+    squared_norm_ += value * value - previous_value * previous_value;
 #endif
 
 
     // If the number of labels is growing large, make this into dense 
     // label weights.
-    if (label_weights->Size()>kNumMaxSparseLabels &&
+    if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
       DenseLabelWeights *dense_label_weights =
         new DenseLabelWeights(label_weights);
@@ -511,7 +511,7 @@ protected:
     }
 
     // This prevents numerical issues:
-    if (squared_norm_<0.0) squared_norm_ = 0.0;
+    if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }
 
   // Add weight for the specified label.
@@ -521,11 +521,11 @@ protected:
     // TODO: Make this more efficient, avoiding two lookups in LabelWeights.
     double current_value = GetValue(iterator, label);
     value += current_value;
-    squared_norm_ += value * value-current_value * current_value;
+    squared_norm_ += value * value - current_value * current_value;
     LabelWeights *label_weights = iterator->second;
     if (!label_weights)
       label_weights = new SparseLabelWeights;
-    label_weights->SetWeight(label, value/scale_factor_);
+    label_weights->SetWeight(label, value / scale_factor_);
 #else
     LabelWeights *label_weights = iterator->second;
     if (!label_weights)
@@ -535,13 +535,13 @@ protected:
                                                                  scale_factor_);
     //squared_norm_ += (value + previous_value) * (value + previous_value) - previous_value * previous_value;   //step1 
     //squared_norm_ += value * value + 2 * value * previous_value + ( previous_value * previous_value - previous_value * previous_value );  //step2
-    squared_norm_ += value * value+2*value * previous_value;    //step3
+    squared_norm_ += value * value + 2 * value * previous_value;    //step3
 #endif
 
 
   // If the number of labels is growing large, make this into dense 
   // label weights.
-    if (label_weights->Size()>kNumMaxSparseLabels &&
+    if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
       DenseLabelWeights *dense_label_weights =
         new DenseLabelWeights(label_weights);
@@ -550,13 +550,13 @@ protected:
     }
 
     // This prevents numerical issues:
-    if (squared_norm_<0.0) squared_norm_ = 0.0;
+    if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }
 
   // Find a key, or insert it in case it does not exist.
   LabeledParameterMap::iterator FindOrInsert(uint64_t key) {
     LabeledParameterMap::iterator iterator = values_.find(key);
-    if (iterator!=values_.end()||growth_stopped()) return iterator;
+    if (iterator != values_.end() || growth_stopped()) return iterator;
     LabelWeights *label_weights = new SparseLabelWeights;
     pair<LabeledParameterMap::iterator, bool> result =
       values_.insert(pair<uint64_t, LabelWeights*>(key, label_weights));
@@ -566,22 +566,22 @@ protected:
 
   // If the scale factor is too small, renormalize the entire parameter map.
   void RenormalizeIfNecessary() {
-    if (scale_factor_>-kLabeledScaleFactorThreshold &&
-        scale_factor_<kLabeledScaleFactorThreshold) {
+    if (scale_factor_ > -kLabeledScaleFactorThreshold &&
+        scale_factor_ < kLabeledScaleFactorThreshold) {
       Renormalize();
     }
   }
 
   // Renormalize the entire parameter map (an expensive operation).
   void Renormalize() {
-    LOG(INFO)<<"Renormalizing the parameter map...";
+    LOG(INFO) << "Renormalizing the parameter map...";
     for (LabeledParameterMap::iterator iterator = values_.begin();
-    iterator!=values_.end();
+    iterator != values_.end();
       ++iterator) {
       LabelWeights *label_weights = iterator->second;
       int label;
       double value;
-      for (int k = 0; k<label_weights->Size(); ++k) {
+      for (int k = 0; k < label_weights->Size(); ++k) {
         label_weights->GetLabelWeightByPosition(k, &label, &value);
         label_weights->SetWeightByPosition(k, value * scale_factor_);
       }

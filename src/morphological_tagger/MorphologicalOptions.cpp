@@ -65,11 +65,11 @@ void MorphOptions::Load(FILE* fs) {
   bool success;
   success = ReadInteger(fs, &FLAGS_morph_tagger_large_feature_set);
   CHECK(success);
-  LOG(INFO)<<"Setting --morph_tagger_large_feature_set="
-    <<FLAGS_morph_tagger_large_feature_set;
+  LOG(INFO) << "Setting --morph_tagger_large_feature_set="
+    << FLAGS_morph_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_morph_tagger_prune_tags);
   CHECK(success);
-  LOG(INFO)<<"Setting --morph_tagger_prune_tags="<<FLAGS_morph_tagger_prune_tags;
+  LOG(INFO) << "Setting --morph_tagger_prune_tags=" << FLAGS_morph_tagger_prune_tags;
 
   Initialize();
 }

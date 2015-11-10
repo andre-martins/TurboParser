@@ -89,7 +89,7 @@ protected:
 
   // Create/add/delete instances.
   void DeleteInstances() {
-    for (int i = 0; i<instances_.size(); ++i) {
+    for (int i = 0; i < instances_.size(); ++i) {
       delete instances_[i];
     }
     instances_.clear();
@@ -98,7 +98,7 @@ protected:
   void AddInstance(Instance *instance) {
     Instance *formatted_instance = GetFormattedInstance(instance);
     instances_.push_back(formatted_instance);
-    if (instance!=formatted_instance) delete instance;
+    if (instance != formatted_instance) delete instance;
   }
 
   // Obtain a "formatted" instance. Override this function for task-specific
@@ -244,7 +244,7 @@ protected:
                                 Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
-    for (int r = 0; r<parts->size(); ++r) {
+    for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
         if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
         ++num_mistakes_;
@@ -256,8 +256,8 @@ protected:
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO)<<"Accuracy (parts): "<<
-      static_cast<double>(num_total_parts_-num_mistakes_)/
+    LOG(INFO) << "Accuracy (parts): " <<
+      static_cast<double>(num_total_parts_ - num_mistakes_) /
       static_cast<double>(num_total_parts_);
   }
 

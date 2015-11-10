@@ -58,11 +58,11 @@ public:
 
   // Lock/unlock the dictionary. When the dictionary is locked, no insertion
   // is possible.
-  void StopGrowth () { growth_stopped_ = true; }
-  void AllowGrowth () { growth_stopped_ = false; }
+  void StopGrowth() { growth_stopped_ = true; }
+  void AllowGrowth() { growth_stopped_ = false; }
 
   // Check whether the dictionary is locked.
-  bool growth_stopped () const { return growth_stopped_; }
+  bool growth_stopped() const { return growth_stopped_; }
 
   // Insert/lookup/check existence of an entry.
   int Insert(const std::string &entry);
@@ -83,7 +83,7 @@ public:
     }
   }
 
- private:
+private:
   int num_entries_; // Number of entries in the dictionary.
   std::vector<std::string> names_; // Entry names.
   bool growth_stopped_; // True if dictionary is locked.

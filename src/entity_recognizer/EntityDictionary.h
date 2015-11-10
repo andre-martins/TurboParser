@@ -40,18 +40,18 @@ public:
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
 
-    if (0>gazetteer_word_alphabet_.Save(fs)) CHECK(false);
-    if (0>gazetteer_entity_tag_alphabet_.Save(fs)) CHECK(false);
+    if (0 > gazetteer_word_alphabet_.Save(fs)) CHECK(false);
+    if (0 > gazetteer_entity_tag_alphabet_.Save(fs)) CHECK(false);
 
     bool success;
     int length = gazetteer_word_entity_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j<gazetteer_word_entity_tags_.size(); ++j) {
+    for (int j = 0; j < gazetteer_word_entity_tags_.size(); ++j) {
       length = gazetteer_word_entity_tags_[j].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int k = 0; k<gazetteer_word_entity_tags_[j].size(); ++k) {
+      for (int k = 0; k < gazetteer_word_entity_tags_[j].size(); ++k) {
         int id = gazetteer_word_entity_tags_[j][k];
         success = WriteInteger(fs, id);
         CHECK(success);
@@ -61,11 +61,11 @@ public:
     length = allowed_bigrams_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
-    for (int j = 0; j<allowed_bigrams_.size(); ++j) {
+    for (int j = 0; j < allowed_bigrams_.size(); ++j) {
       length = allowed_bigrams_[j].size();
       success = WriteInteger(fs, length);
       CHECK(success);
-      for (int k = 0; k<allowed_bigrams_[j].size(); ++k) {
+      for (int k = 0; k < allowed_bigrams_[j].size(); ++k) {
         bool allowed = allowed_bigrams_[j][k];
         success = WriteBool(fs, allowed);
         CHECK(success);
@@ -76,18 +76,18 @@ public:
   void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
 
-    if (0>gazetteer_word_alphabet_.Load(fs)) CHECK(false);
-    if (0>gazetteer_entity_tag_alphabet_.Load(fs)) CHECK(false);
+    if (0 > gazetteer_word_alphabet_.Load(fs)) CHECK(false);
+    if (0 > gazetteer_entity_tag_alphabet_.Load(fs)) CHECK(false);
 
     int length;
     bool success = ReadInteger(fs, &length);
     CHECK(success);
     gazetteer_word_entity_tags_.resize(length);
-    for (int j = 0; j<gazetteer_word_entity_tags_.size(); ++j) {
+    for (int j = 0; j < gazetteer_word_entity_tags_.size(); ++j) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       gazetteer_word_entity_tags_[j].resize(length);
-      for (int k = 0; k<gazetteer_word_entity_tags_[j].size(); ++k) {
+      for (int k = 0; k < gazetteer_word_entity_tags_[j].size(); ++k) {
         int id;
         success = ReadInteger(fs, &id);
         CHECK(success);
@@ -97,19 +97,19 @@ public:
 
     gazetteer_word_alphabet_.StopGrowth();
     gazetteer_entity_tag_alphabet_.StopGrowth();
-    LOG(INFO)<<"Number of gazetteer words: "
-      <<gazetteer_word_alphabet_.size();
-    LOG(INFO)<<"Number of gazetteer entity tags: "
-      <<gazetteer_entity_tag_alphabet_.size();
+    LOG(INFO) << "Number of gazetteer words: "
+      << gazetteer_word_alphabet_.size();
+    LOG(INFO) << "Number of gazetteer entity tags: "
+      << gazetteer_entity_tag_alphabet_.size();
 
     success = ReadInteger(fs, &length);
     CHECK(success);
     allowed_bigrams_.resize(length);
-    for (int j = 0; j<allowed_bigrams_.size(); ++j) {
+    for (int j = 0; j < allowed_bigrams_.size(); ++j) {
       success = ReadInteger(fs, &length);
       CHECK(success);
       allowed_bigrams_[j].resize(length);
-      for (int k = 0; k<allowed_bigrams_[j].size(); ++k) {
+      for (int k = 0; k < allowed_bigrams_[j].size(); ++k) {
         bool allowed;
         success = ReadBool(fs, &allowed);
         CHECK(success);
@@ -126,7 +126,7 @@ public:
                            std::vector<int> *gazetteer_ids) const {
     gazetteer_ids->clear();
     int id = gazetteer_word_alphabet_.Lookup(word);
-    if (id>=0) {
+    if (id >= 0) {
       gazetteer_ids->assign(gazetteer_word_entity_tags_[id].begin(),
                             gazetteer_word_entity_tags_[id].end());
     }
@@ -135,7 +135,7 @@ public:
   bool IsAllowedBigram(int left_tag, int tag) {
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
-    return allowed_bigrams_[tag+1][left_tag+1];
+    return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
 protected:

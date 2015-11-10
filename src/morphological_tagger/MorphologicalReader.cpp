@@ -30,8 +30,8 @@ Instance *MorphReader::GetNext() {
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
-      if (line.length()<=0) break;
-      if (0==line.substr(0, 1).compare("#")) {
+      if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
         continue;
       }
       //LOG(INFO) << line;
@@ -51,7 +51,7 @@ Instance *MorphReader::GetNext() {
   std::vector<std::string> cpostags(length);
   std::vector<std::string> feats(length); //aka, morphological features, feats
 
-  for (int i = 0; i<length; ++i) {
+  for (int i = 0; i < length; ++i) {
     const std::vector<std::string> &info = sentence_fields[i];
     forms[i] = info[1];
     lemmas[i] = info[2];
@@ -60,7 +60,7 @@ Instance *MorphReader::GetNext() {
   }
 
   MorphInstance *instance = NULL;
-  if (length>0) {
+  if (length > 0) {
     instance = new MorphInstance;
     instance->Initialize(forms, lemmas, cpostags, feats);
   }
