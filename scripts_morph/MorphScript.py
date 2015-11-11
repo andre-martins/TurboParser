@@ -1,15 +1,32 @@
-﻿import sys
+﻿#Run this script, from the project root folder with $ python scripts_morph/MorphScript.py path_to_TurboMorphologicalTagger_executable/TurboMorphologicalTagger_executable
+import sys
 import os
 import subprocess
 import time
 
-dir = os.path.dirname(__file__)
+dir = os.path.abspath(  os.path.dirname(__file__) )
 
 NumberOfRuns=1
 NumberWarmUps=0
 
-#Programs = [os.path.join(dir, '..\\vsprojects\\x64\\Release\\turbo_morphological_tagger.exe')] #create a copy in other folder to allow development of the code without interfering with the experiment
-Programs = [os.path.join(dir, 'turbo_morphological_tagger.exe')]
+RUNNING_TEST=1
+
+if len(sys.argv) == 2:
+    Programs = [sys.argv[1]]
+    if os.path.isfile(Programs[0]) == False:    
+        print 'Program name must be passed in the argument:'
+        print 'Ex: python scripts_morph/MorphScript.py path_to_TurboMorphologicalTagger_executable/TurboMorphologicalTagger_executable'
+        sys.exit()
+else:
+    print 'Program name must be passed in the argument:'
+    if os.name == 'nt': 
+        print 'Ex: python scripts_morph\MorphScript.py path_to_TurboMorphologicalTagger_executable\TurboMorphologicalTagger_executable'
+    elif os.name == 'posix':
+        print 'Ex: python scripts_morph/MorphScript.py path_to_TurboMorphologicalTagger_executable/TurboMorphologicalTagger_executable'
+    else:
+        print 'Ex: python scripts_morph/MorphScript.py path_to_TurboMorphologicalTagger_executable/TurboMorphologicalTagger_executable'
+    sys.exit()
+
 
 Languages = ['basque',
 'bulgarian',
@@ -21,39 +38,55 @@ Languages = ['basque',
 'greek',
 'hungarian',
 'italian',
-'swedish']
+'swedish'
+]
 
-TrainFiles_template      = [os.path.join(dir, '..\\data_local\\morph_data\\*__LANGUAGE__*-ud-train.conllu')] #Replace *__LANGUAGE__* by Languages[i]
-TestFiles_template       = [os.path.join(dir, '..\\data_local\\morph_data\\*__LANGUAGE__*-ud-test.conllu')] #Replace *__LANGUAGE__* by Languages[i]
-ModelFiles_template      = [os.path.join(dir, '..\\data_local\\morph_models\\*__LANGUAGE__*_morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*')] #Replace '*__LANGUAGE__*','__MARKOV_ORDER__*' '*__FEATURES__*', '*__REGCONST__*', '*__PREFIX__*', '*__SUFFIX__*'
-PredictionFiles_template = [os.path.join(dir, '..\\data_local\\morph_out\\*__LANGUAGE__*-train-test.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted')]
+TrainFiles_template      = [os.path.join(dir, '..','data_local','morph_data','*__LANGUAGE__*-ud-train.conllu')] #Replace *__LANGUAGE__* by Languages[i]
+TestFiles_template       = [os.path.join(dir, '..','data_local','morph_data','*__LANGUAGE__*-ud-test.conllu')] #Replace *__LANGUAGE__* by Languages[i]
+ModelFiles_template      = [os.path.join(dir, '..','data_local','morph_models','*T**__LANGUAGE__*_morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*')] #Replace '*__LANGUAGE__*','__MARKOV_ORDER__*' '*__FEATURES__*', '*__REGCONST__*', '*__PREFIX__*', '*__SUFFIX__*'
+PredictionFiles_template = [os.path.join(dir, '..','data_local','morph_out','*T**__LANGUAGE__*-train-test.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted')]
 TrainFiles               = []     
 TestFiles                = []  
 ModelFiles               = []
 PredictionFiles          = []
 
-MorphFeatureSelection       = ['0', '1', '2'] #--morph_tagger_large_feature_set=0
-TrainAlgorithm              = ['svm_mira'] #--train_algorithm=svm_mira
-TrainRegularizationConstant = ['1.0', '0.1', '0.01'] #--train_regularization_constant=0.01 
-TrainEpochs                 = ['20'] #--train_epochs=20 
-SequenceModelType           = ['0'] #--sequence_model_type=0 
-FormCutoff                  = ['0'] #--form_cutoff=0 
-PrefixLength                = ['0','2','3'] #--prefix_length=3 
-SuffixLength                = ['0','2','3'] #--suffix_length=3 
+MorphFeatureSelection       = ['0','2']  #['0', '1', '2']  #--morph_tagger_large_feature_set=0
+TrainAlgorithm              = ['svm_mira']  #--train_algorithm=svm_mira
+TrainRegularizationConstant = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
+TrainEpochs                 = ['20']  #--train_epochs=20 
+SequenceModelType           = ['0']  #--sequence_model_type=0 
+FormCutoff                  = ['0']  #--form_cutoff=0 
+PrefixLength                = ['0','3']  #['0','2','3']  #--prefix_length=3 
+SuffixLength                = ['3']  #['0','2','3']  #--suffix_length=3 
 #--logtostderr              
 
-OutputDesiredPrefix     = "turbo_morphological_tagger_run"
-OutputFolder            = [os.path.join(dir, '..\\data_local\\morph_out\\')]
-OutputFolderBenchmarks  = [os.path.join(dir, '..\\data_local\\morph_out\\')]
+OutputDesiredPrefix     = "*T*turbo_morphological_tagger_run"
+OutputFolderBenchmarks  = [os.path.join(dir, '..','data_local','morph_log')]
 
-if not os.path.exists(os.path.dirname(OutputFolderBenchmarks[0])):
-    os.makedirs(os.path.dirname(OutputFolderBenchmarks[0]))
+print OutputFolderBenchmarks[0]
+if not os.path.exists(OutputFolderBenchmarks[0]):
+    os.makedirs(OutputFolderBenchmarks[0])
+
+
+if RUNNING_TEST == 1:
+    TrainFiles_template[0]      = TrainFiles_template[0].replace('*T*', "TEST_")
+    TestFiles_template[0]       = TestFiles_template[0].replace('*T*', "TEST_")
+    ModelFiles_template[0]      = ModelFiles_template[0].replace('*T*', "TEST_")
+    PredictionFiles_template[0] = PredictionFiles_template[0].replace('*T*', "TEST_")
+    OutputDesiredPrefix         = OutputDesiredPrefix.replace('*T*', "TEST_")
+else:
+    TrainFiles_template[0]      = TrainFiles_template[0].replace('*T*', "")
+    TestFiles_template[0]       = TestFiles_template[0].replace('*T*', "")
+    ModelFiles_template[0]      = ModelFiles_template[0].replace('*T*', "")
+    PredictionFiles_template[0] = PredictionFiles_template[0].replace('*T*', "")
+    OutputDesiredPrefix         = OutputDesiredPrefix.replace('*T*', "")
+
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
-csv = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".csv","w")
-log = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".log","w")
-err = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".err","w")
-pylog = open(OutputFolderBenchmarks[0]+OutputDesiredPrefix+timestr+".pylog","w")
+csv = open(   os.path.join( OutputFolderBenchmarks[0],OutputDesiredPrefix+timestr+".csv")   ,"wb")
+log = open(   os.path.join( OutputFolderBenchmarks[0],OutputDesiredPrefix+timestr+".log")   ,"wb")
+err = open(   os.path.join( OutputFolderBenchmarks[0],OutputDesiredPrefix+timestr+".err")   ,"wb")
+pylog = open( os.path.join( OutputFolderBenchmarks[0],OutputDesiredPrefix+timestr+".pylog") ,"wb")
  
 string_to_write=""
 string_to_write=string_to_write+"Program, Language, Features, Markov Order, Train Algorithm, Regularization Constant, Train Epochs, Form cutoff, Prefix Length, Suffix Length"
@@ -104,7 +137,7 @@ for program in Programs:
                                         PredictionFile  = PredictionFile.replace('*__FEATURES__*', features)
                                         PredictionFile  = PredictionFile.replace('*__REGCONST__*', train_regularization_constant)
                                         PredictionFile  = PredictionFile.replace('*__PREFIX__*', prefix_length)
-                                        PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)
+                                        PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)                                            
                                         
                                         #TRAIN
                                         command = []
@@ -123,9 +156,15 @@ for program in Programs:
                                         command.append("--morph_tagger_large_feature_set="+features)
                                         command.append("--logtostderr")
 
-                                        print "Executing: " + ' '.join(command)
+                                        print "Executing: "
                                         sys.stdout.flush()
-                                     
+
+                                        print       ' '.join(command)
+                                        sys.stdout.flush()
+                                        pylog.write(' '.join(command) + "\n")
+                                        log.write(  ' '.join(command) + "\n")
+                                        err.write(  ' '.join(command) + "\n")
+                                        #run program
                                         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                         (stdout__output,stderr_output) = process.communicate()
                                         print "Finished executing: " + ' '.join(command)
@@ -134,13 +173,13 @@ for program in Programs:
                                         # print "- - - * * * - - -"
                                         stdout__output = stdout__output.splitlines()
                                         for line in stdout__output:
-                                            log.write(line)
+                                            log.write(line + "\n")
                                             # print line.rstrip("\n")
                                                 
                                         # print "- - - * * * - - -"
                                         stderr_output = stderr_output.splitlines()
                                         for line in stderr_output:
-                                            err.write(line)
+                                            err.write(line + "\n")
                                             # print line.rstrip("\n")                                        
                                             where=line.find("Training took ")
                                             if where != -1:
@@ -151,6 +190,7 @@ for program in Programs:
                                                 sys.stdout.flush()
                                                 pylog.write("Training time = "+str(training_time)+" seconds\n")
                                                 log.write(  "Training time = "+str(training_time)+" seconds\n")
+                                                err.write(  "Training time = "+str(training_time)+" seconds\n")
 
                                             if line[0:4]=="real":
                                                train_time = float(line[5:])
@@ -158,6 +198,7 @@ for program in Programs:
                                                sys.stdout.flush()
                                                pylog.write("time of execution = "+str(train_time)+" seconds\n")
                                                log.write(  "time of execution = "+str(train_time)+" seconds\n")
+                                               err.write(  "time of execution = "+str(train_time)+" seconds\n")
                                             # print line
                                         
                                         #TEST
@@ -171,11 +212,16 @@ for program in Programs:
                                         command.append("--file_prediction="+PredictionFile)    
                                         command.append("--logtostderr")
 
-                                        print "Executing: " + ' '.join(command)
+                                        print "Executing: "
                                         sys.stdout.flush()
                                     
                                         #warm-up X iterations
-                                        for iteration in range(0,NumberWarmUps):
+                                        for iteration in range(0,NumberWarmUps):                                            
+                                            print       "Warm-up #" + str(iteration+1) +": " + ' '.join(command)
+                                            sys.stdout.flush()
+                                            pylog.write("Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
+                                            log.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
+                                            err.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
                                             #run program
                                             process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                             (stdout__output,stderr_output) = process.communicate()
@@ -199,9 +245,9 @@ for program in Programs:
                                                 err.write(  "\n**** ITER "+str(iteration)+" ****\n")
                                             print       ' '.join(command)
                                             sys.stdout.flush()
-                                            pylog.write(' '.join(command) )
-                                            log.write(  ' '.join(command) )
-                                            err.write(  ' '.join(command) )
+                                            pylog.write(' '.join(command) + "\n")
+                                            log.write(  ' '.join(command) + "\n")
+                                            err.write(  ' '.join(command) + "\n")
                                             #run program
                                             process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                                             (stdout__output,stderr_output) = process.communicate()
@@ -211,12 +257,12 @@ for program in Programs:
                                             # print "- - - * * * - - -"
                                             stdout__output = stdout__output.splitlines()                                      
                                             for line in stdout__output:
-                                                log.write(line)
+                                                log.write(line + "\n")
                                                 # print line.rstrip("\n")
                                             # print "- - - * * * - - -"
                                             stderr_output = stderr_output.splitlines()
                                             for line in stderr_output:
-                                                err.write(line)
+                                                err.write(line + "\n")
                                                 # print line.rstrip("\n")
                                                 where=line.find("Correct predictions:")  
                                                 if where != -1:    
@@ -227,6 +273,7 @@ for program in Programs:
                                                     sys.stdout.flush()
                                                     pylog.write("Correct predictions: "+correct_predictions[iteration]+"\n")
                                                     log.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
+                                                    err.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
                                                 
                                                 where=line.find("Tagging accuracy: ")
                                                 if where != -1:
@@ -237,6 +284,7 @@ for program in Programs:
                                                     sys.stdout.flush()
                                                     pylog.write("Tagging accuracy = "+str(accuracy[iteration])+"\n")
                                                     log.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
+                                                    err.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
                                                
                                                 where=line.find("Tagging speed: ")  
                                                 if where != -1:    
@@ -247,6 +295,7 @@ for program in Programs:
                                                     sys.stdout.flush()
                                                     pylog.write("Tagging speed = "+str(tagspeed[iteration])+"\n")
                                                     log.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
+                                                    err.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
                                                 
                                                 if line[0:4]=="real":
                                                     test_time.append( float(line[5:]) )
@@ -254,6 +303,7 @@ for program in Programs:
                                                     sys.stdout.flush()
                                                     pylog.write("time of execution = "+str(test_time[iteration])+" seconds\n")
                                                     log.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
+                                                    err.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
                                                 # print line    
                                                 
                                         string_to_write=""
@@ -289,6 +339,7 @@ csv.close()
 print "Script finished\n"
 log.write("Script finished\n")
 pylog.write("Script finished\n")
+err.write("Script finished\n")
 log.close()
 pylog.close()
 err.close()

@@ -104,7 +104,7 @@ void TokenDictionary::InitializeStarter() {
 
 
 void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
-  TokenDictionary::InitializeStarter();
+  InitializeStarter();
   LOG(INFO) << "Creating token dictionary...";
 
   std::vector<int> form_freqs;

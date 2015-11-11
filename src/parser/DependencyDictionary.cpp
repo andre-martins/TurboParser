@@ -122,7 +122,7 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
 
 
 void DependencyTokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
-  TokenDictionary::InitializeStarter();
+  InitializeStarter();
   LOG(INFO) << "Creating token dictionary...";
 
   vector<int> form_freqs;

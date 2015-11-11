@@ -142,7 +142,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\parser;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\parser;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;$(SolutionDir)..\deps\googletest\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/wd4018  /D GFLAGS_DLL_DECL= /D GFLAGS_DLL_DECLARE_FLAG= /D GFLAGS_DLL_DEFINE_FLAG= %(AdditionalOptions)</AdditionalOptions>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>

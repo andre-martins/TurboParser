@@ -74,7 +74,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
 }
 
 void MorphTokenDictionary::InitializeFromMorphReader(MorphReader *reader) {
-  TokenDictionary::InitializeStarter();
+  InitializeStarter();
   LOG(INFO) << "Creating token dictionary...";
 
   std::vector<int> form_freqs;
