@@ -149,6 +149,6 @@ class EntityTokenDictionary : public TokenDictionary {
 public:
   EntityTokenDictionary() {};
   virtual ~EntityTokenDictionary() {};
-  void InitializeFromEntityReader(EntityReader *reader);
+  void Initialize(EntityReader *reader);
 };
 #endif /* ENTITYDICTIONARY_H_ */

@@ -121,8 +121,8 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
 }
 
 
-void DependencyTokenDictionary::InitializeFromDependencyReader(DependencyReader *reader) {
-  InitializeStarter();
+void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
+  SetTokenDictionaryFlagValues();
   LOG(INFO) << "Creating token dictionary...";
 
   vector<int> form_freqs;

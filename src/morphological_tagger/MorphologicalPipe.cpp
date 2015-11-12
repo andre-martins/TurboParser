@@ -31,6 +31,6 @@ void MorphPipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
   // To get the right reader (instead of the default sequence reader).
-  static_cast<MorphTokenDictionary*>(token_dictionary_)->InitializeFromMorphReader(GetMorphReader());
+  static_cast<MorphTokenDictionary*>(token_dictionary_)->Initialize(GetMorphReader());
   static_cast<MorphDictionary*>(dictionary_)->CreateTagDictionary(GetMorphReader());
 }

@@ -115,6 +115,6 @@ class MorphTokenDictionary : public TokenDictionary {
 public:
   MorphTokenDictionary() {};
   virtual ~MorphTokenDictionary() {};
-  void InitializeFromMorphReader(MorphReader *reader);
+  void Initialize(MorphReader *reader);
 };
 #endif /* MORPHDICTIONARY_H_ */

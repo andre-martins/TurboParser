@@ -226,9 +226,9 @@ void EntityDictionary::ReadGazetteerFiles() {
 
 
 
-void EntityTokenDictionary::InitializeFromEntityReader(EntityReader *reader) {
-  InitializeStarter();
-  InitializeFromSequenceReader(reader);
+void EntityTokenDictionary::Initialize(EntityReader *reader) {
+  SetTokenDictionaryFlagValues();
+  Initialize(reader);
 
   std::vector<int> pos_freqs;
   Alphabet pos_alphabet;

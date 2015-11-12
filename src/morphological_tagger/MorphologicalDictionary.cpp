@@ -73,8 +73,8 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
     << unknown_cpostag_morphologicaltags_.size();
 }
 
-void MorphTokenDictionary::InitializeFromMorphReader(MorphReader *reader) {
-  InitializeStarter();
+void MorphTokenDictionary::Initialize(MorphReader *reader) {
+  SetTokenDictionaryFlagValues();
   LOG(INFO) << "Creating token dictionary...";
 
   std::vector<int> form_freqs;

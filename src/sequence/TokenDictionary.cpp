@@ -88,7 +88,7 @@ void TokenDictionary::Save(FILE* fs) {
 }
 
 
-void TokenDictionary::InitializeStarter() {
+void TokenDictionary::SetTokenDictionaryFlagValues() {
   form_cutoff = FLAGS_form_cutoff;
   form_lower_cutoff = FLAGS_form_cutoff;
   lemma_cutoff = FLAGS_lemma_cutoff;
@@ -103,8 +103,8 @@ void TokenDictionary::InitializeStarter() {
 
 
 
-void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader) {
-  InitializeStarter();
+void TokenDictionary::Initialize(SequenceReader *reader) {
+  SetTokenDictionaryFlagValues();
   LOG(INFO) << "Creating token dictionary...";
 
   std::vector<int> form_freqs;

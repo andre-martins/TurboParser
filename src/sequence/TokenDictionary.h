@@ -118,8 +118,8 @@ public:
       "There is no notion of number of features in TokenDictionary.";
   }
 
-  void InitializeStarter();
-  void InitializeFromSequenceReader(SequenceReader *reader);
+  void SetTokenDictionaryFlagValues();
+  void Initialize(SequenceReader *reader);
 
   void BuildNames() {
     pos_alphabet_.BuildNames();

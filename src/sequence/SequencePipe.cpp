@@ -68,7 +68,7 @@ void SequencePipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
   static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromSequenceReader(GetSequenceReader());
+  token_dictionary_->Initialize(GetSequenceReader());
   static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
 }
 
