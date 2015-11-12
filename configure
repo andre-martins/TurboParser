@@ -5686,7 +5686,9 @@ do
     "src/constituency_labeler/Makefile
 ") CONFIG_FILES="$CONFIG_FILES src/constituency_labeler/Makefile
 " ;;
-    "src/morphological_tagger/Makefile") CONFIG_FILES="$CONFIG_FILES src/morphological_tagger/Makefile" ;;
+    "src/morphological_tagger/Makefile
+") CONFIG_FILES="$CONFIG_FILES src/morphological_tagger/Makefile
+" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

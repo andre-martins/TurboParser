@@ -78,42 +78,12 @@ struct MorphFeatureTemplateUnigram {
 struct MorphFeatureTemplateBigram {
   enum types {
     BIAS = 0,   /* bias */
-
-    W,          /* word */
-    pW,         /* word on the left (previous) */
-    nW,         /* word on the right (next) */
-    ppW,        /* word two positions on the left (previous) */
-    nnW,        /* word two positions on the right (next) */
-
-    Z,          /* suffix n letters */
-    pZ,         /* suffix n letters word on the left (previous) */
-    ppZ,        /* suffix n letters word two positions on the left (previous) */
-    nZ,         /* suffix n letters word on the right (next) */
-    nnZ,        /* suffix n letters word two positions on the right (next) */
-    A,          /* prefix n letters */
-    pA,          /* prefix n letters word on the left (previous) */
-    ppA,        /* prefix n letters word two positions on the left (previous) */
-    nA,          /* prefix n letters word on the right (next) */
-    nnA,        /* prefix n letters word two positions on the right (next) */
-
-    P,          /* POS */                               // 'cpostag'
-    pP,         /* POS on the left */                   // 'cpostag_minusone'
-    nP,         /* POS on the right */                 // 'cpostag_plusone'
-    ppP,        /* POS two positions on the left */     // 'cpostag_minustwo'
-    nnP,        /* POS two positions on the right */   //  'cpostag_plustwo'
-    PpP,        /* POS + POS on the left */             // 'cpostag_bigram'
-    PnP,        /* POS + POS on the right */           // 
-    PpPppP,     /* POS trigram on the left */           // 'cpostag_trigram'
-    PnPnnP,     /* POS trigram on the right */         // 
-    PpPnP,       /* POS trigram on the center */         // 
-
-    COUNT
   };
 };
 
 struct MorphFeatureTemplateTrigram {
   enum types {
-    BIAS = 0,       /* bias */
+    BIAS = 0,   /* bias */
   };
 };
 

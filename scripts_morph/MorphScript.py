@@ -42,21 +42,21 @@ Languages = ['basque',
 ]
 
 TrainFiles_template      = [os.path.join(dir, '..','data_local','morph_data','*__LANGUAGE__*-ud-train.conllu')] #Replace *__LANGUAGE__* by Languages[i]
-TestFiles_template       = [os.path.join(dir, '..','data_local','morph_data','*__LANGUAGE__*-ud-test.conllu')] #Replace *__LANGUAGE__* by Languages[i]
+DevFiles_template        = [os.path.join(dir, '..','data_local','morph_data','*__LANGUAGE__*-ud-dev.conllu')] #Replace *__LANGUAGE__* by Languages[i]
 ModelFiles_template      = [os.path.join(dir, '..','data_local','morph_models','*T**__LANGUAGE__*_morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*')] #Replace '*__LANGUAGE__*','__MARKOV_ORDER__*' '*__FEATURES__*', '*__REGCONST__*', '*__PREFIX__*', '*__SUFFIX__*'
-PredictionFiles_template = [os.path.join(dir, '..','data_local','morph_out','*T**__LANGUAGE__*-train-test.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted')]
+PredictionFiles_template = [os.path.join(dir, '..','data_local','morph_out','*T**__LANGUAGE__*-train-dev.morphtagger.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.predicted')]
 TrainFiles               = []     
-TestFiles                = []  
+DevFiles                 = []  
 ModelFiles               = []
 PredictionFiles          = []
 
-MorphFeatureSelection       = ['0','2']  #['0', '1', '2']  #--morph_tagger_large_feature_set=0
+MorphFeatureSelection       = ['0']  #['0', '1', '2']  #--morph_tagger_large_feature_set=0
 TrainAlgorithm              = ['svm_mira']  #--train_algorithm=svm_mira
 TrainRegularizationConstant = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
 TrainEpochs                 = ['20']  #--train_epochs=20 
 SequenceModelType           = ['0']  #--sequence_model_type=0 
 FormCutoff                  = ['0']  #--form_cutoff=0 
-PrefixLength                = ['0','3']  #['0','2','3']  #--prefix_length=3 
+PrefixLength                = ['0']  #['0','2','3']  #--prefix_length=3 
 SuffixLength                = ['3']  #['0','2','3']  #--suffix_length=3 
 #--logtostderr              
 
@@ -70,13 +70,13 @@ if not os.path.exists(OutputFolderBenchmarks[0]):
 
 if RUNNING_TEST == 1:
     TrainFiles_template[0]      = TrainFiles_template[0].replace('*T*', "TEST_")
-    TestFiles_template[0]       = TestFiles_template[0].replace('*T*', "TEST_")
+    DevFiles_template[0]        = DevFiles_template[0].replace('*T*', "TEST_")
     ModelFiles_template[0]      = ModelFiles_template[0].replace('*T*', "TEST_")
     PredictionFiles_template[0] = PredictionFiles_template[0].replace('*T*', "TEST_")
     OutputDesiredPrefix         = OutputDesiredPrefix.replace('*T*', "TEST_")
 else:
     TrainFiles_template[0]      = TrainFiles_template[0].replace('*T*', "")
-    TestFiles_template[0]       = TestFiles_template[0].replace('*T*', "")
+    DevFiles_template[0]        = DevFiles_template[0].replace('*T*', "")
     ModelFiles_template[0]      = ModelFiles_template[0].replace('*T*', "")
     PredictionFiles_template[0] = PredictionFiles_template[0].replace('*T*', "")
     OutputDesiredPrefix         = OutputDesiredPrefix.replace('*T*', "")
@@ -120,8 +120,8 @@ for program in Programs:
                                         TrainFile       = TrainFiles_template[0]
                                         TrainFile       = TrainFile.replace('*__LANGUAGE__*', language)
 
-                                        TestFile        = TestFiles_template[0]
-                                        TestFile        = TestFile.replace('*__LANGUAGE__*', language)
+                                        DevFile         = DevFiles_template[0]
+                                        DevFile         = DevFile.replace('*__LANGUAGE__*', language)
                                         
                                         ModelFile       = ModelFiles_template[0]
                                         ModelFile       = ModelFile.replace('*__LANGUAGE__*', language)
@@ -208,7 +208,7 @@ for program in Programs:
                                         command.append("--test")        
                                         command.append("--evaluate")
                                         command.append("--file_model="+ModelFile)
-                                        command.append("--file_test="+TestFile)
+                                        command.append("--file_test="+DevFile)
                                         command.append("--file_prediction="+PredictionFile)    
                                         command.append("--logtostderr")
 
