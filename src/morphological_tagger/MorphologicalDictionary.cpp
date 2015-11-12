@@ -79,14 +79,14 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
 
   std::vector<int> form_freqs;
   std::vector<int> form_lower_freqs;
-  std::vector<int> lemma_freqs;
-  std::vector<int> feats_freqs;
+  //std::vector<int> lemma_freqs;
+  //std::vector<int> feats_freqs;
   std::vector<int> cpos_freqs;
   std::vector<int> shape_freqs;
   Alphabet form_alphabet;
   Alphabet form_lower_alphabet;
-  Alphabet lemma_alphabet;
-  Alphabet feats_alphabet;
+  //Alphabet lemma_alphabet;
+  //Alphabet feats_alphabet;
   Alphabet cpos_alphabet;
   Alphabet shape_alphabet;
 
@@ -100,16 +100,16 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
     suffix_alphabet_.Insert(special_symbols[i]);
     form_alphabet.Insert(special_symbols[i]);
     form_lower_alphabet.Insert(special_symbols[i]);
-    lemma_alphabet.Insert(special_symbols[i]);
-    feats_alphabet.Insert(special_symbols[i]);
+    //lemma_alphabet.Insert(special_symbols[i]);
+    //feats_alphabet.Insert(special_symbols[i]);
     cpos_alphabet.Insert(special_symbols[i]);
     shape_alphabet.Insert(special_symbols[i]);
 
     // Counts of special symbols are set to -1:
     form_freqs.push_back(-1);
     form_lower_freqs.push_back(-1);
-    lemma_freqs.push_back(-1);
-    feats_freqs.push_back(-1);
+    //lemma_freqs.push_back(-1);
+    //feats_freqs.push_back(-1);
     cpos_freqs.push_back(-1);
     shape_freqs.push_back(-1);
   }
@@ -144,13 +144,13 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
       }
       ++form_lower_freqs[id];
 
-      // Add lemma to alphabet.
-      id = lemma_alphabet.Insert(instance->GetLemma(i));
-      if (id >= lemma_freqs.size()) {
-        CHECK_EQ(id, lemma_freqs.size());
-        lemma_freqs.push_back(0);
-      }
-      ++lemma_freqs[id];
+      //// Add lemma to alphabet.
+      //id = lemma_alphabet.Insert(instance->GetLemma(i));
+      //if (id >= lemma_freqs.size()) {
+      //  CHECK_EQ(id, lemma_freqs.size());
+      //  lemma_freqs.push_back(0);
+      //}
+      //++lemma_freqs[id];
 
       // Add prefix/suffix to alphabet.
       //using varying lengths : [1; desired_size].
@@ -172,13 +172,14 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
         cpos_freqs.push_back(0);
       }
       ++cpos_freqs[id];
-      // Add FEATS to alphabet.
-      id = feats_alphabet.Insert(instance->GetTag(i));
-      if (id >= feats_freqs.size()) {
-        CHECK_EQ(id, feats_freqs.size());
-        feats_freqs.push_back(0);
-      }
-      ++feats_freqs[id];
+
+      //// Add FEATS to alphabet.
+      //id = feats_alphabet.Insert(instance->GetTag(i));
+      //if (id >= feats_freqs.size()) {
+      //  CHECK_EQ(id, feats_freqs.size());
+      //  feats_freqs.push_back(0);
+      //}
+      //++feats_freqs[id];
 
       // Add shape to alphabet.
       std::string shape;
@@ -228,21 +229,21 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
     LOG(INFO) << "Incrementing lower-case form cutoff to " << form_lower_cutoff << "...";
   }
 
-  while (true) {
-    lemma_alphabet_.clear();
-    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
-      lemma_alphabet_.Insert(special_symbols[i]);
-    }
-    for (Alphabet::iterator iter = lemma_alphabet.begin(); iter != lemma_alphabet.end(); ++iter) {
-      if (lemma_freqs[iter->second] > lemma_cutoff) {
-        lemma_alphabet_.Insert(iter->first);
-      }
-    }
-    if (lemma_alphabet_.size() < kMaxLemmaAlphabetSize)
-      break;
-    ++lemma_cutoff;
-    LOG(INFO) << "Incrementing lemma cutoff to " << lemma_cutoff << "...";
-  }
+  //while (true) {
+  //  lemma_alphabet_.clear();
+  //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+  //    lemma_alphabet_.Insert(special_symbols[i]);
+  //  }
+  //  for (Alphabet::iterator iter = lemma_alphabet.begin(); iter != lemma_alphabet.end(); ++iter) {
+  //    if (lemma_freqs[iter->second] > lemma_cutoff) {
+  //      lemma_alphabet_.Insert(iter->first);
+  //    }
+  //  }
+  //  if (lemma_alphabet_.size() < kMaxLemmaAlphabetSize)
+  //    break;
+  //  ++lemma_cutoff;
+  //  LOG(INFO) << "Incrementing lemma cutoff to " << lemma_cutoff << "...";
+  //}
 
   while (true) {
     cpos_alphabet_.clear();
@@ -260,21 +261,21 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
     LOG(INFO) << "Incrementing CPOS cutoff to " << cpos_cutoff << "...";
   }
 
-  while (true) {
-    feats_alphabet_.clear();
-    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
-      feats_alphabet_.Insert(special_symbols[i]);
-    }
-    for (Alphabet::iterator iter = feats_alphabet.begin(); iter != feats_alphabet.end(); ++iter) {
-      if (feats_freqs[iter->second] > feats_cutoff) {
-        feats_alphabet_.Insert(iter->first);
-      }
-    }
-    if (feats_alphabet_.size() < kMaxFeatsAlphabetSize)
-      break;
-    ++feats_cutoff;
-    LOG(INFO) << "Incrementing FEATS cutoff to " << feats_cutoff << "...";
-  }
+  //while (true) {
+  //  feats_alphabet_.clear();
+  //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+  //    feats_alphabet_.Insert(special_symbols[i]);
+  //  }
+  //  for (Alphabet::iterator iter = feats_alphabet.begin(); iter != feats_alphabet.end(); ++iter) {
+  //    if (feats_freqs[iter->second] > feats_cutoff) {
+  //      feats_alphabet_.Insert(iter->first);
+  //    }
+  //  }
+  //  if (feats_alphabet_.size() < kMaxFeatsAlphabetSize)
+  //    break;
+  //  ++feats_cutoff;
+  //  LOG(INFO) << "Incrementing FEATS cutoff to " << feats_cutoff << "...";
+  //}
 
 
   while (true) {
@@ -296,29 +297,29 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
   form_alphabet_.StopGrowth();
   form_lower_alphabet_.StopGrowth();
   shape_alphabet_.StopGrowth();
-  lemma_alphabet_.StopGrowth();
+  //lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
   suffix_alphabet_.StopGrowth();
-  feats_alphabet_.StopGrowth();
+  //feats_alphabet_.StopGrowth();
   pos_alphabet_.StopGrowth();
   cpos_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
     << "Number of lower-case forms: " << form_lower_alphabet_.size() << endl
-    << "Number of lemmas: " << lemma_alphabet_.size() << endl
+    /*<< "Number of lemmas: " << lemma_alphabet_.size() << endl*/
     << "Number of prefixes: " << prefix_alphabet_.size() << endl
     << "Number of suffixes: " << suffix_alphabet_.size() << endl
-    << "Number of feats: " << feats_alphabet_.size() << endl
+    /*<< "Number of feats: " << feats_alphabet_.size() << endl*/
     << "Number of cpos: " << cpos_alphabet_.size() << endl
     << "Number of word shapes: " << shape_alphabet_.size();
 
   CHECK_LT(form_alphabet_.size(), 0xffff);
   CHECK_LT(form_lower_alphabet_.size(), 0xffff);
   CHECK_LT(shape_alphabet_.size(), 0xffff);
-  CHECK_LT(lemma_alphabet_.size(), 0xffff);
+  //CHECK_LT(lemma_alphabet_.size(), 0xffff);
   CHECK_LT(prefix_alphabet_.size(), 0xffff);
   CHECK_LT(suffix_alphabet_.size(), 0xffff);
-  CHECK_LT(feats_alphabet_.size(), 0xffff);
+  //CHECK_LT(feats_alphabet_.size(), 0xffff);
   CHECK_LT(pos_alphabet_.size(), 0xff);
   CHECK_LT(cpos_alphabet_.size(), 0xff);
 }
