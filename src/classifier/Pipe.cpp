@@ -39,7 +39,6 @@ Pipe::~Pipe() {
   delete decoder_;
   delete parameters_;
   DeleteInstances();
-  threads_.clear();
 }
 
 void Pipe::Initialize() {
@@ -456,57 +455,6 @@ void Pipe::Run() {
   LOG(INFO) << "Cache size: " << parameters_->caching_weights_.GetSize() << "\t"
     << "Cache hits: " << parameters_->caching_weights_.hits() << "\t"
     << "Cache misses: " << parameters_->caching_weights_.misses() << endl;
-
-  if (options_->evaluate()) EndEvaluation();
-}
-
-// Variant of void Pipe::Run(), that launches threads 
-// for processing each instance.
-void Pipe::RunWithThreads() {
-
-  timeval start, end;
-  gettimeofday(&start, NULL);
-
-  if (options_->evaluate()) BeginEvaluation();
-
-  reader_->Open(options_->GetTestFilePath());
-  writer_->Open(options_->GetOutputFilePath());
-
-  int num_instances = 0;
-  // Instances vector is not empty at start of Run procedure.
-  CHECK_EQ(instances_.size(), 0);
-
-  Instance *instance = reader_->GetNext();
-  instances_.push_back(instance);
-  while (instance) {
-    //Launch thread
-    threads_.push_back(std::thread(&Pipe::ClassifyInstance,
-                                   this, instance));
-
-    //Get next instance
-    instance = reader_->GetNext();
-    instances_.push_back(instance);
-    ++num_instances;
-  }
-  //for every thread launched
-  for (int i = 0; i < threads_.size(); i++) {
-    //wait for that thread
-    threads_[i].join();
-    //process its output data
-    writer_->Write(instances_[i]);
-    //discard memory objects
-    delete instances_[i];
-  }
-  // clear std::vectors
-  threads_.clear();
-  instances_.clear();
-  //close channels
-  writer_->Close();
-  reader_->Close();
-  //Logging
-  gettimeofday(&end, NULL);
-  LOG(INFO) << "Number of instances: " << num_instances;
-  LOG(INFO) << "Time: " << diff_ms(end, start);
 
   if (options_->evaluate()) EndEvaluation();
 }

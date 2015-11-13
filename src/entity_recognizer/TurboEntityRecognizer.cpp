@@ -74,13 +74,7 @@ void TestEntityRecognizer() {
   pipe->Initialize();
   pipe->LoadModelFile();
 
-  if (options->use_multithreads()) {
-    LOG(INFO) << "Using multithreaded version." << endl;
-    pipe->RunWithThreads();
-  } else {
-    LOG(INFO) << "Using single-threaded version." << endl;
-    pipe->Run();
-  }
+  pipe->Run();
 
   gettimeofday(&end, NULL);
   time = diff_ms(end, start);

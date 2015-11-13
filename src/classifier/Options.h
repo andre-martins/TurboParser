@@ -32,7 +32,6 @@ DECLARE_bool(evaluate);
 DECLARE_string(train_algorithm);
 DECLARE_bool(only_supported_features);
 DECLARE_bool(use_averaging);
-DECLARE_bool(use_multithreads);
 DECLARE_int32(train_epochs);
 DECLARE_double(train_regularization_constant);
 DECLARE_double(train_initial_learning_rate);
@@ -78,7 +77,6 @@ public:
   bool train() { return train_; }
   bool test() { return test_; }
   bool evaluate() { return evaluate_; }
-  bool use_multithreads() { return use_multithreads_; }
 
   // Set option values.
   void SetTrainingFilePath(const std::string &file_train) {
@@ -123,8 +121,6 @@ protected:
 
   bool only_supported_features_; // Use only supported features.
   bool use_averaging_; // Include a final averaging step during training.
-
-  bool use_multithreads_; //If multithreading is used
 };
 
 #endif /*OPTIONS_H_*/
