@@ -41,7 +41,7 @@ class MapUINT64 : public HashTable<uint64_t, Real> {
 #else
 class MapUINT64 : public std::tr1::unordered_map<uint64_t, Real> {
 #endif
- public:
+public:
   MapUINT64() {
     max_num_buckets_ = FLAGS_parameters_max_num_buckets;
     threshold_load_factor_ = 0.95;
@@ -58,7 +58,7 @@ class MapUINT64 : public std::tr1::unordered_map<uint64_t, Real> {
     }
   }
 
- protected:
+protected:
   int max_num_buckets_;
   double threshold_load_factor_;
   double growth_rate_load_factor_;
@@ -86,15 +86,15 @@ const double kScaleFactorThreshold = 1e-9;
 // elements is still fast. Plus, we can obtain the norm in constant time.
 template<typename Real>
 class SparseParameterVector {
- public:
+public:
   SparseParameterVector() { growth_stopped_ = false; };
   virtual ~SparseParameterVector() {};
 
   // Lock/unlock the parameter vector. If the vector is locked, no new features
   // can be inserted.
-  void StopGrowth () { growth_stopped_ = true; }
-  void AllowGrowth () { growth_stopped_ = false; }
-  bool growth_stopped () const { return growth_stopped_; }
+  void StopGrowth() { growth_stopped_ = true; }
+  void AllowGrowth() { growth_stopped_ = false; }
+  bool growth_stopped() const { return growth_stopped_; }
 
   // Save/load the parameters to/from a file.
   void Save(FILE *fs) const {
@@ -102,7 +102,7 @@ class SparseParameterVector {
     success = WriteInteger(fs, Size());
     CHECK(success);
     for (typename ParameterMap<Real>::type::const_iterator iterator =
-           values_.begin();
+         values_.begin();
          iterator != values_.end();
          ++iterator) {
       success = WriteUINT64(fs, iterator->first);
@@ -246,7 +246,7 @@ class SparseParameterVector {
   // w'[id] = w[id] + val.
   void Add(const SparseParameterVector &parameters) {
     for (typename ParameterMap<Real>::type::const_iterator iterator =
-           parameters.values_.begin();
+         parameters.values_.begin();
          iterator != parameters.values_.end();
          ++iterator) {
       uint64_t key = iterator->first;
@@ -256,7 +256,7 @@ class SparseParameterVector {
     }
   }
 
- protected:
+protected:
   // If the scale factor is too small, renormalize the entire parameter map.
   void RenormalizeIfNecessary() {
     if (scale_factor_ > -kScaleFactorThreshold &&
@@ -269,14 +269,14 @@ class SparseParameterVector {
   void Renormalize() {
     LOG(INFO) << "Renormalizing the parameter map...";
     for (typename ParameterMap<Real>::type::iterator iterator = values_.begin();
-         iterator != values_.end();
-         ++iterator) {
+    iterator != values_.end();
+      ++iterator) {
       iterator->second *= scale_factor_;
     }
     scale_factor_ = 1.0;
   }
 
- protected:
+protected:
   typename ParameterMap<Real>::type values_; // Weight values, up to a scale.
   double scale_factor_; // The scale factor, such that w = values * scale.
   double squared_norm_; // The squared norm of the parameter vector.

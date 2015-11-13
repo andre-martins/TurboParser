@@ -35,30 +35,24 @@ void TaggerFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // Words.
   uint16_t WID = (*word_ids)[position]; // Current word.
   // Word on the left.
-  uint16_t pWID = (position > 0)? (*word_ids)[position - 1] : TOKEN_START;
+  uint16_t pWID = (position > 0) ? (*word_ids)[position - 1] : TOKEN_START;
   // Word on the right.
-  uint16_t nWID = (position < sentence_length - 1)? 
-      (*word_ids)[position + 1] : TOKEN_STOP;
+  uint16_t nWID = (position < sentence_length - 1) ? (*word_ids)[position + 1] : TOKEN_STOP;
   // Word two positions on the left.
-  uint16_t ppWID = (position > 1)? (*word_ids)[position - 2] : TOKEN_START;
+  uint16_t ppWID = (position > 1) ? (*word_ids)[position - 2] : TOKEN_START;
   // Word two positions on the right.
-  uint16_t nnWID = (position < sentence_length - 2)? 
-      (*word_ids)[position + 2] : TOKEN_STOP;
+  uint16_t nnWID = (position < sentence_length - 2) ? (*word_ids)[position + 2] : TOKEN_STOP;
 
   // Prefixes/Suffixes.
   vector<uint16_t> AID(sentence->GetMaxPrefixLength(position), 0xffff);
   vector<uint16_t> ZID(sentence->GetMaxSuffixLength(position), 0xffff);
-  for (int l = 0; l < AID.size(); ++l) {
-    AID[l] = sentence->GetPrefixId(position, l+1);
-  }
-  for (int l = 0; l < ZID.size(); ++l) {
-    ZID[l] = sentence->GetSuffixId(position, l+1);
-  }
+  for (int l = 0; l < AID.size(); ++l) { AID[l] = sentence->GetPrefixId(position, l + 1); }
+  for (int l = 0; l < ZID.size(); ++l) { ZID[l] = sentence->GetSuffixId(position, l + 1); }
 
   // Several flags.
-  uint8_t flag_digit = sentence->HasDigit(position)? 0x1 : 0x0;
-  uint8_t flag_upper = position > 0 && sentence->HasUpper(position)? 0x1 : 0x0;
-  uint8_t flag_hyphen = sentence->HasHyphen(position)? 0x1 : 0x0;
+  uint8_t flag_digit = sentence->HasDigit(position) ? 0x1 : 0x0;
+  uint8_t flag_upper = position > 0 && sentence->HasUpper(position) ? 0x1 : 0x0;
+  uint8_t flag_hyphen = sentence->HasHyphen(position) ? 0x1 : 0x0;
 
   flag_digit = 0x0 | (flag_digit << 4);
   flag_upper = 0x1 | (flag_upper << 4);
@@ -87,7 +81,7 @@ void TaggerFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
   fkey = encoder_.CreateFKey_W(TaggerFeatureTemplateUnigram::nnW, flags, nnWID);
   AddFeature(fkey, features);
-  
+
   // Prefix/Suffix features.
   for (int l = 0; l < AID.size(); ++l) {
     uint8_t flag_prefix_length = l;

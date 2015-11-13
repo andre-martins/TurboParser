@@ -67,11 +67,9 @@ void SequencePipe::LoadModel(FILE* fs) {
 void SequencePipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromSequenceReader(GetSequenceReader());
-  static_cast<SequenceDictionary*>(dictionary_)->
-    CreateTagDictionary(GetSequenceReader());
+  static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
+  token_dictionary_->Initialize(GetSequenceReader());
+  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
 }
 
 void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
@@ -96,12 +94,12 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
     vector<int> allowed_tags(index_unigram_parts.size());
     for (int k = 0; k < index_unigram_parts.size(); ++k) {
       SequencePartUnigram *unigram =
-          static_cast<SequencePartUnigram*>((*parts)[index_unigram_parts[k]]);
+        static_cast<SequencePartUnigram*>((*parts)[index_unigram_parts[k]]);
       allowed_tags[k] = unigram->tag();
     }
     vector<double> tag_scores;
     parameters_->ComputeLabelScores(unigram_features, allowed_tags,
-        &tag_scores);
+                                    &tag_scores);
     for (int k = 0; k < index_unigram_parts.size(); ++k) {
       (*scores)[index_unigram_parts[k]] = tag_scores[k];
     }
@@ -118,7 +116,7 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       vector<int> bigram_tags(index_bigram_parts.size());
       for (int k = 0; k < index_bigram_parts.size(); ++k) {
         SequencePartBigram *bigram =
-            static_cast<SequencePartBigram*>((*parts)[index_bigram_parts[k]]);
+          static_cast<SequencePartBigram*>((*parts)[index_bigram_parts[k]]);
         bigram_tags[k] = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
                                                              bigram->tag());
       }
@@ -142,7 +140,7 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       vector<int> trigram_tags(index_trigram_parts.size());
       for (int k = 0; k < index_trigram_parts.size(); ++k) {
         SequencePartTrigram *trigram =
-            static_cast<SequencePartTrigram*>((*parts)[index_trigram_parts[k]]);
+          static_cast<SequencePartTrigram*>((*parts)[index_trigram_parts[k]]);
         trigram_tags[k] = sequence_dictionary->GetTrigramLabel(
           trigram->tag_left_left(),
           trigram->tag_left(),
@@ -166,7 +164,7 @@ void SequencePipe::MakeGradientStep(Parts *parts,
                                     const vector<double> &predicted_output) {
 
   SequenceFeatures *sequence_features =
-      static_cast<SequenceFeatures*>(features);
+    static_cast<SequenceFeatures*>(features);
   SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
 
   for (int r = 0; r < parts->size(); ++r) {
@@ -175,18 +173,18 @@ void SequencePipe::MakeGradientStep(Parts *parts,
 
     if ((*parts)[r]->type() == SEQUENCEPART_UNIGRAM) {
       SequencePartUnigram *unigram =
-                  static_cast<SequencePartUnigram*>((*parts)[r]);
+        static_cast<SequencePartUnigram*>((*parts)[r]);
       const BinaryFeatures &unigram_features =
-          sequence_features->GetUnigramFeatures(unigram->position());
+        sequence_features->GetUnigramFeatures(unigram->position());
 
       parameters_->MakeLabelGradientStep(unigram_features, eta, iteration,
                                          unigram->tag(),
                                          predicted_output[r] - gold_output[r]);
     } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
       SequencePartBigram *bigram =
-                  static_cast<SequencePartBigram*>((*parts)[r]);
+        static_cast<SequencePartBigram*>((*parts)[r]);
       const BinaryFeatures &bigram_features =
-          sequence_features->GetBigramFeatures(bigram->position());
+        sequence_features->GetBigramFeatures(bigram->position());
       int bigram_tag = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
                                                            bigram->tag());
 
@@ -195,10 +193,10 @@ void SequencePipe::MakeGradientStep(Parts *parts,
                                          predicted_output[r] - gold_output[r]);
     } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
       SequencePartTrigram *trigram =
-                  static_cast<SequencePartTrigram*>((*parts)[r]);
+        static_cast<SequencePartTrigram*>((*parts)[r]);
       const BinaryFeatures &trigram_features =
-          sequence_features->GetTrigramFeatures(trigram->position());
-      int trigram_tag = 
+        sequence_features->GetTrigramFeatures(trigram->position());
+      int trigram_tag =
         sequence_dictionary->GetTrigramLabel(trigram->tag_left_left(),
                                              trigram->tag_left(),
                                              trigram->tag());
@@ -218,7 +216,7 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
                                          const vector<double> &predicted_output,
                                          FeatureVector *difference) {
   SequenceFeatures *sequence_features =
-      static_cast<SequenceFeatures*>(features);
+    static_cast<SequenceFeatures*>(features);
   SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
 
   for (int r = 0; r < parts->size(); ++r) {
@@ -226,36 +224,36 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
 
     if ((*parts)[r]->type() == SEQUENCEPART_UNIGRAM) {
       SequencePartUnigram *unigram =
-                  static_cast<SequencePartUnigram*>((*parts)[r]);
+        static_cast<SequencePartUnigram*>((*parts)[r]);
       const BinaryFeatures &unigram_features =
-          sequence_features->GetUnigramFeatures(unigram->position());
+        sequence_features->GetUnigramFeatures(unigram->position());
       for (int j = 0; j < unigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(unigram_features[j],
-            unigram->tag(), predicted_output[r] - gold_output[r]);
+                                                   unigram->tag(), predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
       SequencePartBigram *bigram =
-                  static_cast<SequencePartBigram*>((*parts)[r]);
+        static_cast<SequencePartBigram*>((*parts)[r]);
       const BinaryFeatures &bigram_features =
-          sequence_features->GetBigramFeatures(bigram->position());
+        sequence_features->GetBigramFeatures(bigram->position());
       int bigram_tag = sequence_dictionary->GetBigramLabel(bigram->tag_left(),
                                                            bigram->tag());
       for (int j = 0; j < bigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(bigram_features[j],
-            bigram_tag, predicted_output[r] - gold_output[r]);
+                                                   bigram_tag, predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
       SequencePartTrigram *trigram =
-                  static_cast<SequencePartTrigram*>((*parts)[r]);
+        static_cast<SequencePartTrigram*>((*parts)[r]);
       const BinaryFeatures &trigram_features =
-          sequence_features->GetTrigramFeatures(trigram->position());
+        sequence_features->GetTrigramFeatures(trigram->position());
       int trigram_tag =
         sequence_dictionary->GetTrigramLabel(trigram->tag_left_left(),
                                              trigram->tag_left(),
                                              trigram->tag());
       for (int j = 0; j < trigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(trigram_features[j],
-            trigram_tag, predicted_output[r] - gold_output[r]);
+                                                   trigram_tag, predicted_output[r] - gold_output[r]);
       }
     } else {
       CHECK(false);
@@ -267,7 +265,7 @@ void SequencePipe::MakeParts(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs) {
   int sentence_length =
-      static_cast<SequenceInstanceNumeric*>(instance)->size();
+    static_cast<SequenceInstanceNumeric*>(instance)->size();
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   sequence_parts->Initialize();
   bool make_gold = (gold_outputs != NULL);
@@ -345,7 +343,7 @@ void SequencePipe::MakeUnigramParts(Instance *instance,
     }
   }
   sequence_parts->SetOffsetUnigram(num_parts_initial,
-      sequence_parts->size() - num_parts_initial);
+                                   sequence_parts->size() - num_parts_initial);
 }
 
 void SequencePipe::MakeBigramParts(Instance *instance,
@@ -363,7 +361,7 @@ void SequencePipe::MakeBigramParts(Instance *instance,
   const vector<int> &initial_parts = sequence_parts->FindUnigramParts(0);
   for (int j = 0; j < initial_parts.size(); ++j) {
     SequencePartUnigram *initial_part = static_cast<SequencePartUnigram *>(
-            (*sequence_parts)[initial_parts[j]]);
+      (*sequence_parts)[initial_parts[j]]);
     Part *part = sequence_parts->CreatePartBigram(0, initial_part->tag(), -1);
     sequence_parts->push_back(part);
     if (make_gold) {
@@ -377,10 +375,10 @@ void SequencePipe::MakeBigramParts(Instance *instance,
     const vector<int> &previous_parts = sequence_parts->FindUnigramParts(i - 1);
     for (int j = 0; j < current_parts.size(); ++j) {
       SequencePartUnigram *current_part = static_cast<SequencePartUnigram *>(
-              (*sequence_parts)[current_parts[j]]);
+        (*sequence_parts)[current_parts[j]]);
       for (int k = 0; k < previous_parts.size(); ++k) {
         SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
-                (*sequence_parts)[previous_parts[k]]);
+          (*sequence_parts)[previous_parts[k]]);
         // Don't create a bigram part if this bigram is not allowed.
         if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
                                                       current_part->tag())) {
@@ -392,8 +390,8 @@ void SequencePipe::MakeBigramParts(Instance *instance,
         sequence_parts->push_back(part);
         if (make_gold) {
           gold_outputs->push_back(
-              (*gold_outputs)[current_parts[j]] *
-                (*gold_outputs)[previous_parts[k]]);
+            (*gold_outputs)[current_parts[j]] *
+            (*gold_outputs)[previous_parts[k]]);
         }
       }
     }
@@ -401,10 +399,10 @@ void SequencePipe::MakeBigramParts(Instance *instance,
 
   // Final position.
   const vector<int> &final_parts =
-      sequence_parts->FindUnigramParts(sentence_length - 1);
+    sequence_parts->FindUnigramParts(sentence_length - 1);
   for (int j = 0; j < final_parts.size(); ++j) {
     SequencePartUnigram *final_part = static_cast<SequencePartUnigram *>(
-            (*sequence_parts)[final_parts[j]]);
+      (*sequence_parts)[final_parts[j]]);
     Part *part = sequence_parts->CreatePartBigram(sentence_length,
                                                   -1,
                                                   final_part->tag());
@@ -415,7 +413,7 @@ void SequencePipe::MakeBigramParts(Instance *instance,
   }
 
   sequence_parts->SetOffsetBigram(num_parts_initial,
-      sequence_parts->size() - num_parts_initial);
+                                  sequence_parts->size() - num_parts_initial);
 }
 
 void SequencePipe::MakeTrigramParts(Instance *instance,
@@ -436,10 +434,10 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
   const vector<int> &next_initial_parts = sequence_parts->FindUnigramParts(1);
   for (int j = 0; j < next_initial_parts.size(); ++j) {
     SequencePartUnigram *current_part = static_cast<SequencePartUnigram *>(
-            (*sequence_parts)[next_initial_parts[j]]);
+      (*sequence_parts)[next_initial_parts[j]]);
     for (int k = 0; k < initial_parts.size(); ++k) {
       SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
-              (*sequence_parts)[initial_parts[k]]);
+        (*sequence_parts)[initial_parts[k]]);
       // Don't create a trigram part if this bigram is not allowed.
       if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
                                                     current_part->tag())) {
@@ -447,12 +445,12 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
       }
       Part *part = sequence_parts->CreatePartTrigram(1,
                                                      current_part->tag(),
-                                                     previous_part->tag(), 
+                                                     previous_part->tag(),
                                                      -1 /* start symbol */);
       sequence_parts->push_back(part);
       if (make_gold) {
-          gold_outputs->push_back((*gold_outputs)[next_initial_parts[j]] *
-                                  (*gold_outputs)[initial_parts[k]]);
+        gold_outputs->push_back((*gold_outputs)[next_initial_parts[j]] *
+                                (*gold_outputs)[initial_parts[k]]);
       }
     }
   }
@@ -465,10 +463,10 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
       sequence_parts->FindUnigramParts(i - 2);
     for (int j = 0; j < current_parts.size(); ++j) {
       SequencePartUnigram *current_part = static_cast<SequencePartUnigram *>(
-              (*sequence_parts)[current_parts[j]]);
+        (*sequence_parts)[current_parts[j]]);
       for (int k = 0; k < previous_parts.size(); ++k) {
         SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
-                (*sequence_parts)[previous_parts[k]]);
+          (*sequence_parts)[previous_parts[k]]);
         // Don't create a trigram part if this bigram is not allowed.
         if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
                                                       current_part->tag())) {
@@ -476,8 +474,8 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
         }
         for (int l = 0; l < before_previous_parts.size(); ++l) {
           SequencePartUnigram *before_previous_part =
-              static_cast<SequencePartUnigram *>(
-                  (*sequence_parts)[before_previous_parts[l]]);
+            static_cast<SequencePartUnigram *>(
+              (*sequence_parts)[before_previous_parts[l]]);
           // Don't create a trigram part if this bigram is not allowed.
           if (!GetSequenceDictionary()->
               IsAllowedBigram(before_previous_part->tag(),
@@ -486,15 +484,15 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
           }
           Part *part =
             sequence_parts->CreatePartTrigram(i,
-                                             current_part->tag(),
-                                             previous_part->tag(),
-                                             before_previous_part->tag());
+                                              current_part->tag(),
+                                              previous_part->tag(),
+                                              before_previous_part->tag());
           sequence_parts->push_back(part);
           if (make_gold) {
             gold_outputs->push_back(
-                (*gold_outputs)[current_parts[j]] *
-                  (*gold_outputs)[previous_parts[k]] *
-                    (*gold_outputs)[before_previous_parts[l]]);
+              (*gold_outputs)[current_parts[j]] *
+              (*gold_outputs)[previous_parts[k]] *
+              (*gold_outputs)[before_previous_parts[l]]);
           }
         }
       }
@@ -503,15 +501,15 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
 
   // Final position.
   const vector<int> &final_parts =
-      sequence_parts->FindUnigramParts(sentence_length - 1);
+    sequence_parts->FindUnigramParts(sentence_length - 1);
   const vector<int> &before_final_parts =
-      sequence_parts->FindUnigramParts(sentence_length - 2);
+    sequence_parts->FindUnigramParts(sentence_length - 2);
   for (int j = 0; j < final_parts.size(); ++j) {
     SequencePartUnigram *current_part = static_cast<SequencePartUnigram *>(
-            (*sequence_parts)[final_parts[j]]);
+      (*sequence_parts)[final_parts[j]]);
     for (int k = 0; k < before_final_parts.size(); ++k) {
       SequencePartUnigram *previous_part = static_cast<SequencePartUnigram *>(
-              (*sequence_parts)[before_final_parts[k]]);
+        (*sequence_parts)[before_final_parts[k]]);
       // Don't create a trigram part if this bigram is not allowed.
       if (!GetSequenceDictionary()->IsAllowedBigram(previous_part->tag(),
                                                     current_part->tag())) {
@@ -523,14 +521,14 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
                                                      previous_part->tag());
       sequence_parts->push_back(part);
       if (make_gold) {
-          gold_outputs->push_back((*gold_outputs)[final_parts[j]] *
-                                  (*gold_outputs)[before_final_parts[k]]);
+        gold_outputs->push_back((*gold_outputs)[final_parts[j]] *
+                                (*gold_outputs)[before_final_parts[k]]);
       }
     }
   }
 
   sequence_parts->SetOffsetTrigram(num_parts_initial,
-      sequence_parts->size() - num_parts_initial);
+                                   sequence_parts->size() - num_parts_initial);
 }
 
 
@@ -538,7 +536,7 @@ void SequencePipe::MakeSelectedFeatures(Instance *instance,
                                         Parts *parts,
                                         const vector<bool> &selected_parts,
                                         Features *features) {
-  SequenceInstanceNumeric *sentence = 
+  SequenceInstanceNumeric *sentence =
     static_cast<SequenceInstanceNumeric*>(instance);
   SequenceFeatures *sequence_features =
     static_cast<SequenceFeatures*>(features);
@@ -566,10 +564,10 @@ void SequencePipe::MakeSelectedFeatures(Instance *instance,
 }
 
 void SequencePipe::LabelInstance(Parts *parts, const vector<double> &output,
-                   Instance *instance) {
+                                 Instance *instance) {
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   SequenceInstance *sequence_instance =
-      static_cast<SequenceInstance*>(instance);
+    static_cast<SequenceInstance*>(instance);
   int instance_length = sequence_instance->size();
   for (int i = 0; i < instance_length; ++i) {
     sequence_instance->SetTag(i, "NULL");
@@ -579,13 +577,13 @@ void SequencePipe::LabelInstance(Parts *parts, const vector<double> &output,
   sequence_parts->GetOffsetUnigram(&offset, &size);
   for (int r = 0; r < size; ++r) {
     SequencePartUnigram *unigram =
-        static_cast<SequencePartUnigram*>((*sequence_parts)[offset + r]);
+      static_cast<SequencePartUnigram*>((*sequence_parts)[offset + r]);
     if (output[offset + r] >= threshold) {
       int i = unigram->position();
       int tag = unigram->tag();
       CHECK(GetSequenceDictionary());
       sequence_instance->SetTag(i,
-        GetSequenceDictionary()->GetTagName(tag));
+                                GetSequenceDictionary()->GetTagName(tag));
     }
   }
   for (int i = 0; i < instance_length; ++i) {

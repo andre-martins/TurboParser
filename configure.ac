@@ -63,5 +63,6 @@ AC_CONFIG_FILES([Makefile
                  src/entity_recognizer/Makefile
                  src/coreference_resolver/Makefile
                  src/dependency_labeler/Makefile
-                 src/constituency_labeler/Makefile])
+                 src/constituency_labeler/Makefile
+                 src/morphological_tagger/Makefile])
 AC_OUTPUT

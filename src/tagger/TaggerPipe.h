@@ -31,7 +31,7 @@
 //#include "SequenceDecoder.h"
 
 class TaggerPipe : public SequencePipe {
- public:
+public:
   TaggerPipe(Options* options) : SequencePipe(options) {}
   virtual ~TaggerPipe() {}
 
@@ -45,7 +45,7 @@ class TaggerPipe : public SequencePipe {
     return static_cast<TaggerOptions*>(options_);
   };
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new TaggerDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -66,7 +66,7 @@ class TaggerPipe : public SequencePipe {
   //  return instance_numeric;
   //}
 
- protected:
+protected:
   //void SaveModel(FILE* fs);
   //void LoadModel(FILE* fs);
 
@@ -153,7 +153,7 @@ class TaggerPipe : public SequencePipe {
   //            << tokens_per_second << " tokens per second.";
   //}
 
- protected:
+protected:
   //TokenDictionary *token_dictionary_;
   //int num_tag_mistakes_;
   //int num_tokens_;

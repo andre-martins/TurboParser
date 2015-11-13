@@ -45,15 +45,15 @@ Instance *SemanticReader::GetNext() {
       if (line.length() <= 0) break;
       if (0 == line.substr(0, 1).compare("#")) {
         //LOG(INFO) << line;
-	if (name != "") {
-	  name += "\n" + line;
-	} else {
-	  name = line;
-	}
+  if (name != "") {
+    name += "\n" + line;
+  } else {
+    name = line;
+  }
         continue; // Sentence ID.
       }
       vector<string> fields;
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }

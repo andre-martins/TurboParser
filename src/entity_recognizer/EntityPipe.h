@@ -28,7 +28,7 @@
 #include "EntityFeatures.h"
 
 class EntityPipe : public SequencePipe {
- public:
+public:
   EntityPipe(Options* options) : SequencePipe(options) {}
   virtual ~EntityPipe() {}
 
@@ -42,7 +42,7 @@ class EntityPipe : public SequencePipe {
     return static_cast<EntityOptions*>(options_);
   };
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new EntityDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -60,7 +60,7 @@ class EntityPipe : public SequencePipe {
     return instance_numeric;
   }
 
- protected:
+protected:
   //void SaveModel(FILE* fs);
   //void LoadModel(FILE* fs);
 
@@ -149,7 +149,7 @@ class EntityPipe : public SequencePipe {
   //            << tokens_per_second << " tokens per second.";
   //}
 
- protected:
+protected:
   //TokenDictionary *token_dictionary_;
   //int num_tag_mistakes_;
   //int num_tokens_;

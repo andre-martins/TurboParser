@@ -49,11 +49,11 @@ void EntityInstance::SplitEntityTag(const std::string &tag,
 }
 
 void EntityInstance::CreateSpansFromTags(
-    const std::vector<std::string> &tags,
-    std::vector<EntitySpan*> *spans) const {
+  const std::vector<std::string> &tags,
+  std::vector<EntitySpan*> *spans) const {
   spans->clear();
   EntitySpan *span = NULL;
-  for(int i = 0; i < tags.size(); ++i) {
+  for (int i = 0; i < tags.size(); ++i) {
     std::string prefix, entity;
     SplitEntityTag(tags[i], &prefix, &entity);
     if (prefix == "B" || prefix == "U") {
@@ -83,10 +83,10 @@ void EntityInstance::DeleteSpans(std::vector<EntitySpan*> *spans) const {
 }
 
 void EntityInstance::CreateTagsFromSpans(
-    int length,
-    const std::vector<EntitySpan*> &spans,
-    int tagging_scheme,
-    std::vector<std::string> *tags) const {
+  int length,
+  const std::vector<EntitySpan*> &spans,
+  int tagging_scheme,
+  std::vector<std::string> *tags) const {
   tags->assign(length, "O");
   for (int k = 0; k < spans.size(); ++k) {
     EntitySpan *span = spans[k];
@@ -97,12 +97,12 @@ void EntityInstance::CreateTagsFromSpans(
         (*tags)[span->start()] = "B-" + span->name();
         (*tags)[span->end()] = "L-" + span->name();
       }
-      for (int i = span->start()+1; i < span->end(); ++i) {
+      for (int i = span->start() + 1; i < span->end(); ++i) {
         (*tags)[i] = "I-" + span->name();
       }
     } else if (tagging_scheme == EntityTaggingSchemes::BIO) {
       (*tags)[span->start()] = "B-" + span->name();
-      for (int i = span->start()+1; i <= span->end(); ++i) {
+      for (int i = span->start() + 1; i <= span->end(); ++i) {
         (*tags)[i] = "I-" + span->name();
       }
     } else {

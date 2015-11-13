@@ -21,6 +21,7 @@
 
 #include "Dictionary.h"
 #include "TokenDictionary.h"
+#include "DependencyReader.h"
 #include "SerializationUtils.h"
 
 class Pipe;
@@ -151,5 +152,12 @@ class DependencyDictionary : public Dictionary {
   vector<vector<int> > maximum_right_distances_;
 };
 
+
+class DependencyTokenDictionary : public TokenDictionary {
+public:
+  DependencyTokenDictionary() {};
+  virtual ~DependencyTokenDictionary() {};
+  void Initialize(DependencyReader *reader);
+};
 #endif /* DEPENDENCYDICTIONARY_H_ */
 

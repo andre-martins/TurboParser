@@ -32,7 +32,7 @@ Instance *DependencyReader::GetNext() {
       getline(is_, line);
       if (line.length() <= 0) break;
       vector<string> fields;
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }
@@ -70,7 +70,7 @@ Instance *DependencyReader::GetNext() {
     if (0 == feat_seq.compare("_")) {
       feats[i+1].clear();
     } else {
-      StringSplit(feat_seq, "|", &feats[i+1]);
+      StringSplit(feat_seq, "|", &feats[i+1], true);
     }
 
     deprels[i+1] = info[7];

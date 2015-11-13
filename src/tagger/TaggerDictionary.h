@@ -22,7 +22,7 @@
 #include "SequenceDictionary.h"
 
 class TaggerDictionary : public SequenceDictionary {
- public:
+public:
   TaggerDictionary() {}
   TaggerDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~TaggerDictionary() {}
@@ -102,7 +102,7 @@ class TaggerDictionary : public SequenceDictionary {
     }
   }
 
- protected:
+protected:
   vector<vector<int> > word_tags_;
   vector<int> unknown_word_tags_;
 };

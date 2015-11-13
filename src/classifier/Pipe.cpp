@@ -22,6 +22,7 @@
 #include <iostream>
 #include <sstream>
 
+
 Pipe::Pipe(Options* options) {
   options_ = options;
   dictionary_ = NULL;
@@ -37,6 +38,7 @@ Pipe::~Pipe() {
   delete writer_;
   delete decoder_;
   delete parameters_;
+  DeleteInstances();
 }
 
 void Pipe::Initialize() {
@@ -47,14 +49,14 @@ void Pipe::Initialize() {
   parameters_ = new Parameters;
 }
 
-void Pipe::SaveModelByName(const string &model_name) {
+void Pipe::SaveModelByName(const std::string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "wb");
   CHECK(fs) << "Could not open model file for writing: " << model_name;
   SaveModel(fs);
   fclose(fs);
 }
 
-void Pipe::LoadModelByName(const string &model_name) {
+void Pipe::LoadModelByName(const std::string &model_name) {
   FILE *fs = fopen(model_name.c_str(), "rb");
   CHECK(fs) << "Could not open model file for reading: " << model_name;
   LoadModel(fs);
@@ -95,7 +97,7 @@ void Pipe::MakeGradientStep(Parts *parts, Features *features, double eta,
     if (predicted_output[r] == gold_output[r]) continue;
     const BinaryFeatures &part_features = features->GetPartFeatures(r);
     parameters_->MakeGradientStep(part_features, eta, iteration,
-      predicted_output[r] - gold_output[r]);
+                                  predicted_output[r] - gold_output[r]);
   }
 }
 
@@ -173,7 +175,7 @@ void Pipe::CreateInstances() {
   LOG(INFO) << "Number of instances: " << instances_.size();
 
   gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
 }
 
 void Pipe::MakeSupportedParameters() {
@@ -216,14 +218,19 @@ void Pipe::TrainEpoch(int epoch) {
   double total_loss = 0.0;
   double eta;
   int num_instances = instances_.size();
-  double lambda = 1.0/(options_->GetRegularizationConstant() *
-                       (static_cast<double>(num_instances)));
+  double lambda = 1.0 / (options_->GetRegularizationConstant() *
+                         (static_cast<double>(num_instances)));
   timeval start, end;
   gettimeofday(&start, NULL);
   int time_decoding = 0;
   int time_scores = 0;
   int num_mistakes = 0;
 
+  if (epoch == 0) {
+    LOG(INFO) << "Lambda: " << lambda << "\t"
+      << "Regularization constant: " << options_->GetRegularizationConstant() << "\t"
+      << "Number of instances: " << num_instances << endl;
+  }
   LOG(INFO) << " Iteration #" << epoch + 1;
 
   dictionary_->StopGrowth();
@@ -253,7 +260,7 @@ void Pipe::TrainEpoch(int epoch) {
     TransformGold(instance, parts, scores, &gold_outputs, &inner_loss);
 
     if (options_->GetTrainingAlgorithm() == "perceptron" ||
-        options_->GetTrainingAlgorithm() == "mira" ) {
+        options_->GetTrainingAlgorithm() == "mira") {
       timeval start_decoding, end_decoding;
       gettimeofday(&start_decoding, NULL);
       decoder_->Decode(instance, parts, scores, &predicted_outputs);
@@ -342,16 +349,16 @@ void Pipe::TrainEpoch(int epoch) {
           eta = options_->GetInitialLearningRate();
         } else if (options_->GetLearningRateSchedule() == "invsqrt") {
           eta = options_->GetInitialLearningRate() /
-            sqrt(static_cast<double>(t+1));
+            sqrt(static_cast<double>(t + 1));
         } else if (options_->GetLearningRateSchedule() == "inv") {
           eta = options_->GetInitialLearningRate() /
-            static_cast<double>(t+1);
+            static_cast<double>(t + 1);
         } else if (options_->GetLearningRateSchedule() == "lecun") {
           eta = options_->GetInitialLearningRate() /
             (1.0 + (static_cast<double>(t) / static_cast<double>(num_instances)));
         } else {
           CHECK(false) << "Unknown learning rate schedule: "
-                       << options_->GetLearningRateSchedule();
+            << options_->GetLearningRateSchedule();
         }
 
         // Scale the parameter vector (only for SGD).
@@ -369,14 +376,14 @@ void Pipe::TrainEpoch(int epoch) {
 
   // Compute the regularization value (halved squared L2 norm of the weights).
   double regularization_value =
-      lambda * static_cast<double>(num_instances) *
-      parameters_->GetSquaredNorm() / 2.0;
+    lambda * static_cast<double>(num_instances) *
+    parameters_->GetSquaredNorm() / 2.0;
 
   delete parts;
   delete features;
 
   gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
   LOG(INFO) << "Time to score: " << time_scores;
   LOG(INFO) << "Time to decode: " << time_decoding;
   LOG(INFO) << "Number of Features: " << parameters_->Size();
@@ -384,10 +391,12 @@ void Pipe::TrainEpoch(int epoch) {
       options_->GetTrainingAlgorithm() == "mira") {
     LOG(INFO) << "Number of mistakes: " << num_mistakes;
   }
+
   LOG(INFO) << "Total Cost: " << total_cost << "\t"
-            << "Total Loss: " << total_loss << "\t"
-            << "Total Reg: " << regularization_value << "\t"
-            << "Total Loss+Reg: " << total_loss + regularization_value << endl;
+    << "Total Loss: " << total_loss << "\t"
+    << "Total Reg: " << regularization_value << "\t"
+    << "Total Loss+Reg: " << total_loss + regularization_value << "\t"
+    << "Squared norm: " << parameters_->GetSquaredNorm() << endl;
 }
 
 void Pipe::Run() {
@@ -441,7 +450,11 @@ void Pipe::Run() {
 
   gettimeofday(&end, NULL);
   LOG(INFO) << "Number of instances: " << num_instances;
-  LOG(INFO) << "Time: " << diff_ms(end,start);
+  LOG(INFO) << "Time: " << diff_ms(end, start);
+
+  LOG(INFO) << "Cache size: " << parameters_->caching_weights_.GetSize() << "\t"
+    << "Cache hits: " << parameters_->caching_weights_.hits() << "\t"
+    << "Cache misses: " << parameters_->caching_weights_.misses() << endl;
 
   if (options_->evaluate()) EndEvaluation();
 }
@@ -449,18 +462,30 @@ void Pipe::Run() {
 void Pipe::ClassifyInstance(Instance *instance) {
   Parts *parts = CreateParts();
   Features *features = CreateFeatures();
+  std::vector<double> scores;
   std::vector<double> gold_outputs;
   std::vector<double> predicted_outputs;
-  std::vector<double> scores;
 
   Instance *formatted_instance = GetFormattedInstance(instance);
 
+  //Create parts for this instance
   MakeParts(formatted_instance, parts, &gold_outputs);
+  //Create features for the parts of this instance
   MakeFeatures(formatted_instance, parts, features);
+  //Compute scores based on the features and parts of this instance
   ComputeScores(formatted_instance, parts, features, &scores);
+  //Decode, a.k.a., obtain output prediction
   decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
-
+  //Obtain labels
   LabelInstance(parts, predicted_outputs, instance);
+  //Compare with gold standard if 'evaluate' was an execution flag
+  if (options_->evaluate()) {
+    EvaluateInstance(instance,
+                     ((Instance*)NULL),
+                     parts,
+                     gold_outputs,
+                     predicted_outputs);
+  }
 
   if (formatted_instance != instance) delete formatted_instance;
 

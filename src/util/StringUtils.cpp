@@ -22,11 +22,12 @@
 // as a vector of strings.
 void StringSplit(const string &str,
                  const string &delim,
-                 vector<string> *results) {
+                 vector<string> *results,
+                 bool ignore_multiple_separators) {
   size_t cutAt;
   string tmp = str;
   while ((cutAt = tmp.find_first_of(delim)) != tmp.npos) {
-    if(cutAt > 0) {
+    if((ignore_multiple_separators && cutAt > 0) || (!ignore_multiple_separators)){
       // Note: this "if" guarantees that every field is not empty.
       // This complies with multiple consecutive occurrences of the
       // delimiter (e.g. several consecutive occurrences of a whitespace

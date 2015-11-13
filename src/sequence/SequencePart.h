@@ -33,47 +33,47 @@ enum {
 };
 
 class SequencePartUnigram : public Part {
- public:
+public:
   SequencePartUnigram() { position_ = tag_ = -1; };
   SequencePartUnigram(int position, int tag) :
     position_(position), tag_(tag) {};
   virtual ~SequencePartUnigram() {};
 
- public:
+public:
   int position() { return position_; };
   int tag() { return tag_; };
 
- public:
+public:
   int type() { return SEQUENCEPART_UNIGRAM; };
 
- private:
+private:
   int position_; // Word position.
   int tag_; // Tag ID.
 };
 
 class SequencePartBigram : public Part {
- public:
+public:
   SequencePartBigram() { position_ = tag_ = tag_left_ = -1; };
   SequencePartBigram(int position, int tag, int tag_left) :
     position_(position), tag_(tag), tag_left_(tag_left) {};
   virtual ~SequencePartBigram() {};
 
- public:
+public:
   int position() { return position_; };
   int tag() { return tag_; };
   int tag_left() { return tag_left_; };
 
- public:
+public:
   int type() { return SEQUENCEPART_BIGRAM; };
 
- private:
+private:
   int position_; // Word position.
   int tag_; // Tag ID.
   int tag_left_; // Left tag ID
 };
 
 class SequencePartTrigram : public Part {
- public:
+public:
   SequencePartTrigram() {
     position_ = tag_ = tag_left_ = tag_left_left_ = -1;
   };
@@ -82,16 +82,16 @@ class SequencePartTrigram : public Part {
     tag_left_left_(tag_left_left) {};
   virtual ~SequencePartTrigram() {};
 
- public:
+public:
   int position() { return position_; };
   int tag() { return tag_; };
   int tag_left() { return tag_left_; };
   int tag_left_left() { return tag_left_left_; };
 
- public:
+public:
   int type() { return SEQUENCEPART_TRIGRAM; };
 
- private:
+private:
   int position_; // Word position.
   int tag_; // Tag ID.
   int tag_left_; // Left tag ID
@@ -100,7 +100,7 @@ class SequencePartTrigram : public Part {
 
 
 class SequenceParts : public Parts {
- public:
+public:
   SequenceParts() {};
   virtual ~SequenceParts() { DeleteAll(); };
 
@@ -122,10 +122,10 @@ class SequenceParts : public Parts {
     return new SequencePartTrigram(position, tag, tag_left, tag_left_left);
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildUnigramIndices(int sentence_length);
   void BuildBigramIndices(int sentence_length);
   void BuildTrigramIndices(int sentence_length);
@@ -148,7 +148,7 @@ class SequenceParts : public Parts {
   void BuildOffsets() {
     for (int i = NUM_SEQUENCEPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_SEQUENCEPARTS - 1)? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_SEQUENCEPARTS - 1) ? size() : offsets_[i + 1];
       }
     }
   };
@@ -171,11 +171,11 @@ class SequenceParts : public Parts {
     GetOffset(SEQUENCEPART_TRIGRAM, offset, size);
   };
 
- private:
+private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_SEQUENCEPARTS - 1)? offsets_[i + 1] - (*offset) :
+    *size = (i < NUM_SEQUENCEPARTS - 1) ? offsets_[i + 1] - (*offset) :
       SequenceParts::size() - (*offset);
   }
 
@@ -185,7 +185,7 @@ class SequenceParts : public Parts {
     if (i < NUM_SEQUENCEPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
- private:
+private:
   vector<vector<int> >  index_;
   vector<vector<int> >  index_bigrams_;
   vector<vector<int> >  index_trigrams_;

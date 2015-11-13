@@ -202,6 +202,9 @@ class SequenceDecoder : public Decoder {
   void RecoverBestPath(const std::vector<int> &best_path,
                        std::vector<int> *transformed_best_path);
 
+  double SolveMarkovZeroOrder(const std::vector<SequenceDecoderNodeScores> &node_scores,
+                              std::vector<int> *best_path);
+
   double RunViterbi(const vector<vector<double> > &node_scores,
                     const vector<vector<vector<double > > >
                      &edge_scores,

@@ -61,7 +61,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
 
     prefix_ids_[i].resize(prefix_length);
     for (int l = 0; l < prefix_length; ++l) {
-      std::string prefix = form.substr(0, l+1);
+      std::string prefix = form.substr(0, l + 1);
       id = token_dictionary->GetPrefixId(prefix);
       CHECK_LT(id, 0xffff);
       if (id < 0) id = TOKEN_UNKNOWN;
@@ -72,7 +72,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     for (int l = 0; l < suffix_length; ++l) {
       int start = form.length() - l - 1;
       if (start < 0) start = 0;
-      std::string suffix = form.substr(start, l+1);
+      std::string suffix = form.substr(start, l + 1);
       id = token_dictionary->GetSuffixId(suffix);
       CHECK_LT(id, 0xffff);
       if (id < 0) id = TOKEN_UNKNOWN;
@@ -96,8 +96,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     has_upper_[i] = HasUpperCaseLetters(word, word_length);
     has_hyphen_[i] = HasHyphen(word, word_length);
     all_digits_[i] = AllDigits(word, word_length);
-    all_digits_with_punctuation_[i] = AllDigitsWithPunctuation(word,
-                                                               word_length);
+    all_digits_with_punctuation_[i] = AllDigitsWithPunctuation(word, word_length);
     all_upper_[i] = AllUpperCase(word, word_length);
     first_upper_[i] = IsCapitalized(word, word_length);
 

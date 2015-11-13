@@ -45,7 +45,7 @@ struct EntityFeatureTemplateUnigram {
     PnP,            /* POS + POS on the right */
     PpPppP,         /* POS trigram on the left */
     PnPnnP,         /* POS trigram on the right */
-    PpPnP,           /* POS trigram on the center */
+    PpPnP,          /* POS trigram on the center */
     S,              /* shape */
     pS,             /* shape on the left */
     nS,             /* shape on the right */

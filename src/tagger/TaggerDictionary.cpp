@@ -77,7 +77,7 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
     std::ifstream is;
     is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->GetUnknownWordTagsFilePath() << ".";
+      << options->GetUnknownWordTagsFilePath() << ".";
     vector<vector<string> > sentence_fields;
     string line;
     if (is.is_open()) {

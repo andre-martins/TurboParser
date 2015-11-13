@@ -31,7 +31,7 @@
 #include "SemanticDecoder.h"
 
 class SemanticPipe : public Pipe {
- public:
+public:
   SemanticPipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
     dependency_dictionary_ = NULL;
@@ -69,7 +69,7 @@ class SemanticPipe : public Pipe {
     LoadPrunerModelByName(GetSemanticOptions()->GetPrunerModelFilePath());
   }
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new SemanticDictionary(this);
     GetSemanticDictionary()->SetTokenDictionary(token_dictionary_);
@@ -102,7 +102,7 @@ class SemanticPipe : public Pipe {
 
   Instance *GetFormattedInstance(Instance *instance) {
     SemanticInstanceNumeric *instance_numeric =
-          new SemanticInstanceNumeric;
+      new SemanticInstanceNumeric;
     instance_numeric->Initialize(*GetSemanticDictionary(),
                                  static_cast<SemanticInstance*>(instance));
     return instance_numeric;
@@ -147,7 +147,7 @@ class SemanticPipe : public Pipe {
     MakeSelectedFeatures(instance, parts, pruner, selected_parts, features);
   }
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool>& selected_parts, Features *features) {
+                            const vector<bool>& selected_parts, Features *features) {
     // Set pruner = false unless we're training the pruner.
     MakeSelectedFeatures(instance, parts, train_pruner_, selected_parts,
                          features);
@@ -308,77 +308,77 @@ class SemanticPipe : public Pipe {
   virtual void EndEvaluation() {
     double unlabeled_precision =
       static_cast<double>(num_matched_unlabeled_arcs_) /
-        static_cast<double>(num_predicted_unlabeled_arcs_);
+      static_cast<double>(num_predicted_unlabeled_arcs_);
     double unlabeled_recall =
       static_cast<double>(num_matched_unlabeled_arcs_) /
-        static_cast<double>(num_gold_unlabeled_arcs_);
+      static_cast<double>(num_gold_unlabeled_arcs_);
     double unlabeled_F1 = 2.0 * unlabeled_precision * unlabeled_recall /
       (unlabeled_precision + unlabeled_recall);
     double pruning_unlabeled_recall =
       static_cast<double>(num_gold_unlabeled_arcs_ -
                           num_pruned_gold_unlabeled_arcs_) /
-        static_cast<double>(num_gold_unlabeled_arcs_);
+      static_cast<double>(num_gold_unlabeled_arcs_);
     double pruning_unlabeled_efficiency =
       static_cast<double>(num_possible_unlabeled_arcs_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
 
     double labeled_precision =
       static_cast<double>(num_matched_labeled_arcs_) /
-        static_cast<double>(num_predicted_labeled_arcs_);
+      static_cast<double>(num_predicted_labeled_arcs_);
     double labeled_recall =
       static_cast<double>(num_matched_labeled_arcs_) /
-        static_cast<double>(num_gold_labeled_arcs_);
+      static_cast<double>(num_gold_labeled_arcs_);
     double labeled_F1 = 2.0 * labeled_precision * labeled_recall /
       (labeled_precision + labeled_recall);
     double pruning_labeled_recall =
       static_cast<double>(num_gold_labeled_arcs_ -
                           num_pruned_gold_labeled_arcs_) /
-        static_cast<double>(num_gold_labeled_arcs_);
+      static_cast<double>(num_gold_labeled_arcs_);
     double pruning_labeled_efficiency =
       static_cast<double>(num_possible_labeled_arcs_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
 
     LOG(INFO) << "Unlabeled precision: " << unlabeled_precision
-              << " (" << num_matched_unlabeled_arcs_ << "/"
-              << num_predicted_unlabeled_arcs_ << ")";
+      << " (" << num_matched_unlabeled_arcs_ << "/"
+      << num_predicted_unlabeled_arcs_ << ")";
     LOG(INFO) << "Unlabeled recall: " << unlabeled_recall
-              << " (" << num_matched_unlabeled_arcs_ << "/"
-              << num_gold_unlabeled_arcs_ << ")";
+      << " (" << num_matched_unlabeled_arcs_ << "/"
+      << num_gold_unlabeled_arcs_ << ")";
     LOG(INFO) << "Unlabeled F1: " << unlabeled_F1;
     LOG(INFO) << "Pruning unlabeled recall: " << pruning_unlabeled_recall
-              << " ("
-              << num_gold_unlabeled_arcs_ - num_pruned_gold_unlabeled_arcs_
-              << "/"
-              << num_gold_unlabeled_arcs_ << ")";
+      << " ("
+      << num_gold_unlabeled_arcs_ - num_pruned_gold_unlabeled_arcs_
+      << "/"
+      << num_gold_unlabeled_arcs_ << ")";
     LOG(INFO) << "Pruning unlabeled efficiency: " << pruning_unlabeled_efficiency
-              << " possible unlabeled arcs per token"
-              << " (" << num_possible_unlabeled_arcs_ << "/"
-              << num_tokens_ << ")";
+      << " possible unlabeled arcs per token"
+      << " (" << num_possible_unlabeled_arcs_ << "/"
+      << num_tokens_ << ")";
 
     LOG(INFO) << "Labeled precision: " << labeled_precision
-              << " (" << num_matched_labeled_arcs_ << "/"
-              << num_predicted_labeled_arcs_ << ")";
+      << " (" << num_matched_labeled_arcs_ << "/"
+      << num_predicted_labeled_arcs_ << ")";
     LOG(INFO) << "Labeled recall: " << labeled_recall
-              << " (" << num_matched_labeled_arcs_ << "/"
-              << num_gold_labeled_arcs_ << ")";
+      << " (" << num_matched_labeled_arcs_ << "/"
+      << num_gold_labeled_arcs_ << ")";
     LOG(INFO) << "Labeled F1: " << labeled_F1;
     LOG(INFO) << "Pruning labeled recall: " << pruning_labeled_recall
-              << " ("
-              << num_gold_labeled_arcs_ - num_pruned_gold_labeled_arcs_
-              << "/"
-              << num_gold_labeled_arcs_ << ")";
+      << " ("
+      << num_gold_labeled_arcs_ - num_pruned_gold_labeled_arcs_
+      << "/"
+      << num_gold_labeled_arcs_ << ")";
     LOG(INFO) << "Pruning labeled efficiency: " << pruning_labeled_efficiency
-              << " possible labeled arcs per token"
-              << " (" << num_possible_labeled_arcs_ << "/"
-              << num_tokens_ << ")";
+      << " possible labeled arcs per token"
+      << " (" << num_possible_labeled_arcs_ << "/"
+      << num_tokens_ << ")";
 
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
 #if 0
@@ -389,7 +389,7 @@ class SemanticPipe : public Pipe {
                   int ancest,
                   int descend);
 #endif
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   DependencyDictionary *dependency_dictionary_;
   bool train_pruner_;

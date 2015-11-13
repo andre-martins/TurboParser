@@ -49,6 +49,9 @@ int main(int argc, char** argv) {
     TestSemanticParser();
   }
 
+  // Destroy allocated memory regarding line flags.
+  google::ShutDownCommandLineFlags();
+  google::ShutdownGoogleLogging();
   return 0;
 }
 

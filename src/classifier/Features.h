@@ -24,6 +24,10 @@
 #ifdef _WIN32
 #include <stdint.h>
 #endif
+#include <unordered_map>
+#include <functional>
+
+
 
 // A vector of binary features. Each feature is represented as a 64-bit key.
 typedef vector<uint64_t> BinaryFeatures;
@@ -33,11 +37,11 @@ class Pipe;
 // Abstract class for the feature handler. Task-specific handlers should derive
 // from this class and implement the pure virtual methods.
 class Features {
- public:
+public:
   Features() {};
   virtual ~Features() {};
 
- public:
+public:
   // Set a pointer to the pipe that owns this feature handler.
   void SetPipe(Pipe *pipe) { pipe_ = pipe; };
 
@@ -46,8 +50,9 @@ class Features {
   // Get the binary features corresponding to the r-th part (mutable).
   virtual BinaryFeatures *GetMutablePartFeatures(int r) const = 0;
 
- protected:
+protected:
   Pipe *pipe_; // The pipe that owns this feature handler.
 };
+
 
 #endif /* FEATURES_H_ */

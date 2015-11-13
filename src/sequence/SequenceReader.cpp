@@ -31,8 +31,12 @@ Instance *SequenceReader::GetNext() {
     while (!is_.eof()) {
       getline(is_, line);
       if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
+        continue;
+      }
+      //LOG(INFO) << line;
       vector<string> fields;
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }
@@ -44,7 +48,7 @@ Instance *SequenceReader::GetNext() {
   vector<string> forms(length);
   vector<string> tags(length);
 
-  for(int i = 0; i < length; ++i) {
+  for (int i = 0; i < length; ++i) {
     const vector<string> &info = sentence_fields[i];
     CHECK_EQ(info.size(), 2);
     forms[i] = info[0];
