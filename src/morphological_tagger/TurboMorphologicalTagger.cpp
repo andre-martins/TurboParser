@@ -12,8 +12,8 @@
 
 using namespace std;
 
-void TrainMorph();
-void TestMorph();
+void TrainMorphologicalTagger();
+void TestMorphologicalTagger();
 
 int main(int argc, char** argv) {
   // Initialize Google's logging library.
@@ -27,10 +27,10 @@ int main(int argc, char** argv) {
 #endif
   if (FLAGS_train) {
     LOG(INFO) << "Training Morphological tagger..." << endl;
-    TrainMorph();
+    TrainMorphologicalTagger();
   } else if (FLAGS_test) {
     LOG(INFO) << "Running Morphological tagger..." << endl;
-    TestMorph();
+    TestMorphologicalTagger();
   }
 
   // Destroy allocated memory regarding line flags.
@@ -39,15 +39,15 @@ int main(int argc, char** argv) {
   return 0;
 }
 
-void TrainMorph() {
+void TrainMorphologicalTagger() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  MorphOptions *options = new MorphOptions;
+  MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
 
-  MorphPipe *pipe = new MorphPipe(options);
+  MorphologicalPipe *pipe = new MorphologicalPipe(options);
   pipe->Initialize();
   pipe->Train();
   pipe->SaveModelFile();
@@ -62,15 +62,15 @@ void TrainMorph() {
   delete options;
 }
 
-void TestMorph() {
+void TestMorphologicalTagger() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  MorphOptions *options = new MorphOptions;
+  MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
 
-  MorphPipe *pipe = new MorphPipe(options);
+  MorphologicalPipe *pipe = new MorphologicalPipe(options);
   pipe->Initialize();
   pipe->LoadModelFile();
   pipe->Run();

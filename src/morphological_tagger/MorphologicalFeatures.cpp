@@ -21,7 +21,7 @@
 #include "SequencePart.h"
 #include "MorphologicalFeatureTemplates.h"
 
-void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
+void MorphologicalFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
                                        int position) {
   CHECK(!input_features_unigrams_[position]);
 
@@ -30,11 +30,11 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
 
   int sentence_length = sentence->size();
 
-  MorphInstanceNumeric *morph_sentence = static_cast<MorphInstanceNumeric*>(sentence);
+  MorphologicalInstanceNumeric *morph_sentence = static_cast<MorphologicalInstanceNumeric*>(sentence);
 
 
-  MorphOptions *options = static_cast<class MorphPipe*>(pipe_)->
-    GetMorphOptions();
+  MorphologicalOptions *options = static_cast<class MorphologicalPipe*>(pipe_)->
+    GetMorphologicalOptions();
 
   // Array of form IDs.
   const vector<int>* word_ids = &morph_sentence->GetFormIds();
@@ -117,142 +117,142 @@ void MorphFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   uint64_t fkey;
   uint8_t flags = 0x0;
 
-  flags |= MorphFeatureTemplateParts::UNIGRAM;
+  flags |= MorphologicalFeatureTemplateParts::UNIGRAM;
 
   // Maximum is 255 feature templates.
-  CHECK_LT(MorphFeatureTemplateUnigram::COUNT, 256);
+  CHECK_LT(MorphologicalFeatureTemplateUnigram::COUNT, 256);
 
   // Bias feature.
   if (options->large_feature_set() >= 1) {
-    fkey = encoder_.CreateFKey_NONE(MorphFeatureTemplateUnigram::BIAS, flags);
+    fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateUnigram::BIAS, flags);
     AddFeature(fkey, features);
   }
 
   // Lexical features.
-  fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::W, flags, WID);
+  fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::W, flags, WID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::pW, flags, pWID);
+  fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::pW, flags, pWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::nW, flags, nWID);
+  fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::nW, flags, nWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::ppW, flags, ppWID);
+  fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::ppW, flags, ppWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::nnW, flags, nnWID);
+  fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::nnW, flags, nnWID);
   AddFeature(fkey, features);
 
   //Word + POS
-  fkey = encoder_.CreateFKey_PP(MorphFeatureTemplateUnigram::WP, flags, WID, PID);
+  fkey = encoder_.CreateFKey_PP(MorphologicalFeatureTemplateUnigram::WP, flags, WID, PID);
   AddFeature(fkey, features);
 
   // POS features.
-  fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::P, flags, PID);
+  fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::P, flags, PID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::pP, flags, pPID);
+  fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::pP, flags, pPID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::nP, flags, nPID);
+  fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::nP, flags, nPID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::ppP, flags, ppPID);
+  fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::ppP, flags, ppPID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::nnP, flags, nnPID);
+  fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::nnP, flags, nnPID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_PP(MorphFeatureTemplateUnigram::PpP, flags, PID, pPID);
+  fkey = encoder_.CreateFKey_PP(MorphologicalFeatureTemplateUnigram::PpP, flags, PID, pPID);
   AddFeature(fkey, features);
 
   if (options->large_feature_set() >= 1) {
-    fkey = encoder_.CreateFKey_PP(MorphFeatureTemplateUnigram::PnP, flags, PID, nPID);
+    fkey = encoder_.CreateFKey_PP(MorphologicalFeatureTemplateUnigram::PnP, flags, PID, nPID);
     AddFeature(fkey, features);
   }
-  fkey = encoder_.CreateFKey_PPP(MorphFeatureTemplateUnigram::PpPppP, flags, PID, pPID, ppPID);
+  fkey = encoder_.CreateFKey_PPP(MorphologicalFeatureTemplateUnigram::PpPppP, flags, PID, pPID, ppPID);
   AddFeature(fkey, features);
 
   if (options->large_feature_set() >= 1) {
-    fkey = encoder_.CreateFKey_PPP(MorphFeatureTemplateUnigram::PnPnnP, flags, PID, nPID, nnPID);
+    fkey = encoder_.CreateFKey_PPP(MorphologicalFeatureTemplateUnigram::PnPnnP, flags, PID, nPID, nnPID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_PPP(MorphFeatureTemplateUnigram::PpPnP, flags, PID, pPID, nPID);
+    fkey = encoder_.CreateFKey_PPP(MorphologicalFeatureTemplateUnigram::PpPnP, flags, PID, pPID, nPID);
     AddFeature(fkey, features);
   }
 
   // Shape features.
   if (options->large_feature_set() >= 2) {
-    fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::S, flags, SID);
+    fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::S, flags, SID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::pS, flags, pSID);
+    fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::pS, flags, pSID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::nS, flags, nSID);
+    fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::nS, flags, nSID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::ppS, flags, ppSID);
+    fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::ppS, flags, ppSID);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_W(MorphFeatureTemplateUnigram::nnS, flags, nnSID);
+    fkey = encoder_.CreateFKey_W(MorphologicalFeatureTemplateUnigram::nnS, flags, nnSID);
     AddFeature(fkey, features);
   }
 
   // Prefix features.
   for (int l = 0; l < AID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::A, flags, AID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::A, flags, AID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < pAID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::pA, flags, pAID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::pA, flags, pAID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < nAID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::nA, flags, nAID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::nA, flags, nAID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < ppAID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::ppA, flags, ppAID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::ppA, flags, ppAID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < nnAID.size(); ++l) {
     uint8_t flag_prefix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::nnA, flags, nnAID[l], flag_prefix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::nnA, flags, nnAID[l], flag_prefix_length);
     AddFeature(fkey, features);
   }
 
   // Suffix features.
   for (int l = 0; l < ZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::Z, flags, ZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::Z, flags, ZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < pZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::pZ, flags, pZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::pZ, flags, pZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < nZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::nZ, flags, nZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::nZ, flags, nZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < ppZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::ppZ, flags, ppZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::ppZ, flags, ppZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
   for (int l = 0; l < nnZID.size(); ++l) {
     uint8_t flag_suffix_length = l;
-    fkey = encoder_.CreateFKey_WP(MorphFeatureTemplateUnigram::nnZ, flags, nnZID[l], flag_suffix_length);
+    fkey = encoder_.CreateFKey_WP(MorphologicalFeatureTemplateUnigram::nnZ, flags, nnZID[l], flag_suffix_length);
     AddFeature(fkey, features);
   }
 
 
   // Several flags.
   if (options->large_feature_set() >= 1) {
-    fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::FLAG, flags, flag_digit);
+    fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::FLAG, flags, flag_digit);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::FLAG, flags, flag_upper);
+    fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::FLAG, flags, flag_upper);
     AddFeature(fkey, features);
-    fkey = encoder_.CreateFKey_P(MorphFeatureTemplateUnigram::FLAG, flags, flag_hyphen);
+    fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::FLAG, flags, flag_hyphen);
     AddFeature(fkey, features);
   }
 }
 
-void MorphFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
+void MorphologicalFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
                                       int position) {
   CHECK(!input_features_bigrams_[position]) << position << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
@@ -260,15 +260,15 @@ void MorphFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   uint64_t fkey;
   uint8_t flags = 0x0;
-  flags |= MorphFeatureTemplateParts::BIGRAM;
+  flags |= MorphologicalFeatureTemplateParts::BIGRAM;
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(MorphFeatureTemplateBigram::BIAS, flags);
+  fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateBigram::BIAS, flags);
   AddFeature(fkey, features);
 
 }
 
-void MorphFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
+void MorphologicalFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
                                        int position) {
   CHECK(!input_features_trigrams_[position]) << position << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
@@ -276,9 +276,9 @@ void MorphFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
 
   uint64_t fkey;
   uint8_t flags = 0x0;
-  flags |= MorphFeatureTemplateParts::TRIGRAM;
+  flags |= MorphologicalFeatureTemplateParts::TRIGRAM;
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(MorphFeatureTemplateTrigram::BIAS, flags);
+  fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateTrigram::BIAS, flags);
   AddFeature(fkey, features);
 }

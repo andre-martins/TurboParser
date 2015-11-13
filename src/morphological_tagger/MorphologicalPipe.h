@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // Along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHPIPE_H_
-#define MORPHPIPE_H_
+#ifndef MORPHOLOGICALPIPE_H_
+#define MORPHOLOGICALPIPE_H_
 
 #include "SequencePipe.h"
 #include "MorphologicalOptions.h"
@@ -27,48 +27,48 @@
 #include "MorphologicalWriter.h"
 #include "MorphologicalFeatures.h"
 
-class MorphPipe : public SequencePipe {
+class MorphologicalPipe : public SequencePipe {
 public:
-  MorphPipe(Options* options) : SequencePipe(options) {}
-  virtual ~MorphPipe() {}
+  MorphologicalPipe(Options* options) : SequencePipe(options) {}
+  virtual ~MorphologicalPipe() {}
 
-  MorphReader *GetMorphReader() {
-    return static_cast<MorphReader*>(reader_);
+  MorphologicalReader *GetMorphologicalReader() {
+    return static_cast<MorphologicalReader*>(reader_);
   };
-  MorphDictionary *GetMorphDictionary() {
-    return static_cast<MorphDictionary*>(dictionary_);
+  MorphologicalDictionary *GetMorphologicalDictionary() {
+    return static_cast<MorphologicalDictionary*>(dictionary_);
   };
-  MorphOptions *GetMorphOptions() {
-    return static_cast<MorphOptions*>(options_);
+  MorphologicalOptions *GetMorphologicalOptions() {
+    return static_cast<MorphologicalOptions*>(options_);
   };
 
 protected:
   void CreateDictionary() {
-    dictionary_ = new MorphDictionary(this);
+    dictionary_ = new MorphologicalDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
   }
 
-  void CreateReader() { reader_ = new MorphReader(options_); }
-  void CreateWriter() { writer_ = new MorphWriter; }
-  Features *CreateFeatures() { return new MorphFeatures(this); };
+  void CreateReader() { reader_ = new MorphologicalReader(options_); }
+  void CreateWriter() { writer_ = new MorphologicalWriter; }
+  Features *CreateFeatures() { return new MorphologicalFeatures(this); };
 
   void PreprocessData();
 
   Instance *GetFormattedInstance(Instance *instance) {
-    MorphInstanceNumeric *instance_numeric = new MorphInstanceNumeric;
-    instance_numeric->Initialize(*GetMorphDictionary(), static_cast<MorphInstance*>(instance));
+    MorphologicalInstanceNumeric *instance_numeric = new MorphologicalInstanceNumeric;
+    instance_numeric->Initialize(*GetMorphologicalDictionary(), static_cast<MorphologicalInstance*>(instance));
     return instance_numeric;
   }
 
   void GetAllowedTags(Instance *instance, int i, vector<int> *allowed_tags) {
     // Make word-tag dictionary pruning.
     allowed_tags->clear();
-    bool prune_tags = GetMorphOptions()->prune_tags();
+    bool prune_tags = GetMorphologicalOptions()->prune_tags();
     if (!prune_tags) return;
 
-    MorphInstanceNumeric *sentence =
-      static_cast<MorphInstanceNumeric*>(instance);
-    MorphDictionary *morph_dictionary = GetMorphDictionary();
+    MorphologicalInstanceNumeric *sentence =
+      static_cast<MorphologicalInstanceNumeric*>(instance);
+    MorphologicalDictionary *morph_dictionary = GetMorphologicalDictionary();
 
     int cpostag_id = sentence->GetCPosTagId(i);
     *allowed_tags = morph_dictionary->GetAllowedMorphologicalTags(cpostag_id);
@@ -76,5 +76,5 @@ protected:
 
 };
 
-#endif /* MORPHPIPE_H_ */
+#endif /* MORPHOLOGICALPIPE_H_ */
 

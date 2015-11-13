@@ -26,7 +26,7 @@
 
 
 
-void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
+void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   SequenceDictionary::CreateTagDictionary(static_cast<SequenceReader*> (reader));
 
   LOG(INFO) << "Creating cpostag-morphtag dictionary...";
@@ -37,7 +37,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
   cpostag_morphologicaltags_.resize(token_dictionary_->GetNumCoarsePosTags());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  MorphInstance *instance = static_cast<MorphInstance*>(reader->GetNext());
+  MorphologicalInstance *instance = static_cast<MorphologicalInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -62,7 +62,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
       }
     }
     delete instance;
-    instance = static_cast<MorphInstance*>(reader->GetNext());
+    instance = static_cast<MorphologicalInstance*>(reader->GetNext());
   }
   reader->Close();
 
@@ -73,7 +73,7 @@ void MorphDictionary::CreateTagDictionary(MorphReader *reader) {
     << unknown_cpostag_morphologicaltags_.size();
 }
 
-void MorphTokenDictionary::Initialize(MorphReader *reader) {
+void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   SetTokenDictionaryFlagValues();
   LOG(INFO) << "Creating token dictionary...";
 
@@ -117,7 +117,7 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
   // Go through the corpus and build the dictionaries,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  MorphInstance *instance = static_cast<MorphInstance*>(reader->GetNext());
+  MorphologicalInstance *instance = static_cast<MorphologicalInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -192,7 +192,7 @@ void MorphTokenDictionary::Initialize(MorphReader *reader) {
       ++shape_freqs[id];
     }
     delete instance;
-    instance = static_cast<MorphInstance*>(reader->GetNext());
+    instance = static_cast<MorphologicalInstance*>(reader->GetNext());
   }
   reader->Close();
 

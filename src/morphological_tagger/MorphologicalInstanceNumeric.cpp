@@ -20,8 +20,8 @@
 #include <iostream>
 #include <algorithm>
 
-void MorphInstanceNumeric::Initialize(const MorphDictionary &dictionary,
-                                      MorphInstance* instance) {
+void MorphologicalInstanceNumeric::Initialize(const MorphologicalDictionary &dictionary,
+                                      MorphologicalInstance* instance) {
   SequenceInstanceNumeric::Initialize(dictionary, instance);
 
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();

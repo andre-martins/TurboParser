@@ -21,13 +21,13 @@
 
 #include "SequenceInstance.h"
 
-class MorphInstance : public SequenceInstance {
+class MorphologicalInstance : public SequenceInstance {
 public:
-  MorphInstance() {}
-  virtual ~MorphInstance() {}
+  MorphologicalInstance() {}
+  virtual ~MorphologicalInstance() {}
 
   Instance* Copy() {
-    MorphInstance* instance = new MorphInstance();
+    MorphologicalInstance* instance = new MorphologicalInstance();
     instance->Initialize(forms_,
                          lemmas_,
                          cpostags_,

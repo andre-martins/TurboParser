@@ -23,7 +23,7 @@
 #include "MorphologicalOptions.h"
 
 
-Instance *MorphReader::GetNext() {
+Instance *MorphologicalReader::GetNext() {
   // Fill all fields for the entire sentence.
   std::vector<std::vector<std::string> > sentence_fields;
   std::string line;
@@ -59,9 +59,9 @@ Instance *MorphReader::GetNext() {
     feats[i] = info[5];
   }
 
-  MorphInstance *instance = NULL;
+  MorphologicalInstance *instance = NULL;
   if (length > 0) {
-    instance = new MorphInstance;
+    instance = new MorphologicalInstance;
     instance->Initialize(forms, lemmas, cpostags, feats);
   }
   return static_cast<Instance*>(instance);

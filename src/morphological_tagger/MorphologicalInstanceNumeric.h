@@ -23,10 +23,10 @@
 #include "MorphologicalInstance.h"
 #include "MorphologicalDictionary.h"
 
-class MorphInstanceNumeric : public SequenceInstanceNumeric {
+class MorphologicalInstanceNumeric : public SequenceInstanceNumeric {
 public:
-  MorphInstanceNumeric() {};
-  virtual ~MorphInstanceNumeric() { Clear(); };
+  MorphologicalInstanceNumeric() {};
+  virtual ~MorphologicalInstanceNumeric() { Clear(); };
 
   void Clear() {
     SequenceInstanceNumeric::Clear();
@@ -34,8 +34,8 @@ public:
     cpostags_ids_.clear();
   }
 
-  void Initialize(const MorphDictionary &dictionary,
-                  MorphInstance *instance);
+  void Initialize(const MorphologicalDictionary &dictionary,
+                  MorphologicalInstance *instance);
 
   const std::vector<int> &GetCPosTagIds() const { return cpostags_ids_; }
   const std::vector<int> &GetLemmaIds(int i) const { return lemmas_ids_; }

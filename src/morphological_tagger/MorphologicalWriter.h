@@ -21,10 +21,10 @@
 
 #include "Writer.h"
 
-class MorphWriter : public Writer {
+class MorphologicalWriter : public Writer {
 public:
-  MorphWriter() {};
-  virtual ~MorphWriter() {};
+  MorphologicalWriter() {};
+  virtual ~MorphologicalWriter() {};
 
 public:
   void Write(Instance *instance);

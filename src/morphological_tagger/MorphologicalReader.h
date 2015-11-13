@@ -24,11 +24,11 @@
 #include "Options.h"
 #include <fstream>
 
-class MorphReader : public SequenceReader {
+class MorphologicalReader : public SequenceReader {
 public:
-  MorphReader() { options_ = NULL; };
-  MorphReader(Options *options) { options_ = options; };
-  virtual ~MorphReader() {};
+  MorphologicalReader() { options_ = NULL; };
+  MorphologicalReader(Options *options) { options_ = options; };
+  virtual ~MorphologicalReader() {};
 
 public:
   Instance *GetNext();

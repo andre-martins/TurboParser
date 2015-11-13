@@ -23,11 +23,11 @@
 #include "TokenDictionary.h"
 #include "MorphologicalReader.h"
 
-class MorphDictionary : public SequenceDictionary {
+class MorphologicalDictionary : public SequenceDictionary {
 public:
-  MorphDictionary() {}
-  MorphDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
-  virtual ~MorphDictionary() {}
+  MorphologicalDictionary() {}
+  MorphologicalDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
+  virtual ~MorphologicalDictionary() {}
 
   void Clear() {
     SequenceDictionary::Clear();
@@ -90,7 +90,7 @@ public:
     }
   }
 
-  void CreateTagDictionary(MorphReader *reader);
+  void CreateTagDictionary(MorphologicalReader *reader);
 
   const std::vector<int> &GetAllowedMorphologicalTags(int cpostag) {
     // return cpostag_morphologicaltags_[cpostag];
@@ -111,10 +111,10 @@ protected:
 
 
 
-class MorphTokenDictionary : public TokenDictionary {
+class MorphologicalTokenDictionary : public TokenDictionary {
 public:
-  MorphTokenDictionary() {};
-  virtual ~MorphTokenDictionary() {};
-  void Initialize(MorphReader *reader);
+  MorphologicalTokenDictionary() {};
+  virtual ~MorphologicalTokenDictionary() {};
+  void Initialize(MorphologicalReader *reader);
 };
 #endif /* MORPHDICTIONARY_H_ */

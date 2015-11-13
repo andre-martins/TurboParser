@@ -20,7 +20,7 @@
 #include <glog/logging.h>
 #include "MorphologicalOptions.h"
 
-void MorphInstance::Initialize(const std::vector<std::string> &forms,
+void MorphologicalInstance::Initialize(const std::vector<std::string> &forms,
                                const std::vector<std::string> &lemmas,
                                const std::vector<std::string> &cpostags,
                                const std::vector<std::string> &tags) { //&feats) {

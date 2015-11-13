@@ -22,16 +22,16 @@
 #include <iostream>
 #include <sstream>
 
-void MorphWriter::Write(Instance *instance) {
-  MorphInstance *morph_instance = static_cast<MorphInstance*>(instance);
+void MorphologicalWriter::Write(Instance *instance) {
+  MorphologicalInstance *morphological_instance = static_cast<MorphologicalInstance*>(instance);
 
-  for (int i = 0; i < morph_instance->size(); ++i) {
+  for (int i = 0; i < morphological_instance->size(); ++i) {
     os_ << (i + 1) << "\t";
-    os_ << morph_instance->GetForm(i) << "\t";
-    os_ << morph_instance->GetLemma(i) << "\t";
-    os_ << morph_instance->GetCoarsePosTag(i) << "\t";
+    os_ << morphological_instance->GetForm(i) << "\t";
+    os_ << morphological_instance->GetLemma(i) << "\t";
+    os_ << morphological_instance->GetCoarsePosTag(i) << "\t";
     os_ << "_" << "\t";
-    os_ << morph_instance->GetTag(i) << "\t";
+    os_ << morphological_instance->GetTag(i) << "\t";
     os_ << "_" << "\t";
     os_ << "_" << "\t";
     os_ << "_" << "\t";

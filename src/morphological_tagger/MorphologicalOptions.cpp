@@ -35,7 +35,7 @@ DEFINE_bool(morph_tagger_prune_tags, true,
             "True for pruning the set of possible tags by using a dictionary.");
 
 // Save current option flags to the model file.
-void MorphOptions::Save(FILE* fs) {
+void MorphologicalOptions::Save(FILE* fs) {
   SequenceOptions::Save(fs);
 
   //Express here the storage procedure of option flags, as :
@@ -52,7 +52,7 @@ void MorphOptions::Save(FILE* fs) {
 
 // Load current option flags to the model file.
 // Note: this will override the user-specified flags.
-void MorphOptions::Load(FILE* fs) {
+void MorphologicalOptions::Load(FILE* fs) {
   SequenceOptions::Load(fs);
 
   //Express here the loading procedure of option flags, as :
@@ -74,7 +74,7 @@ void MorphOptions::Load(FILE* fs) {
   Initialize();
 }
 
-void MorphOptions::Initialize() {
+void MorphologicalOptions::Initialize() {
   SequenceOptions::Initialize();
 
   file_format_ = FLAGS_morph_file_format;

@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHFEATURETEMPLATES_H_
-#define MORPHFEATURETEMPLATES_H_
+#ifndef MORPHOLOGICALFEATURETEMPLATES_H_
+#define MORPHOLOGICALFEATURETEMPLATES_H_
 
-struct MorphFeatureTemplateParts {
+struct MorphologicalFeatureTemplateParts {
   enum types {
     UNIGRAM = 0,
     BIGRAM,
@@ -28,7 +28,7 @@ struct MorphFeatureTemplateParts {
 };
 
 
-struct MorphFeatureTemplateUnigram {
+struct MorphologicalFeatureTemplateUnigram {
   enum types {
     BIAS = 0,   /* bias */
 
@@ -75,16 +75,16 @@ struct MorphFeatureTemplateUnigram {
   };
 };
 
-struct MorphFeatureTemplateBigram {
+struct MorphologicalFeatureTemplateBigram {
   enum types {
     BIAS = 0,   /* bias */
   };
 };
 
-struct MorphFeatureTemplateTrigram {
+struct MorphologicalFeatureTemplateTrigram {
   enum types {
     BIAS = 0,   /* bias */
   };
 };
 
-#endif /* MORPHFEATURETEMPLATES_H_ */
+#endif /* MORPHOLOGICALFEATURETEMPLATES_H_ */

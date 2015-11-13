@@ -21,10 +21,10 @@
 
 #include "SequenceOptions.h"
 
-class MorphOptions : public SequenceOptions {
+class MorphologicalOptions : public SequenceOptions {
 public:
-  MorphOptions() {};
-  virtual ~MorphOptions() {};
+  MorphologicalOptions() {};
+  virtual ~MorphologicalOptions() {};
 
   // Serialization functions.
   void Load(FILE* fs);
