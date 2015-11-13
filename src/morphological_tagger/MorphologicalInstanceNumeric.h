@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHINSTANCENUMERIC_H_
-#define MORPHINSTANCENUMERIC_H_
+#ifndef MORPHOLOGICALINSTANCENUMERIC_H_
+#define MORPHOLOGICALINSTANCENUMERIC_H_
 
 #include "SequenceInstanceNumeric.h"
 #include "MorphologicalInstance.h"
@@ -49,4 +49,4 @@ private:
   std::vector<int> cpostags_ids_; //Coarse-grained part-of-speech tag
 };
 
-#endif /* MORPHINSTANCENUMERIC_H_ */
+#endif /* MORPHOLOGICALINSTANCENUMERIC_H_ */

@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHDICTIONARY_H_
-#define MORPHDICTIONARY_H_
+#ifndef MORPHOLOGICALDICTIONARY_H_
+#define MORPHOLOGICALDICTIONARY_H_
 
 #include "SequenceDictionary.h"
 #include "TokenDictionary.h"
@@ -117,4 +117,4 @@ public:
   virtual ~MorphologicalTokenDictionary() {};
   void Initialize(MorphologicalReader *reader);
 };
-#endif /* MORPHDICTIONARY_H_ */
+#endif /* MORPHOLOGICALDICTIONARY_H_ */

@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHREADER_H_
-#define MORPHREADER_H_
+#ifndef MORPHOLOGICALREADER_H_
+#define MORPHOLOGICALREADER_H_
 
 #include "MorphologicalInstance.h"
 #include "SequenceReader.h"
@@ -37,5 +37,5 @@ protected:
   Options *options_;
 };
 
-#endif /* MORPHREADER_H_ */
+#endif /* MORPHOLOGICALREADER_H_ */
 

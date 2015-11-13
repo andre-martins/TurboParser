@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPH_OPTIONS_H_
-#define MORPH_OPTIONS_H_
+#ifndef MORPHOLOGICALOPTIONS_H_
+#define MORPHOLOGICALOPTIONS_H_
 
 #include "SequenceOptions.h"
 
@@ -43,4 +43,4 @@ protected:
   int large_feature_set_;
 };
 
-#endif // MORPH_OPTIONS_H_
+#endif // MORPHOLOGICALOPTIONS_H_

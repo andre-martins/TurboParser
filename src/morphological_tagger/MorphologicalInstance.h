@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHINSTANCE_H_
-#define MORPHINSTANCE_H_
+#ifndef MORPHOLOGICALINSTANCE_H_
+#define MORPHOLOGICALINSTANCE_H_
 
 #include "SequenceInstance.h"
 
@@ -53,4 +53,4 @@ protected:
   //assuming following terminology: morphs = morph_feats = feats = tags in this case
 };
 
-#endif /* MORPHINSTANCE_H_*/
+#endif /* MORPHOLOGICALINSTANCE_H_*/
