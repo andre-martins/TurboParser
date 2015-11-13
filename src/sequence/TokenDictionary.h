@@ -81,7 +81,7 @@ public:
   }
 
   int GetNumPosTags() const { return pos_alphabet_.size(); }
-  int GetNumCPosTags() const { return cpos_alphabet_.size(); }
+  int GetNumCoarsePosTags() const { return cpos_alphabet_.size(); }
   int GetNumForms() const { return form_alphabet_.size(); }
   int GetNumLemmas() const { return lemma_alphabet_.size(); }
 
@@ -114,44 +114,44 @@ public:
   }
 
   int GetNumFeatures() {
-    CHECK(false)<<
+    CHECK(false) <<
       "There is no notion of number of features in TokenDictionary.";
   }
 
-  void TokenDictionary::InitializeStarter();
-  void TokenDictionary::InitializeFromSequenceReader(SequenceReader *reader);
+  void SetTokenDictionaryFlagValues();
+  void Initialize(SequenceReader *reader);
 
   void BuildNames() {
     pos_alphabet_.BuildNames();
     form_alphabet_.BuildNames();
   }
 
-  const string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
-  const string &GetFormName(int id) { return form_alphabet_.GetName(id); }
+  const std::string &GetPosTagName(int id) { return pos_alphabet_.GetName(id); }
+  const std::string &GetFormName(int id) { return form_alphabet_.GetName(id); }
 
   void GetWordShape(const std::string &word, std::string *shape) {
-    string type = "";
+    std::string type = "";
     char last = '\0';
-    for (int i = 0; i<word.size(); ++i) {
-      if (word[i]>='A' && word[i]<='Z') {
-        if (last!='A') {
+    for (int i = 0; i < word.size(); ++i) {
+      if (word[i] >= 'A' && word[i] <= 'Z') {
+        if (last != 'A') {
           type += 'A';
           last = 'A';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      } else if (word[i]>='a' && word[i]<='z') {
-        if (last!='a') {
+      } else if (word[i] >= 'a' && word[i] <= 'z') {
+        if (last != 'a') {
           type += 'a';
           last = 'a';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      } else if (word[i]>='0' && word[i]<='9') {
-        if (last!='0') {
+      } else if (word[i] >= '0' && word[i] <= '9') {
+        if (last != '0') {
           type += '0';
           last = '0';
-        } else if (type[type.size()-1]!='+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
           last = '0';
         }
@@ -187,9 +187,9 @@ protected: //private:
   bool form_case_sensitive;
 
   // Special symbols.
-  const string kTokenUnknown = "_UNKNOWN_"; // Unknown word/lemma.
-  const string kTokenStart = "_START_"; // Start symbol.
-  const string kTokenStop = "_STOP_"; // Stop symbol.
+  const std::string kTokenUnknown = "_UNKNOWN_"; // Unknown word/lemma.
+  const std::string kTokenStart = "_START_"; // Start symbol.
+  const std::string kTokenStop = "_STOP_"; // Stop symbol.
 
                                       // Maximum alphabet sizes.
   const unsigned int kMaxFormAlphabetSize = 0xffff;

@@ -22,7 +22,7 @@
 #include <sstream>
 
 void DependencyWriter::Write(Instance *instance) {
-  DependencyInstance *dependency_instance = 
+  DependencyInstance *dependency_instance =
     static_cast<DependencyInstance*>(instance);
 
   for (int i = 1; i < dependency_instance->size(); ++i) {

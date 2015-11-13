@@ -49,33 +49,33 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
   first_upper_.resize(length);
   tag_ids_.resize(length);
 
-  for (i = 0; i<length; i++) {
+  for (i = 0; i < length; i++) {
     std::string form = instance->GetForm(i);
     if (!form_case_sensitive) {
       transform(form.begin(), form.end(), form.begin(), ::tolower);
     }
     id = token_dictionary->GetFormId(form);
     CHECK_LT(id, 0xffff);
-    if (id<0) id = TOKEN_UNKNOWN;
+    if (id < 0) id = TOKEN_UNKNOWN;
     form_ids_[i] = id;
 
     prefix_ids_[i].resize(prefix_length);
-    for (int l = 0; l<prefix_length; ++l) {
-      std::string prefix = form.substr(0, l+1);
+    for (int l = 0; l < prefix_length; ++l) {
+      std::string prefix = form.substr(0, l + 1);
       id = token_dictionary->GetPrefixId(prefix);
       CHECK_LT(id, 0xffff);
-      if (id<0) id = TOKEN_UNKNOWN;
+      if (id < 0) id = TOKEN_UNKNOWN;
       prefix_ids_[i][l] = id;
     }
 
     suffix_ids_[i].resize(suffix_length);
-    for (int l = 0; l<suffix_length; ++l) {
-      int start = form.length()-l-1;
-      if (start<0) start = 0;
-      std::string suffix = form.substr(start, l+1);
+    for (int l = 0; l < suffix_length; ++l) {
+      int start = form.length() - l - 1;
+      if (start < 0) start = 0;
+      std::string suffix = form.substr(start, l + 1);
       id = token_dictionary->GetSuffixId(suffix);
       CHECK_LT(id, 0xffff);
-      if (id<0) id = TOKEN_UNKNOWN;
+      if (id < 0) id = TOKEN_UNKNOWN;
       suffix_ids_[i][l] = id;
     }
 
@@ -84,7 +84,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     dictionary.GetTokenDictionary()->GetWordShape(instance->GetForm(i), &shape);
     int shape_id = dictionary.GetTokenDictionary()->GetShapeId(shape);
     CHECK_LT(shape_id, 0xffff);
-    if (shape_id<0) shape_id = kUnknownShape;
+    if (shape_id < 0) shape_id = kUnknownShape;
     shape_ids_[i] = shape_id;
 
     // Compute and store various flags.
@@ -104,9 +104,9 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     id = dictionary.GetTagAlphabet().Lookup(instance->GetTag(i));
     //CHECK_LT(id, 0xff);
     //CHECK_GE(id, 0);
-    if (id<0) {
+    if (id < 0) {
       id = TOKEN_UNKNOWN;
-      LOG(INFO)<<"Unknown tag: "<<instance->GetTag(i);
+      LOG(INFO) << "Unknown tag: " << instance->GetTag(i);
     }
     tag_ids_[i] = id;
   }
@@ -114,8 +114,8 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
 
 bool SequenceInstanceNumeric::IsPunctuation(char c) {
   const char *symbol = kPunctuationSymbols;
-  while (*symbol!='\0') {
-    if (c==*symbol) return true;
+  while (*symbol != '\0') {
+    if (c == *symbol) return true;
     ++symbol;
   }
   return false;

@@ -30,7 +30,7 @@ public:
   virtual ~SequenceInstanceNumeric() { Clear(); };
 
   Instance* Copy() {
-    CHECK(false)<<"Not implemented.";
+    CHECK(false) << "Not implemented.";
     return NULL;
   }
 
@@ -60,8 +60,8 @@ public:
   int GetFormId(int i) { return form_ids_[i]; }
   int GetMaxPrefixLength(int i) { return prefix_ids_[i].size(); }
   int GetMaxSuffixLength(int i) { return suffix_ids_[i].size(); }
-  int GetPrefixId(int i, int length) { return prefix_ids_[i][length-1]; }
-  int GetSuffixId(int i, int length) { return suffix_ids_[i][length-1]; }
+  int GetPrefixId(int i, int length) { return prefix_ids_[i][length - 1]; }
+  int GetSuffixId(int i, int length) { return suffix_ids_[i][length - 1]; }
   int GetShapeId(int i) { return shape_ids_[i]; }
   bool HasDigit(int i) { return has_digit_[i]; }
   bool HasUpper(int i) { return has_upper_[i]; }
@@ -75,56 +75,56 @@ public:
   int GetTagId(int i) { return tag_ids_[i]; }
 
 protected:
-  bool IsUpperCase(char c) { return (c>='A' && c<='Z'); }
-  bool IsLowerCase(char c) { return (c>='a' && c<='z'); }
-  bool IsDigit(char c) { return (c>='0' && c<='9'); }
-  bool IsPeriod(char c) { return (c=='.'); }
+  bool IsUpperCase(char c) { return (c >= 'A' && c <= 'Z'); }
+  bool IsLowerCase(char c) { return (c >= 'a' && c <= 'z'); }
+  bool IsDigit(char c) { return (c >= '0' && c <= '9'); }
+  bool IsPeriod(char c) { return (c == '.'); }
   bool IsPunctuation(char c);
 
   bool AllUpperCase(const char* word, int len) {
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (!IsUpperCase(word[i])) return false;
     }
     return true;
   }
 
   bool AllLowerCase(const char* word, int len) {
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (!IsLowerCase(word[i])) return false;
     }
     return true;
   }
 
   bool IsCapitalized(const char* word, int len) {
-    if (len<=0) return false;
+    if (len <= 0) return false;
     return IsUpperCase(word[0]);
   }
 
   bool IsMixedCase(const char* word, int len) {
-    if (len<=0) return false;
+    if (len <= 0) return false;
     if (!IsLowerCase(word[0])) return false;
-    for (int i = 1; i<len; ++i) {
+    for (int i = 1; i < len; ++i) {
       if (IsUpperCase(word[i])) return true;
     }
     return false;
   }
 
   bool EndsWithPeriod(const char* word, int len) {
-    if (len<=0) return false;
-    return IsPeriod(word[len-1]);
+    if (len <= 0) return false;
+    return IsPeriod(word[len - 1]);
   }
 
   bool HasInternalPeriod(const char* word, int len) {
-    if (len<=0) return false;
-    for (int i = 0; i<len-1; ++i) {
+    if (len <= 0) return false;
+    for (int i = 0; i < len - 1; ++i) {
       if (IsPeriod(word[i])) return true;
     }
     return false;
   }
 
   bool HasInternalPunctuation(const char* word, int len) {
-    if (len<=0) return false;
-    for (int i = 0; i<len-1; ++i) {
+    if (len <= 0) return false;
+    for (int i = 0; i < len - 1; ++i) {
       if (IsPunctuation(word[i])) return true;
     }
     return false;
@@ -132,28 +132,28 @@ protected:
 
   int CountDigits(const char* word, int len) {
     int num_digits = 0;
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (IsDigit(word[i])) ++num_digits;
     }
     return num_digits;
   }
 
   bool HasUpperCaseLetters(const char* word, int len) {
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (IsUpperCase(word[i])) return true;
     }
     return false;
   }
 
   bool HasHyphen(const char* word, int len) {
-    for (int i = 0; i<len; ++i) {
-      if ('-'==word[i]) return true;
+    for (int i = 0; i < len; ++i) {
+      if ('-' == word[i]) return true;
     }
     return false;
   }
 
   bool AllDigits(const char* word, int len) {
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (!IsDigit(word[i])) return false;
     }
     return true;
@@ -162,7 +162,7 @@ protected:
   bool AllDigitsWithPunctuation(const char* word, int len) {
     bool has_digits = false;
     bool has_punctuation = false;
-    for (int i = 0; i<len; ++i) {
+    for (int i = 0; i < len; ++i) {
       if (IsDigit(word[i])) {
         has_digits = true;
       } else if (IsPunctuation(word[i])) {

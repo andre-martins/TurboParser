@@ -112,7 +112,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
       }
       //LOG(INFO) << line;
       std::vector<std::string> fields;
-      StringSplit(line, "\t ", &fields);
+      StringSplit(line, "\t ", &fields, true);
       sentence_fields.push_back(fields);
     }
   }
@@ -367,7 +367,7 @@ void CoreferenceSentenceReader::ConstructCoreferenceSpansFromText(
   for (int i = 0; i < span_lines.size(); ++i) {
     std::string line = span_lines[i];
     std::vector<std::string> fields;
-    StringSplit(line, "|", &fields);
+    StringSplit(line, "|", &fields, true);
     //LOG(INFO) << "Span " << i << ": " << line;
     for (int j = 0; j < fields.size(); ++j) {
       std::string field = fields[j];

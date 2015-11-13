@@ -157,7 +157,7 @@ class DependencyTokenDictionary : public TokenDictionary {
 public:
   DependencyTokenDictionary() {};
   virtual ~DependencyTokenDictionary() {};
-  void InitializeFromDependencyReader(DependencyReader *reader);
+  void Initialize(DependencyReader *reader);
 };
 #endif /* DEPENDENCYDICTIONARY_H_ */
 

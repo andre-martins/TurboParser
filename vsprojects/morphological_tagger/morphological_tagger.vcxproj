@@ -226,25 +226,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\morphological_tagger\MorphDictionary.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphFeatures.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphInstance.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphInstanceNumeric.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphOptions.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphPipe.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphReader.cpp" />
-    <ClCompile Include="..\..\src\morphological_tagger\MorphWriter.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalDictionary.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalFeatures.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalInstance.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalInstanceNumeric.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalOptions.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalPipe.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalReader.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\morphological_tagger\MorphDictionary.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphFeatures.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphFeatureTemplates.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphInstance.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphInstanceNumeric.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphOptions.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphPipe.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphReader.h" />
-    <ClInclude Include="..\..\src\morphological_tagger\MorphWriter.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalDictionary.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalFeatures.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalFeatureTemplates.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalInstance.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalInstanceNumeric.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalOptions.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalPipe.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalReader.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalWriter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

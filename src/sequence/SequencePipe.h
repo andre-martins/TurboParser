@@ -126,35 +126,31 @@ protected:
     SequenceInstance *sequence_instance =
       static_cast<SequenceInstance*>(instance);
     SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-    for (int i = 0; i<sequence_instance->size(); ++i) {
+    for (int i = 0; i < sequence_instance->size(); ++i) {
       const vector<int>& unigrams = sequence_parts->FindUnigramParts(i);
-      for (int k = 0; k<unigrams.size(); ++k) {
+      for (int k = 0; k < unigrams.size(); ++k) {
         int r = unigrams[k];
         if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-          if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
           ++num_tag_mistakes_;
-          if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
           break;
         }
       }
-      if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
       ++num_tokens_;
-      if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO)<<"Correct predictions: "<<(num_tokens_-num_tag_mistakes_)
-      <<" out of "<<static_cast<double>(num_tokens_);
-    LOG(INFO)<<"Tagging accuracy: "<<
-      static_cast<double>(num_tokens_-num_tag_mistakes_)/
+    LOG(INFO) << "Correct predictions: " << (num_tokens_ - num_tag_mistakes_)
+      << " out of " << static_cast<double>(num_tokens_);
+    LOG(INFO) << "Tagging accuracy: " <<
+      static_cast<double>(num_tokens_ - num_tag_mistakes_) /
       static_cast<double>(num_tokens_);
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_))/1000.0;
-    double tokens_per_second = static_cast<double>(num_tokens_)/num_seconds;
-    LOG(INFO)<<"Tagging speed: "
-      <<tokens_per_second<<" tokens per second.";
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
+    LOG(INFO) << "Tagging speed: "
+      << tokens_per_second << " tokens per second.";
   }
 
 protected:

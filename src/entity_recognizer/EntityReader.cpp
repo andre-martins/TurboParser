@@ -30,10 +30,10 @@ Instance *EntityReader::GetNext() {
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
-      if (line.length()<=0) break;
+      if (line.length() <= 0) break;
       std::vector<std::string> fields;
       // Also allow to break on spaces for compatibility with CONLL 2002.
-      StringSplit(line, " \t", &fields);
+      StringSplit(line, " \t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }
@@ -46,7 +46,7 @@ Instance *EntityReader::GetNext() {
   std::vector<std::string> pos(length);
   std::vector<std::string> entity_tags(length);
 
-  for (int i = 0; i<length; ++i) {
+  for (int i = 0; i < length; ++i) {
     const vector<string> &info = sentence_fields[i];
     forms[i] = info[0];
     pos[i] = info[1];
@@ -54,7 +54,7 @@ Instance *EntityReader::GetNext() {
   }
 
   EntityInstance *instance = NULL;
-  if (length>0) {
+  if (length > 0) {
     instance = new EntityInstance;
     instance->Initialize(forms, pos, entity_tags);
     instance->ConvertToTaggingScheme(static_cast<EntityOptions*>(options_)->

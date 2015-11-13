@@ -49,11 +49,11 @@ public:
   }
 
   void PrepareForResize() {
-    if (this->bucket_count()>max_num_buckets_ &&
-        this->load_factor()>threshold_load_factor_ * this->max_load_factor()) {
+    if (this->bucket_count() > max_num_buckets_ &&
+        this->load_factor() > threshold_load_factor_ * this->max_load_factor()) {
       // About to rehash; increase the load factor to avoid rehashing.
       double new_load_factor = growth_rate_load_factor_ * this->max_load_factor();
-      LOG(INFO)<<"Increasing the load factor to "<<new_load_factor<<"...";
+      LOG(INFO) << "Increasing the load factor to " << new_load_factor << "...";
       this->max_load_factor(new_load_factor);
     }
   }
@@ -103,7 +103,7 @@ public:
     CHECK(success);
     for (typename ParameterMap<Real>::type::const_iterator iterator =
          values_.begin();
-         iterator!=values_.end();
+         iterator != values_.end();
          ++iterator) {
       success = WriteUINT64(fs, iterator->first);
       CHECK(success);
@@ -120,7 +120,7 @@ public:
     success = ReadInteger(fs, &length);
     CHECK(success);
     //values_.rehash(length); // This is the number of buckets.
-    for (int i = 0; i<length; ++i) {
+    for (int i = 0; i < length; ++i) {
       uint64_t key;
       double value;
       success = ReadUINT64(fs, &key);
@@ -144,7 +144,7 @@ public:
   bool Exists(uint64_t key) const {
     typename ParameterMap<Real>::type::const_iterator iterator =
       values_.find(key);
-    if (iterator==values_.end()) return false;
+    if (iterator == values_.end()) return false;
     return true;
   }
 
@@ -152,7 +152,7 @@ public:
   double Get(uint64_t key) const {
     typename ParameterMap<Real>::type::const_iterator iterator =
       values_.find(key);
-    if (iterator==values_.end()) return 0.0;
+    if (iterator == values_.end()) return 0.0;
     return GetValue(iterator);
   }
 
@@ -171,12 +171,12 @@ public:
   void SetValue(typename ParameterMap<Real>::type::iterator iterator,
                 double value) {
     double current_value = GetValue(iterator);
-    squared_norm_ += value * value-current_value * current_value;
+    squared_norm_ += value * value - current_value * current_value;
     // Might lose precision here.
-    iterator->second = static_cast<Real>(value/scale_factor_);
+    iterator->second = static_cast<Real>(value / scale_factor_);
 
     // This prevents numerical issues:
-    if (squared_norm_<0.0) squared_norm_ = 0.0;
+    if (squared_norm_ < 0.0) squared_norm_ = 0.0;
   }
 
   // Get the parameter value of a feature pointed by a constant
@@ -197,7 +197,7 @@ public:
   // corresponding iterator.
   typename ParameterMap<Real>::type::iterator FindOrInsert(uint64_t key) {
     typename ParameterMap<Real>::type::iterator iterator = values_.find(key);
-    if (iterator!=values_.end()||growth_stopped()) return iterator;
+    if (iterator != values_.end() || growth_stopped()) return iterator;
     values_.PrepareForResize();
     pair<typename ParameterMap<Real>::type::iterator, bool> result =
       values_.insert(pair<uint64_t, Real>(key, 0.0));
@@ -210,7 +210,7 @@ public:
   // w'[id] = val.
   bool Set(uint64_t key, double value) {
     typename ParameterMap<Real>::type::iterator iterator = FindOrInsert(key);
-    if (iterator!=values_.end()) {
+    if (iterator != values_.end()) {
       SetValue(iterator, value);
       return true;
     } else {
@@ -223,8 +223,8 @@ public:
   // w'[id] = w[id] + val.
   bool Add(uint64_t key, double value) {
     typename ParameterMap<Real>::type::iterator iterator = FindOrInsert(key);
-    if (iterator!=values_.end()) {
-      SetValue(iterator, iterator->second * scale_factor_+value);
+    if (iterator != values_.end()) {
+      SetValue(iterator, iterator->second * scale_factor_ + value);
       return true;
     } else {
       return false;
@@ -235,7 +235,7 @@ public:
   // NOTE: Silently bypasses the ones that could not be inserted, if any.
   // w'[id] = w[id] + val.
   void Add(const vector<uint64_t> &keys, const vector<double> &values) {
-    for (int i = 0; i<keys.size(); ++i) {
+    for (int i = 0; i < keys.size(); ++i) {
       Add(keys[i], values[i]);
     }
   }
@@ -247,7 +247,7 @@ public:
   void Add(const SparseParameterVector &parameters) {
     for (typename ParameterMap<Real>::type::const_iterator iterator =
          parameters.values_.begin();
-         iterator!=parameters.values_.end();
+         iterator != parameters.values_.end();
          ++iterator) {
       uint64_t key = iterator->first;
       double value = parameters.GetValue(iterator);
@@ -259,17 +259,17 @@ public:
 protected:
   // If the scale factor is too small, renormalize the entire parameter map.
   void RenormalizeIfNecessary() {
-    if (scale_factor_>-kScaleFactorThreshold &&
-        scale_factor_<kScaleFactorThreshold) {
+    if (scale_factor_ > -kScaleFactorThreshold &&
+        scale_factor_ < kScaleFactorThreshold) {
       Renormalize();
     }
   }
 
   // Renormalize the entire parameter map (an expensive operation).
   void Renormalize() {
-    LOG(INFO)<<"Renormalizing the parameter map...";
+    LOG(INFO) << "Renormalizing the parameter map...";
     for (typename ParameterMap<Real>::type::iterator iterator = values_.begin();
-    iterator!=values_.end();
+    iterator != values_.end();
       ++iterator) {
       iterator->second *= scale_factor_;
     }

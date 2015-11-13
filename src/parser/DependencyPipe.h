@@ -31,7 +31,7 @@
 #include "DependencyDecoder.h"
 
 class DependencyPipe : public Pipe {
- public:
+public:
   DependencyPipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
     pruner_parameters_ = NULL;
@@ -63,7 +63,7 @@ class DependencyPipe : public Pipe {
   void SetPrunerParameters(Parameters *pruner_parameters) {
     pruner_parameters_ = pruner_parameters;
   }
-  void LoadPrunerModelFile() { 
+  void LoadPrunerModelFile() {
     LoadPrunerModelByName(GetDependencyOptions()->GetPrunerModelFilePath());
   }
 
@@ -76,8 +76,8 @@ class DependencyPipe : public Pipe {
     return true;
   }
 
- protected:
-  void CreateDictionary() { 
+protected:
+  void CreateDictionary() {
     dictionary_ = new DependencyDictionary(this);
     GetDependencyDictionary()->SetTokenDictionary(token_dictionary_);
   };
@@ -100,7 +100,7 @@ class DependencyPipe : public Pipe {
 
   Instance *GetFormattedInstance(Instance *instance) {
     DependencyInstanceNumeric *instance_numeric =
-          new DependencyInstanceNumeric;
+      new DependencyInstanceNumeric;
     instance_numeric->Initialize(*GetDependencyDictionary(),
                                  static_cast<DependencyInstance*>(instance));
     return instance_numeric;
@@ -159,7 +159,7 @@ class DependencyPipe : public Pipe {
     MakeSelectedFeatures(instance, parts, pruner, selected_parts, features);
   }
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool>& selected_parts, Features *features) {
+                            const vector<bool>& selected_parts, Features *features) {
     // Set pruner = false unless we're training the pruner.
     MakeSelectedFeatures(instance, parts, train_pruner_, selected_parts,
                          features);
@@ -256,21 +256,21 @@ class DependencyPipe : public Pipe {
   virtual void EndEvaluation() {
     LOG(INFO) << "Parsing accuracy: " <<
       static_cast<double>(num_tokens_ - num_head_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     LOG(INFO) << "Pruning recall: " <<
       static_cast<double>(num_tokens_ - num_head_pruned_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     LOG(INFO) << "Pruning efficiency: " <<
       static_cast<double>(num_heads_after_pruning_) /
-        static_cast<double>(num_tokens_)
-              << " possible heads per token.";
+      static_cast<double>(num_tokens_)
+      << " possible heads per token.";
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Parsing speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
 #if 0
@@ -283,7 +283,7 @@ class DependencyPipe : public Pipe {
                   int descend) const;
   bool IsProjectiveArc(const vector<int> &heads, int par, int ch) const;
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   bool train_pruner_;
   Parameters *pruner_parameters_;

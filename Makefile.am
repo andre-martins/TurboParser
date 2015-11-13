@@ -12,7 +12,7 @@ endif
 ############################################
 
 SUBDIRS=src/tagger src/parser src/semantic_parser src/entity_recognizer \
-src/coreference_resolver src/dependency_labeler src/constituency_labeler
+src/coreference_resolver src/dependency_labeler src/constituency_labeler src/morphological_tagger
 EXTRA_DIST=scripts/create_conll_corpus_from_text.pl \
 scripts/create_conll_predicted_tags_corpus.pl \
 scripts/create_conll_predicted_tags_corpus.sh \

@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
   google::LogToStderr();
 #endif
   if (FLAGS_train) {
-    LOG(INFO)<<"Training entity recognizer..."<<endl;
+    LOG(INFO) << "Training entity recognizer..." << endl;
     TrainEntityRecognizer();
   } else if (FLAGS_test) {
-    LOG(INFO)<<"Running entity recognizer..."<<endl;
+    LOG(INFO) << "Running entity recognizer..." << endl;
     TestEntityRecognizer();
   }
 
@@ -55,8 +55,8 @@ void TrainEntityRecognizer() {
   gettimeofday(&end, NULL);
   time = diff_ms(end, start);
 
-  LOG(INFO)<<"Training took "<<static_cast<double>(time)/1000.0
-    <<" sec."<<endl;
+  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;
@@ -74,19 +74,13 @@ void TestEntityRecognizer() {
   pipe->Initialize();
   pipe->LoadModelFile();
 
-  if (options->use_multithreads()) {
-    LOG(INFO)<<"Using multithreaded version."<<endl;
-    pipe->RunWithThreads();
-  } else {
-    LOG(INFO)<<"Using single-threaded version."<<endl;
-    pipe->Run();
-  }
+  pipe->Run();
 
   gettimeofday(&end, NULL);
   time = diff_ms(end, start);
 
-  LOG(INFO)<<"Testing took "<<static_cast<double>(time)/1000.0
-    <<" sec."<<endl;
+  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;

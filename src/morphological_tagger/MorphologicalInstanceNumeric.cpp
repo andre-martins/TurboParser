@@ -16,29 +16,30 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "EntityInstanceNumeric.h"
+#include "MorphologicalInstanceNumeric.h"
 #include <iostream>
 #include <algorithm>
 
-void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
-                                       EntityInstance* instance) {
+void MorphologicalInstanceNumeric::Initialize(const MorphologicalDictionary &dictionary,
+                                      MorphologicalInstance* instance) {
   SequenceInstanceNumeric::Initialize(dictionary, instance);
 
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   int length = instance->size();
 
-  pos_ids_.resize(length);
-  gazetteer_ids_.clear();
-  gazetteer_ids_.resize(length);
+  lemmas_ids_.resize(length);
+  cpostags_ids_.resize(length);
   for (int i = 0; i < length; i++) {
-    int id = token_dictionary->GetPosTagId(instance->GetPosTag(i));
-    CHECK_LT(id, 0xff);
+    int id;
+    //Lemma
+    id = token_dictionary->GetLemmaId(instance->GetLemma(i));
+    CHECK_LT(id, 0xffff);
     if (id < 0) id = TOKEN_UNKNOWN;
-    pos_ids_[i] = id;
-
-    dictionary.GetWordGazetteerIds(instance->GetForm(i),
-                                   &gazetteer_ids_[i]);
-    //LOG(INFO) << instance->GetForm(i) << ": " << gazetteer_ids_[i].size();
-
+    lemmas_ids_[i] = id;
+    //CPosTag
+    id = token_dictionary->GetCoarsePosTagId(instance->GetCoarsePosTag(i));
+    CHECK_LT(id, 0xffff);
+    if (id < 0) id = TOKEN_UNKNOWN;
+    cpostags_ids_[i] = id;
   }
 }

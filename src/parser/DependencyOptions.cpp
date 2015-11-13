@@ -235,7 +235,7 @@ void DependencyOptions::Initialize() {
   }
   vector<string> enabled_parts;
   bool use_arc_factored = false;
-  StringSplit(model_type, "+", &enabled_parts);
+  StringSplit(model_type, "+", &enabled_parts, true);
   for (int i = 0; i < enabled_parts.size(); ++i) {
     if (enabled_parts[i] == "af") {
       use_arc_factored = true;

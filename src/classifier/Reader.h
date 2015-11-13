@@ -32,7 +32,7 @@ public:
   virtual ~Reader() {};
 
 public:
-  virtual void Open(const string &filepath);
+  virtual void Open(const std::string &filepath);
   virtual void Close();
   virtual Instance *GetNext() = 0;
 

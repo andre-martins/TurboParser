@@ -16,16 +16,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHFEATURES_H_
-#define MORPHFEATURES_H_
+#ifndef MORPHOLOGICALFEATURES_H_
+#define MORPHOLOGICALFEATURES_H_
 
 #include "SequenceFeatures.h"
 #include "FeatureEncoder.h"
 
-class MorphFeatures : public SequenceFeatures {
+class MorphologicalFeatures : public SequenceFeatures {
 public:
-  MorphFeatures(Pipe* pipe) : SequenceFeatures(pipe) {}
-  virtual ~MorphFeatures() {};
+  MorphologicalFeatures(Pipe* pipe) : SequenceFeatures(pipe) {}
+  virtual ~MorphologicalFeatures() {};
 
 public:
   void AddUnigramFeatures(SequenceInstanceNumeric *sentence,
@@ -46,4 +46,4 @@ protected:
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };
 
-#endif /* MORPHFEATURES_H_ */
+#endif /* MORPHOLOGICALFEATURES_H_ */

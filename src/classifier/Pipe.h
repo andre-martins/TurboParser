@@ -30,10 +30,6 @@
 #include "AlgUtils.h"
 
 
-#include <thread>
-#include <list>
-#include <mutex>
-
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
 // instances, all of which are abstract classes.
@@ -66,9 +62,6 @@ public:
   // Run a previously trained classifier on new data.
   void Run();
 
-  // Run methods for multi-threaded version.
-  void RunWithThreads();
-
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
@@ -82,14 +75,14 @@ protected:
   virtual Features *CreateFeatures() = 0;
 
   // Save/load model.
-  void SaveModelByName(const string &model_name);
-  void LoadModelByName(const string &model_name);
+  void SaveModelByName(const std::string &model_name);
+  void LoadModelByName(const std::string &model_name);
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 
   // Create/add/delete instances.
   void DeleteInstances() {
-    for (int i = 0; i<instances_.size(); ++i) {
+    for (int i = 0; i < instances_.size(); ++i) {
       delete instances_[i];
     }
     instances_.clear();
@@ -98,7 +91,7 @@ protected:
   void AddInstance(Instance *instance) {
     Instance *formatted_instance = GetFormattedInstance(instance);
     instances_.push_back(formatted_instance);
-    if (instance!=formatted_instance) delete instance;
+    if (instance != formatted_instance) delete instance;
   }
 
   // Obtain a "formatted" instance. Override this function for task-specific
@@ -244,20 +237,16 @@ protected:
                                 Parts *parts,
                                 const vector<double> &gold_outputs,
                                 const vector<double> &predicted_outputs) {
-    for (int r = 0; r<parts->size(); ++r) {
+    for (int r = 0; r < parts->size(); ++r) {
       if (!NEARLY_EQ_TOL(gold_outputs[r], predicted_outputs[r], 1e-6)) {
-        if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
         ++num_mistakes_;
-        if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
       }
-      if (GetOptions()->use_multithreads()) evaluation_lock_.lock();
       ++num_total_parts_;
-      if (GetOptions()->use_multithreads()) evaluation_lock_.unlock();
     }
   }
   virtual void EndEvaluation() {
-    LOG(INFO)<<"Accuracy (parts): "<<
-      static_cast<double>(num_total_parts_-num_mistakes_)/
+    LOG(INFO) << "Accuracy (parts): " <<
+      static_cast<double>(num_total_parts_ - num_mistakes_) /
       static_cast<double>(num_total_parts_);
   }
 
@@ -275,9 +264,6 @@ protected:
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
-
-  std::mutex evaluation_lock_;
-  vector<std::thread> threads_;
 };
 
 #endif /* PIPE_H_ */

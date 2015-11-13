@@ -45,7 +45,7 @@ void ConstituencyLabelerPipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromSequenceReader(GetConstituencyReader());
+  token_dictionary_->Initialize(GetConstituencyReader());
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->
     CreateConstituentDictionary(GetConstituencyReader());
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->

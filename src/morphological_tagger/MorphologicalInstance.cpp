@@ -16,11 +16,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphInstance.h"
+#include "MorphologicalInstance.h"
 #include <glog/logging.h>
-#include "MorphOptions.h"
+#include "MorphologicalOptions.h"
 
-void MorphInstance::Initialize(const std::vector<std::string> &forms,
+void MorphologicalInstance::Initialize(const std::vector<std::string> &forms,
                                const std::vector<std::string> &lemmas,
                                const std::vector<std::string> &cpostags,
                                const std::vector<std::string> &tags) { //&feats) {

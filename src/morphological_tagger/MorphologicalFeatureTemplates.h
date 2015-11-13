@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHFEATURETEMPLATES_H_
-#define MORPHFEATURETEMPLATES_H_
+#ifndef MORPHOLOGICALFEATURETEMPLATES_H_
+#define MORPHOLOGICALFEATURETEMPLATES_H_
 
-struct MorphFeatureTemplateParts {
+struct MorphologicalFeatureTemplateParts {
   enum types {
     UNIGRAM = 0,
     BIGRAM,
@@ -28,7 +28,7 @@ struct MorphFeatureTemplateParts {
 };
 
 
-struct MorphFeatureTemplateUnigram {
+struct MorphologicalFeatureTemplateUnigram {
   enum types {
     BIAS = 0,   /* bias */
 
@@ -48,7 +48,6 @@ struct MorphFeatureTemplateUnigram {
     ppA,        /* prefix n letters word two positions on the left (previous) */
     nA,          /* prefix n letters word on the right (next) */
     nnA,        /* prefix n letters word two positions on the right (next) */
-
 
     WP,          /* word + POS tag */
 
@@ -76,46 +75,16 @@ struct MorphFeatureTemplateUnigram {
   };
 };
 
-struct MorphFeatureTemplateBigram {
+struct MorphologicalFeatureTemplateBigram {
   enum types {
     BIAS = 0,   /* bias */
-
-    W,          /* word */
-    pW,         /* word on the left (previous) */
-    nW,         /* word on the right (next) */
-    ppW,        /* word two positions on the left (previous) */
-    nnW,        /* word two positions on the right (next) */
-
-    Z,          /* suffix n letters */
-    pZ,         /* suffix n letters word on the left (previous) */
-    ppZ,        /* suffix n letters word two positions on the left (previous) */
-    nZ,         /* suffix n letters word on the right (next) */
-    nnZ,        /* suffix n letters word two positions on the right (next) */
-    A,          /* prefix n letters */
-    pA,          /* prefix n letters word on the left (previous) */
-    ppA,        /* prefix n letters word two positions on the left (previous) */
-    nA,          /* prefix n letters word on the right (next) */
-    nnA,        /* prefix n letters word two positions on the right (next) */
-
-    P,          /* POS */                               // 'cpostag'
-    pP,         /* POS on the left */                   // 'cpostag_minusone'
-    nP,         /* POS on the right */                 // 'cpostag_plusone'
-    ppP,        /* POS two positions on the left */     // 'cpostag_minustwo'
-    nnP,        /* POS two positions on the right */   //  'cpostag_plustwo'
-    PpP,        /* POS + POS on the left */             // 'cpostag_bigram'
-    PnP,        /* POS + POS on the right */           // 
-    PpPppP,     /* POS trigram on the left */           // 'cpostag_trigram'
-    PnPnnP,     /* POS trigram on the right */         // 
-    PpPnP,       /* POS trigram on the center */         // 
-
-    COUNT
   };
 };
 
-struct MorphFeatureTemplateTrigram {
+struct MorphologicalFeatureTemplateTrigram {
   enum types {
-    BIAS = 0,       /* bias */
+    BIAS = 0,   /* bias */
   };
 };
 
-#endif /* MORPHFEATURETEMPLATES_H_ */
+#endif /* MORPHOLOGICALFEATURETEMPLATES_H_ */

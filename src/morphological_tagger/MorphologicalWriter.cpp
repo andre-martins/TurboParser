@@ -16,30 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphInstanceNumeric.h"
+#include "MorphologicalWriter.h"
+#include "MorphologicalInstance.h"
+#include "MorphologicalOptions.h"
 #include <iostream>
-#include <algorithm>
+#include <sstream>
 
-void MorphInstanceNumeric::Initialize(const MorphDictionary &dictionary,
-                                      MorphInstance* instance) {
-  SequenceInstanceNumeric::Initialize(dictionary, instance);
+void MorphologicalWriter::Write(Instance *instance) {
+  MorphologicalInstance *morphological_instance = static_cast<MorphologicalInstance*>(instance);
 
-  TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
-  int length = instance->size();
-
-  lemmas_ids_.resize(length);
-  cpostags_ids_.resize(length);
-  for (int i = 0; i<length; i++) {
-    int id;
-    //Lemma
-    id = token_dictionary->GetLemmaId(instance->GetLemma(i));
-    CHECK_LT(id, 0xffff);
-    if (id<0) id = TOKEN_UNKNOWN;
-    lemmas_ids_[i] = id;
-    //CPosTag
-    id = token_dictionary->GetCoarsePosTagId(instance->GetCoarsePosTag(i));
-    CHECK_LT(id, 0xffff);
-    if (id<0) id = TOKEN_UNKNOWN;
-    cpostags_ids_[i] = id;
+  for (int i = 0; i < morphological_instance->size(); ++i) {
+    os_ << (i + 1) << "\t";
+    os_ << morphological_instance->GetForm(i) << "\t";
+    os_ << morphological_instance->GetLemma(i) << "\t";
+    os_ << morphological_instance->GetCoarsePosTag(i) << "\t";
+    os_ << "_" << "\t";
+    os_ << morphological_instance->GetTag(i) << "\t";
+    os_ << "_" << "\t";
+    os_ << "_" << "\t";
+    os_ << "_" << "\t";
+    os_ << "_" << endl;
   }
+  os_ << endl;
 }

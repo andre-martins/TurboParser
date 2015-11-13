@@ -21,20 +21,20 @@
 #include <algorithm>
 
 void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
-  LOG(INFO)<<"Creating tag dictionary...";
+  LOG(INFO) << "Creating tag dictionary...";
   vector<int> tag_freqs;
 
   // Go through the corpus and build the label dictionary, counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
   SequenceInstance *instance = static_cast<SequenceInstance*>(reader->GetNext());
-  while (instance!=NULL) {
+  while (instance != NULL) {
     int instance_length = instance->size();
-    for (int i = 0; i<instance_length; ++i) {
+    for (int i = 0; i < instance_length; ++i) {
       int id;
 
       // Add tag to alphabet.
       id = tag_alphabet_.Insert(instance->GetTag(i));
-      if (id>=tag_freqs.size()) {
+      if (id >= tag_freqs.size()) {
         CHECK_EQ(id, tag_freqs.size());
         tag_freqs.push_back(0);
       }
@@ -46,6 +46,6 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   reader->Close();
   tag_alphabet_.StopGrowth();
 
-  LOG(INFO)<<"Number of tags: "<<tag_alphabet_.size();
+  LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
 }
 

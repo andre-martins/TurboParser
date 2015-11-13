@@ -8,12 +8,12 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "Utils.h"
-#include "MorphPipe.h"
+#include "MorphologicalPipe.h"
 
 using namespace std;
 
-void TrainMorph();
-void TestMorph();
+void TrainMorphologicalTagger();
+void TestMorphologicalTagger();
 
 int main(int argc, char** argv) {
   // Initialize Google's logging library.
@@ -26,11 +26,11 @@ int main(int argc, char** argv) {
   google::LogToStderr();
 #endif
   if (FLAGS_train) {
-    LOG(INFO)<<"Training Morphological tagger..."<<endl;
-    TrainMorph();
+    LOG(INFO) << "Training Morphological tagger..." << endl;
+    TrainMorphologicalTagger();
   } else if (FLAGS_test) {
-    LOG(INFO)<<"Running Morphological tagger..."<<endl;
-    TestMorph();
+    LOG(INFO) << "Running Morphological tagger..." << endl;
+    TestMorphologicalTagger();
   }
 
   // Destroy allocated memory regarding line flags.
@@ -39,15 +39,15 @@ int main(int argc, char** argv) {
   return 0;
 }
 
-void TrainMorph() {
+void TrainMorphologicalTagger() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  MorphOptions *options = new MorphOptions;
+  MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
 
-  MorphPipe *pipe = new MorphPipe(options);
+  MorphologicalPipe *pipe = new MorphologicalPipe(options);
   pipe->Initialize();
   pipe->Train();
   pipe->SaveModelFile();
@@ -55,22 +55,22 @@ void TrainMorph() {
   gettimeofday(&end, NULL);
   time = diff_ms(end, start);
 
-  LOG(INFO)<<"Training took "<<static_cast<double>(time)/1000.0
-    <<" sec."<<endl;
+  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;
 }
 
-void TestMorph() {
+void TestMorphologicalTagger() {
   int time;
   timeval start, end;
   gettimeofday(&start, NULL);
 
-  MorphOptions *options = new MorphOptions;
+  MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
 
-  MorphPipe *pipe = new MorphPipe(options);
+  MorphologicalPipe *pipe = new MorphologicalPipe(options);
   pipe->Initialize();
   pipe->LoadModelFile();
   pipe->Run();
@@ -78,8 +78,8 @@ void TestMorph() {
   gettimeofday(&end, NULL);
   time = diff_ms(end, start);
 
-  LOG(INFO)<<"Testing took "<<static_cast<double>(time)/1000.0
-    <<" sec."<<endl;
+  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;

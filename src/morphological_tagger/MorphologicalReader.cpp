@@ -19,25 +19,25 @@
 #include "Utils.h"
 #include <iostream>
 #include <sstream>
-#include "MorphReader.h"
-#include "MorphOptions.h"
+#include "MorphologicalReader.h"
+#include "MorphologicalOptions.h"
 
 
-Instance *MorphReader::GetNext() {
+Instance *MorphologicalReader::GetNext() {
   // Fill all fields for the entire sentence.
   std::vector<std::vector<std::string> > sentence_fields;
   std::string line;
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
-      if (line.length()<=0) break;
-      if (0==line.substr(0, 1).compare("#")) {
+      if (line.length() <= 0) break;
+      if (0 == line.substr(0, 1).compare("#")) {
         continue;
       }
       //LOG(INFO) << line;
       std::vector<std::string> fields;
       // Also allow to break on spaces for compatibility with CONLL 2002.
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, false);
       sentence_fields.push_back(fields);
     }
   }
@@ -51,17 +51,17 @@ Instance *MorphReader::GetNext() {
   std::vector<std::string> cpostags(length);
   std::vector<std::string> feats(length); //aka, morphological features, feats
 
-  for (int i = 0; i<length; ++i) {
-    const vector<string> &info = sentence_fields[i];
+  for (int i = 0; i < length; ++i) {
+    const std::vector<std::string> &info = sentence_fields[i];
     forms[i] = info[1];
     lemmas[i] = info[2];
     cpostags[i] = info[3];
     feats[i] = info[5];
   }
 
-  MorphInstance *instance = NULL;
-  if (length>0) {
-    instance = new MorphInstance;
+  MorphologicalInstance *instance = NULL;
+  if (length > 0) {
+    instance = new MorphologicalInstance;
     instance->Initialize(forms, lemmas, cpostags, feats);
   }
   return static_cast<Instance*>(instance);

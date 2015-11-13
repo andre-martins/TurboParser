@@ -16,8 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-//#include "MorphWriter.h"
-//#include "MorphInstance.h"
-//#include "MorphOptions.h"
-//#include <iostream>
-//#include <sstream>
+#ifndef MORPHOLOGICALREADER_H_
+#define MORPHOLOGICALREADER_H_
+
+#include "MorphologicalInstance.h"
+#include "SequenceReader.h"
+#include "Options.h"
+#include <fstream>
+
+class MorphologicalReader : public SequenceReader {
+public:
+  MorphologicalReader() { options_ = NULL; };
+  MorphologicalReader(Options *options) { options_ = options; };
+  virtual ~MorphologicalReader() {};
+
+public:
+  Instance *GetNext();
+
+protected:
+  Options *options_;
+};
+
+#endif /* MORPHOLOGICALREADER_H_ */
+

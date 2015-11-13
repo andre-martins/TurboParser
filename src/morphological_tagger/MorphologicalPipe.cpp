@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "MorphPipe.h"
+#include "MorphologicalPipe.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -26,11 +26,11 @@
 #include <sys/time.h>
 #endif
 
-void MorphPipe::PreprocessData() {
+void MorphologicalPipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
   static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
   // To get the right reader (instead of the default sequence reader).
-  static_cast<MorphTokenDictionary*>(token_dictionary_)->InitializeFromMorphReader(GetMorphReader());
-  static_cast<MorphDictionary*>(dictionary_)->CreateTagDictionary(GetMorphReader());
+  static_cast<MorphologicalTokenDictionary*>(token_dictionary_)->Initialize(GetMorphologicalReader());
+  static_cast<MorphologicalDictionary*>(dictionary_)->CreateTagDictionary(GetMorphologicalReader());
 }

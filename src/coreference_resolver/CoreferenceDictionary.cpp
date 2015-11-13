@@ -550,12 +550,12 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, "\t", &fields); // Break on tabs.
+        StringSplit(line, "\t", &fields, true); // Break on tabs.
         CHECK_EQ(fields.size(), 2);
         const std::string &phrase = fields[0];
         const std::string &statistics = fields[1];
         std::vector<std::string> words;
-        StringSplit(phrase, " ", &words); // Break on spaces.
+        StringSplit(phrase, " ", &words, true); // Break on spaces.
         std::vector<int> phrase_ids;
         for (int i = 0; i < words.size(); ++i) {
           const std::string &word = words[i];
@@ -573,7 +573,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
         }
 
         std::vector<std::string> subfields;
-        StringSplit(statistics, " ", &subfields); // Break on spaces.
+        StringSplit(statistics, " ", &subfields, true); // Break on spaces.
         CHECK_EQ(subfields.size(), 4);
         std::vector<int> counts;
         for (int i = 0; i < subfields.size(); ++i) {
@@ -620,7 +620,7 @@ void CoreferenceDictionary::ReadPronouns() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &form = fields[0];
         const std::string code_flags = fields[1];
@@ -668,7 +668,7 @@ void CoreferenceDictionary::ReadPronouns() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
@@ -728,7 +728,7 @@ void CoreferenceDictionary::ReadDeterminers() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
@@ -783,7 +783,7 @@ void CoreferenceDictionary::ReadMentionTags() {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_GT(fields.size(), 0);
         const std::string &mention_tag_type = fields[0];
         if (mention_tag_type == "named_entity_tags") {

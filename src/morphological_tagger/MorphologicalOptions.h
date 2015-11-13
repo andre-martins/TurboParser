@@ -16,21 +16,31 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-//#ifndef MORPHWRITER_H_
-//#define MORPHWRITER_H_
-//
-//#include "Writer.h"
-//
-//using namespace std;
-//
-//class MorphWriter : public Writer {
-//public:
-//  MorphWriter() {};
-//  virtual ~MorphWriter() {};
-//
-//public:
-//  void Write(Instance *instance);
-//};
-//
-//#endif /* MORPHWRITER_H_ */
-//
+#ifndef MORPHOLOGICALOPTIONS_H_
+#define MORPHOLOGICALOPTIONS_H_
+
+#include "SequenceOptions.h"
+
+class MorphologicalOptions : public SequenceOptions {
+public:
+  MorphologicalOptions() {};
+  virtual ~MorphologicalOptions() {};
+
+  // Serialization functions.
+  void Load(FILE* fs);
+  void Save(FILE* fs);
+
+  // Initialization: set options based on the flags.
+  void Initialize();
+
+  // Get option flags.
+  bool prune_tags() { return prune_tags_; }
+  int large_feature_set() { return large_feature_set_; }
+
+protected:
+  bool prune_tags_;
+  std::string file_format_;
+  int large_feature_set_;
+};
+
+#endif // MORPHOLOGICALOPTIONS_H_

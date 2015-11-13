@@ -16,17 +16,17 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHINSTANCENUMERIC_H_
-#define MORPHINSTANCENUMERIC_H_
+#ifndef MORPHOLOGICALINSTANCENUMERIC_H_
+#define MORPHOLOGICALINSTANCENUMERIC_H_
 
 #include "SequenceInstanceNumeric.h"
-#include "MorphInstance.h"
-#include "MorphDictionary.h"
+#include "MorphologicalInstance.h"
+#include "MorphologicalDictionary.h"
 
-class MorphInstanceNumeric : public SequenceInstanceNumeric {
+class MorphologicalInstanceNumeric : public SequenceInstanceNumeric {
 public:
-  MorphInstanceNumeric() {};
-  virtual ~MorphInstanceNumeric() { Clear(); };
+  MorphologicalInstanceNumeric() {};
+  virtual ~MorphologicalInstanceNumeric() { Clear(); };
 
   void Clear() {
     SequenceInstanceNumeric::Clear();
@@ -34,11 +34,11 @@ public:
     cpostags_ids_.clear();
   }
 
-  void Initialize(const MorphDictionary &dictionary,
-                  MorphInstance *instance);
+  void Initialize(const MorphologicalDictionary &dictionary,
+                  MorphologicalInstance *instance);
 
-  const std::vector<int> &GetCPosTagIds()     const { return cpostags_ids_; }
-  const std::vector<int> &GetLemmaIds(int i)  const { return lemmas_ids_; }
+  const std::vector<int> &GetCPosTagIds() const { return cpostags_ids_; }
+  const std::vector<int> &GetLemmaIds(int i) const { return lemmas_ids_; }
 
   int GetCPosTagId(int i) { return cpostags_ids_[i]; }
   int GetLemmaId(int i) { return lemmas_ids_[i]; }
@@ -49,4 +49,4 @@ private:
   std::vector<int> cpostags_ids_; //Coarse-grained part-of-speech tag
 };
 
-#endif /* MORPHINSTANCENUMERIC_H_ */
+#endif /* MORPHOLOGICALINSTANCENUMERIC_H_ */
