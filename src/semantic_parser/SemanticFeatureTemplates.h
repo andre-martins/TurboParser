@@ -77,6 +77,13 @@ struct SemanticFeatureTemplateArc {
     MW,           /* modifier word [useless in unlabeled parsing] */
     HWP,          /* head word and POS */
     MWP,          /* modifier word and POS [useless in unlabeled parsing] */
+    HF,           /* Corentin Ribeyre: Head Feature           */
+    HWF,          /* Corentin Ribeyre: Head Feature and Word  */
+    HPF,          /* Corentin Ribeyre: Head feature and POS   */
+    MF,          /* Corentin Ribeyre: Arg feature */
+    MWF,        /* Corentin Ribeyre: Arg feature and word */
+    MPF,        /* Corentin Ribeyre: Arg features and POS */
+    HF_MF,     /* Head feature + Arg feature */
     HP_MP,					/* head POS, modifier POS */
     HP_MW,					/* head POS, modifier word */
     HP_MWP,					/* head POS, modifier word and POS */
@@ -267,6 +274,9 @@ struct SemanticFeatureTemplateSibling {
     HW_MP_SW,				/* head word, mod POS, sib word */
     HP_MW_SW,				/* head POS, mod word, sib word */
     HW_MW_SW,				/* head word, mod word, sib word */
+
+    HF_MF_SF,                /* Corentin Ribeyre: head morph, mod morph, sib morph */
+    MF_SF,                    /* Corentin Ribeyre: mod morph, sib morph */
 
     HP_MP,				/* head POS, mod POS */
     HW_MP,				/* head word, mod POS */
