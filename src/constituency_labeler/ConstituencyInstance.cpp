@@ -32,4 +32,3 @@ void ConstituencyInstance::Initialize(
   parse_tree.SaveToString(&info);
   parse_tree_.LoadFromString(info);
 }
-

@@ -65,7 +65,6 @@ void ConstituencyDictionary::CreateConstituentDictionary(
     morph_freqs.push_back(-1);
   }
 
-
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());

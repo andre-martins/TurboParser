@@ -27,7 +27,7 @@ void DependencyLabelerParts::DeleteAll() {
   DeleteSiblingIndices();
 
   for (iterator iter = begin(); iter != end(); iter++) {
-    if  ((*iter) != NULL) {
+    if ((*iter) != NULL) {
       delete (*iter);
       *iter = NULL;
     }
@@ -68,7 +68,7 @@ void DependencyLabelerParts::BuildArcIndices(const std::vector<int> &heads) {
 }
 
 void DependencyLabelerParts::ComputeSiblings(
-    const std::vector<int> &heads) {
+  const std::vector<int> &heads) {
   siblings_.assign(heads.size(),
                    std::vector<int>(0));
   for (int m = 1; m < heads.size(); ++m) {
@@ -86,7 +86,7 @@ void DependencyLabelerParts::ComputeSiblings(
 }
 
 void DependencyLabelerParts::BuildSiblingIndices(
-    const std::vector<int> &heads) {
+  const std::vector<int> &heads) {
   DeleteSiblingIndices();
   index_siblings_.assign(heads.size(),
                          std::vector<std::vector<int> >(0));

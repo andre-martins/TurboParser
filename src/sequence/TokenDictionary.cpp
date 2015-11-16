@@ -23,7 +23,6 @@
 
 using namespace std;
 
-
 DEFINE_int32(form_cutoff, 0,
              "Ignore word forms whose frequency is less than this.");
 DEFINE_int32(lemma_cutoff, 0,
@@ -87,7 +86,6 @@ void TokenDictionary::Save(FILE* fs) {
   if (0 > shape_alphabet_.Save(fs)) CHECK(false);
 }
 
-
 void TokenDictionary::SetTokenDictionaryFlagValues() {
   form_cutoff = FLAGS_form_cutoff;
   form_lower_cutoff = FLAGS_form_cutoff;
@@ -100,8 +98,6 @@ void TokenDictionary::SetTokenDictionaryFlagValues() {
   suffix_length = FLAGS_suffix_length;
   form_case_sensitive = FLAGS_form_case_sensitive;
 }
-
-
 
 void TokenDictionary::Initialize(SequenceReader *reader) {
   SetTokenDictionaryFlagValues();
@@ -144,7 +140,7 @@ void TokenDictionary::Initialize(SequenceReader *reader) {
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(), 
+      transform(form_lower.begin(), form_lower.end(),
                 form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);

@@ -120,10 +120,10 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   // Take care of the special "unknown" predicate.
   bool allow_unseen_predicates =
     static_cast<SemanticPipe*>(pipe_)->GetSemanticOptions()->
-       allow_unseen_predicates();
+    allow_unseen_predicates();
   bool use_predicate_senses =
     static_cast<SemanticPipe*>(pipe_)->GetSemanticOptions()->
-       use_predicate_senses();
+    use_predicate_senses();
   if (allow_unseen_predicates || !use_predicate_senses) {
     // 1) Add the predicate as the singleton list of lemma predicates for the
     // "unknown" lemma.
@@ -206,7 +206,7 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
         CHECK_GE(role_id, 0);
 
         // Look for possible role pairs.
-        for (int m = l+1; m < instance->GetNumArgumentsPredicate(k); ++m) {
+        for (int m = l + 1; m < instance->GetNumArgumentsPredicate(k); ++m) {
           int other_role_id =
             role_alphabet_.Lookup(instance->GetArgumentRole(k, m));
           CHECK_GE(other_role_id, 0);
@@ -297,8 +297,8 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
       //existing_roles_with_relation_path_.push_back(vector<int>(0));
     }
     for (Alphabet::iterator iter = relation_path_alphabet.begin();
-         iter != relation_path_alphabet.end();
-         ++iter) {
+    iter != relation_path_alphabet.end();
+      ++iter) {
       if (relation_path_freqs[iter->second] > relation_path_cutoff) {
         int relation_path_id = relation_path_alphabet_.Insert(iter->first);
         vector<int> &roles = existing_roles_with_relation_path[iter->second];
@@ -311,7 +311,7 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
     ++relation_path_cutoff;
     CHECK(false); // For now, disallowed: this would mess up the relation path filter.
     LOG(INFO) << "Incrementing relation path cutoff to "
-              << relation_path_cutoff << "...";
+      << relation_path_cutoff << "...";
   }
 
   int pos_path_cutoff = FLAGS_pos_path_cutoff;
@@ -321,8 +321,8 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
       pos_path_alphabet_.Insert(special_path_symbols[i]);
     }
     for (Alphabet::iterator iter = pos_path_alphabet.begin();
-         iter != pos_path_alphabet.end();
-         ++iter) {
+    iter != pos_path_alphabet.end();
+      ++iter) {
       if (pos_path_freqs[iter->second] > pos_path_cutoff) {
         pos_path_alphabet_.Insert(iter->first);
       }
@@ -330,7 +330,7 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
     if (pos_path_alphabet_.size() < kMaxPosPathAlphabetSize) break;
     ++pos_path_cutoff;
     LOG(INFO) << "Incrementing pos path cutoff to "
-              << pos_path_cutoff << "...";
+      << pos_path_cutoff << "...";
   }
 
   relation_path_alphabet_.StopGrowth();
@@ -342,28 +342,28 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   // Compute the set of most frequent role pairs.
   vector<pair<int, int> > freqs_pairs;
   for (int k = 0; k < role_pair_freqs.size(); ++k) {
-    freqs_pairs.push_back(pair<int,int>(-role_pair_freqs[k], k));
+    freqs_pairs.push_back(pair<int, int>(-role_pair_freqs[k], k));
   }
   sort(freqs_pairs.begin(), freqs_pairs.end());
   frequent_role_pairs_.clear();
   for (int k = 0;
-       k < FLAGS_num_frequent_role_pairs && k < freqs_pairs.size();
-       ++k) {
+  k < FLAGS_num_frequent_role_pairs && k < freqs_pairs.size();
+    ++k) {
     frequent_role_pairs_.insert(freqs_pairs[k].second);
   }
 
   // Display information about frequent role pairs.
   for (Alphabet::iterator it = role_alphabet_.begin();
-       it != role_alphabet_.end(); ++it) {
+  it != role_alphabet_.end(); ++it) {
     string first_role = it->first;
     int first_role_id = it->second;
     for (Alphabet::iterator it2 = role_alphabet_.begin();
-         it2 != role_alphabet_.end(); ++it2) {
+    it2 != role_alphabet_.end(); ++it2) {
       string second_role = it2->first;
       int second_role_id = it2->second;
       if (IsFrequentRolePair(first_role_id, second_role_id)) {
         LOG(INFO) << "Frequent role pair: "
-                  << first_role << " " << second_role;
+          << first_role << " " << second_role;
       }
     }
   }
@@ -371,17 +371,17 @@ void SemanticDictionary::CreatePredicateRoleDictionaries(SemanticReader *reader)
   // Display information about deterministic roles.
   int num_deterministic_roles = 0;
   for (Alphabet::iterator it = role_alphabet_.begin();
-       it != role_alphabet_.end(); ++it) {
+  it != role_alphabet_.end(); ++it) {
     string role = it->first;
     int role_id = it->second;
     if (IsRoleDeterministic(role_id)) {
       LOG(INFO) << "Deterministic role: "
-                << role;
+        << role;
       ++num_deterministic_roles;
     }
   }
   LOG(INFO) << num_deterministic_roles << " out of "
-            << GetNumRoles() << " roles are deterministic.";
+    << GetNumRoles() << " roles are deterministic.";
 
 #if 0
   // Go again through the corpus to build the existing labels for:
@@ -469,7 +469,7 @@ void SemanticDictionary::ComputeDependencyPath(SemanticInstance *instance,
     *pos_path += pos_up[i] + "^";
   }
   *pos_path += instance->GetPosTag(ancestor);
-  for (int i = relations_down.size()-1; i >= 0; --i) {
+  for (int i = relations_down.size() - 1; i >= 0; --i) {
     *relation_path += relations_down[i] + "!";
     *pos_path += pos_down[i] + "!";
   }

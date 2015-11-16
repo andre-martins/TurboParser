@@ -35,4 +35,3 @@ public:
 };
 
 #endif /* DEPENDENCYREADER_H_ */
-

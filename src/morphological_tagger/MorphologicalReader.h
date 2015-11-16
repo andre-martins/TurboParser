@@ -38,4 +38,3 @@ protected:
 };
 
 #endif /* MORPHOLOGICALREADER_H_ */
-

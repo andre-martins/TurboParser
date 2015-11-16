@@ -79,7 +79,7 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
 
   vector<double> scores_cost = scores;
   for (int r = 0; r < num_arcs; ++r) {
-    p[r] = a - (a+b) * gold_output[offset_arcs + r];
+    p[r] = a - (a + b) * gold_output[offset_arcs + r];
     scores_cost[offset_arcs + r] += p[r];
     q += b*gold_output[offset_arcs + r];
   }
@@ -120,52 +120,52 @@ void SemanticDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
           static_cast<SemanticPartConsecutiveSibling*>((*parts)[r]);
         if ((*output)[r] > 0) {
           LOG(INFO) << type << " consec sibling: " << "[" << r << "]" << " "
-                    << sibling->predicate() << " "
-                    << sibling->sense() << " "
-                    << sibling->first_argument() << " "
-                    << sibling->second_argument() << " "
-                    << (*output)[r];
+            << sibling->predicate() << " "
+            << sibling->sense() << " "
+            << sibling->first_argument() << " "
+            << sibling->second_argument() << " "
+            << (*output)[r];
         }
       } else if (r >= offset_siblings_) {
         SemanticPartSibling *sibling =
           static_cast<SemanticPartSibling*>((*parts)[r]);
         if ((*output)[r] > 0) {
           LOG(INFO) << type << " sibling: " << "[" << r << "]" << " "
-                    << sibling->predicate() << " "
-                    << sibling->sense() << " "
-                    << sibling->first_argument() << " "
-                    << sibling->second_argument() << " "
-                    << (*output)[r];
+            << sibling->predicate() << " "
+            << sibling->sense() << " "
+            << sibling->first_argument() << " "
+            << sibling->second_argument() << " "
+            << (*output)[r];
         }
       } else if (r >= offset_labeled_arcs_) {
         SemanticPartLabeledArc *labeled_arc =
           static_cast<SemanticPartLabeledArc*>((*parts)[r]);
         if ((*output)[r] > 0) {
           LOG(INFO) << type << " labeled_arc: " << "[" << r << "]" << " "
-                    << labeled_arc->predicate() << " "
-                    << labeled_arc->sense() << " "
-                    << labeled_arc->argument() << " "
-                    << labeled_arc->role() << " "
-                    << (*output)[r];
+            << labeled_arc->predicate() << " "
+            << labeled_arc->sense() << " "
+            << labeled_arc->argument() << " "
+            << labeled_arc->role() << " "
+            << (*output)[r];
         }
       } else if (r >= offset_arcs_) {
         SemanticPartArc *arc =
           static_cast<SemanticPartArc*>((*parts)[r]);
         if ((*output)[r] > 0) {
           LOG(INFO) << type << " arc: " << "[" << r << "]" << " "
-                    << arc->predicate() << " "
-                    << arc->sense() << " "
-                    << arc->argument() << " "
-                    << (*output)[r];
+            << arc->predicate() << " "
+            << arc->sense() << " "
+            << arc->argument() << " "
+            << (*output)[r];
         }
       } else if (r >= offset_pred_) {
         SemanticPartPredicate *predicate =
           static_cast<SemanticPartPredicate*>((*parts)[r]);
         if ((*output)[r] > 0) {
           LOG(INFO) << type << " predicate: " << "[" << r << "]" << " "
-                    << predicate->predicate() << " "
-                    << predicate->sense() << " "
-                    << (*output)[r];
+            << predicate->predicate() << " "
+            << predicate->sense() << " "
+            << (*output)[r];
         }
       } else {
         CHECK(false);
@@ -202,7 +202,7 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   // If labeled parsing, decode the labels and update the scores.
   if (pipe_->GetSemanticOptions()->labeled()) {
     DecodeLabelMarginals(instance, parts, copied_scores, &total_scores,
-        &label_marginals);
+                         &label_marginals);
     for (int r = 0; r < total_scores.size(); ++r) {
       // Sum the "labeled" scores to the (eventually) already existing
       // "unlabeled" scores.
@@ -222,29 +222,29 @@ void SemanticDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   if (pipe_->GetSemanticOptions()->labeled()) {
     for (int r = 0; r < num_labeled_arcs; ++r) {
       SemanticPartLabeledArc *labeled_arc =
-          static_cast<SemanticPartLabeledArc*>(
-              (*parts)[offset_labeled_arcs + r]);
+        static_cast<SemanticPartLabeledArc*>(
+          (*parts)[offset_labeled_arcs + r]);
       int index_arc = semantic_parts->FindArc(labeled_arc->predicate(),
                                               labeled_arc->argument(),
                                               labeled_arc->sense());
       CHECK_GE(index_arc, 0);
       (*predicted_output)[offset_labeled_arcs + r] =
-          label_marginals[r] * (*predicted_output)[index_arc];
+        label_marginals[r] * (*predicted_output)[index_arc];
     }
 
     // Recompute the entropy.
     *entropy = log_partition_function;
     for (int r = 0; r < num_predicate_parts; ++r) {
       *entropy -= (*predicted_output)[offset_predicate_parts + r] *
-          scores[offset_predicate_parts + r];
+        scores[offset_predicate_parts + r];
     }
     for (int r = 0; r < num_arcs; ++r) {
       *entropy -= (*predicted_output)[offset_arcs + r] *
-          scores[offset_arcs + r];
+        scores[offset_arcs + r];
     }
     for (int r = 0; r < num_labeled_arcs; ++r) {
       *entropy -= (*predicted_output)[offset_labeled_arcs + r] *
-          scores[offset_labeled_arcs + r];
+        scores[offset_labeled_arcs + r];
     }
     if (*entropy < 0.0) {
       LOG(INFO) << "Entropy truncated to zero (" << *entropy << ")";
@@ -275,11 +275,11 @@ void SemanticDecoder::DecodeLabels(Instance *instance, Parts *parts,
   best_labeled_parts->resize(num_arcs);
   for (int r = 0; r < num_arcs; ++r) {
     SemanticPartArc *arc =
-        static_cast<SemanticPartArc*>((*parts)[offset + r]);
+      static_cast<SemanticPartArc*>((*parts)[offset + r]);
     const vector<int> &index_labeled_parts =
-        semantic_parts->FindLabeledArcs(arc->predicate(),
-                                        arc->argument(),
-                                        arc->sense());
+      semantic_parts->FindLabeledArcs(arc->predicate(),
+                                      arc->argument(),
+                                      arc->sense());
     // Find the best label for each candidate arc.
     int best_label = -1;
     double best_score;
@@ -314,11 +314,11 @@ void SemanticDecoder::DecodeLabelMarginals(Instance *instance, Parts *parts,
 
   for (int r = 0; r < num_arcs; ++r) {
     SemanticPartArc *arc =
-        static_cast<SemanticPartArc*>((*parts)[offset + r]);
+      static_cast<SemanticPartArc*>((*parts)[offset + r]);
     const vector<int> &index_labeled_parts =
-        semantic_parts->FindLabeledArcs(arc->predicate(),
-                                        arc->argument(),
-                                        arc->sense());
+      semantic_parts->FindLabeledArcs(arc->predicate(),
+                                      arc->argument(),
+                                      arc->sense());
     // Find the best label for each candidate arc.
     LogValD total_score = LogValD::Zero();
     for (int k = 0; k < index_labeled_parts.size(); ++k) {
@@ -328,9 +328,9 @@ void SemanticDecoder::DecodeLabelMarginals(Instance *instance, Parts *parts,
     double sum = 0.0;
     for (int k = 0; k < index_labeled_parts.size(); ++k) {
       LogValD marginal =
-          LogValD(scores[index_labeled_parts[k]], false) / total_score;
+        LogValD(scores[index_labeled_parts[k]], false) / total_score;
       (*label_marginals)[index_labeled_parts[k] - offset_labeled] =
-          marginal.as_float();
+        marginal.as_float();
       sum += marginal.as_float();
     }
     if (!NEARLY_EQ_TOL(sum, 1.0, 1e-9)) {
@@ -469,11 +469,11 @@ void SemanticDecoder::Decode(Instance *instance, Parts *parts,
 
 // Build predicate and arc indices.
 void SemanticDecoder::BuildBasicIndices(
-    int sentence_length,
-    const vector<SemanticPartPredicate*> &predicate_parts,
-    const vector<SemanticPartArc*> &arcs,
-    vector<vector<int> > *index_predicates,
-    vector<vector<vector<int> > > *arcs_by_predicate) {
+  int sentence_length,
+  const vector<SemanticPartPredicate*> &predicate_parts,
+  const vector<SemanticPartArc*> &arcs,
+  vector<vector<int> > *index_predicates,
+  vector<vector<vector<int> > > *arcs_by_predicate) {
   int num_arcs = arcs.size();
   int num_predicate_parts = predicate_parts.size();
 
@@ -482,7 +482,7 @@ void SemanticDecoder::BuildBasicIndices(
     int p = arcs[r]->predicate();
     int s = arcs[r]->sense();
     if (s >= (*arcs_by_predicate)[p].size()) {
-      (*arcs_by_predicate)[p].resize(s+1);
+      (*arcs_by_predicate)[p].resize(s + 1);
     }
     (*arcs_by_predicate)[p][s].push_back(r);
   }
@@ -493,12 +493,11 @@ void SemanticDecoder::BuildBasicIndices(
     int p = predicate_parts[r]->predicate();
     int s = predicate_parts[r]->sense();
     if (s >= (*index_predicates)[p].size()) {
-      (*index_predicates)[p].resize(s+1, -1);
+      (*index_predicates)[p].resize(s + 1, -1);
     }
     (*index_predicates)[p][s] = r;
   }
 }
-
 
 void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
                                    const vector<double> &scores,
@@ -510,7 +509,7 @@ void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
     static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   double posterior_threshold =
-      pipe_->GetSemanticOptions()->GetPrunerPosteriorThreshold();
+    pipe_->GetSemanticOptions()->GetPrunerPosteriorThreshold();
   int max_arguments = pipe_->GetSemanticOptions()->GetPrunerMaxArguments();
   if (max_arguments < 0) max_arguments = sentence_length;
 
@@ -538,7 +537,7 @@ void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
     int p = arcs[r]->predicate();
     int s = arcs[r]->sense();
     if (s >= arcs_by_predicate[p].size()) {
-      arcs_by_predicate[p].resize(s+1);
+      arcs_by_predicate[p].resize(s + 1);
     }
     arcs_by_predicate[p][s].push_back(r);
   }
@@ -553,11 +552,11 @@ void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
   int num_used_parts = 0;
   for (int p = 0; p < sentence_length; ++p) {
     for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
-      vector<pair<double,int> > scores_arguments;
+      vector<pair<double, int> > scores_arguments;
       for (int a = 1; a < sentence_length; ++a) {
         int r = semantic_parts->FindArc(p, a, s);
         if (r < 0) continue;
-        scores_arguments.push_back(pair<double,int>(-posteriors[r], r));
+        scores_arguments.push_back(pair<double, int>(-posteriors[r], r));
       }
       if (scores_arguments.size() == 0) continue;
       sort(scores_arguments.begin(), scores_arguments.end());
@@ -575,14 +574,14 @@ void SemanticDecoder::DecodePruner(Instance *instance, Parts *parts,
   }
 
   VLOG(2) << "Pruning reduced to "
-          << static_cast<double>(num_used_parts) /
-                static_cast<double>(sentence_length)
-          << " candidate heads per word.";
+    << static_cast<double>(num_used_parts) /
+    static_cast<double>(sentence_length)
+    << " candidate heads per word.";
 }
 
 void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
-    const vector<double> &scores,
-    vector<double> *predicted_output) {
+                                        const vector<double> &scores,
+                                        vector<double> *predicted_output) {
   int sentence_length =
     static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
@@ -615,7 +614,7 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
     int p = arcs[r]->predicate();
     int s = arcs[r]->sense();
     if (s >= arcs_by_predicate[p].size()) {
-      arcs_by_predicate[p].resize(s+1);
+      arcs_by_predicate[p].resize(s + 1);
     }
     arcs_by_predicate[p][s].push_back(r);
   }
@@ -623,11 +622,11 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
   // Get max_arguments argumens per predicate.
   for (int p = 0; p < sentence_length; ++p) {
     for (int s = 0; s < arcs_by_predicate[p].size(); ++s) {
-      vector<pair<double,int> > scores_arguments;
+      vector<pair<double, int> > scores_arguments;
       for (int a = 1; a < sentence_length; ++a) {
         int r = semantic_parts->FindArc(p, a, s);
         if (r < 0) continue;
-        scores_arguments.push_back(pair<double,int>(-scores[r], r));
+        scores_arguments.push_back(pair<double, int>(-scores[r], r));
       }
       sort(scores_arguments.begin(), scores_arguments.end());
       for (int k = 0; k < max_arguments && k < scores_arguments.size(); ++k) {
@@ -641,7 +640,6 @@ void SemanticDecoder::DecodePrunerNaive(Instance *instance, Parts *parts,
     }
   }
 }
-
 
 // Decoder for the basic model. For each predicate, choose the best
 // sense and the best set of arcs independently.
@@ -700,14 +698,13 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
     }
   }
 
-
 #if 0
   arcs_by_predicate.resize(sentence_length);
   for (int r = 0; r < num_arcs; ++r) {
     int p = arcs[r]->predicate();
     int s = arcs[r]->sense();
     if (s >= arcs_by_predicate[p].size()) {
-      arcs_by_predicate[p].resize(s+1);
+      arcs_by_predicate[p].resize(s + 1);
     }
     arcs_by_predicate[p][s].push_back(r);
   }
@@ -721,7 +718,7 @@ void SemanticDecoder::DecodeBasic(Instance *instance, Parts *parts,
     int p = predicate_part->predicate();
     int s = predicate_part->sense();
     if (s >= index_predicates[p].size()) {
-      index_predicates[p].resize(s+1, -1);
+      index_predicates[p].resize(s + 1, -1);
     }
     index_predicates[p][s] = r;
   }
@@ -809,7 +806,7 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
     int p = arcs[r]->predicate();
     int s = arcs[r]->sense();
     if (s >= arcs_by_predicate[p].size()) {
-      arcs_by_predicate[p].resize(s+1);
+      arcs_by_predicate[p].resize(s + 1);
     }
     arcs_by_predicate[p][s].push_back(r);
   }
@@ -823,7 +820,7 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
     int p = predicate_part->predicate();
     int s = predicate_part->sense();
     if (s >= index_predicates[p].size()) {
-      index_predicates[p].resize(s+1, -1);
+      index_predicates[p].resize(s + 1, -1);
     }
     index_predicates[p][s] = r;
   }
@@ -872,7 +869,7 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
     if (arcs_by_predicate[p].size() > 0) {
       if (false && sentence_length < 5) {
         LOG(INFO) << "Log partition[" << p << "] = "
-                  << log_partition_all_senses.logabs();
+          << log_partition_all_senses.logabs();
       }
       *log_partition_function += log_partition_all_senses.logabs();
     }
@@ -895,9 +892,9 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
         marginal *= predicate_marginal;
         if (false && sentence_length < 5) {
           LOG(INFO) << "marginal[" << p << "][" << s << "][" << k << "] = "
-                    << marginal << "\t"
-                    << "scores_arcs[" << p << "][" << s << "][" << k << "] = "
-                    << scores_arcs[r];
+            << marginal << "\t"
+            << "scores_arcs[" << p << "][" << s << "][" << k << "] = "
+            << scores_arcs[r];
         }
         (*predicted_output)[offset_arcs + r] = marginal;
         *entropy -= scores_arcs[r] * marginal;
@@ -915,16 +912,16 @@ void SemanticDecoder::DecodeBasicMarginals(Instance *instance, Parts *parts,
 // Decoder for the basic model. For each predicate, choose the best
 // sense and the best set of arcs independently.
 void SemanticDecoder::DecodeSemanticGraph(
-    int sentence_length,
-    const vector<SemanticPartPredicate*> &predicate_parts,
-    const vector<SemanticPartArc*> &arcs,
-    const vector<vector<int> > &index_predicates,
-    const vector<vector<vector<int> > > &arcs_by_predicate,
-    const vector<double> &predicate_scores,
-    const vector<double> &arc_scores,
-    vector<bool> *selected_predicates,
-    vector<bool> *selected_arcs,
-    double *value) {
+  int sentence_length,
+  const vector<SemanticPartPredicate*> &predicate_parts,
+  const vector<SemanticPartArc*> &arcs,
+  const vector<vector<int> > &index_predicates,
+  const vector<vector<vector<int> > > &arcs_by_predicate,
+  const vector<double> &predicate_scores,
+  const vector<double> &arc_scores,
+  vector<bool> *selected_predicates,
+  vector<bool> *selected_arcs,
+  double *value) {
   int num_predicate_parts = predicate_parts.size();
   int num_arcs = arcs.size();
 
@@ -1111,7 +1108,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         CHECK_LT(offset_labeled_arc_variables + index_part - offset_labeled_arcs,
                  variables.size());
         local_variables[k] = variables[offset_labeled_arc_variables +
-                                       index_part - offset_labeled_arcs];
+          index_part - offset_labeled_arcs];
       }
       CHECK_GE(offset_arc_variables + r, 0);
       CHECK_LT(offset_arc_variables + r, variables.size());
@@ -1137,7 +1134,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         // Skip if role l is not deterministic.
         if (!pipe_->GetSemanticDictionary()->IsRoleDeterministic(l)) continue;
         if (labeled_arcs_by_predicate_role[p].size() <= l) {
-          labeled_arcs_by_predicate_role[p].resize(l+1);
+          labeled_arcs_by_predicate_role[p].resize(l + 1);
         }
         labeled_arcs_by_predicate_role[p][l].push_back(r);
       }
@@ -1147,7 +1144,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
           vector<AD3::BinaryVariable*>
             local_variables(labeled_arcs_by_predicate_role[p][l].size());
           for (int k = 0; k < labeled_arcs_by_predicate_role[p][l].size();
-               ++k) {
+          ++k) {
             int r = labeled_arcs_by_predicate_role[p][l][k];
             local_variables[k] = variables[offset_labeled_arc_variables + r];
           }
@@ -1164,7 +1161,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   if (use_arbitrary_sibling_parts) {
     for (int r = 0; r < num_siblings; ++r) {
       SemanticPartSibling *part = static_cast<SemanticPartSibling*>(
-          (*semantic_parts)[offset_siblings + r]);
+        (*semantic_parts)[offset_siblings + r]);
       int r1 = semantic_parts->FindArc(part->predicate(),
                                        part->first_argument(),
                                        part->sense());
@@ -1175,9 +1172,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       CHECK_GE(r2, 0);
       vector<AD3::BinaryVariable*> local_variables;
       local_variables.push_back(variables[r1 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
       local_variables.push_back(variables[r2 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
 
       factor_graph->CreateFactorPAIR(local_variables,
                                      scores[offset_siblings + r]);
@@ -1196,8 +1193,8 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     CHECK(labeled_decoding);
     for (int r = 0; r < num_labeled_siblings; ++r) {
       SemanticPartLabeledSibling *part =
-          static_cast<SemanticPartLabeledSibling*>(
-              (*semantic_parts)[offset_labeled_siblings + r]);
+        static_cast<SemanticPartLabeledSibling*>(
+          (*semantic_parts)[offset_labeled_siblings + r]);
       int r1 = semantic_parts->FindLabeledArc(part->predicate(),
                                               part->first_argument(),
                                               part->sense(),
@@ -1210,9 +1207,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       CHECK_GE(r2, 0);
       vector<AD3::BinaryVariable*> local_variables;
       local_variables.push_back(variables[r1 - offset_labeled_arcs +
-                                          offset_labeled_arc_variables]);
+                                offset_labeled_arc_variables]);
       local_variables.push_back(variables[r2 - offset_labeled_arcs +
-                                          offset_labeled_arc_variables]);
+                                offset_labeled_arc_variables]);
 
       factor_graph->CreateFactorPAIR(local_variables,
                                      scores[offset_labeled_siblings + r]);
@@ -1259,8 +1256,8 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     vector<vector<int> > right_indices(sentence->size());
     for (int r = 0; r < num_consecutive_siblings; ++r) {
       SemanticPartConsecutiveSibling *sibling =
-          static_cast<SemanticPartConsecutiveSibling*>(
-              (*parts)[offset_consecutive_siblings + r]);
+        static_cast<SemanticPartConsecutiveSibling*>(
+          (*parts)[offset_consecutive_siblings + r]);
       // TODO: Try to disable self loops on the left side?
       // Make sure no non-basic sibling part ends up in two
       // factors.
@@ -1268,7 +1265,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         // Left sibling.
         left_siblings[sibling->predicate()].push_back(sibling);
         left_scores[sibling->predicate()].push_back(
-            scores[offset_consecutive_siblings + r]);
+          scores[offset_consecutive_siblings + r]);
         // Save the part index to get the posterior later.
         left_indices[sibling->predicate()].
           push_back(offset_consecutive_siblings + r);
@@ -1282,7 +1279,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         // Right sibling.
         right_siblings[sibling->predicate()].push_back(sibling);
         right_scores[sibling->predicate()].push_back(
-            scores[offset_consecutive_siblings + r]);
+          scores[offset_consecutive_siblings + r]);
         // Save the part index to get the posterior later.
         right_indices[sibling->predicate()].
           push_back(offset_consecutive_siblings + r);
@@ -1390,13 +1387,13 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     vector<vector<int> > right_indices(sentence->size());
     for (int r = 0; r < num_consecutive_coparents; ++r) {
       SemanticPartConsecutiveCoparent *coparent =
-          static_cast<SemanticPartConsecutiveCoparent*>(
-              (*parts)[offset_consecutive_coparents + r]);
+        static_cast<SemanticPartConsecutiveCoparent*>(
+          (*parts)[offset_consecutive_coparents + r]);
       if (coparent->argument() > coparent->second_predicate()) {
         // Left co-parent.
         left_coparents[coparent->argument()].push_back(coparent);
         left_scores[coparent->argument()].push_back(
-            scores[offset_consecutive_coparents + r]);
+          scores[offset_consecutive_coparents + r]);
         // Save the part index to get the posterior later.
         left_indices[coparent->argument()].
           push_back(offset_consecutive_coparents + r);
@@ -1407,7 +1404,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         // Right co-parent.
         right_coparents[coparent->argument()].push_back(coparent);
         right_scores[coparent->argument()].push_back(
-            scores[offset_consecutive_coparents + r]);
+          scores[offset_consecutive_coparents + r]);
         // Save the part index to get the posterior later.
         right_indices[coparent->argument()].
           push_back(offset_consecutive_coparents + r);
@@ -1466,7 +1463,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   if (use_grandparent_parts) {
     for (int r = 0; r < num_grandparents; ++r) {
       SemanticPartGrandparent *part = static_cast<SemanticPartGrandparent*>(
-          (*semantic_parts)[offset_grandparents + r]);
+        (*semantic_parts)[offset_grandparents + r]);
       int r1 = semantic_parts->FindArc(part->grandparent_predicate(),
                                        part->predicate(),
                                        part->grandparent_sense());
@@ -1477,9 +1474,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       CHECK_GE(r2, 0);
       vector<AD3::BinaryVariable*> local_variables;
       local_variables.push_back(variables[r1 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
       local_variables.push_back(variables[r2 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
 
       factor_graph->CreateFactorPAIR(local_variables,
                                      scores[offset_grandparents + r]);
@@ -1497,7 +1494,7 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   if (use_coparent_parts) {
     for (int r = 0; r < num_coparents; ++r) {
       SemanticPartCoparent *part = static_cast<SemanticPartCoparent*>(
-          (*semantic_parts)[offset_coparents + r]);
+        (*semantic_parts)[offset_coparents + r]);
       int r1 = semantic_parts->FindArc(part->first_predicate(),
                                        part->argument(),
                                        part->first_sense());
@@ -1508,9 +1505,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       CHECK_GE(r2, 0);
       vector<AD3::BinaryVariable*> local_variables;
       local_variables.push_back(variables[r1 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
       local_variables.push_back(variables[r2 - offset_arcs +
-                                          offset_arc_variables]);
+                                offset_arc_variables]);
 
       factor_graph->CreateFactorPAIR(local_variables,
                                      scores[offset_coparents + r]);
@@ -1585,9 +1582,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
     factor_graph->SolveLPMAPWithAD3(&posteriors, &additional_posteriors, value);
   }
   gettimeofday(&end, NULL);
-  double elapsed_time = diff_ms(end,start);
+  double elapsed_time = diff_ms(end, start);
   VLOG(2) << "Elapsed time (AD3) = " << elapsed_time
-          << " (" << sentence->size() << ") ";
+    << " (" << sentence->size() << ") ";
 
   delete factor_graph;
 
@@ -1604,9 +1601,9 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 #if 0
       ///
       CHECK_GE(r, offset_siblings);
-      CHECK_LT(j+1, factor_graph->GetNumFactors());
-      AD3::Factor *factor = factor_graph->GetFactor(j+1);
-      CHECK_EQ(factor->Degree(), 2) << j+1 << " " << factor->GetId();
+      CHECK_LT(j + 1, factor_graph->GetNumFactors());
+      AD3::Factor *factor = factor_graph->GetFactor(j + 1);
+      CHECK_EQ(factor->Degree(), 2) << j + 1 << " " << factor->GetId();
       AD3::BinaryVariable *var1 = factor->GetVariable(0);
       AD3::BinaryVariable *var2 = factor->GetVariable(1);
       int i1 = var1->GetId();
@@ -1630,14 +1627,14 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
 
       if (part->predicate() == 9) {
         LOG(INFO) << "*** sibling "
-                  << "[" << r << " " << r1 << " " << r2 << "] "
-                  << part->predicate() << " "
-                  << part->sense() << " "
-                  << part->first_argument() << " "
-                  << part->second_argument() << " = "
-                  << (*predicted_output)[r] << " "
-                  << (*predicted_output)[r1] << " "
-                  << (*predicted_output)[r2];
+          << "[" << r << " " << r1 << " " << r2 << "] "
+          << part->predicate() << " "
+          << part->sense() << " "
+          << part->first_argument() << " "
+          << part->second_argument() << " = "
+          << (*predicted_output)[r] << " "
+          << (*predicted_output)[r1] << " "
+          << (*predicted_output)[r2];
       }
       ///
 #endif

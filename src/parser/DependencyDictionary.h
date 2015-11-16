@@ -27,7 +27,7 @@
 class Pipe;
 
 class DependencyDictionary : public Dictionary {
- public:
+public:
   DependencyDictionary() { token_dictionary_ = NULL; }
   DependencyDictionary(Pipe* pipe) : pipe_(pipe) {}
   virtual ~DependencyDictionary() {
@@ -124,7 +124,7 @@ class DependencyDictionary : public Dictionary {
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
   void SetTokenDictionary(TokenDictionary *token_dictionary) {
-    token_dictionary_ = token_dictionary; 
+    token_dictionary_ = token_dictionary;
     //CHECK(token_dictionary_ == NULL);
   }
 
@@ -142,8 +142,7 @@ class DependencyDictionary : public Dictionary {
 
   const Alphabet &GetLabelAlphabet() const { return label_alphabet_; };
 
-
- protected:
+protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
   Alphabet label_alphabet_;
@@ -152,7 +151,6 @@ class DependencyDictionary : public Dictionary {
   vector<vector<int> > maximum_right_distances_;
 };
 
-
 class DependencyTokenDictionary : public TokenDictionary {
 public:
   DependencyTokenDictionary() {};
@@ -160,4 +158,3 @@ public:
   void Initialize(DependencyReader *reader);
 };
 #endif /* DEPENDENCYDICTIONARY_H_ */
-

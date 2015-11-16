@@ -39,7 +39,7 @@ enum SpecialDependencyPaths {
 };
 
 class SemanticDictionary : public Dictionary {
- public:
+public:
   SemanticDictionary() { token_dictionary_ = NULL; }
   SemanticDictionary(Pipe* pipe) : pipe_(pipe) {}
   virtual ~SemanticDictionary() {
@@ -191,8 +191,8 @@ class SemanticDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (set<int>::iterator it = frequent_role_pairs_.begin();
-         it != frequent_role_pairs_.end();
-         ++it) {
+    it != frequent_role_pairs_.end();
+      ++it) {
       int label_bigram = *it;
       success = WriteInteger(fs, label_bigram);
       CHECK(success);
@@ -328,10 +328,10 @@ class SemanticDictionary : public Dictionary {
                              string *relation_path,
                              string *pos_path) const;
 
- protected:
+protected:
   int FindLowestCommonAncestor(const vector<int>& heads, int p, int a) const;
 
- protected:
+protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
   DependencyDictionary *dependency_dictionary_;

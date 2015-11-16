@@ -27,17 +27,17 @@ void StringSplit(const string &str,
   size_t cutAt;
   string tmp = str;
   while ((cutAt = tmp.find_first_of(delim)) != tmp.npos) {
-    if((ignore_multiple_separators && cutAt > 0) || (!ignore_multiple_separators)){
+    if ((ignore_multiple_separators && cutAt > 0) || (!ignore_multiple_separators)) {
       // Note: this "if" guarantees that every field is not empty.
       // This complies with multiple consecutive occurrences of the
       // delimiter (e.g. several consecutive occurrences of a whitespace
       // will count as a single delimiter).
       // To allow empty fields, this if-condition should be removed.
-      results->push_back(tmp.substr(0,cutAt));
+      results->push_back(tmp.substr(0, cutAt));
     }
-    tmp = tmp.substr(cutAt+1);
+    tmp = tmp.substr(cutAt + 1);
   }
-  if(tmp.length() > 0) results->push_back(tmp);
+  if (tmp.length() > 0) results->push_back(tmp);
 }
 
 // Join fields into a single string using a delimiting character.
@@ -45,7 +45,7 @@ void StringJoin(const vector<string> &fields,
                 const char delim,
                 string *result) {
   *result = "";
-  for (int i = 0; i < fields.size()-1; ++i) {
+  for (int i = 0; i < fields.size() - 1; ++i) {
     *result += fields[i] + delim;
   }
   if (fields.size() > 0) *result += fields.back();
@@ -84,7 +84,7 @@ void TrimLeft(const string &delim, string *line) {
 void TrimRight(const string &delim, string *line) {
   size_t cutAt = line->find_last_not_of(delim);
   if (cutAt != line->npos) {
-    *line = line->substr(0, cutAt+1);
+    *line = line->substr(0, cutAt + 1);
   }
 }
 

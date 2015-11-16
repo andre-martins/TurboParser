@@ -25,7 +25,7 @@
 #include "ParseTree.h"
 
 class ConstituencyInstance : public SequenceInstance {
- public:
+public:
   ConstituencyInstance() {}
   virtual ~ConstituencyInstance() {}
 
@@ -50,7 +50,7 @@ class ConstituencyInstance : public SequenceInstance {
 
   void SetParseTree(const ParseTree &parse_tree) { parse_tree_ = parse_tree; }
 
- protected:
+protected:
   std::vector<std::string> lemmas_;
   std::vector<std::vector<std::string> > morph_;
   ParseTree parse_tree_;

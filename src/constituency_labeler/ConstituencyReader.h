@@ -24,13 +24,12 @@
 #include <fstream>
 
 class ConstituencyReader : public SequenceReader {
- public:
+public:
   ConstituencyReader() {}
   virtual ~ConstituencyReader() {}
 
- public:
+public:
   virtual Instance *GetNext();
 };
 
 #endif /* CONSTITUENCYREADER_H_ */
-

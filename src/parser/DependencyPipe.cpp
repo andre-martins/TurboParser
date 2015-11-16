@@ -345,8 +345,8 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
 }
 
 // Make sure the graph formed by the unlabeled arc parts is connected,
-// otherwise there is no feasible solution. 
-// If necessary, root nodes are added and passed back through the last 
+// otherwise there is no feasible solution.
+// If necessary, root nodes are added and passed back through the last
 // argument.
 void DependencyPipe::EnforceConnectedGraph(Instance *instance,
                                            const vector<Part*> &arcs,
@@ -493,9 +493,9 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
 
       // Add parts for labeled/unlabeled arcs.
       if (add_labeled_parts) {
-        // If there is no allowed label for this arc, but the unlabeled arc was added, 
-        // then it was forced to be present to maintain connectivity of the 
-        // graph. In that case (which should be pretty rare) consider all the 
+        // If there is no allowed label for this arc, but the unlabeled arc was added,
+        // then it was forced to be present to maintain connectivity of the
+        // graph. In that case (which should be pretty rare) consider all the
         // possible labels.
         if (allowed_labels.empty()) {
           allowed_labels.resize(dependency_dictionary->GetLabelAlphabet().size());
@@ -1498,4 +1498,3 @@ void DependencyPipe::LabelInstance(Parts *parts, const vector<double> &output,
     }
   }
 }
-

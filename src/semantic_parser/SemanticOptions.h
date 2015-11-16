@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class SemanticOptions : public Options {
- public:
+public:
   SemanticOptions() {};
   virtual ~SemanticOptions() {};
 
@@ -69,7 +69,7 @@ class SemanticOptions : public Options {
   bool use_grandsiblings() { return use_grandsiblings_; }
   bool use_trisiblings() { return use_trisiblings_; }
 
- protected:
+protected:
   string file_format_;
   string model_type_;
   bool use_dependency_syntactic_features_;

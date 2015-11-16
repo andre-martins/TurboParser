@@ -59,9 +59,9 @@ public:
   virtual double GetWeight(int label) const = 0;
   virtual void SetWeight(int label, double weight) = 0;
   virtual void AddWeight(int label, double weight) = 0;
-  virtual double SetWeightAndNormalize(int label, double value, 
+  virtual double SetWeightAndNormalize(int label, double value,
                                        double scaling_factor) = 0;
-  virtual double AddWeightAndNormalize(int label, double value, 
+  virtual double AddWeightAndNormalize(int label, double value,
                                        double scaling_factor) = 0;
 
   // Get/set weight querying by position rather than the label.
@@ -105,7 +105,7 @@ public:
     }
     label_weights_.push_back(std::pair<int, double>(label, weight));
   }
-  // Sets new weight, normalize it and returns previous value of 
+  // Sets new weight, normalize it and returns previous value of
   // label_weights_[k].second, with k such that label == label_weights_[k].first.
   double SetWeightAndNormalize(int label, double value, double scale_factor) {
     double weight = value / scale_factor;
@@ -120,8 +120,8 @@ public:
     label_weights_.push_back(std::pair<int, double>(label, weight));
     return 0.0;
   }
-  // Add weight value to current weight, normalize it and 
-  // returns previous value of label_weights_[k].second, 
+  // Add weight value to current weight, normalize it and
+  // returns previous value of label_weights_[k].second,
   // with k such that label == label_weights_[k].first.
   double AddWeightAndNormalize(int label, double value, double scale_factor) {
     double weight = value / scale_factor;
@@ -200,7 +200,7 @@ public:
     weights_[label] = weight;
     return previous_value;
   }
-  // Add weight value to current weight, 
+  // Add weight value to current weight,
   // normalize it and returns previous value of weights_[label].
   double AddWeightAndNormalize(int label, double value, double scaling_factor) {
     CHECK_GE(label, 0);
@@ -486,7 +486,6 @@ protected:
   // Set the weight for the specified label.
   void SetValue(LabeledParameterMap::iterator iterator, int label,
                 double value) {
-
 #if USE_N_OPTIMIZATIONS==0
     // TODO: Make this more efficient, avoiding two lookups in LabelWeights.
     double current_value = GetValue(iterator, label);
@@ -501,8 +500,7 @@ protected:
     squared_norm_ += value * value - previous_value * previous_value;
 #endif
 
-
-    // If the number of labels is growing large, make this into dense 
+    // If the number of labels is growing large, make this into dense
     // label weights.
     if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {
@@ -535,17 +533,16 @@ protected:
     double previous_value = label_weights->AddWeightAndNormalize(label,
                                                                  value,
                                                                  scale_factor_);
-    //step1 
-    //squared_norm_ += (value + previous_value) * (value + previous_value) 
-    // - previous_value * previous_value;   
+    //step1
+    //squared_norm_ += (value + previous_value) * (value + previous_value)
+    // - previous_value * previous_value;
     //step2
-    //squared_norm_ += value * value + 2 * value * previous_value 
-    //+ ( previous_value * previous_value - previous_value * previous_value ); 
+    //squared_norm_ += value * value + 2 * value * previous_value
+    //+ ( previous_value * previous_value - previous_value * previous_value );
     squared_norm_ += value * value + 2 * value * previous_value;    //step3
 #endif
 
-
-  // If the number of labels is growing large, make this into dense 
+  // If the number of labels is growing large, make this into dense
   // label weights.
     if (label_weights->Size() > kNumMaxSparseLabels &&
         label_weights->IsSparse()) {

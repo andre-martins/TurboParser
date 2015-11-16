@@ -8,7 +8,6 @@
 #include "MorphologicalPipe.h"
 
 namespace TurboParserInterface {
-
 class TurboTaggerWorker {
 public:
   TurboTaggerWorker();
@@ -217,5 +216,4 @@ private:
   std::vector<TurboCoreferenceResolverWorker*> coreference_resolvers_;
   std::vector<TurboMorphologicalTaggerWorker*> morphological_taggers_;
 };
-
 } // namespace TurboParserInterface.

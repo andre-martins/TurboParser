@@ -25,19 +25,19 @@
 
 class CoreferenceOptions;
 
-class CoreferenceFeatures: public Features {
- public:
+class CoreferenceFeatures : public Features {
+public:
   CoreferenceFeatures() {};
   CoreferenceFeatures(Pipe* pipe) { pipe_ = pipe; }
   virtual ~CoreferenceFeatures() { Clear(); }
 
- public:
+public:
   void Clear() {
     for (int r = 0; r < input_features_.size(); ++r) {
       if (!input_features_[r]) continue;
-        input_features_[r]->clear();
-        delete input_features_[r];
-        input_features_[r] = NULL;
+      input_features_[r]->clear();
+      delete input_features_[r];
+      input_features_[r] = NULL;
     }
     input_features_.clear();
   }
@@ -48,7 +48,7 @@ class CoreferenceFeatures: public Features {
   }
 
   int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r])? 0 : input_features_[r]->size();
+    return (NULL == input_features_[r]) ? 0 : input_features_[r]->size();
   };
 
   int GetPartFeature(int r, int j) const {
@@ -63,7 +63,7 @@ class CoreferenceFeatures: public Features {
     return input_features_[r];
   };
 
- public:
+public:
   void AddArcFeatures(CoreferenceDocumentNumeric *document,
                       int r,
                       int parent_mention,
@@ -73,7 +73,7 @@ class CoreferenceFeatures: public Features {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   vector<BinaryFeatures*> input_features_; // Vector of input features.
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };

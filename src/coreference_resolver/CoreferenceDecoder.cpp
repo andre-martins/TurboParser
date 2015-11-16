@@ -29,11 +29,11 @@ typedef Eigen::Matrix<LogValD, Dynamic, Dynamic> MatrixXlogd;
 }
 
 void CoreferenceDecoder::ComputeLinearCostFunction(
-    Instance *instance,
-    Parts *parts,
-    const std::vector<double> &gold_output,
-    std::vector<double> *p,
-    double *q) {
+  Instance *instance,
+  Parts *parts,
+  const std::vector<double> &gold_output,
+  std::vector<double> *p,
+  double *q) {
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
@@ -52,7 +52,7 @@ void CoreferenceDecoder::ComputeLinearCostFunction(
       int r = arcs[k];
       int i = static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention();
       // Gold parent entity.
-      int parent_entity_id = (i >= 0)? mentions[i]->id() : -1;
+      int parent_entity_id = (i >= 0) ? mentions[i]->id() : -1;
       if (!document->IsMentionAnaphoric(j) && i >= 0) {
         // Mention j starts a gold cluster, but this part doesn't.
         (*p)[r] = pipe_->GetCoreferenceOptions()->false_anaphor_cost();
@@ -73,12 +73,12 @@ void CoreferenceDecoder::ComputeLinearCostFunction(
 }
 
 void CoreferenceDecoder::DecodeCostAugmented(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    const std::vector<double> &gold_output,
-    std::vector<double> *predicted_output,
-    double *cost,
-    double *loss) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  const std::vector<double> &gold_output,
+  std::vector<double> *predicted_output,
+  double *cost,
+  double *loss) {
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
   int num_parts = parts->size();
 
@@ -105,14 +105,14 @@ void CoreferenceDecoder::DecodeCostAugmented(
 }
 
 void CoreferenceDecoder::DecodeCostAugmentedMarginals(
-    Instance *instance,
-    Parts *parts,
-    const std::vector<double> &scores,
-    const std::vector<double> &gold_output,
-    std::vector<double> *predicted_output,
-    double *entropy,
-    double *cost,
-    double *loss) {
+  Instance *instance,
+  Parts *parts,
+  const std::vector<double> &scores,
+  const std::vector<double> &gold_output,
+  std::vector<double> *predicted_output,
+  double *entropy,
+  double *cost,
+  double *loss) {
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
@@ -173,7 +173,7 @@ void CoreferenceDecoder::Decode(Instance *instance, Parts *parts,
       }
     }
     CHECK_GE(best_antecedent, 0);
-         (*predicted_output)[best_antecedent] = 1.0;
+    (*predicted_output)[best_antecedent] = 1.0;
   }
 }
 
@@ -212,11 +212,11 @@ void CoreferenceDecoder::DecodeMarginals(Instance *instance, Parts *parts,
 // Compute marginals and evaluate log partition function for a coreference tree
 // model.
 void CoreferenceDecoder::DecodeBasicMarginals(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    std::vector<double> *predicted_output,
-    double *log_partition_function,
-    double *entropy) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  std::vector<double> *predicted_output,
+  double *log_partition_function,
+  double *entropy) {
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
@@ -250,8 +250,8 @@ void CoreferenceDecoder::DecodeBasicMarginals(
 #if 0
       if (marginal_value > 0.0) {
         LOG(INFO) << "Marginal[" << j << ", "
-                  << static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention()
-                  << "] = " << marginal_value;
+          << static_cast<CoreferencePartArc*>((*parts)[r])->parent_mention()
+          << "] = " << marginal_value;
       }
 #endif
       if (scores[r] != -std::numeric_limits<double>::infinity()) {

@@ -26,22 +26,22 @@
 class DependencyPipe;
 
 class DependencyDecoder : public Decoder {
- public:
+public:
   DependencyDecoder() {};
   DependencyDecoder(DependencyPipe *pipe) : pipe_(pipe) {};
   virtual ~DependencyDecoder() {};
 
-  void Decode(Instance *instance, Parts *parts, 
+  void Decode(Instance *instance, Parts *parts,
               const vector<double> &scores,
               vector<double> *predicted_output);
 
   void DecodePruner(Instance *instance, Parts *parts,
-              const vector<double> &scores,
-              vector<double> *predicted_output);
+                    const vector<double> &scores,
+                    vector<double> *predicted_output);
 
   void DecodePrunerNaive(Instance *instance, Parts *parts,
-              const vector<double> &scores,
-              vector<double> *predicted_output);
+                         const vector<double> &scores,
+                         vector<double> *predicted_output);
 
   void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const vector<double> &scores,
@@ -79,7 +79,7 @@ class DependencyDecoder : public Decoder {
                  vector<int> *heads,
                  double *value);
 
- protected:
+protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const vector<double> &scores,
                     vector<int> *best_labeled_parts);
@@ -89,7 +89,7 @@ class DependencyDecoder : public Decoder {
                             vector<double> *total_scores,
                             vector<double> *label_marginals);
 
-  void DecodeBasic(Instance *instance, Parts *parts, 
+  void DecodeBasic(Instance *instance, Parts *parts,
                    const vector<double> &scores,
                    vector<double> *predicted_output,
                    double *value);
@@ -145,7 +145,7 @@ class DependencyDecoder : public Decoder {
                    bool relax,
                    vector<double> *predicted_output);
 #endif
- protected:
+protected:
   DependencyPipe *pipe_;
 };
 

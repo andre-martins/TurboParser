@@ -41,19 +41,19 @@ class DependencyOptions;
 // Max-​Mar­gin Markov Net­works.
 // Jour­nal of Ma­chine Learn­ing Re­search 9(Aug):​1775–1822, 2008.
 
-class DependencyFeatures: public Features {
- public:
+class DependencyFeatures : public Features {
+public:
   DependencyFeatures() {};
   DependencyFeatures(Pipe* pipe) { pipe_ = pipe; }
   virtual ~DependencyFeatures() { Clear(); }
 
- public:
+public:
   void Clear() {
     for (int r = 0; r < input_features_.size(); ++r) {
       if (!input_features_[r]) continue;
-        input_features_[r]->clear();
-        delete input_features_[r];
-        input_features_[r] = NULL;
+      input_features_[r]->clear();
+      delete input_features_[r];
+      input_features_[r] = NULL;
     }
     input_features_.clear();
   }
@@ -64,7 +64,7 @@ class DependencyFeatures: public Features {
   }
 
   int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r])? 0 : input_features_[r]->size();
+    return (NULL == input_features_[r]) ? 0 : input_features_[r]->size();
   };
 
   int GetPartFeature(int r, int j) const {
@@ -79,7 +79,7 @@ class DependencyFeatures: public Features {
     return input_features_[r];
   };
 
- public:
+public:
   void AddArcFeaturesLight(DependencyInstanceNumeric *sentence,
                            int r,
                            int head,
@@ -145,7 +145,7 @@ class DependencyFeatures: public Features {
                              int modifier,
                              int previous_head);
 
- protected:
+protected:
   void AddWordPairFeatures(DependencyInstanceNumeric* sentence,
                            int pair_type,
                            int head,
@@ -155,16 +155,16 @@ class DependencyFeatures: public Features {
                            BinaryFeatures *features);
 
   void AddWordPairFeaturesMST(DependencyInstanceNumeric* sentence,
-                                int pair_type,
-                                int head,
-                                int modifier,
-                                BinaryFeatures *features);
+                              int pair_type,
+                              int head,
+                              int modifier,
+                              BinaryFeatures *features);
 
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   vector<BinaryFeatures*> input_features_; // Vector of input features.
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.
 };

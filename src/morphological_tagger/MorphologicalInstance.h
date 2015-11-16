@@ -43,7 +43,6 @@ public:
   const std::string &GetLemma(int i) const { return lemmas_[i]; }
   const std::string &GetCoarsePosTag(int i) const { return cpostags_[i]; }
 
-
 protected:
   std::vector<std::string> lemmas_;
   std::vector<std::string> cpostags_;

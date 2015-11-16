@@ -333,7 +333,6 @@ struct DependencyFeatureTemplateGrandparent {
     HP_MW,        /* head POS, mod word */
     HW_MW,        /* head word, mod word */
 
-
     // Contextual features
     GP_HP_MP_pGP,         /* grandpar POS, head POS, mod POS, grandpar left-POS */
     GP_HP_MP_nGP,         /* grandpar POS, head POS, mod POS, grandpar right-POS */
@@ -574,7 +573,6 @@ struct DependencyFeatureTemplatePath {
     AWP_DP,          /* ancestor word and POS, descendent POS */
     AWP_DWP,        /* ancestor word and POS, descendent word and POS */
 
-
     AF,            /* ancestor feature */
     AFP,          /* ancestor feature and POS */
     DF,            /* descendent feature */
@@ -585,7 +583,6 @@ struct DependencyFeatureTemplatePath {
     AP_DF,          /* ancestor POS, descendent feature */
     AFP_DF,          /* ancestor feature and POS, descendent feature */
     AFP_DFP,        /* ancestor feature and POS, descendent feature and POS */
-
 
     // In-between features
     AP_DP_BP,         /* ancestor POS, descendent POS, in-between POS */

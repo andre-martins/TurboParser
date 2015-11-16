@@ -22,7 +22,7 @@
 #include <sstream>
 
 void SequenceWriter::Write(Instance *instance) {
-  SequenceInstance *sequence_instance = 
+  SequenceInstance *sequence_instance =
     static_cast<SequenceInstance*>(instance);
 
   for (int i = 0; i < sequence_instance->size(); ++i) {

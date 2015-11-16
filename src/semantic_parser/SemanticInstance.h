@@ -25,7 +25,7 @@
 #include <iostream>
 
 class SemanticInstance : public DependencyInstance {
- public:
+public:
   SemanticInstance() {};
   virtual ~SemanticInstance() {};
 
@@ -80,7 +80,7 @@ class SemanticInstance : public DependencyInstance {
     argument_indices_.push_back(argument_indices);
   }
 
- protected:
+protected:
   // Name of the sentence (e.g. "#2000001").
   string name_;
   // Names of the predicates (e.g. "take.01").

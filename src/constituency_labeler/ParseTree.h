@@ -27,7 +27,7 @@ const char kParseTreeLabelSeparator = '|';
 
 template <class T>
 class TreeNode {
- public:
+public:
   TreeNode() { parent_ = NULL; }
   TreeNode(class TreeNode<T> *parent) {
     parent_ = parent;
@@ -73,14 +73,14 @@ class TreeNode {
     nodes->push_back(this);
   }
 
- protected:
+protected:
   T label_;
   class TreeNode<T> *parent_;
   std::vector<class TreeNode<T> *> children_;
 };
 
 class ParseTreeNode : public TreeNode<std::string> {
- public:
+public:
   ParseTreeNode() {}
   ParseTreeNode(ParseTreeNode *parent) {
     parent_ = parent;
@@ -134,16 +134,16 @@ class ParseTreeNode : public TreeNode<std::string> {
   // E.g. "S|NP|PRP" becomes "(S (NP (PRP) ) )".
   void ExpandSingletonSpines();
 
- protected:
+protected:
   Span span_;
 };
 
 class ParseTree {
- public:
+public:
   ParseTree() { root_ = NULL; }
   virtual ~ParseTree() { DeleteAllNodes(); }
 
- public:
+public:
   void DeleteAllNodes() {
     delete root_;
     terminals_.clear();
@@ -201,11 +201,10 @@ class ParseTree {
     FillNodes();
   }
 
- protected:
+protected:
   ParseTreeNode* root_;
   std::vector<ParseTreeNode*> terminals_; // Words.
   std::vector<ParseTreeNode*> non_terminals_; // Tags and internal nodes.
 };
 
 #endif /* PARSETREE_H_ */
-

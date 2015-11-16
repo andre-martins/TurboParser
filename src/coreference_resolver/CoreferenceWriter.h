@@ -23,7 +23,7 @@
 #include "EntitySpan.h"
 
 class CoreferenceSentenceWriter : public SemanticWriter {
- public:
+public:
   CoreferenceSentenceWriter() {
     external_os_ = NULL;
     options_ = NULL;
@@ -38,17 +38,17 @@ class CoreferenceSentenceWriter : public SemanticWriter {
   }
   virtual ~CoreferenceSentenceWriter() {}
 
- public:
+public:
   void SetOutputStream(std::ofstream *os) { external_os_ = os; }
   void Write(Instance *instance);
   void set_options(Options *options) { options_ = options; }
 
- protected:
+protected:
   void ConstructTextFromCoreferenceSpans(int length,
                                          const std::vector<NamedSpan*> &spans,
                                          std::vector<std::string> *span_lines);
 
- protected:
+protected:
   Options *options_;
   std::ofstream *external_os_;
 };
@@ -74,7 +74,7 @@ public:
 
   CoreferenceSentenceWriter *GetSentenceWriter() { return &sentence_writer_; }
 
- protected:
+protected:
   CoreferenceSentenceWriter sentence_writer_;
   Options *options_;
 };

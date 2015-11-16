@@ -26,7 +26,7 @@
 class SemanticPipe;
 
 class SemanticDecoder : public Decoder {
- public:
+public:
   SemanticDecoder() {};
   SemanticDecoder(SemanticPipe *pipe) : pipe_(pipe) {};
   virtual ~SemanticDecoder() {};
@@ -36,8 +36,8 @@ class SemanticDecoder : public Decoder {
               vector<double> *predicted_output);
 
   void DecodePruner(Instance *instance, Parts *parts,
-              const vector<double> &scores,
-              vector<double> *predicted_output);
+                    const vector<double> &scores,
+                    vector<double> *predicted_output);
 
   void DecodePrunerNaive(Instance *instance, Parts *parts,
                          const vector<double> &scores,
@@ -90,7 +90,7 @@ class SemanticDecoder : public Decoder {
                            vector<bool> *selected_arcs,
                            double *value);
 
- protected:
+protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const vector<double> &scores,
                     vector<int> *best_labeled_parts);
@@ -111,7 +111,7 @@ class SemanticDecoder : public Decoder {
                             double *log_partition_function,
                             double *entropy);
 
- protected:
+protected:
   SemanticPipe *pipe_;
 };
 

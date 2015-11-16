@@ -73,7 +73,7 @@ public:
     CHECK_GE(left_left_tag, -1);
     CHECK_GE(left_tag, -1);
     CHECK_GE(tag, -1);
-    //return (left_tag * left_tag * tag_alphabet_.size() + 
+    //return (left_tag * left_tag * tag_alphabet_.size() +
     //        left_tag * tag_alphabet_.size() +  tag);
     return ((1 + left_left_tag) * (1 + tag_alphabet_.size()) *
             (1 + tag_alphabet_.size()) +

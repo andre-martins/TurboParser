@@ -23,7 +23,6 @@
 #include "ad3/GenericFactor.h"
 
 namespace AD3 {
-
 class FactorTrigramHeadAutomaton : public GenericFactor {
 public:
   FactorTrigramHeadAutomaton() {}
@@ -517,7 +516,6 @@ private:
   vector<vector<int> > index_siblings_;
   vector<vector<vector<int> > > index_trisiblings_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_TRIGRAM_HEAD_AUTOMATON

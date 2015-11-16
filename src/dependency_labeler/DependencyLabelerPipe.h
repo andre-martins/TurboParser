@@ -31,7 +31,7 @@
 #include "DependencyLabelerDecoder.h"
 
 class DependencyLabelerPipe : public Pipe {
- public:
+public:
   DependencyLabelerPipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
     //pruner_parameters_ = NULL;
@@ -69,7 +69,7 @@ class DependencyLabelerPipe : public Pipe {
   //  LoadPrunerModelByName(GetDependencyOptions()->GetPrunerModelFilePath());
   //}
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new DependencyDictionary(this);
     GetDependencyDictionary()->SetTokenDictionary(token_dictionary_);
@@ -93,7 +93,7 @@ class DependencyLabelerPipe : public Pipe {
 
   Instance *GetFormattedInstance(Instance *instance) {
     DependencyInstanceNumeric *instance_numeric =
-          new DependencyInstanceNumeric;
+      new DependencyInstanceNumeric;
     instance_numeric->Initialize(*GetDependencyDictionary(),
                                  static_cast<DependencyInstance*>(instance));
     return instance_numeric;
@@ -186,21 +186,21 @@ class DependencyLabelerPipe : public Pipe {
   virtual void EndEvaluation() {
     LOG(INFO) << "Labeling accuracy: " <<
       static_cast<double>(num_tokens_ - num_head_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     LOG(INFO) << "Pruning recall: " <<
       static_cast<double>(num_tokens_ - num_head_pruned_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     LOG(INFO) << "Pruning efficiency: " <<
       static_cast<double>(num_heads_after_pruning_) /
-        static_cast<double>(num_tokens_)
-              << " possible labels per token.";
+      static_cast<double>(num_tokens_)
+      << " possible labels per token.";
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Labeling speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
   void ComputeDescendents(const std::vector<int> &heads,
@@ -214,7 +214,7 @@ class DependencyLabelerPipe : public Pipe {
     CHECK_GE(sibling, -1);
     CHECK_GE(modifier, -1);
     int num_labels = GetDependencyDictionary()->GetLabelAlphabet().size();
-    return ((1 + sibling) * (1 + num_labels) +  (1 + modifier));
+    return ((1 + sibling) * (1 + num_labels) + (1 + modifier));
   }
 
   //bool ExistsPath(const vector<int> &heads,
@@ -222,7 +222,7 @@ class DependencyLabelerPipe : public Pipe {
   //                int descend) const;
   //bool IsProjectiveArc(const vector<int> &heads, int par, int ch) const;
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   //bool train_pruner_;
   //Parameters *pruner_parameters_;

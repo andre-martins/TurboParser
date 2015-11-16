@@ -70,7 +70,7 @@ void MorphologicalOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_morph_tagger_prune_tags);
   CHECK(success);
   LOG(INFO) << "Setting --morph_tagger_prune_tags="
-            << FLAGS_morph_tagger_prune_tags;
+    << FLAGS_morph_tagger_prune_tags;
 
   Initialize();
 }
@@ -81,6 +81,4 @@ void MorphologicalOptions::Initialize() {
   file_format_ = FLAGS_morph_file_format;
   large_feature_set_ = FLAGS_morph_tagger_large_feature_set;
   prune_tags_ = FLAGS_morph_tagger_prune_tags;
-
 }
-

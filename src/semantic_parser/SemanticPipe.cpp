@@ -765,8 +765,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
         // Add parts for labeled/unlabeled arcs.
         if (add_labeled_parts) {
-          // If there is no allowed label for this arc, but the unlabeled arc was added, 
-          // then it was forced to be present for some reason (e.g. to maintain connectivity of the 
+          // If there is no allowed label for this arc, but the unlabeled arc was added,
+          // then it was forced to be present for some reason (e.g. to maintain connectivity of the
           // graph). In that case (which should be pretty rare) consider all the
           // possible labels.
           if (allowed_labels.empty()) {

@@ -25,7 +25,7 @@
 #include <fstream>
 
 class CoreferenceSentenceReader : public SemanticReader {
- public:
+public:
   CoreferenceSentenceReader() {
     options_ = NULL;
     use_sdp_format_ = false;
@@ -38,23 +38,23 @@ class CoreferenceSentenceReader : public SemanticReader {
   }
   virtual ~CoreferenceSentenceReader() {}
 
- public:
+public:
   Instance *GetNext();
   void set_options(Options *options) { options_ = options; }
 
- protected:
+protected:
   void ConstructSpansFromText(const std::vector<std::string> &span_lines,
                               std::vector<NamedSpan*> *spans);
   void ConstructCoreferenceSpansFromText(
     const std::vector<std::string> &span_lines,
     std::vector<NamedSpan*> *spans);
 
- protected:
+protected:
   Options *options_;
 };
 
 class CoreferenceReader : public Reader {
- public:
+public:
   CoreferenceReader() {
     options_ = NULL;
   }
@@ -64,7 +64,7 @@ class CoreferenceReader : public Reader {
   }
   virtual ~CoreferenceReader() {}
 
- public:
+public:
   void Open(const string &filepath) {
     Reader::Open(filepath);
     sentence_reader_.Open(filepath);
@@ -77,10 +77,9 @@ class CoreferenceReader : public Reader {
 
   CoreferenceSentenceReader *GetSentenceReader() { return &sentence_reader_; }
 
- protected:
+protected:
   CoreferenceSentenceReader sentence_reader_;
   Options *options_;
 };
 
 #endif /* COREFERENCEREADER_H_ */
-

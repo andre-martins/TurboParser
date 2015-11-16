@@ -74,4 +74,3 @@ void Options::Initialize() {
   only_supported_features_ = FLAGS_only_supported_features;
   use_averaging_ = FLAGS_use_averaging;
 }
-

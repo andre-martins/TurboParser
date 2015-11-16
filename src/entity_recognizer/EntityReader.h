@@ -38,4 +38,3 @@ protected:
 };
 
 #endif /* ENTITYREADER_H_ */
-

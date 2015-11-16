@@ -20,9 +20,9 @@
 #include "CoreferencePipe.h"
 
 void CoreferenceDocumentNumeric::Initialize(
-    const CoreferenceDictionary &dictionary,
-    CoreferenceDocument* instance,
-    bool add_gold_mentions) {
+  const CoreferenceDictionary &dictionary,
+  CoreferenceDocument* instance,
+  bool add_gold_mentions) {
   Clear();
 
   // True if document is a conversation.
@@ -79,7 +79,7 @@ void CoreferenceDocumentNumeric::Initialize(
       int word_sentence_index = -1;
       // Pass offset+1 since the sentence starts with a special symbol which
       // is not accounted for in the document global positions.
-      FindSentencePosition(offset+1, &sentence_index, &word_sentence_index);
+      FindSentencePosition(offset + 1, &sentence_index, &word_sentence_index);
       mentions[j]->set_sentence_index(sentence_index);
       //LOG(INFO) << "* Sentence " << sentence_index
       //          << " Word " << word_sentence_index;
@@ -124,8 +124,8 @@ void CoreferenceDocumentNumeric::Initialize(
 
 #if 1
   LOG(INFO) << "Found " << coreference_spans_.size()
-            << " gold mentions organized into "
-            << coreference_labels.size() << " entities.";
+    << " gold mentions organized into "
+    << coreference_labels.size() << " entities.";
   LOG(INFO) << "Total mentions: " << mentions_.size();
 #endif
 
@@ -145,7 +145,7 @@ void CoreferenceDocumentNumeric::ComputeEntityClusters() {
 }
 
 void CoreferenceDocumentNumeric::ComputeGlobalWordPositions(
-    CoreferenceDocument* instance) {
+  CoreferenceDocument* instance) {
   sentence_cumulative_lengths_.clear();
   sentence_cumulative_lengths_.resize(instance->GetNumSentences());
   int offset = 0;

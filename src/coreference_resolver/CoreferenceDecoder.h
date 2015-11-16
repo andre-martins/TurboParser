@@ -24,7 +24,7 @@
 class CoreferencePipe;
 
 class CoreferenceDecoder : public Decoder {
- public:
+public:
   CoreferenceDecoder() {};
   CoreferenceDecoder(CoreferencePipe *pipe) : pipe_(pipe) {};
   virtual ~CoreferenceDecoder() {};
@@ -61,14 +61,14 @@ class CoreferenceDecoder : public Decoder {
                             double *log_partition_function,
                             double *entropy);
 
- protected:
+protected:
   void ComputeLinearCostFunction(Instance *instance,
                                  Parts *parts,
                                  const std::vector<double> &gold_output,
                                  std::vector<double> *p,
                                  double *q);
 
- protected:
+protected:
   CoreferencePipe *pipe_;
 };
 

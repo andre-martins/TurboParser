@@ -93,7 +93,7 @@ public:
   const vector<int> &GetWordTags(int word) {
     // return word_tags_[word];
     // TODO: Not sure is this should be done here...
-    // It may be cleaner to return an empty vector here and 
+    // It may be cleaner to return an empty vector here and
     // fill it with the unknown tags elsewhere.
     if (!word_tags_[word].empty()) {
       return word_tags_[word];

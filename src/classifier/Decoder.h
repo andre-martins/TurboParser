@@ -35,7 +35,7 @@ public:
   // Given an instance, a set of parts, and a score for each part, find the
   // most likely output (MAP decoding). This is used at test time, and when
   // training with perceptron.
-  virtual void Decode(Instance *instance, Parts *parts, 
+  virtual void Decode(Instance *instance, Parts *parts,
                       const vector<double> &scores,
                       vector<double> *predicted_output) = 0;
 
@@ -66,12 +66,12 @@ public:
   // maximizes this loss).
   // NOTE: the loss must be non-negative.
   virtual void DecodeCostAugmentedMarginals(Instance *instance, Parts *parts,
-                                   const vector<double> &scores,
-                                   const vector<double> &gold_output,
-                                   vector<double> *predicted_output,
-                                   double *entropy,
-                                   double *cost,
-                                   double *loss) = 0;
+                                            const vector<double> &scores,
+                                            const vector<double> &gold_output,
+                                            vector<double> *predicted_output,
+                                            double *entropy,
+                                            double *cost,
+                                            double *loss) = 0;
 
   // Given an instance, a set of parts, and a score for each part, find the
   // posterior marginals for the parts (marginal decoding). This is used when

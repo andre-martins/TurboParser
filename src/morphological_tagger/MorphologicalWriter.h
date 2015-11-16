@@ -31,4 +31,3 @@ public:
 };
 
 #endif /* MORPHOLOGICALWRITER_H_ */
-

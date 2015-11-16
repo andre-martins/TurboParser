@@ -24,7 +24,6 @@
 #include "SparseLabeledParameterVector.h"
 #include "Utils.h"
 
-
 #if USE_WEIGHT_CACHING == 1
 // Structure to define a feature-label pair.
 struct FeatureLabelPair {
@@ -57,7 +56,6 @@ typedef std::unordered_map<FeatureLabelPair, double, FeatureLabelPairMapper, Fea
 
 // Hash-table for caching FeatureLabelPair keys with corresponding values.
 class FeatureLabelCache {
-
 public:
   FeatureLabelCache() {
     hits_ = 0;
@@ -226,12 +224,11 @@ public:
 #if USE_WEIGHT_CACHING == 1
   // Compute the scores corresponding to a set of features, conjoined with
   // output labels. The vector scores, provided as output, contains the score
-  // for each label, with the added functionality 
+  // for each label, with the added functionality
   // of using a cache for already computed scores.
   void ComputeLabelScoresWithCache(const BinaryFeatures &features,
                                    const vector<int> &labels,
                                    vector<double> *scores) {
-
     FeatureLabelPair caching_key;
     double caching_value;
 
@@ -242,7 +239,6 @@ public:
     scores->resize(labels.size(), 0.0);
     vector<double> label_scores(labels.size(), 0.0);
     for (int j = 0; j < features.size(); ++j) {
-
       if (!ExistsLabeled(features[j])) continue;
       reduced_labels.clear();
       adjust_new_index_reduced_labels.clear();
@@ -354,10 +350,9 @@ protected:
   SparseLabeledParameterVector labeled_weights_;
   SparseLabeledParameterVector averaged_labeled_weights_;
 
-
 public:
 #if USE_WEIGHT_CACHING == 1
-  // Caches the weights for feature-label pairs : 
+  // Caches the weights for feature-label pairs :
   // FeatureLabelPair = struct {feature; label} .
   FeatureLabelCache caching_weights_;
 #endif

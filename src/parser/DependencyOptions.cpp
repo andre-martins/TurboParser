@@ -77,24 +77,24 @@ DEFINE_string(file_pruner_model, "",
               "Path to the file containing the pre-trained pruner model. Must "
               "activate the flag --use_pretrained_pruner");
 DEFINE_double(pruner_posterior_threshold, 0.0001,
-            "Posterior probability threshold for an arc to be pruned, in basic "
-            "pruning. For each  word m, if "
-            "P(h,m) < pruner_posterior_threshold * P(h',m), "
-            "where h' is the best scored head, then (h,m) will be pruned out.");
+              "Posterior probability threshold for an arc to be pruned, in basic "
+              "pruning. For each  word m, if "
+              "P(h,m) < pruner_posterior_threshold * P(h',m), "
+              "where h' is the best scored head, then (h,m) will be pruned out.");
 DEFINE_int32(pruner_max_heads, 10,
-            "Maximum number of possible head words for a given word, in basic "
-            "pruning.");
+             "Maximum number of possible head words for a given word, in basic "
+             "pruning.");
 
 // Options for pruner training.
 // TODO: implement these options.
 DEFINE_string(pruner_train_algorithm, "crf_mira",
-             "Training algorithm for the pruner. Options are perceptron, mira, "
-             "svm_mira, crf_mira, svm_sgd, crf_sgd.");
+              "Training algorithm for the pruner. Options are perceptron, mira, "
+              "svm_mira, crf_mira, svm_sgd, crf_sgd.");
 DEFINE_bool(pruner_only_supported_features, true,
-            "True for the pruner to use supported features only (should be true" 
+            "True for the pruner to use supported features only (should be true"
             "for CRFs).");
 DEFINE_bool(pruner_use_averaging, true,
-            "True for the pruner to average the weight vector at the end of" 
+            "True for the pruner to average the weight vector at the end of"
             "training.");
 DEFINE_int32(pruner_train_epochs, 10,
              "Number of training epochs for the pruner.");
@@ -170,7 +170,7 @@ void DependencyOptions::Load(FILE* fs) {
   success = ReadDouble(fs, &FLAGS_pruner_posterior_threshold);
   CHECK(success);
   LOG(INFO) << "Setting --pruner_posterior_threshold="
-            << FLAGS_pruner_posterior_threshold;
+    << FLAGS_pruner_posterior_threshold;
   success = ReadInteger(fs, &FLAGS_pruner_max_heads);
   CHECK(success);
   LOG(INFO) << "Setting --pruner_max_heads=" << FLAGS_pruner_max_heads;

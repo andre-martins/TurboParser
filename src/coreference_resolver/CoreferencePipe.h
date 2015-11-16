@@ -31,7 +31,7 @@
 #include "CoreferenceDecoder.h"
 
 class CoreferencePipe : public Pipe {
- public:
+public:
   CoreferencePipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
     dependency_dictionary_ = NULL;
@@ -62,7 +62,7 @@ class CoreferencePipe : public Pipe {
     return static_cast<DependencyDictionary*>(dependency_dictionary_);
   };
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new CoreferenceDictionary(this);
     GetCoreferenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -91,7 +91,7 @@ class CoreferencePipe : public Pipe {
 
   Instance *GetFormattedInstance(Instance *instance) {
     CoreferenceDocumentNumeric *instance_numeric =
-          new CoreferenceDocumentNumeric;
+      new CoreferenceDocumentNumeric;
     // Only add gold mentions as candidates if we're training.
     bool add_gold_mentions = options_->train();
     instance_numeric->Initialize(*GetCoreferenceDictionary(),
@@ -100,7 +100,7 @@ class CoreferencePipe : public Pipe {
     return instance_numeric;
   }
 
- protected:
+protected:
   void SaveModel(FILE* fs);
   void LoadModel(FILE* fs);
 
@@ -142,10 +142,10 @@ class CoreferencePipe : public Pipe {
   }
 
   void EvaluateInstance(Instance *instance,
-                                Instance *output_instance,
-                                Parts *parts,
-                                const vector<double> &gold_outputs,
-                                const vector<double> &predicted_outputs) {
+                        Instance *output_instance,
+                        Parts *parts,
+                        const vector<double> &gold_outputs,
+                        const vector<double> &predicted_outputs) {
     CoreferenceDocument *document =
       static_cast<CoreferenceDocument*>(instance);
     for (int i = 0; i < document->GetNumSentences(); ++i) {
@@ -157,13 +157,13 @@ class CoreferencePipe : public Pipe {
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   DependencyDictionary *dependency_dictionary_;
   SemanticDictionary *semantic_dictionary_;
@@ -173,4 +173,3 @@ class CoreferencePipe : public Pipe {
 };
 
 #endif /* COREFERENCEPIPE_H_ */
-

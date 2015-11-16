@@ -11,7 +11,6 @@
 #include "TurboParserInterface.h"
 
 namespace TurboParserInterface {
-
 TurboTaggerWorker::TurboTaggerWorker() {
   tagger_options_ = new TaggerOptions;
   tagger_options_->Initialize();
@@ -290,7 +289,7 @@ TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {
   delete morphological_tagger_options_;
 }
 
-void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(const std::string 
+void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(const std::string
                                                                   &file_model) {
   morphological_tagger_options_->SetModelFilePath(file_model);
 
@@ -369,5 +368,4 @@ TurboParserInterface::~TurboParserInterface() {
 
   LOG(INFO) << "Done.";
 }
-
 } // namespace TurboParserInterface.

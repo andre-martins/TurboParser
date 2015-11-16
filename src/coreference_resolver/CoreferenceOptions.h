@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class CoreferenceOptions : public Options {
- public:
+public:
   CoreferenceOptions() {};
   virtual ~CoreferenceOptions() {};
 
@@ -56,7 +56,7 @@ class CoreferenceOptions : public Options {
   double false_new_cost() { return false_new_cost_; }
   double false_wrong_link_cost() { return false_wrong_link_cost_; }
 
- protected:
+protected:
   std::string file_mention_tags_;
   std::string file_pronouns_;
   std::string file_determiners_;

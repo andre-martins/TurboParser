@@ -87,4 +87,3 @@ void TaggerOptions::Initialize() {
   prune_tags_ = FLAGS_tagger_prune_tags;
   file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
 }
-

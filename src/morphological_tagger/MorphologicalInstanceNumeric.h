@@ -43,9 +43,8 @@ public:
   int GetCPosTagId(int i) { return cpostags_ids_[i]; }
   int GetLemmaId(int i) { return lemmas_ids_[i]; }
 
-
 private:
-  std::vector<int> lemmas_ids_;   //Lemma or stem 
+  std::vector<int> lemmas_ids_;   //Lemma or stem
   std::vector<int> cpostags_ids_; //Coarse-grained part-of-speech tag
 };
 

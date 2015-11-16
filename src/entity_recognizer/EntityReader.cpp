@@ -22,7 +22,6 @@
 #include "EntityReader.h"
 #include "EntityOptions.h"
 
-
 Instance *EntityReader::GetNext() {
   // Fill all fields for the entire sentence.
   std::vector<std::vector<std::string> > sentence_fields;

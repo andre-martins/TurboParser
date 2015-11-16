@@ -25,17 +25,16 @@ void CoreferenceWriter::Write(Instance *instance) {
   CoreferenceDocument *document = static_cast<CoreferenceDocument*>(instance);
   char part_number[4];
 
-  #ifdef _WIN32
-    _snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
-  #else
-    snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
-  #endif
-  
+#ifdef _WIN32
+  _snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
+#else
+  snprintf(part_number, sizeof(part_number), "%03d", document->part_number());
+#endif
 
   //std::cout << "Document: " << document->name() << std::endl;
 
   os_ << "#begin document (" << document->name() << "); part "
-      << part_number << std::endl;
+    << part_number << std::endl;
   for (int i = 0; i < document->GetNumSentences(); ++i) {
     // Start writing sentences.
     CoreferenceSentence *sentence = document->GetSentence(i);
@@ -46,7 +45,7 @@ void CoreferenceWriter::Write(Instance *instance) {
 
 void CoreferenceSentenceWriter::Write(Instance *instance) {
   CoreferenceSentence *sentence = static_cast<CoreferenceSentence*>(instance);
-  std::ofstream *os = (external_os_)? external_os_ : &os_;
+  std::ofstream *os = (external_os_) ? external_os_ : &os_;
 
   std::vector<std::string> span_lines;
   ConstructTextFromCoreferenceSpans(sentence->size(),
@@ -55,7 +54,7 @@ void CoreferenceSentenceWriter::Write(Instance *instance) {
 
   for (int i = 1; i < sentence->size(); ++i) {
     *os << sentence->GetName() << "\t";
-    *os << i-1 << "\t";
+    *os << i - 1 << "\t";
     *os << sentence->GetForm(i) << "\t";
     //os_ << sentence->GetLemma(i) << "\t";
     // No distiction between pos and cpos.
@@ -88,8 +87,8 @@ void CoreferenceSentenceWriter::Write(Instance *instance) {
 
 #if 0
 void CoreferenceSentenceReader::ConstructSpansFromText(
-    const std::vector<std::string> &span_lines,
-    std::vector<NamedSpan*> *spans) {
+  const std::vector<std::string> &span_lines,
+  std::vector<NamedSpan*> *spans) {
   char left_bracket = '(';
   char right_bracket = ')';
   std::string characters_to_ignore = "*-";
@@ -117,9 +116,9 @@ void CoreferenceSentenceReader::ConstructSpansFromText(
         continue;
       } else {
         name += ch;
-        if (j+1 >= line.length() ||
-            line[j+1] == left_bracket || line[j+1] == right_bracket ||
-            characters_to_ignore.find(line[j+1]) != std::string::npos) {
+        if (j + 1 >= line.length() ||
+            line[j + 1] == left_bracket || line[j + 1] == right_bracket ||
+            characters_to_ignore.find(line[j + 1]) != std::string::npos) {
           span_names_stack.push(name);
         }
       }
@@ -132,9 +131,9 @@ void CoreferenceSentenceReader::ConstructSpansFromText(
 #endif
 
 void CoreferenceSentenceWriter::ConstructTextFromCoreferenceSpans(
-    int length,
-    const std::vector<NamedSpan*> &spans,
-    std::vector<std::string> *span_lines) {
+  int length,
+  const std::vector<NamedSpan*> &spans,
+  std::vector<std::string> *span_lines) {
   char left_bracket = '(';
   char right_bracket = ')';
 
@@ -144,7 +143,7 @@ void CoreferenceSentenceWriter::ConstructTextFromCoreferenceSpans(
   for (int j = 0; j < spans.size(); ++j) {
 #if 0
     std::cout << spans[j]->name() << " (" << spans[j]->start() << ", "
-              << spans[j]->end() << ")" << std::endl;
+      << spans[j]->end() << ")" << std::endl;
 #endif
     if (spans[j]->start() == spans[j]->end()) {
       // Single-word span.
@@ -163,7 +162,6 @@ void CoreferenceSentenceWriter::ConstructTextFromCoreferenceSpans(
       (*span_lines)[spans[j]->end()] = line + spans[j]->name() + right_bracket;
     }
   }
-
 
   for (int i = 0; i < span_lines->size(); ++i) {
     if ((*span_lines)[i] == "") (*span_lines)[i] = "_";

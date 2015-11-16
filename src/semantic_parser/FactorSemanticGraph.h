@@ -23,9 +23,8 @@
 #include "ad3/GenericFactor.h"
 
 namespace AD3 {
-
 class FactorSemanticGraph : public GenericFactor {
- public:
+public:
   FactorSemanticGraph() {}
   virtual ~FactorSemanticGraph() {
     if (own_parts_) {
@@ -173,7 +172,7 @@ class FactorSemanticGraph : public GenericFactor {
     return static_cast<Configuration>(selected_parts);
   }
 
- public:
+public:
   void Initialize(int length,
                   const vector<SemanticPartPredicate*> &predicate_parts,
                   const vector<SemanticPartArc*> &arcs,
@@ -189,7 +188,7 @@ class FactorSemanticGraph : public GenericFactor {
                                 &index_predicates_, &arcs_by_predicate_);
   }
 
- private:
+private:
   bool own_parts_;
   int length_; // Sentence length (including root symbol).
   vector<vector<int> > index_predicates_;
@@ -198,8 +197,6 @@ class FactorSemanticGraph : public GenericFactor {
   vector<SemanticPartArc*> arcs_;
   SemanticDecoder *decoder_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_SEMANTIC_GRAPH_H
-

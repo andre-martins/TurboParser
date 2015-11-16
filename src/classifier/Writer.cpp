@@ -35,4 +35,3 @@ void Writer::Close() {
   os_.clear();
   os_.close();
 }
-

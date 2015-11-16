@@ -95,7 +95,7 @@ public:
   const std::vector<int> &GetAllowedMorphologicalTags(int cpostag) {
     // return cpostag_morphologicaltags_[cpostag];
     // TODO: Not sure is this should be done here...
-    // It may be cleaner to return an empty vector here and 
+    // It may be cleaner to return an empty vector here and
     // fill it with the unknown tags elsewhere.
     if (!cpostag_morphologicaltags_[cpostag].empty()) {
       return cpostag_morphologicaltags_[cpostag];
@@ -108,8 +108,6 @@ protected:
   std::vector<std::vector<int> > cpostag_morphologicaltags_;
   std::vector<int> unknown_cpostag_morphologicaltags_;
 };
-
-
 
 class MorphologicalTokenDictionary : public TokenDictionary {
 public:

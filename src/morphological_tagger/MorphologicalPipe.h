@@ -75,8 +75,6 @@ protected:
     int cpostag_id = sentence->GetCPosTagId(i);
     *allowed_tags = morph_dictionary->GetAllowedMorphologicalTags(cpostag_id);
   }
-
 };
 
 #endif /* MORPHOLOGICALPIPE_H_ */
-

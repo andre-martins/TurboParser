@@ -56,5 +56,4 @@ protected:
   Pipe *pipe_; // The pipe that owns this feature handler.
 };
 
-
 #endif /* FEATURES_H_ */

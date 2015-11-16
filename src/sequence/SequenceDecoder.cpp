@@ -94,7 +94,6 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
     CHECK_GE(node_scores[i].GetNumStates(), 0);
   }
 
-
   // Initialize the edge scores to zero.
   // Include all edges allowed by the dictionary that are supported
   // on the unigram states. Edges that do not have a bigram part
@@ -108,7 +107,6 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
 
         //const std::vector<int> &allowed_left_tags =
         //  pipe_->GetSequenceDictionary()->GetAllowedPreviousTags(tag);
-
 
         //edge_scores[i].SetNumPreviousStates(tag_id,
         //                                    node_scores[i].GetNumStates());
@@ -453,7 +451,6 @@ void SequenceDecoder::ConvertToFirstOrderModel(
   const std::vector<SequenceDecoderEdgeScores> &triplet_scores,
   std::vector<SequenceDecoderNodeScores> *transformed_node_scores,
   std::vector<SequenceDecoderEdgeScores> *transformed_edge_scores) {
-
   int length = node_scores.size();
 
   // The transformed node scores will have one less element.
@@ -513,7 +510,6 @@ void SequenceDecoder::ConvertToFirstOrderModel(
     }
   }
 }
-
 
 double SequenceDecoder::SolveMarkovZeroOrder(const std::vector<SequenceDecoderNodeScores> &node_scores,
                                              std::vector<int> *best_path) {
@@ -872,4 +868,3 @@ double SequenceDecoder::DecodeCPLEX(Instance *instance, Parts *parts,
   return 0.0;
 }
 #endif
-

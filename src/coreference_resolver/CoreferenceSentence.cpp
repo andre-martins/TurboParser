@@ -31,22 +31,22 @@ void CoreferenceSentence::DeleteAllSpans() {
 }
 
 void CoreferenceSentence::Initialize(
-    const std::string &name,
-    const std::vector<std::string> &forms,
-    const std::vector<std::string> &lemmas,
-    const std::vector<std::string> &cpos,
-    const std::vector<std::string> &pos,
-    const std::vector<std::vector<std::string> > &feats,
-    const std::vector<std::string> &deprels,
-    const std::vector<int> &heads,
-    const std::vector<std::string> &predicate_names,
-    const std::vector<int> &predicate_indices,
-    const std::vector<std::vector<std::string> > &argument_roles,
-    const std::vector<std::vector<int> > &argument_indices,
-    const std::vector<std::string> &speakers,
-    const std::vector<EntitySpan*> &entity_spans,
-    const std::vector<NamedSpan*> &constituent_spans,
-    const std::vector<NamedSpan*> &coreference_spans) {
+  const std::string &name,
+  const std::vector<std::string> &forms,
+  const std::vector<std::string> &lemmas,
+  const std::vector<std::string> &cpos,
+  const std::vector<std::string> &pos,
+  const std::vector<std::vector<std::string> > &feats,
+  const std::vector<std::string> &deprels,
+  const std::vector<int> &heads,
+  const std::vector<std::string> &predicate_names,
+  const std::vector<int> &predicate_indices,
+  const std::vector<std::vector<std::string> > &argument_roles,
+  const std::vector<std::vector<int> > &argument_indices,
+  const std::vector<std::string> &speakers,
+  const std::vector<EntitySpan*> &entity_spans,
+  const std::vector<NamedSpan*> &constituent_spans,
+  const std::vector<NamedSpan*> &coreference_spans) {
   SemanticInstance::Initialize(name, forms, lemmas, cpos, pos, feats, deprels,
                                heads, predicate_names, predicate_indices,
                                argument_roles, argument_indices);

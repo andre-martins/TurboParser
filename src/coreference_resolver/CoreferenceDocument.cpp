@@ -26,9 +26,9 @@ void CoreferenceDocument::DeleteAllSentences() {
 }
 
 void CoreferenceDocument::Initialize(
-    const string &name,
-    int part_number,
-    const std::vector<CoreferenceSentence*> &sentences) {
+  const string &name,
+  int part_number,
+  const std::vector<CoreferenceSentence*> &sentences) {
   name_ = name;
   part_number_ = part_number;
 

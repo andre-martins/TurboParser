@@ -14,10 +14,10 @@
 //TODO: template for supporting negation or not - most uses are for nonnegative "probs" only; probably some 10-20% speedup available
 template <class T>
 class LogVal {
- public:
+public:
   void print(std::ostream &o) const {
-    if (s_) o<<"(-)";
-    o<<v_;
+    if (s_) o << "(-)";
+    o << v_;
   }
   //PRINT_SELF(LogVal<T>)
 
@@ -26,16 +26,16 @@ class LogVal {
   LogVal() : s_(), v_(LOGVAL_LOG0) {}
   LogVal(double x) : s_(std::signbit(x)), v_(s_ ? std::log(-x) : std::log(x)) {}
   const Self& operator=(double x) { s_ = std::signbit(x); v_ = s_ ? std::log(-x) : std::log(x); return *this; }
-  LogVal(double lnx,bool sign) : s_(sign),v_(lnx) {}
-  static Self exp(T lnx) { return Self(lnx,false); }
+  LogVal(double lnx, bool sign) : s_(sign), v_(lnx) {}
+  static Self exp(T lnx) { return Self(lnx, false); }
 
   // maybe the below are faster than == 1 and == 0.  i don't know.
-  bool is_1() const { return v_==0&&s_==0; }
-  bool is_0() const { return v_==LOGVAL_LOG0; }
+  bool is_1() const { return v_ == 0 && s_ == 0; }
+  bool is_0() const { return v_ == LOGVAL_LOG0; }
 
   static Self One() { return Self(1); }
   static Self Zero() { return Self(); }
-  static Self e() { return Self(1,false); }
+  static Self e() { return Self(1, false); }
   void logeq(const T& v) { s_ = false; v_ = v; }
 
   // just like std::signbit, negative means true.  weird, i know
@@ -51,7 +51,7 @@ class LogVal {
   Self& besteq(const Self& a) {
     assert(!a.s_ && !s_);
     if (a.v_ < v_)
-      v_=a.v_;
+      v_ = a.v_;
     return *this;
   }
 
@@ -94,7 +94,7 @@ class LogVal {
 
   // Self(fabs(log(x)),x.s_)
   friend Self abslog(Self x) {
-    if (x.v_<0) x.v_=-x.v_;
+    if (x.v_ < 0) x.v_ = -x.v_;
     return x;
   }
 
@@ -105,24 +105,24 @@ class LogVal {
       std::abort();
     } else
 #endif
-    v_ *= power;
+      v_ *= power;
     return *this;
   }
 
   //remember, s_ means negative.
   inline bool lt(Self const& o) const {
-    return s_==o.s_ ? v_ < o.v_ : s_ > o.s_;
+    return s_ == o.s_ ? v_ < o.v_ : s_ > o.s_;
   }
   inline bool gt(Self const& o) const {
-    return s_==o.s_ ? o.v_ < v_ : s_ < o.s_;
+    return s_ == o.s_ ? o.v_ < v_ : s_ < o.s_;
   }
 
   Self operator-() const {
-    return Self(v_,!s_);
+    return Self(v_, !s_);
   }
   void negate() { s_ = !s_; }
 
-  Self inverse() const { return Self(-v_,s_); }
+  Self inverse() const { return Self(-v_, s_); }
 
   Self pow(const T& power) const {
     Self res = *this;
@@ -131,7 +131,7 @@ class LogVal {
   }
 
   Self root(const T& root) const {
-    return pow(1/root);
+    return pow(1 / root);
   }
 
   T as_float() const {
@@ -140,7 +140,6 @@ class LogVal {
 
   bool s_;
   T v_;
-
 };
 
 // copy elision - as opposed to explicit copy of LogVal<T> const& o1, we should be able to construct Logval r=a+(b+c) as a single result in place in r.  todo: return std::move(o1) - C++0x

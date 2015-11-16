@@ -24,7 +24,7 @@
 #include "ConstituencyLabelerDictionary.h"
 
 class ConstituencyLabelerInstanceNumeric : public ConstituencyInstanceNumeric {
- public:
+public:
   ConstituencyLabelerInstanceNumeric() {};
   virtual ~ConstituencyLabelerInstanceNumeric() { Clear(); };
 
@@ -42,7 +42,7 @@ class ConstituencyLabelerInstanceNumeric : public ConstituencyInstanceNumeric {
   int GetConstituentLabelId(int i) { return constituent_labels_[i]; }
   const std::vector<int> &GetConstituentLabels() { return constituent_labels_; }
 
- protected:
+protected:
   std::vector<int> constituent_labels_; // One label per non-terminal.
 };
 

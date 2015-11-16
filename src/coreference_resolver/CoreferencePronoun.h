@@ -49,7 +49,7 @@ struct CoreferencePronounGender {
 };
 
 class CoreferencePronoun {
- public:
+public:
   CoreferencePronoun() { ClearFlags(); }
   CoreferencePronoun(const std::string &code_flags) { SetFlags(code_flags); }
   virtual ~CoreferencePronoun() {}
@@ -126,7 +126,7 @@ class CoreferencePronoun {
     }
   }
 
- public:
+public:
   bool IsPersonFirst() {
     return person_flag_ & (0x1 << CoreferencePronounPerson::FIRST);
   }
@@ -195,7 +195,7 @@ class CoreferencePronoun {
     gender_flag_ |= (0x1 << CoreferencePronounGender::UNDEFINED);
   }
 
- protected:
+protected:
   uint8_t person_flag_;
   uint8_t number_flag_;
   uint8_t gender_flag_;

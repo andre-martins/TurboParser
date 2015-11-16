@@ -33,7 +33,6 @@ void MorphologicalFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence
   MorphologicalInstanceNumeric *morph_sentence =
     static_cast<MorphologicalInstanceNumeric*>(sentence);
 
-
   MorphologicalOptions *options = static_cast<class MorphologicalPipe*>(pipe_)->
     GetMorphologicalOptions();
 
@@ -147,7 +146,6 @@ void MorphologicalFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence
   for (int l = 0; l < nnZID.size(); ++l) {
     nnZID[l] = sentence->GetSuffixId(position + 2, l + 1);
   }
-
 
   // Several flags.
   uint8_t flag_digit = sentence->HasDigit(position) ? 0x1 : 0x0;
@@ -316,7 +314,6 @@ void MorphologicalFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence
     AddFeature(fkey, features);
   }
 
-
   // Several flags.
   if (options->large_feature_set() >= 1) {
     fkey = encoder_.CreateFKey_P(MorphologicalFeatureTemplateUnigram::FLAG,
@@ -334,7 +331,7 @@ void MorphologicalFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence
 void MorphologicalFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
                                               int position) {
   CHECK(!input_features_bigrams_[position]) << position
-                                            << " " << sentence->size();
+    << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
   input_features_bigrams_[position] = features;
 
@@ -346,13 +343,12 @@ void MorphologicalFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateBigram::BIAS,
                                   flags);
   AddFeature(fkey, features);
-
 }
 
 void MorphologicalFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence,
                                                int position) {
   CHECK(!input_features_trigrams_[position]) << position
-                                             << " " << sentence->size();
+    << " " << sentence->size();
   BinaryFeatures *features = new BinaryFeatures;
   input_features_trigrams_[position] = features;
 
@@ -361,7 +357,7 @@ void MorphologicalFeatures::AddTrigramFeatures(SequenceInstanceNumeric *sentence
   flags |= MorphologicalFeatureTemplateParts::TRIGRAM;
 
   // Bias feature.
-  fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateTrigram::BIAS, 
+  fkey = encoder_.CreateFKey_NONE(MorphologicalFeatureTemplateTrigram::BIAS,
                                   flags);
   AddFeature(fkey, features);
 }

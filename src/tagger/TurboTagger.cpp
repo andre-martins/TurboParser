@@ -54,10 +54,10 @@ void TrainTagger() {
   pipe->SaveModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Training took " << static_cast<double>(time)/1000.0 
-            << " sec." << endl;
+  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;
@@ -77,10 +77,10 @@ void TestTagger() {
   pipe->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Testing took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 
   delete pipe;
   delete options;

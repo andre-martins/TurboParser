@@ -38,7 +38,6 @@ public:
 
 protected:
   ifstream is_;
-
 };
 
 #endif /* READER_H_ */

@@ -32,7 +32,7 @@
 class Pipe;
 
 class GenderNumberStatistics {
- public:
+public:
   GenderNumberStatistics() {}
   virtual ~GenderNumberStatistics() { Clear(); }
 
@@ -43,7 +43,7 @@ class GenderNumberStatistics {
     success = WriteInteger(fs, phrase_counts_.size());
     CHECK(success);
     for (std::map<std::vector<int>, std::vector<int> >::iterator it =
-           phrase_counts_.begin();
+         phrase_counts_.begin();
          it != phrase_counts_.end();
          ++it) {
       success = WriteIntegerVector(fs, it->first);
@@ -82,12 +82,12 @@ class GenderNumberStatistics {
   int ComputeNumber(const std::vector<int> &phrase, int head_index) const;
   int ComputeGender(const std::vector<int> &phrase, int head_index) const;
 
- protected:
+protected:
   std::map<std::vector<int>, std::vector<int> > phrase_counts_;
 };
 
 class CoreferenceDictionary : public Dictionary {
- public:
+public:
   CoreferenceDictionary() {}
   CoreferenceDictionary(Pipe* pipe) : pipe_(pipe) {}
   virtual ~CoreferenceDictionary() { Clear(); }
@@ -121,7 +121,7 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::map<int, CoreferencePronoun*>::iterator it =
-           all_pronouns_.begin();
+         all_pronouns_.begin();
          it != all_pronouns_.end();
          ++it) {
       int id = it->first;
@@ -136,7 +136,7 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::map<int, CoreferenceDeterminer*>::iterator it =
-           all_determiners_.begin();
+         all_determiners_.begin();
          it != all_determiners_.end();
          ++it) {
       int id = it->first;
@@ -151,8 +151,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = named_entity_tags_.begin();
-         it != named_entity_tags_.end();
-         ++it) {
+    it != named_entity_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -162,8 +162,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = person_entity_tags_.begin();
-         it != person_entity_tags_.end();
-         ++it) {
+    it != person_entity_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -173,8 +173,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = noun_phrase_tags_.begin();
-         it != noun_phrase_tags_.end();
-         ++it) {
+    it != noun_phrase_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -184,8 +184,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = proper_noun_tags_.begin();
-         it != proper_noun_tags_.end();
-         ++it) {
+    it != proper_noun_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -195,8 +195,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = noun_tags_.begin();
-         it != noun_tags_.end();
-         ++it) {
+    it != noun_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -206,8 +206,8 @@ class CoreferenceDictionary : public Dictionary {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = pronominal_tags_.begin();
-         it != pronominal_tags_.end();
-         ++it) {
+    it != pronominal_tags_.end();
+      ++it) {
       int id = *it;
       success = WriteInteger(fs, id);
       CHECK(success);
@@ -387,7 +387,6 @@ class CoreferenceDictionary : public Dictionary {
     return bigram_ancestry_alphabet_.GetName(ancestry);
   }
 
-
   Pipe *GetPipe() const { return pipe_; }
 
   TokenDictionary *GetTokenDictionary() const { return token_dictionary_; }
@@ -557,10 +556,10 @@ class CoreferenceDictionary : public Dictionary {
     std::string *unigram_ancestry_string,
     std::string *bigram_ancestry_string) const;
 
- protected:
+protected:
   void DeleteAllPronouns() {
     for (std::map<int, CoreferencePronoun*>::iterator it =
-           all_pronouns_.begin();
+         all_pronouns_.begin();
          it != all_pronouns_.end();
          ++it) {
       delete it->second;
@@ -570,7 +569,7 @@ class CoreferenceDictionary : public Dictionary {
 
   void DeleteAllDeterminers() {
     for (std::map<int, CoreferenceDeterminer*>::iterator it =
-           all_determiners_.begin();
+         all_determiners_.begin();
          it != all_determiners_.end();
          ++it) {
       delete it->second;
@@ -578,7 +577,7 @@ class CoreferenceDictionary : public Dictionary {
     all_determiners_.clear();
   }
 
- protected:
+protected:
   Pipe *pipe_;
   TokenDictionary *token_dictionary_;
   DependencyDictionary *dependency_dictionary_;

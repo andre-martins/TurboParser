@@ -31,7 +31,7 @@
 #include "ConstituencyLabelerDecoder.h"
 
 class ConstituencyLabelerPipe : public Pipe {
- public:
+public:
   ConstituencyLabelerPipe(Options* options) : Pipe(options) {
     token_dictionary_ = NULL;
   }
@@ -47,7 +47,7 @@ class ConstituencyLabelerPipe : public Pipe {
     return static_cast<ConstituencyLabelerOptions*>(options_);
   };
 
- protected:
+protected:
   void CreateDictionary() {
     dictionary_ = new ConstituencyLabelerDictionary(this);
     GetConstituencyLabelerDictionary()->SetTokenDictionary(token_dictionary_);
@@ -66,14 +66,14 @@ class ConstituencyLabelerPipe : public Pipe {
 
   Instance *GetFormattedInstance(Instance *instance) {
     ConstituencyLabelerInstanceNumeric *instance_numeric =
-          new ConstituencyLabelerInstanceNumeric;
+      new ConstituencyLabelerInstanceNumeric;
     instance_numeric->Initialize(
-        *GetConstituencyLabelerDictionary(),
-        static_cast<ConstituencyLabelerInstance*>(instance));
+      *GetConstituencyLabelerDictionary(),
+      static_cast<ConstituencyLabelerInstance*>(instance));
     return instance_numeric;
   }
 
- protected:
+protected:
   void SaveModel(FILE* fs);
   void LoadModel(FILE* fs);
 
@@ -195,46 +195,46 @@ class ConstituencyLabelerPipe : public Pipe {
   void EndEvaluation() {
     double precision =
       static_cast<double>(num_matched_labels_) /
-        static_cast<double>(num_predicted_labels_);
+      static_cast<double>(num_predicted_labels_);
     double recall =
       static_cast<double>(num_matched_labels_) /
-        static_cast<double>(num_gold_labels_);
+      static_cast<double>(num_gold_labels_);
     double F1 = 2.0 * precision * recall / (precision + recall);
     double pruning_recall =
       static_cast<double>(num_gold_labels_ -
                           num_pruned_gold_labels_) /
-        static_cast<double>(num_gold_labels_);
+      static_cast<double>(num_gold_labels_);
     double pruning_efficiency =
       static_cast<double>(num_possible_labels_) /
-        static_cast<double>(num_constituents_);
+      static_cast<double>(num_constituents_);
 
     LOG(INFO) << "Precision: " << precision
-              << " (" << num_matched_labels_ << "/"
-              << num_predicted_labels_ << ")";
+      << " (" << num_matched_labels_ << "/"
+      << num_predicted_labels_ << ")";
     LOG(INFO) << "Recall: " << recall
-              << " (" << num_matched_labels_ << "/"
-              << num_gold_labels_ << ")";
+      << " (" << num_matched_labels_ << "/"
+      << num_gold_labels_ << ")";
     LOG(INFO) << "F1: " << F1;
     LOG(INFO) << "Pruning recall: " << pruning_recall
-              << " ("
-              << num_gold_labels_ - num_pruned_gold_labels_
-              << "/"
-              << num_gold_labels_ << ")";
+      << " ("
+      << num_gold_labels_ - num_pruned_gold_labels_
+      << "/"
+      << num_gold_labels_ << ")";
     LOG(INFO) << "Pruning efficiency: " << pruning_efficiency
-              << " possible labels per node"
-              << " (" << num_possible_labels_ << "/"
-              << num_constituents_ << ")";
+      << " possible labels per node"
+      << " (" << num_possible_labels_ << "/"
+      << num_constituents_ << ")";
 
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   int num_tokens_;
   int num_constituents_;
@@ -247,4 +247,3 @@ class ConstituencyLabelerPipe : public Pipe {
 };
 
 #endif /* CONSTITUENCYLABELERPIPE_H_ */
-

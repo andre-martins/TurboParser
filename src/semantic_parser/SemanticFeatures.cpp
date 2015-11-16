@@ -67,7 +67,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   //LOG(INFO) << "Adding arc features";
 
   SemanticOptions *options = static_cast<class SemanticPipe*>(pipe_)->
-      GetSemanticOptions();
+    GetSemanticOptions();
 
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
@@ -80,7 +80,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   int sentence_length = sentence->size();
   // True if labeled semantic parsing.
   bool labeled =
-      static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
+    static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
   bool use_dependency_features = options->use_dependency_syntactic_features();
   bool use_contextual_dependency_features = use_dependency_features;
@@ -133,8 +133,8 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   int argument_left_sibling = sentence->GetLeftSibling(argument);
   int argument_right_sibling = sentence->GetRightSibling(argument);
   int l = argument_dependents.size();
-  int argument_leftmost_dependent = (l > 0)? argument_dependents[0] : -1;
-  int argument_rightmost_dependent = (l > 0)? argument_dependents[l-1] : -1;
+  int argument_leftmost_dependent = (l > 0) ? argument_dependents[0] : -1;
+  int argument_rightmost_dependent = (l > 0) ? argument_dependents[l - 1] : -1;
 
   // Flag for passive voice (for the predicate).
   // 0x0: No verb.
@@ -206,21 +206,21 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
   // Contextual dependency information (argument only).
   if (use_contextual_dependency_features) {
-    ldMPID = (argument_leftmost_dependent > 0)?
+    ldMPID = (argument_leftmost_dependent > 0) ?
       (*pos_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-    rdMPID = (argument_rightmost_dependent > 0)?
+    rdMPID = (argument_rightmost_dependent > 0) ?
       (*pos_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-    lMPID = (argument_left_sibling > 0)?
+    lMPID = (argument_left_sibling > 0) ?
       (*pos_ids)[argument_left_sibling - 1] : TOKEN_START;
-    rMPID = (argument_right_sibling > 0)?
+    rMPID = (argument_right_sibling > 0) ?
       (*pos_ids)[argument_right_sibling - 1] : TOKEN_STOP;
-    ldMWID = (argument_leftmost_dependent > 0)?
+    ldMWID = (argument_leftmost_dependent > 0) ?
       (*word_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-    rdMWID = (argument_rightmost_dependent > 0)?
+    rdMWID = (argument_rightmost_dependent > 0) ?
       (*word_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-    lMWID = (argument_left_sibling > 0)?
+    lMWID = (argument_left_sibling > 0) ?
       (*word_ids)[argument_left_sibling - 1] : TOKEN_START;
-    rMWID = (argument_right_sibling > 0)?
+    rMWID = (argument_right_sibling > 0) ?
       (*word_ids)[argument_right_sibling - 1] : TOKEN_STOP;
   } else {
     ldMPID = 0x0;
@@ -234,10 +234,10 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   }
 
   // Contextual information.
-  pHPID = (predicate > 0)? (*pos_ids)[predicate - 1] : TOKEN_START;
-  pMPID = (argument > 0)? (*pos_ids)[argument - 1] : TOKEN_START;
-  nHPID = (predicate < sentence_length - 1)? (*pos_ids)[predicate + 1] : TOKEN_STOP;
-  nMPID = (argument < sentence_length - 1)?
+  pHPID = (predicate > 0) ? (*pos_ids)[predicate - 1] : TOKEN_START;
+  pMPID = (argument > 0) ? (*pos_ids)[argument - 1] : TOKEN_START;
+  nHPID = (predicate < sentence_length - 1) ? (*pos_ids)[predicate + 1] : TOKEN_STOP;
+  nMPID = (argument < sentence_length - 1) ?
     (*pos_ids)[argument + 1] : TOKEN_STOP;
 
   // Maximum is 255 feature templates.
@@ -428,7 +428,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   //LOG(INFO) << "Adding arc features";
 
   SemanticOptions *options = static_cast<class SemanticPipe*>(pipe_)->
-      GetSemanticOptions();
+    GetSemanticOptions();
 
   BinaryFeatures *features = new BinaryFeatures;
   if (labeled) {
@@ -478,7 +478,7 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   int arc_length = right_position - left_position;
 
   // 7 possible values for binned_length_code (3 bits).
-  exact_length_code = (arc_length > 0xff)? 0xff : arc_length;
+  exact_length_code = (arc_length > 0xff) ? 0xff : arc_length;
   if (arc_length > 40) {
     binned_length_code = 0x6;
   } else if (arc_length > 30) {
@@ -500,8 +500,8 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
   int argument_left_sibling = sentence->GetLeftSibling(argument);
   int argument_right_sibling = sentence->GetRightSibling(argument);
   int l = argument_dependents.size();
-  int argument_leftmost_dependent = (l > 0)? argument_dependents[0] : -1;
-  int argument_rightmost_dependent = (l > 0)? argument_dependents[l-1] : -1;
+  int argument_leftmost_dependent = (l > 0) ? argument_dependents[0] : -1;
+  int argument_rightmost_dependent = (l > 0) ? argument_dependents[l - 1] : -1;
 
   // Flag for passive voice (for the predicate).
   // 0x0: No verb.
@@ -611,21 +611,21 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
   // Contextual dependency information (argument only).
   if (use_contextual_dependency_features) {
-    ldMPID = (argument_leftmost_dependent > 0)?
+    ldMPID = (argument_leftmost_dependent > 0) ?
       (*pos_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-    rdMPID = (argument_rightmost_dependent > 0)?
+    rdMPID = (argument_rightmost_dependent > 0) ?
       (*pos_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-    lMPID = (argument_left_sibling > 0)?
+    lMPID = (argument_left_sibling > 0) ?
       (*pos_ids)[argument_left_sibling - 1] : TOKEN_START;
-    rMPID = (argument_right_sibling > 0)?
+    rMPID = (argument_right_sibling > 0) ?
       (*pos_ids)[argument_right_sibling - 1] : TOKEN_STOP;
-    ldMWID = (argument_leftmost_dependent > 0)?
+    ldMWID = (argument_leftmost_dependent > 0) ?
       (*word_ids)[argument_leftmost_dependent - 1] : TOKEN_START;
-    rdMWID = (argument_rightmost_dependent > 0)?
+    rdMWID = (argument_rightmost_dependent > 0) ?
       (*word_ids)[argument_rightmost_dependent - 1] : TOKEN_STOP;
-    lMWID = (argument_left_sibling > 0)?
+    lMWID = (argument_left_sibling > 0) ?
       (*word_ids)[argument_left_sibling - 1] : TOKEN_START;
-    rMWID = (argument_right_sibling > 0)?
+    rMWID = (argument_right_sibling > 0) ?
       (*word_ids)[argument_right_sibling - 1] : TOKEN_STOP;
   } else {
     ldMPID = 0x0;
@@ -640,46 +640,46 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 
   // Contextual information.
   // Context size = 1:
-  pHLID = (predicate > 0)? sentence->GetLemmaId(predicate - 1) : TOKEN_START;
-  pMLID = (argument > 0)? sentence->GetLemmaId(argument - 1) : TOKEN_START;
-  pHWID = (predicate > 0)? sentence->GetFormId(predicate - 1) : TOKEN_START;
-  pMWID = (argument > 0)? sentence->GetFormId(argument - 1) : TOKEN_START;
-  pHPID = (predicate > 0)? sentence->GetPosId(predicate - 1) : TOKEN_START;
-  pMPID = (argument > 0)? sentence->GetPosId(argument - 1) : TOKEN_START;
+  pHLID = (predicate > 0) ? sentence->GetLemmaId(predicate - 1) : TOKEN_START;
+  pMLID = (argument > 0) ? sentence->GetLemmaId(argument - 1) : TOKEN_START;
+  pHWID = (predicate > 0) ? sentence->GetFormId(predicate - 1) : TOKEN_START;
+  pMWID = (argument > 0) ? sentence->GetFormId(argument - 1) : TOKEN_START;
+  pHPID = (predicate > 0) ? sentence->GetPosId(predicate - 1) : TOKEN_START;
+  pMPID = (argument > 0) ? sentence->GetPosId(argument - 1) : TOKEN_START;
 
-  nHLID = (predicate < sentence_length - 1)?
-      sentence->GetLemmaId(predicate + 1) : TOKEN_STOP;
-  nMLID = (argument < sentence_length - 1)?
-      sentence->GetLemmaId(argument + 1) : TOKEN_STOP;
-  nHWID = (predicate < sentence_length - 1)?
-      sentence->GetFormId(predicate + 1) : TOKEN_STOP;
-  nMWID = (argument < sentence_length - 1)?
-      sentence->GetFormId(argument + 1) : TOKEN_STOP;
-  nHPID = (predicate < sentence_length - 1)?
-      sentence->GetPosId(predicate + 1) : TOKEN_STOP;
-  nMPID = (argument < sentence_length - 1)?
-      sentence->GetPosId(argument + 1) : TOKEN_STOP;
+  nHLID = (predicate < sentence_length - 1) ?
+    sentence->GetLemmaId(predicate + 1) : TOKEN_STOP;
+  nMLID = (argument < sentence_length - 1) ?
+    sentence->GetLemmaId(argument + 1) : TOKEN_STOP;
+  nHWID = (predicate < sentence_length - 1) ?
+    sentence->GetFormId(predicate + 1) : TOKEN_STOP;
+  nMWID = (argument < sentence_length - 1) ?
+    sentence->GetFormId(argument + 1) : TOKEN_STOP;
+  nHPID = (predicate < sentence_length - 1) ?
+    sentence->GetPosId(predicate + 1) : TOKEN_STOP;
+  nMPID = (argument < sentence_length - 1) ?
+    sentence->GetPosId(argument + 1) : TOKEN_STOP;
 
   // Context size = 2:
-  ppHLID = (predicate > 1)? sentence->GetLemmaId(predicate - 2) : TOKEN_START;
-  ppMLID = (argument > 1)? sentence->GetLemmaId(argument - 2) : TOKEN_START;
-  ppHWID = (predicate > 1)? sentence->GetFormId(predicate - 2) : TOKEN_START;
-  ppMWID = (argument > 1)? sentence->GetFormId(argument - 2) : TOKEN_START;
-  ppHPID = (predicate > 1)? sentence->GetPosId(predicate - 2) : TOKEN_START;
-  ppMPID = (argument > 1)? sentence->GetPosId(argument - 2) : TOKEN_START;
+  ppHLID = (predicate > 1) ? sentence->GetLemmaId(predicate - 2) : TOKEN_START;
+  ppMLID = (argument > 1) ? sentence->GetLemmaId(argument - 2) : TOKEN_START;
+  ppHWID = (predicate > 1) ? sentence->GetFormId(predicate - 2) : TOKEN_START;
+  ppMWID = (argument > 1) ? sentence->GetFormId(argument - 2) : TOKEN_START;
+  ppHPID = (predicate > 1) ? sentence->GetPosId(predicate - 2) : TOKEN_START;
+  ppMPID = (argument > 1) ? sentence->GetPosId(argument - 2) : TOKEN_START;
 
-  nnHLID = (predicate < sentence_length - 2)?
-      sentence->GetLemmaId(predicate + 2) : TOKEN_STOP;
-  nnMLID = (argument < sentence_length - 2)?
-      sentence->GetLemmaId(argument + 2) : TOKEN_STOP;
-  nnHWID = (predicate < sentence_length - 2)?
-      sentence->GetFormId(predicate + 2) : TOKEN_STOP;
-  nnMWID = (argument < sentence_length - 2)?
-      sentence->GetFormId(argument + 2) : TOKEN_STOP;
-  nnHPID = (predicate < sentence_length - 2)?
-      sentence->GetPosId(predicate + 2) : TOKEN_STOP;
-  nnMPID = (argument < sentence_length - 2)?
-      sentence->GetPosId(argument + 2) : TOKEN_STOP;
+  nnHLID = (predicate < sentence_length - 2) ?
+    sentence->GetLemmaId(predicate + 2) : TOKEN_STOP;
+  nnMLID = (argument < sentence_length - 2) ?
+    sentence->GetLemmaId(argument + 2) : TOKEN_STOP;
+  nnHWID = (predicate < sentence_length - 2) ?
+    sentence->GetFormId(predicate + 2) : TOKEN_STOP;
+  nnMWID = (argument < sentence_length - 2) ?
+    sentence->GetFormId(argument + 2) : TOKEN_STOP;
+  nnHPID = (predicate < sentence_length - 2) ?
+    sentence->GetPosId(predicate + 2) : TOKEN_STOP;
+  nnMPID = (argument < sentence_length - 2) ?
+    sentence->GetPosId(argument + 2) : TOKEN_STOP;
 
   // Code for feature type.
   flags = feature_type; // 4 bits.
@@ -1046,39 +1046,38 @@ void SemanticFeatures::AddArcFeatures(SemanticInstanceNumeric* sentence,
 }
 #endif
 
-
 // Add features for arbitrary siblings.
 void SemanticFeatures::AddArbitrarySiblingFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int predicate,
-                          int sense,
-                          int first_argument,
-                          int second_argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int predicate,
+  int sense,
+  int first_argument,
+  int second_argument) {
   AddSiblingFeatures(sentence, false, r, predicate, sense, first_argument,
                      second_argument, false);
 }
 
 // Add features for arbitrary labeled siblings.
 void SemanticFeatures::AddArbitraryLabeledSiblingFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int predicate,
-                          int sense,
-                          int first_argument,
-                          int second_argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int predicate,
+  int sense,
+  int first_argument,
+  int second_argument) {
   AddSiblingFeatures(sentence, true, r, predicate, sense, first_argument,
                      second_argument, false);
 }
 
 // Add features for consecutive siblings.
 void SemanticFeatures::AddConsecutiveSiblingFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int predicate,
-                          int sense,
-                          int first_argument,
-                          int second_argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int predicate,
+  int sense,
+  int first_argument,
+  int second_argument) {
   AddSiblingFeatures(sentence, false, r, predicate, sense, first_argument,
                      second_argument, true);
 }
@@ -1107,7 +1106,7 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   // case where there is a self-loop), but a1 == -1.
   bool first_child = consecutive && (first_argument < 0);
   bool last_child = consecutive &&
-                    (second_argument == sentence_length || second_argument <= 0);
+    (second_argument == sentence_length || second_argument <= 0);
 
   CHECK_NE(second_argument, 0) << "Currently, last child is encoded as a2 = -1.";
 
@@ -1165,11 +1164,11 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
 
   // Words/POS.
   HWID = (*word_ids)[predicate];
-  MWID = first_child? TOKEN_START : (*word_ids)[first_argument];
-  SWID = last_child? TOKEN_STOP : (*word_ids)[second_argument];
+  MWID = first_child ? TOKEN_START : (*word_ids)[first_argument];
+  SWID = last_child ? TOKEN_STOP : (*word_ids)[second_argument];
   HPID = (*pos_ids)[predicate];
-  MPID = first_child? TOKEN_START : (*pos_ids)[first_argument];
-  SPID = last_child? TOKEN_STOP : (*pos_ids)[second_argument];
+  MPID = first_child ? TOKEN_START : (*pos_ids)[first_argument];
+  SPID = last_child ? TOKEN_STOP : (*pos_ids)[second_argument];
 
   if (consecutive) {
     flags = SemanticFeatureTemplateParts::NEXTSIBL;
@@ -1252,57 +1251,56 @@ void SemanticFeatures::AddSiblingFeatures(SemanticInstanceNumeric* sentence,
   AddFeature(fkey, features);
 }
 
-
 // Add features for grandparents.
 void SemanticFeatures::AddGrandparentFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int grandparent_predicate,
-                          int grandparent_sense,
-                          int predicate,
-                          int sense,
-                          int argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int grandparent_predicate,
+  int grandparent_sense,
+  int predicate,
+  int sense,
+  int argument) {
   AddSecondOrderFeatures(sentence, r, grandparent_predicate, grandparent_sense,
                          predicate, sense, argument, false, false);
 }
 
 // Add features for co-parents.
 void SemanticFeatures::AddCoparentFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int first_predicate,
-                          int first_sense,
-                          int second_predicate,
-                          int second_sense,
-                          int argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int first_predicate,
+  int first_sense,
+  int second_predicate,
+  int second_sense,
+  int argument) {
   AddSecondOrderFeatures(sentence, r, first_predicate, first_sense,
                          second_predicate, second_sense, argument, true, false);
 }
 
 // Add features for co-parents.
 void SemanticFeatures::AddConsecutiveCoparentFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int first_predicate,
-                          int first_sense,
-                          int second_predicate,
-                          int second_sense,
-                          int argument) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int first_predicate,
+  int first_sense,
+  int second_predicate,
+  int second_sense,
+  int argument) {
   AddSecondOrderFeatures(sentence, r, first_predicate, first_sense,
                          second_predicate, second_sense, argument, true, true);
 }
 
 // Add second-order features (grandparents or co-parents).
 void SemanticFeatures::AddSecondOrderFeatures(
-                          SemanticInstanceNumeric* sentence,
-                          int r,
-                          int first_predicate,
-                          int first_sense,
-                          int second_predicate,
-                          int second_sense,
-                          int argument,
-                          bool coparents,
-                          bool consecutive) {
+  SemanticInstanceNumeric* sentence,
+  int r,
+  int first_predicate,
+  int first_sense,
+  int second_predicate,
+  int second_sense,
+  int argument,
+  bool coparents,
+  bool consecutive) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
@@ -1312,8 +1310,8 @@ void SemanticFeatures::AddSecondOrderFeatures(
   // Note: the first parent has p1 = -1.
   bool first_parent = consecutive && (first_predicate < 0);
   bool last_parent = consecutive &&
-                    (second_predicate == sentence_length ||
-                     second_predicate <= 0);
+    (second_predicate == sentence_length ||
+     second_predicate <= 0);
 
 #if 0
   if (FLAGS_srl_use_pair_features_second_order) {
@@ -1419,11 +1417,11 @@ void SemanticFeatures::AddSecondOrderFeatures(
   uint8_t flags = 0;
 
   // Words/POS.
-  GWID = first_parent? TOKEN_START : (*word_ids)[first_predicate];
-  HWID = last_parent? TOKEN_STOP : (*word_ids)[second_predicate];
+  GWID = first_parent ? TOKEN_START : (*word_ids)[first_predicate];
+  HWID = last_parent ? TOKEN_STOP : (*word_ids)[second_predicate];
   MWID = (*word_ids)[argument];
-  GPID = first_parent? TOKEN_START : (*pos_ids)[first_predicate];
-  HPID = last_parent? TOKEN_STOP : (*pos_ids)[second_predicate];
+  GPID = first_parent ? TOKEN_START : (*pos_ids)[first_predicate];
+  HPID = last_parent ? TOKEN_STOP : (*pos_ids)[second_predicate];
   MPID = (*pos_ids)[argument];
 
   if (coparents) {
@@ -1509,15 +1507,14 @@ void SemanticFeatures::AddSecondOrderFeatures(
   AddFeature(fkey, features);
 }
 
-
 #if 0
 // Add features for grand-siblings.
 void SemanticFeatures::AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence,
-                                                 int r,
-                                                 int grandparent,
-                                                 int head,
-                                                 int modifier,
-                                                 int sibling) {
+                                               int r,
+                                               int grandparent,
+                                               int head,
+                                               int modifier,
+                                               int sibling) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
@@ -1576,12 +1573,12 @@ void SemanticFeatures::AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence
   // Words/POS.
   GWID = (*word_ids)[grandparent];
   HWID = (*word_ids)[head];
-  MWID = first_child? TOKEN_START : (*word_ids)[modifier];
-  SWID = last_child? TOKEN_STOP : (*word_ids)[sibling];
+  MWID = first_child ? TOKEN_START : (*word_ids)[modifier];
+  SWID = last_child ? TOKEN_STOP : (*word_ids)[sibling];
   GPID = (*pos_ids)[grandparent];
   HPID = (*pos_ids)[head];
-  MPID = first_child? TOKEN_START : (*pos_ids)[modifier];
-  SPID = last_child? TOKEN_STOP : (*pos_ids)[sibling];
+  MPID = first_child ? TOKEN_START : (*pos_ids)[modifier];
+  SPID = last_child ? TOKEN_STOP : (*pos_ids)[sibling];
 
   flags = SemanticFeatureTemplateParts::GRANDSIBL;
 
@@ -1620,11 +1617,11 @@ void SemanticFeatures::AddGrandSiblingFeatures(SemanticInstanceNumeric* sentence
 
 // Add features for tri-siblings.
 void SemanticFeatures::AddTriSiblingFeatures(SemanticInstanceNumeric* sentence,
-                                               int r,
-                                               int head,
-                                               int modifier,
-                                               int sibling,
-                                               int other_sibling) {
+                                             int r,
+                                             int head,
+                                             int modifier,
+                                             int sibling,
+                                             int other_sibling) {
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
   input_features_[r] = features;
@@ -1662,13 +1659,13 @@ void SemanticFeatures::AddTriSiblingFeatures(SemanticInstanceNumeric* sentence,
 
   // Words/POS.
   HWID = (*word_ids)[head];
-  MWID = first_child? TOKEN_START : (*word_ids)[modifier];
+  MWID = first_child ? TOKEN_START : (*word_ids)[modifier];
   SWID = (*word_ids)[sibling];
-  TWID = last_child? TOKEN_STOP : (*word_ids)[other_sibling];
+  TWID = last_child ? TOKEN_STOP : (*word_ids)[other_sibling];
   HPID = (*pos_ids)[head];
-  MPID = first_child? TOKEN_START : (*pos_ids)[modifier];
+  MPID = first_child ? TOKEN_START : (*pos_ids)[modifier];
   SPID = (*pos_ids)[sibling];
-  TPID = last_child? TOKEN_STOP : (*pos_ids)[other_sibling];
+  TPID = last_child ? TOKEN_STOP : (*pos_ids)[other_sibling];
 
   flags = SemanticFeatureTemplateParts::TRISIBL;
 
@@ -1728,20 +1725,19 @@ void SemanticFeatures::AddTriSiblingFeatures(SemanticInstanceNumeric* sentence,
 }
 #endif
 
-
 #if 0
 // General function to add features for a pair of words (arcs, sibling words,
 // etc.) No lemma and morpho-syntactic feature information are used.
 // The features are very similar to the ones used in McDonald et al. MSTParser.
 void SemanticFeatures::AddWordPairFeaturesMST(SemanticInstanceNumeric* sentence,
-                                                int pair_type,
-                                                int head,
-                                                int modifier,
-                                                BinaryFeatures *features) {
+                                              int pair_type,
+                                              int head,
+                                              int modifier,
+                                              BinaryFeatures *features) {
   int sentence_length = sentence->size();
   // True if labeled dependency parsing.
   bool labeled =
-      static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
+    static_cast<SemanticOptions*>(pipe_->GetOptions())->labeled();
 
   // True if using morpho-syntactic features.
   bool use_morphological_features = false;
@@ -1812,10 +1808,10 @@ void SemanticFeatures::AddWordPairFeaturesMST(SemanticInstanceNumeric* sentence,
   MPID = (*pos_ids)[modifier];
 
   // Contextual information.
-  pHPID = (head > 0)? (*pos_ids)[head - 1] : TOKEN_START;
-  pMPID = (modifier > 0)? (*pos_ids)[modifier - 1] : TOKEN_START;
-  nHPID = (head < sentence_length - 1)? (*pos_ids)[head + 1] : TOKEN_STOP;
-  nMPID = (modifier < sentence_length - 1)?
+  pHPID = (head > 0) ? (*pos_ids)[head - 1] : TOKEN_START;
+  pMPID = (modifier > 0) ? (*pos_ids)[modifier - 1] : TOKEN_START;
+  nHPID = (head < sentence_length - 1) ? (*pos_ids)[head + 1] : TOKEN_STOP;
+  nMPID = (modifier < sentence_length - 1) ?
     (*pos_ids)[modifier + 1] : TOKEN_STOP;
 
   // Maximum is 255 feature templates.
@@ -1874,18 +1870,18 @@ void SemanticFeatures::AddWordPairFeaturesMST(SemanticInstanceNumeric* sentence,
         CHECK_LT(HFID, 0xfff);
         if (j >= 0xf) {
           LOG(WARNING) << "Too many morphological features (" << j << ")";
-          HFID = (HFID << 4) | ((uint16_t) 0xf);
+          HFID = (HFID << 4) | ((uint16_t)0xf);
         } else {
-          HFID = (HFID << 4) | ((uint16_t) j);
+          HFID = (HFID << 4) | ((uint16_t)j);
         }
         for (int k = 0; k < sentence->GetNumMorphFeatures(modifier); ++k) {
           MFID = sentence->GetMorphFeature(modifier, k);
           CHECK_LT(MFID, 0xfff);
           if (k >= 0xf) {
             LOG(WARNING) << "Too many morphological features (" << k << ")";
-            MFID = (MFID << 4) | ((uint16_t) 0xf);
+            MFID = (MFID << 4) | ((uint16_t)0xf);
           } else {
-            MFID = (MFID << 4) | ((uint16_t) k);
+            MFID = (MFID << 4) | ((uint16_t)k);
           }
           // Morphological features.
           fkey = encoder_.CreateFKey_WW(SemanticFeatureTemplateArc::HF_MF, flags, HFID, MFID);
@@ -1947,8 +1943,6 @@ void SemanticFeatures::AddWordPairFeaturesMST(SemanticInstanceNumeric* sentence,
 }
 #endif
 
-
-
 void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
                                             bool labeled,
                                             uint8_t feature_type,
@@ -1958,7 +1952,7 @@ void SemanticFeatures::AddPredicateFeatures(SemanticInstanceNumeric* sentence,
   //LOG(INFO) << "Adding arc features";
 
   SemanticOptions *options = static_cast<class SemanticPipe*>(pipe_)->
-      GetSemanticOptions();
+    GetSemanticOptions();
 
   //CHECK(!input_features_[r]);
   //BinaryFeatures *features = new BinaryFeatures;

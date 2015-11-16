@@ -130,7 +130,7 @@ public:
   int GetRelationPathId(int p, int a) { return relation_path_ids_[p][a]; }
   int GetPosPathId(int p, int a) { return pos_path_ids_[p][a]; }
 
- private:
+private:
   vector<int> predicate_ids_;
   vector<int> predicate_indices_;
   vector<vector<int> > argument_role_ids_;

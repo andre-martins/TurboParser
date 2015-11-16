@@ -23,9 +23,8 @@
 #include "ad3/GenericFactor.h"
 
 namespace AD3 {
-
 class FactorTree : public GenericFactor {
- public:
+public:
   FactorTree() {}
   virtual ~FactorTree() {
     if (own_parts_) {
@@ -81,7 +80,7 @@ class FactorTree : public GenericFactor {
     }
   }
 
-  // Given a configuration with a probability (weight), 
+  // Given a configuration with a probability (weight),
   // increment the vectors of variable and additional posteriors.
   // Note: additional_log_potentials is empty and is ignored.
   void UpdateMarginalsFromConfiguration(
@@ -136,7 +135,7 @@ class FactorTree : public GenericFactor {
     return static_cast<Configuration>(heads);
   }
 
- public:
+public:
   void Initialize(bool projective, int length,
                   const vector<DependencyPartArc*> &arcs,
                   DependencyDecoder *decoder,
@@ -154,7 +153,7 @@ class FactorTree : public GenericFactor {
     }
   }
 
- private:
+private:
   bool own_parts_;
   bool projective_; // If true, assume projective trees.
   int length_; // Sentence length (including root symbol).
@@ -162,8 +161,6 @@ class FactorTree : public GenericFactor {
   vector<DependencyPartArc*> arcs_;
   DependencyDecoder* decoder_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_TREE_H
-

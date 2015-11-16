@@ -25,19 +25,19 @@
 
 class DependencyLabelerOptions;
 
-class DependencyLabelerFeatures: public Features {
- public:
+class DependencyLabelerFeatures : public Features {
+public:
   DependencyLabelerFeatures() {};
   DependencyLabelerFeatures(Pipe* pipe) { pipe_ = pipe; }
   virtual ~DependencyLabelerFeatures() { Clear(); }
 
- public:
+public:
   void Clear() {
     for (int m = 0; m < input_arc_features_.size(); ++m) {
       if (!input_arc_features_[m]) continue;
-        input_arc_features_[m]->clear();
-        delete input_arc_features_[m];
-        input_arc_features_[m] = NULL;
+      input_arc_features_[m]->clear();
+      delete input_arc_features_[m];
+      input_arc_features_[m] = NULL;
     }
     input_arc_features_.clear();
 
@@ -61,7 +61,7 @@ class DependencyLabelerFeatures: public Features {
     input_sibling_features_.resize(length);
     for (int h = 0; h < length; ++h) {
       if (siblings[h].size() == 0) continue;
-      input_sibling_features_[h].resize(siblings[h].size()+1,
+      input_sibling_features_[h].resize(siblings[h].size() + 1,
                                         static_cast<BinaryFeatures*>(NULL));
     }
   }
@@ -77,7 +77,7 @@ class DependencyLabelerFeatures: public Features {
     return NULL;
   };
 
- public:
+public:
   void AddArcFeatures(DependencyInstanceNumeric *sentence,
                       const std::vector<std::vector<int> > &descendents,
                       const std::vector<std::vector<int> > &siblings,
@@ -97,7 +97,7 @@ class DependencyLabelerFeatures: public Features {
     return *(input_sibling_features_[head][sibling_index]);
   }
 
- protected:
+protected:
   void AddWordPairFeatures(DependencyInstanceNumeric* sentence,
                            int pair_type,
                            int head,
@@ -123,7 +123,7 @@ class DependencyLabelerFeatures: public Features {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   std::vector<BinaryFeatures*> input_arc_features_; // Vector of arc features.
   // Vectors of sibling features.
   std::vector<std::vector<BinaryFeatures*> > input_sibling_features_;

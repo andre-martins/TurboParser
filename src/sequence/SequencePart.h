@@ -98,7 +98,6 @@ private:
   int tag_left_left_; // Tag ID two words on the left.
 };
 
-
 class SequenceParts : public Parts {
 public:
   SequenceParts() {};

@@ -187,7 +187,6 @@ void SequencePipe::MakeGradientStep(Parts *parts,
                                     int iteration,
                                     const vector<double> &gold_output,
                                     const vector<double> &predicted_output) {
-
   SequenceFeatures *sequence_features =
     static_cast<SequenceFeatures*>(features);
   SequenceDictionary *sequence_dictionary = GetSequenceDictionary();
@@ -254,7 +253,7 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
         sequence_features->GetUnigramFeatures(unigram->position());
       for (int j = 0; j < unigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(unigram_features[j],
-                                                   unigram->tag(), 
+                                                   unigram->tag(),
                                                    predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
@@ -266,7 +265,7 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
                                                            bigram->tag());
       for (int j = 0; j < bigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(bigram_features[j],
-                                                   bigram_tag, 
+                                                   bigram_tag,
                                                    predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
@@ -280,7 +279,7 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
                                              trigram->tag());
       for (int j = 0; j < trigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(trigram_features[j],
-                                                   trigram_tag, 
+                                                   trigram_tag,
                                                    predicted_output[r] - gold_output[r]);
       }
     } else {
@@ -559,7 +558,6 @@ void SequencePipe::MakeTrigramParts(Instance *instance,
                                    sequence_parts->size() - num_parts_initial);
 }
 
-
 void SequencePipe::MakeSelectedFeatures(Instance *instance,
                                         Parts *parts,
                                         const vector<bool> &selected_parts,
@@ -618,4 +616,3 @@ void SequencePipe::LabelInstance(Parts *parts, const vector<double> &output,
     CHECK(sequence_instance->GetTag(i) != "NULL");
   }
 }
-

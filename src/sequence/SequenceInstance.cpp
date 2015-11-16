@@ -23,4 +23,3 @@ void SequenceInstance::Initialize(const vector<string> &forms,
   forms_ = forms;
   tags_ = tags;
 }
-

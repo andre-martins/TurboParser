@@ -32,7 +32,7 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   // Display information about the entity tags.
   LOG(INFO) << "Found " << tag_alphabet_.size() << " entity tags:";
   for (Alphabet::iterator it = tag_alphabet_.begin();
-    it != tag_alphabet_.end(); ++it) {
+  it != tag_alphabet_.end(); ++it) {
     std::string entity_tag = it->first;
     LOG(INFO) << entity_tag;
 
@@ -220,10 +220,7 @@ void EntityDictionary::ReadGazetteerFiles() {
     << gazetteer_word_alphabet_.size();
   LOG(INFO) << "Number of gazetteer entity tags: "
     << gazetteer_entity_tag_alphabet_.size();
-
 }
-
-
 
 void EntityTokenDictionary::Initialize(EntityReader *reader) {
   this->TokenDictionary::Initialize(reader);

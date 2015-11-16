@@ -130,7 +130,7 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
           const std::string &word = instance->GetForm(head_index_);
           // Plurals end in "s" for several languages.
           // TODO(atm): get rid of this hack.
-          if (word.length() > 0 && word[word.length()-1] == 's') {
+          if (word.length() > 0 && word[word.length() - 1] == 's') {
             number_ = MentionNumber::PLURAL;
           }
         }
@@ -264,7 +264,6 @@ void Mention::Print(const CoreferenceDictionary &dictionary,
   LOG(INFO) << "-----------------------------------------";
 }
 
-
 void Mention::ComputeHead() {
   // If it's a constituent, only one word should have its head outside the span.
   // In general, we define as head the last word in the span whose head is
@@ -276,4 +275,3 @@ void Mention::ComputeHead() {
   }
   if (head_index_ < 0) head_index_ = end_;
 }
-

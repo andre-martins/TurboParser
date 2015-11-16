@@ -117,22 +117,22 @@ void CoreferencePipe::ComputeScores(Instance *instance, Parts *parts,
 }
 
 void CoreferencePipe::MakeGradientStep(
-    Parts *parts,
-    Features *features,
-    double eta,
-    int iteration,
-    const std::vector<double> &gold_output,
-    const std::vector<double> &predicted_output) {
+  Parts *parts,
+  Features *features,
+  double eta,
+  int iteration,
+  const std::vector<double> &gold_output,
+  const std::vector<double> &predicted_output) {
   Pipe::MakeGradientStep(parts, features, eta, iteration, gold_output,
                          predicted_output);
 }
 
 void CoreferencePipe::MakeFeatureDifference(
-    Parts *parts,
-    Features *features,
-    const std::vector<double> &gold_output,
-    const std::vector<double> &predicted_output,
-    FeatureVector *difference) {
+  Parts *parts,
+  Features *features,
+  const std::vector<double> &gold_output,
+  const std::vector<double> &predicted_output,
+  FeatureVector *difference) {
   Pipe::MakeFeatureDifference(parts, features, gold_output, predicted_output,
                               difference);
 }
@@ -198,7 +198,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
   int mention_distance_threshold = -1; //100; // TODO(atm): put this in the options.
   for (int j = 0; j < mentions.size(); ++j) {
     bool found_closest = false;
-    for (int k = j+1; k < mentions.size(); ++k) {
+    for (int k = j + 1; k < mentions.size(); ++k) {
       if (mention_distance_threshold >= 0 &&
           k - j > mention_distance_threshold &&
           !(make_gold && (mentions[j]->id() >= 0 &&
@@ -229,10 +229,10 @@ void CoreferencePipe::MakeParts(Instance *instance,
 }
 
 void CoreferencePipe::MakeSelectedFeatures(
-    Instance *instance,
-    Parts *parts,
-    const std::vector<bool> &selected_parts,
-    Features *features) {
+  Instance *instance,
+  Parts *parts,
+  const std::vector<bool> &selected_parts,
+  Features *features) {
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceFeatures *coreference_features =
@@ -307,6 +307,5 @@ void CoreferencePipe::LabelInstance(Parts *parts,
   }
 
   LOG(INFO) << "Predicted " << num_entities << " entities for " << mentions.size()
-            << " mentions.";
+    << " mentions.";
 }
-

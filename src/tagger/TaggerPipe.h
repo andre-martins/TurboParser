@@ -161,4 +161,3 @@ protected:
 };
 
 #endif /* TAGGERPIPE_H_ */
-

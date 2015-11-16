@@ -24,7 +24,7 @@
 #include "CoreferenceDictionary.h"
 
 class CoreferenceDocumentNumeric : public Instance {
- public:
+public:
   CoreferenceDocumentNumeric() { conversation_ = false; };
   virtual ~CoreferenceDocumentNumeric() { Clear(); };
 
@@ -104,7 +104,7 @@ class CoreferenceDocumentNumeric : public Instance {
     }
   }
 
- protected:
+protected:
   void DeleteAllSentences() {
     for (int i = 0; i < sentences_.size(); ++i) {
       delete sentences_[i];
@@ -116,7 +116,7 @@ class CoreferenceDocumentNumeric : public Instance {
 
   void ComputeGlobalWordPositions(CoreferenceDocument* instance);
 
- private:
+private:
   bool conversation_;
   std::vector<CoreferenceSentenceNumeric*> sentences_;
   std::vector<int> sentence_cumulative_lengths_;

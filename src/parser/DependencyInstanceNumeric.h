@@ -60,7 +60,7 @@ public:
   }
 
   void Initialize(const DependencyDictionary &dictionary,
-                 DependencyInstance *instance);
+                  DependencyInstance *instance);
 
   void GetAllAncestors(const std::vector<int> &heads,
                        int descend,
@@ -73,7 +73,6 @@ public:
     }
   }
 
-
 #if 0
   // TODO(atm): this is repeated in other tasks. Should move some of these
   // functions to a common class and use inheritance.
@@ -85,23 +84,21 @@ public:
         if (last != 'A') {
           type += 'A';
           last = 'A';
-        } else if (type[type.size()-1] != '+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      }
-      else if (word[i] >= 'a' && word[i] <= 'z') {
+      } else if (word[i] >= 'a' && word[i] <= 'z') {
         if (last != 'a') {
           type += 'a';
           last = 'a';
-        } else if (type[type.size()-1] != '+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
         }
-      }
-      else if (word[i] >= '0' && word[i] <= '9') {
+      } else if (word[i] >= '0' && word[i] <= '9') {
         if (last != '0') {
           type += '0';
           last = '0';
-        } else if (type[type.size()-1] != '+') {
+        } else if (type[type.size() - 1] != '+') {
           type += '+';
           last = '0';
         }
@@ -137,7 +134,7 @@ public:
   int GetHead(int i) { return heads_[i]; };
   int GetRelationId(int i) { return relations_[i]; };
 
- protected:
+protected:
   vector<int> form_ids_;
   vector<int> form_lower_ids_;
   vector<int> lemma_ids_;

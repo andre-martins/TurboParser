@@ -106,8 +106,8 @@ void SemanticWriter::Write(Instance *instance) {
         os_ << predicate_name << "\t";
       }
       for (int k = first_predicate;
-           k < semantic_instance->GetNumPredicates();
-           ++k) {
+      k < semantic_instance->GetNumPredicates();
+        ++k) {
         string argument_name = "_";
         for (int l = 0; l < semantic_instance->GetNumArgumentsPredicate(k); ++l) {
           if (i == semantic_instance->GetArgumentIndex(k, l)) {
@@ -119,7 +119,7 @@ void SemanticWriter::Write(Instance *instance) {
           }
         }
         os_ << argument_name;
-        if (k < semantic_instance->GetNumPredicates() - 1) os_<< "\t";
+        if (k < semantic_instance->GetNumPredicates() - 1) os_ << "\t";
       }
     }
 

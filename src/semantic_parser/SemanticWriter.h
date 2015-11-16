@@ -50,11 +50,10 @@ public:
   }
   void Write(Instance *instance);
 
- protected:
+protected:
   Options *options_;
   bool use_sdp_format_;
   bool use_top_nodes_;
 };
 
 #endif /* SEMANTICWRITER_H_ */
-

@@ -37,4 +37,3 @@ void EntityPipe::PreprocessData() {
   static_cast<SequenceDictionary*>(dictionary_)->
     CreateTagDictionary(GetSequenceReader());
 }
-

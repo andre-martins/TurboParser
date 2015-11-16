@@ -242,8 +242,8 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
   //    lemma_alphabet_.Insert(special_symbols[i]);
   //  }
-  //  for (Alphabet::iterator iter = lemma_alphabet.begin(); 
-  //  iter != lemma_alphabet.end(); 
+  //  for (Alphabet::iterator iter = lemma_alphabet.begin();
+  //  iter != lemma_alphabet.end();
   //    ++iter) {
   //    if (lemma_freqs[iter->second] > lemma_cutoff) {
   //      lemma_alphabet_.Insert(iter->first);
@@ -278,8 +278,8 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
   //    feats_alphabet_.Insert(special_symbols[i]);
   //  }
-  //  for (Alphabet::iterator iter = feats_alphabet.begin(); 
-  //  iter != feats_alphabet.end(); 
+  //  for (Alphabet::iterator iter = feats_alphabet.begin();
+  //  iter != feats_alphabet.end();
   //    ++iter) {
   //    if (feats_freqs[iter->second] > feats_cutoff) {
   //      feats_alphabet_.Insert(iter->first);
@@ -290,7 +290,6 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   //  ++feats_cutoff;
   //  LOG(INFO) << "Incrementing FEATS cutoff to " << feats_cutoff << "...";
   //}
-
 
   while (true) {
     shape_alphabet_.clear();

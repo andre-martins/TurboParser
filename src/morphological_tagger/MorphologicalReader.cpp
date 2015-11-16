@@ -22,7 +22,6 @@
 #include "MorphologicalReader.h"
 #include "MorphologicalOptions.h"
 
-
 Instance *MorphologicalReader::GetNext() {
   // Fill all fields for the entire sentence.
   std::vector<std::vector<std::string> > sentence_fields;

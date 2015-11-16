@@ -92,7 +92,7 @@ protected:
                         vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-                            const vector<bool> &selected_parts, 
+                            const vector<bool> &selected_parts,
                             Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
@@ -162,4 +162,3 @@ protected:
 };
 
 #endif /* SEQUENCEPIPE_H_ */
-

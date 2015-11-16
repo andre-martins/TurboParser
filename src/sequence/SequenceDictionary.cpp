@@ -48,4 +48,3 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
 
   LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
 }
-

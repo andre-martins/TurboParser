@@ -142,7 +142,6 @@ void Pipe::RemoveUnsupportedFeatures(Instance *instance, Parts *parts,
 }
 
 void Pipe::Train() {
-
   PreprocessData();
   CreateInstances();
   parameters_->Initialize(options_->use_averaging());
@@ -279,7 +278,6 @@ void Pipe::TrainEpoch(int epoch) {
 
       MakeGradientStep(parts, features, eta, t, gold_outputs,
                        predicted_outputs);
-
     } else if (options_->GetTrainingAlgorithm() == "svm_mira" ||
                options_->GetTrainingAlgorithm() == "crf_mira" ||
                options_->GetTrainingAlgorithm() == "crf_margin_mira" ||

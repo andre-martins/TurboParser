@@ -133,7 +133,6 @@ Instance *ConstituencyLabelerReader::GetNext() {
         std::cout << " -> " << instance->GetConstituentLabels()[i] << endl;
       }
 #endif
-
     }
   }
   return static_cast<Instance*>(instance);
@@ -144,7 +143,6 @@ void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
   std::string *tag,
   std::string *lemma,
   std::vector<std::string> *morph_feats) {
-
   std::string start_info_marker = "##";
   std::string end_info_marker = "##";
 

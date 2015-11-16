@@ -43,9 +43,9 @@ Instance *CoreferenceReader::GetNext() {
         CHECK_NE(start, std::string::npos);
         CHECK_NE(end, std::string::npos);
         CHECK_LT(start, end);
-        CHECK_LT(end+1, line.size());
-        CHECK_EQ(line[end+1], ';');
-        name = line.substr(start+1, end-start-1); // Document id.
+        CHECK_LT(end + 1, line.size());
+        CHECK_EQ(line[end + 1], ';');
+        name = line.substr(start + 1, end - start - 1); // Document id.
         // Extract part number.
         start = line.find("part ");
         CHECK_NE(start, std::string::npos);
@@ -53,7 +53,7 @@ Instance *CoreferenceReader::GetNext() {
         end = line.find_first_not_of("0123456789", start);
         if (end == std::string::npos) end = line.length();
         CHECK_LT(start, end);
-        std::string part_name = line.substr(start, end-start);
+        std::string part_name = line.substr(start, end - start);
         std::stringstream ss(part_name);
         ss >> part_number; // Document part number.
 
@@ -127,21 +127,21 @@ Instance *CoreferenceSentenceReader::GetNext() {
 
   // Convert to array of forms, lemmas, etc.
   // Note: the first token is the root symbol.
-  std::vector<std::string> forms(length+1);
-  std::vector<std::string> lemmas(length+1);
-  std::vector<std::string> cpos(length+1);
-  std::vector<std::string> pos(length+1);
-  std::vector<std::vector<std::string> > feats(length+1);
-  std::vector<std::string> deprels(length+1);
-  std::vector<int> heads(length+1);
+  std::vector<std::string> forms(length + 1);
+  std::vector<std::string> lemmas(length + 1);
+  std::vector<std::string> cpos(length + 1);
+  std::vector<std::string> pos(length + 1);
+  std::vector<std::vector<std::string> > feats(length + 1);
+  std::vector<std::string> deprels(length + 1);
+  std::vector<int> heads(length + 1);
   std::vector<std::string> predicate_names; // Names of predicates (e.g. "take.01").
   std::vector<int> predicate_indices; // Positions of each predicate in the sentence.
   std::vector<std::vector<std::string> > argument_roles; // Semantic roles.
   std::vector<std::vector<int> > argument_indices; // Positions of each argument.
-  std::vector<std::string> parse_info(length+1);
-  std::vector<std::string> author_info(length+1);
-  std::vector<std::string> entity_info(length+1);
-  std::vector<std::string> coreference_info(length+1);
+  std::vector<std::string> parse_info(length + 1);
+  std::vector<std::string> author_info(length + 1);
+  std::vector<std::string> entity_info(length + 1);
+  std::vector<std::string> coreference_info(length + 1);
 
   forms[0] = "_root_";
   lemmas[0] = "_root_";
@@ -156,45 +156,45 @@ Instance *CoreferenceSentenceReader::GetNext() {
   coreference_info[0] = "-";
 
   int num_predicates = 0;
-  for(int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
     int offset = 0;
     if (i == 0) {
-      name = info[offset] + "\t" + info[offset+1]; // Document name and part.
+      name = info[offset] + "\t" + info[offset + 1]; // Document name and part.
     }
     offset += 3;
 
     // Use splitted forms.
-    forms[i+1] = info[offset];
-    lemmas[i+1] = "_";
+    forms[i + 1] = info[offset];
+    lemmas[i + 1] = "_";
     ++offset;
-    cpos[i+1] = info[offset];
-    pos[i+1] = info[offset]; // No distiction between pos and cpos.
+    cpos[i + 1] = info[offset];
+    pos[i + 1] = info[offset]; // No distiction between pos and cpos.
     ++offset;
-    parse_info[i+1] = info[offset]; // Parse span (e.g. "(NP (NN *")
+    parse_info[i + 1] = info[offset]; // Parse span (e.g. "(NP (NN *")
     ++offset;
 
     // No morpho-syntactic information.
-    feats[i+1].clear();
+    feats[i + 1].clear();
 
     // Dependency syntactic information.
     if (false) { //!semantic_options->use_dependency_syntactic_features()) {
-      heads[i+1] = 0;
-      deprels[i+1] = "NULL";
+      heads[i + 1] = 0;
+      deprels[i + 1] = "NULL";
     } else {
       std::stringstream ss(info[offset]);
       ++offset;
-      ss >> heads[i+1];
+      ss >> heads[i + 1];
       //++heads[i+1]; // Note: heads start at -1 here!
-      deprels[i+1] = info[offset];
+      deprels[i + 1] = info[offset];
       ++offset;
 
-      if (heads[i+1] < 0 || heads[i+1] > length) {
-        LOG(INFO) << "Invalid value of head (" << heads[i+1]
-                  << ") not in range [0.." << length
-                  << "] - attaching to the root.";
-        heads[i+1] = 0;
+      if (heads[i + 1] < 0 || heads[i + 1] > length) {
+        LOG(INFO) << "Invalid value of head (" << heads[i + 1]
+          << ") not in range [0.." << length
+          << "] - attaching to the root.";
+        heads[i + 1] = 0;
       }
     }
 
@@ -216,9 +216,9 @@ Instance *CoreferenceSentenceReader::GetNext() {
 
     std::string word_sense = info[offset];
     ++offset;
-    author_info[i+1] = info[offset];
+    author_info[i + 1] = info[offset];
     ++offset;
-    entity_info[i+1] = info[offset];
+    entity_info[i + 1] = info[offset];
     ++offset;
 
     if (i == 0) {
@@ -244,7 +244,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
       //LOG(INFO) << predicate_name;
       CHECK_LT(num_predicates, predicate_names.size());
       predicate_names[num_predicates] = predicate_name;
-      predicate_indices[num_predicates] = i+1;
+      predicate_indices[num_predicates] = i + 1;
       ++num_predicates;
     }
 
@@ -259,13 +259,13 @@ Instance *CoreferenceSentenceReader::GetNext() {
         int k = j - offset;
         if (use_top_nodes_) ++k;
         argument_roles[k].push_back(argument_role);
-        argument_indices[k].push_back(i+1);
+        argument_indices[k].push_back(i + 1);
       }
     }
     offset = info.size() - 1;
 
     // Add coreference information.
-    coreference_info[i+1] = info[offset];
+    coreference_info[i + 1] = info[offset];
     ++offset;
   }
 
@@ -283,21 +283,21 @@ Instance *CoreferenceSentenceReader::GetNext() {
 #if 0
   for (int k = 0; k < entity_spans.size(); ++k) {
     LOG(INFO) << "Entity " << entity_spans[k]->name()
-              << "(" << entity_spans[k]->start()
-              << "," << entity_spans[k]->end()
-              << ")";
+      << "(" << entity_spans[k]->start()
+      << "," << entity_spans[k]->end()
+      << ")";
   }
   for (int k = 0; k < constituent_spans.size(); ++k) {
     LOG(INFO) << "Constituent " << constituent_spans[k]->name()
-              << "(" << constituent_spans[k]->start()
-              << "," << constituent_spans[k]->end()
-              << ")";
+      << "(" << constituent_spans[k]->start()
+      << "," << constituent_spans[k]->end()
+      << ")";
   }
   for (int k = 0; k < coreference_spans.size(); ++k) {
     LOG(INFO) << "Mention " << coreference_spans[k]->name()
-              << " (" << coreference_spans[k]->start()
-              << "," << coreference_spans[k]->end()
-              << ")";
+      << " (" << coreference_spans[k]->start()
+      << "," << coreference_spans[k]->end()
+      << ")";
   }
 #endif
 
@@ -314,8 +314,8 @@ Instance *CoreferenceSentenceReader::GetNext() {
 }
 
 void CoreferenceSentenceReader::ConstructSpansFromText(
-    const std::vector<std::string> &span_lines,
-    std::vector<NamedSpan*> *spans) {
+  const std::vector<std::string> &span_lines,
+  std::vector<NamedSpan*> *spans) {
   char left_bracket = '(';
   char right_bracket = ')';
   std::string characters_to_ignore = "*-";
@@ -343,9 +343,9 @@ void CoreferenceSentenceReader::ConstructSpansFromText(
         continue;
       } else {
         name += ch;
-        if (j+1 >= line.length() ||
-            line[j+1] == left_bracket || line[j+1] == right_bracket ||
-            characters_to_ignore.find(line[j+1]) != std::string::npos) {
+        if (j + 1 >= line.length() ||
+            line[j + 1] == left_bracket || line[j + 1] == right_bracket ||
+            characters_to_ignore.find(line[j + 1]) != std::string::npos) {
           span_names_stack.push(name);
         }
       }
@@ -357,8 +357,8 @@ void CoreferenceSentenceReader::ConstructSpansFromText(
 }
 
 void CoreferenceSentenceReader::ConstructCoreferenceSpansFromText(
-    const std::vector<std::string> &span_lines,
-    std::vector<NamedSpan*> *spans) {
+  const std::vector<std::string> &span_lines,
+  std::vector<NamedSpan*> *spans) {
   char left_bracket = '(';
   char right_bracket = ')';
   std::string characters_to_ignore = "*-";
@@ -373,23 +373,23 @@ void CoreferenceSentenceReader::ConstructCoreferenceSpansFromText(
       std::string field = fields[j];
       CHECK_GE(field.length(), 1);
       char first_ch = field[0];
-      char last_ch = field[field.length()-1];
+      char last_ch = field[field.length() - 1];
       if (first_ch == left_bracket && last_ch == right_bracket) {
         int start_position = i;
         int end_position = i;
-        name = field.substr(1, field.length()-2);
+        name = field.substr(1, field.length() - 2);
         NamedSpan *span = new NamedSpan(start_position, end_position, name);
         spans->push_back(span);
       } else if (first_ch == left_bracket) {
         int start_position = i;
         int end_position = -1;
-        name = field.substr(1, field.length()-1);
+        name = field.substr(1, field.length() - 1);
         NamedSpan *span = new NamedSpan(start_position, end_position, name);
         spans->push_back(span);
       } else if (last_ch == right_bracket) {
-        name = field.substr(0, field.length()-1);
+        name = field.substr(0, field.length() - 1);
         NamedSpan *selected_span = NULL;
-        for (int k = spans->size()-1; k >= 0; --k) {
+        for (int k = spans->size() - 1; k >= 0; --k) {
           if ((*spans)[k]->name() == name && (*spans)[k]->end() < 0) {
             CHECK(!selected_span);
             selected_span = (*spans)[k];

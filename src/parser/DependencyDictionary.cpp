@@ -88,7 +88,7 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
       CHECK_GE(id, 0);
 
       // Insert new label in the set of existing labels, if it is not there
-      // already. NOTE: this is inefficient, maybe we should be using a 
+      // already. NOTE: this is inefficient, maybe we should be using a
       // different data structure.
       vector<int> &labels = existing_labels_[modifier_pos_id][head_pos_id];
       int j;
@@ -119,7 +119,6 @@ void DependencyDictionary::CreateLabelDictionary(DependencyReader *reader) {
 
   LOG(INFO) << "Number of labels: " << label_alphabet_.size();
 }
-
 
 void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
   SetTokenDictionaryFlagValues();
@@ -176,7 +175,7 @@ void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(), 
+      transform(form_lower.begin(), form_lower.end(),
                 form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);

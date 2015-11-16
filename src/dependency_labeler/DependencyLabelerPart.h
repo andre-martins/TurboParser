@@ -32,7 +32,7 @@ enum {
 };
 
 class DependencyLabelerPartArc : public Part {
- public:
+public:
   DependencyLabelerPartArc() { h_ = m_ = label_ = -1; };
   DependencyLabelerPartArc(int head, int modifier, int label) {
     h_ = head;
@@ -41,15 +41,15 @@ class DependencyLabelerPartArc : public Part {
   }
   virtual ~DependencyLabelerPartArc() {};
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int label() { return label_; };
 
- public:
+public:
   int type() { return DEPENDENCYLABELERPART_ARC; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -62,14 +62,14 @@ class DependencyLabelerPartArc : public Part {
     if (1 != fread(&label_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
   int label_; // Label ID.
 };
 
 class DependencyLabelerPartSibling : public Part {
- public:
+public:
   DependencyLabelerPartSibling() { h_ = m_ = s_ = -1; };
   DependencyLabelerPartSibling(int head, int modifier, int sibling,
                                int modifier_label, int sibling_label) {
@@ -81,17 +81,17 @@ class DependencyLabelerPartSibling : public Part {
   }
   virtual ~DependencyLabelerPartSibling() {};
 
- public:
+public:
   int type() { return DEPENDENCYLABELERPART_SIBLING; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int sibling() { return s_; };
   int modifier_label() { return modifier_label_; };
   int sibling_label() { return sibling_label_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -108,7 +108,7 @@ class DependencyLabelerPartSibling : public Part {
     if (1 != fread(&sibling_label_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier (if m_ = h_, s_ encodes the first child).
   int s_; // Index of the next sibling (if s_ = 0 or length, m_ encodes the last child).
@@ -117,7 +117,7 @@ class DependencyLabelerPartSibling : public Part {
 };
 
 class DependencyLabelerParts : public Parts {
- public:
+public:
   DependencyLabelerParts() {};
   virtual ~DependencyLabelerParts() { DeleteAll(); };
 
@@ -144,10 +144,10 @@ class DependencyLabelerParts : public Parts {
     CHECK(false) << "To be implemented.";
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildArcIndices(const std::vector<int> &heads);
   void BuildSiblingIndices(const std::vector<int> &heads);
   void DeleteArcIndices();
@@ -157,7 +157,7 @@ class DependencyLabelerParts : public Parts {
   void BuildOffsets() {
     for (int i = NUM_DEPENDENCYLABELERPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_DEPENDENCYLABELERPARTS - 1)? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_DEPENDENCYLABELERPARTS - 1) ? size() : offsets_[i + 1];
       }
     }
   };
@@ -185,15 +185,15 @@ class DependencyLabelerParts : public Parts {
     return index_siblings_[h][i];
   }
   int GetSiblingIndex(int h, int m) {
-    return (m < 0)? siblings_[h].size() : map_siblings_[h][m];
+    return (m < 0) ? siblings_[h].size() : map_siblings_[h][m];
   }
   const std::vector<std::vector<int> > &siblings() { return siblings_; }
 
- private:
+private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_DEPENDENCYLABELERPARTS - 1)? offsets_[i + 1] - (*offset) :
+    *size = (i < NUM_DEPENDENCYLABELERPARTS - 1) ? offsets_[i + 1] - (*offset) :
       DependencyLabelerParts::size() - (*offset);
   }
 
@@ -203,7 +203,7 @@ class DependencyLabelerParts : public Parts {
     if (i < NUM_DEPENDENCYLABELERPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
- private:
+private:
   std::vector<std::vector<int> > index_arcs_;
   std::vector<std::vector<std::vector<int> > > index_siblings_;
   std::vector<std::vector<int> > map_siblings_;

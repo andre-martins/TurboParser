@@ -22,7 +22,7 @@
 #include "ConstituencyInstance.h"
 
 class ConstituencyLabelerInstance : public ConstituencyInstance {
- public:
+public:
   ConstituencyLabelerInstance() {}
   virtual ~ConstituencyLabelerInstance() {}
 
@@ -51,7 +51,7 @@ class ConstituencyLabelerInstance : public ConstituencyInstance {
     return constituent_labels_;
   }
 
- protected:
+protected:
   std::vector<std::string> constituent_labels_; // One label per non-terminal.
 };
 

@@ -25,7 +25,7 @@
 class DependencyLabelerPipe;
 
 class DependencyLabelerDecoder : public Decoder {
- public:
+public:
   DependencyLabelerDecoder() {};
   DependencyLabelerDecoder(DependencyLabelerPipe *pipe) : pipe_(pipe) {};
   virtual ~DependencyLabelerDecoder() {};
@@ -64,13 +64,13 @@ class DependencyLabelerDecoder : public Decoder {
     CHECK(false) << "Not implemented yet.";
   }
 
- protected:
+protected:
   double RunViterbi(
-      const std::vector<std::vector<double> > &node_scores,
-      const std::vector<std::vector<std::vector<double> > > &edge_scores,
-      std::vector<int> *best_path);
+    const std::vector<std::vector<double> > &node_scores,
+    const std::vector<std::vector<std::vector<double> > > &edge_scores,
+    std::vector<int> *best_path);
 
- protected:
+protected:
   DependencyLabelerPipe *pipe_;
 };
 

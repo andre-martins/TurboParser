@@ -40,19 +40,19 @@ enum {
 };
 
 class DependencyPartArc : public Part {
- public:
+public:
   DependencyPartArc() { h_ = m_ = -1; };
   DependencyPartArc(int head, int modifier) : h_(head), m_(modifier) {};
   virtual ~DependencyPartArc() {};
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
 
- public:
+public:
   int type() { return DEPENDENCYPART_ARC; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -63,13 +63,13 @@ class DependencyPartArc : public Part {
     if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
 };
 
 class DependencyPartLabeledArc : public Part {
- public:
+public:
   DependencyPartLabeledArc() { h_ = m_ = label_ = -1; };
   DependencyPartLabeledArc(int head, int modifier, int label) {
     h_ = head;
@@ -78,15 +78,15 @@ class DependencyPartLabeledArc : public Part {
   }
   virtual ~DependencyPartLabeledArc() {};
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int label() { return label_; };
 
- public:
+public:
   int type() { return DEPENDENCYPART_LABELEDARC; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -99,14 +99,14 @@ class DependencyPartLabeledArc : public Part {
     if (1 != fread(&label_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
   int label_; // Label ID.
 };
 
 class DependencyPartSibl : public Part {
- public:
+public:
   DependencyPartSibl() { h_ = m_ = s_ = -1; };
   DependencyPartSibl(int head, int modifier, int sibling) {
     h_ = head;
@@ -115,15 +115,15 @@ class DependencyPartSibl : public Part {
   }
   virtual ~DependencyPartSibl() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_SIBL; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int sibling() { return s_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -136,14 +136,14 @@ class DependencyPartSibl : public Part {
     if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
   int s_; // Index of the sibling.
 };
 
 class DependencyPartNextSibl : public Part {
- public:
+public:
   DependencyPartNextSibl() { h_ = m_ = s_ = -1; };
   DependencyPartNextSibl(int head, int modifier, int sibling) {
     h_ = head;
@@ -152,15 +152,15 @@ class DependencyPartNextSibl : public Part {
   }
   virtual ~DependencyPartNextSibl() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_NEXTSIBL; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int next_sibling() { return s_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -173,14 +173,14 @@ class DependencyPartNextSibl : public Part {
     if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier (if m_ = h_, s_ encodes the first child).
   int s_; // Index of the next sibling (if s_ = 0 or length, m_ encodes the last child).
 };
 
 class DependencyPartGrandpar : public Part {
- public:
+public:
   DependencyPartGrandpar() { g_ = h_ = m_ = -1; };
   DependencyPartGrandpar(int grandparent, int head, int modifier) {
     g_ = grandparent;
@@ -189,15 +189,15 @@ class DependencyPartGrandpar : public Part {
   }
   virtual ~DependencyPartGrandpar() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_GRANDPAR; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int grandparent() { return g_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&g_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
@@ -210,14 +210,14 @@ class DependencyPartGrandpar : public Part {
     if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int g_; // Index of the grandparent.
   int h_; // Index of the head.
   int m_; // Index of the modifier.
 };
 
 class DependencyPartGrandSibl : public Part {
- public:
+public:
   DependencyPartGrandSibl() { g_ = h_ = m_ = s_ = -1; };
   DependencyPartGrandSibl(int grandparent, int head, int modifier, int sibling) {
     g_ = grandparent;
@@ -227,16 +227,16 @@ class DependencyPartGrandSibl : public Part {
   }
   virtual ~DependencyPartGrandSibl() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_GRANDSIBL; };
 
- public:
+public:
   int grandparent() { return g_; };
   int head() { return h_; };
   int modifier() { return m_; };
   int sibling() { return s_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&g_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
@@ -251,7 +251,7 @@ class DependencyPartGrandSibl : public Part {
     if (1 != fread(&s_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int g_; // Index of the grandparent.
   int h_; // Index of the head.
   int m_; // Index of the modifier.
@@ -259,7 +259,7 @@ class DependencyPartGrandSibl : public Part {
 };
 
 class DependencyPartTriSibl : public Part {
- public:
+public:
   DependencyPartTriSibl() { h_ = m_ = s_ = t_ = -1; };
   DependencyPartTriSibl(int head, int modifier, int sibling, int other_sibling) {
     h_ = head;
@@ -269,16 +269,16 @@ class DependencyPartTriSibl : public Part {
   }
   virtual ~DependencyPartTriSibl() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_TRISIBL; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int sibling() { return s_; };
   int other_sibling() { return t_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -293,7 +293,7 @@ class DependencyPartTriSibl : public Part {
     if (1 != fread(&t_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
   int s_; // Index of the sibling.
@@ -301,7 +301,7 @@ class DependencyPartTriSibl : public Part {
 };
 
 class DependencyPartNonproj : public Part {
- public:
+public:
   DependencyPartNonproj() { h_ = m_ = -1; };
   DependencyPartNonproj(int head, int modifier) {
     h_ = head;
@@ -309,14 +309,14 @@ class DependencyPartNonproj : public Part {
   }
   virtual ~DependencyPartNonproj() {};
 
- public:
-  int type() {return DEPENDENCYPART_NONPROJ;};
+public:
+  int type() { return DEPENDENCYPART_NONPROJ; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -327,14 +327,13 @@ class DependencyPartNonproj : public Part {
     if (1 != fread(&m_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
 };
 
-
 class DependencyPartPath : public Part {
- public:
+public:
   DependencyPartPath() { a_ = d_ = -1; };
   DependencyPartPath(int ancestor, int descendant) {
     a_ = ancestor;
@@ -342,14 +341,14 @@ class DependencyPartPath : public Part {
   }
   virtual ~DependencyPartPath() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_PATH; };
 
- public:
+public:
   int ancestor() { return a_; };
   int descendant() { return d_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&a_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&d_, sizeof(int), 1, fs)) CHECK(false);
@@ -360,13 +359,13 @@ class DependencyPartPath : public Part {
     if (1 != fread(&d_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int a_; // Index of the ancestor.
   int d_; // Index of the descendant.
 };
 
 class DependencyPartHeadBigram : public Part {
- public:
+public:
   DependencyPartHeadBigram() { h_ = m_ = -1; };
   DependencyPartHeadBigram(int head, int modifier, int previous_head) {
     h_ = head;
@@ -375,15 +374,15 @@ class DependencyPartHeadBigram : public Part {
   }
   virtual ~DependencyPartHeadBigram() {};
 
- public:
+public:
   int type() { return DEPENDENCYPART_HEADBIGRAM; };
 
- public:
+public:
   int head() { return h_; };
   int modifier() { return m_; };
   int previous_head() { return hp_; };
 
- public:
+public:
   void Save(FILE *fs) {
     if (1 != fwrite(&h_, sizeof(int), 1, fs)) CHECK(false);
     if (1 != fwrite(&m_, sizeof(int), 1, fs)) CHECK(false);
@@ -396,14 +395,14 @@ class DependencyPartHeadBigram : public Part {
     if (1 != fread(&hp_, sizeof(int), 1, fs)) CHECK(false);
   };
 
- private:
+private:
   int h_; // Index of the head.
   int m_; // Index of the modifier.
   int hp_; // Index of the head of the previous word (m_ - 1).
 };
 
 class DependencyParts : public Parts {
- public:
+public:
   DependencyParts() {};
   virtual ~DependencyParts() { DeleteAll(); };
 
@@ -452,10 +451,10 @@ class DependencyParts : public Parts {
     CHECK(false) << "To be implemented.";
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildIndices(int sentence_length, bool labeled);
   void DeleteIndices();
   int FindArc(int head, int modifier) { return index_[head][modifier]; };
@@ -483,7 +482,7 @@ class DependencyParts : public Parts {
   void BuildOffsets() {
     for (int i = NUM_DEPENDENCYPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_DEPENDENCYPARTS - 1)? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_DEPENDENCYPARTS - 1) ? size() : offsets_[i + 1];
       }
     }
   };
@@ -550,11 +549,11 @@ class DependencyParts : public Parts {
     GetOffset(DEPENDENCYPART_HEADBIGRAM, offset, size);
   };
 
- private:
+private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_DEPENDENCYPARTS - 1)? offsets_[i + 1] - (*offset) :
+    *size = (i < NUM_DEPENDENCYPARTS - 1) ? offsets_[i + 1] - (*offset) :
       DependencyParts::size() - (*offset);
   }
 
@@ -564,7 +563,7 @@ class DependencyParts : public Parts {
     if (i < NUM_DEPENDENCYPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
- private:
+private:
   vector<vector<int> >  index_;
   vector<vector<vector<int> > > index_labeled_;
   int offsets_[NUM_DEPENDENCYPARTS];

@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class DependencyOptions : public Options {
- public:
+public:
   DependencyOptions() {};
   virtual ~DependencyOptions() {};
 
@@ -59,7 +59,7 @@ class DependencyOptions : public Options {
   bool use_directed_paths() { return use_directed_paths_; }
   bool use_head_bigrams() { return use_head_bigrams_; }
 
- protected:
+protected:
   string file_format_;
   string model_type_;
   bool large_feature_set_;

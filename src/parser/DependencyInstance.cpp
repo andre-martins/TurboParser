@@ -23,7 +23,7 @@ void DependencyInstance::Initialize(const vector<string> &forms,
                                     const vector<string> &cpos,
                                     const vector<string> &pos,
                                     const vector<vector<string> > &feats,
-                                    const vector<string> &deprels, 
+                                    const vector<string> &deprels,
                                     const vector<int> &heads) {
   forms_ = forms;
   lemmas_ = lemmas;
@@ -33,4 +33,3 @@ void DependencyInstance::Initialize(const vector<string> &forms,
   deprels_ = deprels;
   heads_ = heads;
 }
-

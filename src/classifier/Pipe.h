@@ -125,7 +125,7 @@ protected:
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeSelectedFeatures(Instance *instance, Parts *parts,
-                                    const vector<bool> &selected_parts, 
+                                    const vector<bool> &selected_parts,
                                     Features *features) = 0;
 
   // Given an instance, parts, and features, compute the scores. This will
@@ -258,7 +258,6 @@ protected:
   Decoder *decoder_; // Decoder for this classification task.
   Parameters *parameters_; // Parameter vector.
   vector<Instance*> instances_; // Set of instances.
-
 
   // Number of mistakes and number of total parts at test time (used for
   // evaluation purposes).

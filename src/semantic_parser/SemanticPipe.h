@@ -251,8 +251,6 @@ protected:
             //LOG(INFO) << semantic_instance->GetForm(a)
             //          << " <-- "
             //          << semantic_instance->GetForm(p);
-
-
           }
           if (GetSemanticOptions()->labeled()) {
             const vector<int> &labeled_arcs =
@@ -269,7 +267,6 @@ protected:
                   //LOG(INFO) << semantic_instance->GetForm(a)
                   //          << " <-*- "
                   //          << semantic_instance->GetForm(p);
-
                 }
                 ++num_gold_labeled_arcs;
               }

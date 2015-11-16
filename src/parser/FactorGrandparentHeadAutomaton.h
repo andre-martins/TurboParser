@@ -23,7 +23,6 @@
 #include "ad3/GenericFactor.h"
 
 namespace AD3 {
-
 class FactorGrandparentHeadAutomaton : public GenericFactor {
 public:
   FactorGrandparentHeadAutomaton() {}
@@ -397,7 +396,7 @@ public:
     vector<int> index_incoming;
     for (int k = 0; k < incoming_arcs.size(); ++k) {
       g = incoming_arcs[k]->head();
-      //cout << "g-arc " << g << " -> " 
+      //cout << "g-arc " << g << " -> "
       //     << incoming_arcs[k]->modifier() << endl;
       CHECK_EQ(h, incoming_arcs[k]->modifier());
       // Allow for the case where g is -1 (the head being the root
@@ -470,7 +469,6 @@ private:
   vector<vector<int> > index_grandparents_;
   vector<vector<vector<int> > > index_grandsiblings_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_GRANDPARENT_HEAD_AUTOMATON

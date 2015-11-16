@@ -24,7 +24,7 @@
 #include "CoreferenceSentence.h"
 
 class CoreferenceDocument : public Instance {
- public:
+public:
   CoreferenceDocument() { conversation_ = false; }
   virtual ~CoreferenceDocument() { DeleteAllSentences(); }
 
@@ -45,10 +45,10 @@ class CoreferenceDocument : public Instance {
   int part_number() { return part_number_; }
   bool is_conversation() { return conversation_; }
 
- protected:
+protected:
   void DeleteAllSentences();
 
- protected:
+protected:
   // Document name and part number.
   std::string name_;
   int part_number_;

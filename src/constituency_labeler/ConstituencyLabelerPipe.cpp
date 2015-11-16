@@ -271,4 +271,3 @@ void ConstituencyLabelerPipe::LabelInstance(Parts *parts,
     }
   }
 }
-

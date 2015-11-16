@@ -28,11 +28,10 @@
 #endif
 
 namespace AD3 {
-
 typedef std::tr1::unordered_map<int, int> HashMapIntInt;
 
 class FactorArgumentAutomaton : public GenericFactor {
- public:
+public:
   FactorArgumentAutomaton() {}
   virtual ~FactorArgumentAutomaton() { ClearActiveSet(); }
 
@@ -46,12 +45,12 @@ class FactorArgumentAutomaton : public GenericFactor {
     int total = 0; // Delete this later.
     for (int s = 0; s < GetNumSenses(); ++s) {
       for (int a1 = 0; a1 < index_siblings_[s].size(); ++a1) {
-        for (int a2 = a1+1; a2 <= index_siblings_[s][a1].size(); ++a2) {
+        for (int a2 = a1 + 1; a2 <= index_siblings_[s][a1].size(); ++a2) {
           CHECK_GE(index_siblings_[s][a1][a2], 0);
           int index = index_siblings_[s][a1][a2];
           ++total;
           stream << " " << setprecision(9)
-                 << additional_log_potentials_[index];
+            << additional_log_potentials_[index];
         }
       }
     }
@@ -69,20 +68,20 @@ class FactorArgumentAutomaton : public GenericFactor {
     }
   }
   double GetPredicateScore(
-      int predicate,
-      int sense,
-      const vector<double> &variable_log_potentials,
-      const vector<double> &additional_log_potentials) const {
+    int predicate,
+    int sense,
+    const vector<double> &variable_log_potentials,
+    const vector<double> &additional_log_potentials) const {
     int index = index_arcs_[predicate][sense];
     return variable_log_potentials[index];
   }
   double GetCoparentScore(
-      int first_predicate,
-      int first_sense,
-      int second_predicate,
-      int second_sense,
-      const vector<double> &variable_log_potentials,
-      const vector<double> &additional_log_potentials) const {
+    int first_predicate,
+    int first_sense,
+    int second_predicate,
+    int second_sense,
+    const vector<double> &variable_log_potentials,
+    const vector<double> &additional_log_potentials) const {
     int index = index_coparents_[first_predicate][first_sense]
       [second_predicate][second_sense];
     return additional_log_potentials[index];
@@ -115,38 +114,38 @@ class FactorArgumentAutomaton : public GenericFactor {
     // Decode using the Viterbi algorithm.
     int length = GetLength();
     vector<vector<vector<double> > > values(length);
-    vector<vector<vector<pair<int,int> > > > path(length);
+    vector<vector<vector<pair<int, int> > > > path(length);
     // The start state is p1 = 0, s1 = 0.
     values[0].push_back(vector<double>(1, 0.0));
-    path[0].push_back(vector<pair<int,int> >(1, pair<int, int>(0, 0)));
+    path[0].push_back(vector<pair<int, int> >(1, pair<int, int>(0, 0)));
     for (int p = 1; p < length; ++p) {
       // p+1 possible states: either keep the previous state (no arc added)
       // or transition to a new state (arc between p and a).
-      values[p].resize(p+1);
-      path[p].resize(p+1);
+      values[p].resize(p + 1);
+      path[p].resize(p + 1);
       for (int i = 0; i < p; ++i) {
         values[p][i].resize(GetNumSenses(i));
         path[p][i].resize(GetNumSenses(i));
         // In this case, the previous state must also be i.
         for (int s1 = 0; s1 < GetNumSenses(i); ++s1) {
-          values[p][i][s1] = values[p-1][i][s1];
-          path[p][i][s1] = std::pair<int,int>(i, s1);
+          values[p][i][s1] = values[p - 1][i][s1];
+          path[p][i][s1] = std::pair<int, int>(i, s1);
         }
       }
       // For the p-th state, the previous state can be anything up to p-1.
       values[p][p].resize(GetNumSenses(p));
       path[p][p].resize(GetNumSenses(p));
       for (int s2 = 0; s2 < GetNumSenses(p); ++s2) {
-        path[p][p][s2] = pair<int,int>(-1, -1);
+        path[p][p][s2] = pair<int, int>(-1, -1);
         for (int j = 0; j < p; ++j) {
           for (int s1 = 0; s1 < GetNumSenses(j); ++s1) {
-            double score = values[p-1][j][s1];
+            double score = values[p - 1][j][s1];
             score += GetCoparentScore(j, s1, p, s2, variable_log_potentials,
                                       additional_log_potentials);
 
             if (path[p][p][s2].first < 0 || score > values[p][p][s2]) {
               values[p][p][s2] = score;
-              path[p][p][s2] = pair<int,int>(j, s1);
+              path[p][p][s2] = pair<int, int>(j, s1);
             }
           }
         }
@@ -155,31 +154,31 @@ class FactorArgumentAutomaton : public GenericFactor {
       }
     }
     // The end state is p = length, s2 = 0.
-    vector<pair<int,int> > best_path(length);
-    best_path[length-1] = pair<int,int>(-1, -1);
+    vector<pair<int, int> > best_path(length);
+    best_path[length - 1] = pair<int, int>(-1, -1);
     int s2 = 0;
     for (int j = 0; j < length; ++j) {
       for (int s1 = 0; s1 < GetNumSenses(j); ++s1) {
-        double score = values[length-1][j][s1] +
+        double score = values[length - 1][j][s1] +
           GetCoparentScore(j, s1, length, s2, variable_log_potentials,
                            additional_log_potentials);
-        if (best_path[length-1].first < 0 || score > (*value)) {
+        if (best_path[length - 1].first < 0 || score >(*value)) {
           *value = score;
-          best_path[length-1] = pair<int,int>(j, s1);
+          best_path[length - 1] = pair<int, int>(j, s1);
         }
       }
     }
 
     // Backtrack.
-    for (int p = length-1; p > 0; --p) {
-      best_path[p-1] = path[p][best_path[p].first][best_path[p].second];
+    for (int p = length - 1; p > 0; --p) {
+      best_path[p - 1] = path[p][best_path[p].first][best_path[p].second];
     }
-    vector<pair<int,int> > *predicates_senses =
-      static_cast<vector<pair<int,int> >*>(configuration);
+    vector<pair<int, int> > *predicates_senses =
+      static_cast<vector<pair<int, int> >*>(configuration);
     for (int p = 1; p < length; ++p) {
       if (best_path[p].first == p) {
         int s = best_path[p].second;
-        predicates_senses->push_back(pair<int,int>(p, s));
+        predicates_senses->push_back(pair<int, int>(p, s));
       }
     }
 
@@ -193,7 +192,6 @@ class FactorArgumentAutomaton : public GenericFactor {
     LOG(INFO) << "Maximize value: " << *value;
     LOG(INFO) << "Evaluate value: " << value2;
 #endif
-
   }
 
   // Compute the score of a given assignment.
@@ -201,8 +199,8 @@ class FactorArgumentAutomaton : public GenericFactor {
                 const vector<double> &additional_log_potentials,
                 const Configuration configuration,
                 double *value) {
-    const vector<pair<int,int> > *predicates_senses =
-      static_cast<const vector<pair<int,int> >*>(configuration);
+    const vector<pair<int, int> > *predicates_senses =
+      static_cast<const vector<pair<int, int> >*>(configuration);
     *value = 0.0;
     // Predicates belong to {1,2,...}
     // Senses belong to {0,1,...}
@@ -232,8 +230,8 @@ class FactorArgumentAutomaton : public GenericFactor {
     double weight,
     vector<double> *variable_posteriors,
     vector<double> *additional_posteriors) {
-    const vector<pair<int,int> > *predicates_senses =
-      static_cast<const vector<pair<int,int> >*>(configuration);
+    const vector<pair<int, int> > *predicates_senses =
+      static_cast<const vector<pair<int, int> >*>(configuration);
     // Predicates belong to {1,2,...}
     // Senses belong to {0,1,...}
     int num_predicates = predicates_senses->size();
@@ -258,10 +256,10 @@ class FactorArgumentAutomaton : public GenericFactor {
   // Count how many common values two configurations have.
   int CountCommonValues(const Configuration &configuration1,
                         const Configuration &configuration2) {
-    const vector<pair<int,int> > *values1 =
-      static_cast<const vector<pair<int,int> >*>(configuration1);
-    const vector<pair<int,int> > *values2 =
-      static_cast<const vector<pair<int,int> >*>(configuration2);
+    const vector<pair<int, int> > *values1 =
+      static_cast<const vector<pair<int, int> >*>(configuration1);
+    const vector<pair<int, int> > *values2 =
+      static_cast<const vector<pair<int, int> >*>(configuration2);
     int count = 0;
     int j = 0;
     for (int i = 0; i < values1->size(); ++i) {
@@ -283,10 +281,10 @@ class FactorArgumentAutomaton : public GenericFactor {
   bool SameConfiguration(
     const Configuration &configuration1,
     const Configuration &configuration2) {
-    const vector<pair<int,int> > *values1 =
-      static_cast<const vector<pair<int,int> >*>(configuration1);
-    const vector<pair<int,int> > *values2 =
-      static_cast<const vector<pair<int,int> >*>(configuration2);
+    const vector<pair<int, int> > *values1 =
+      static_cast<const vector<pair<int, int> >*>(configuration1);
+    const vector<pair<int, int> > *values2 =
+      static_cast<const vector<pair<int, int> >*>(configuration2);
     if (values1->size() != values2->size()) return false;
     for (int i = 0; i < values1->size(); ++i) {
       if ((*values1)[i] != (*values2)[i]) return false;
@@ -296,19 +294,19 @@ class FactorArgumentAutomaton : public GenericFactor {
 
   // Delete configuration.
   void DeleteConfiguration(Configuration configuration) {
-    vector<pair<int,int> > *values =
-      static_cast<vector<pair<int,int> >*>(configuration);
+    vector<pair<int, int> > *values =
+      static_cast<vector<pair<int, int> >*>(configuration);
     delete values;
   }
 
   Configuration CreateConfiguration() {
     // The first half of this array contains the indices of the predicates.
     // The second half contains the predicate senses.
-    vector<pair<int,int> >* predicates_senses = new vector<pair<int,int> >;
+    vector<pair<int, int> >* predicates_senses = new vector<pair<int, int> >;
     return static_cast<Configuration>(predicates_senses);
   }
 
- public:
+public:
   // Incoming arcs are of the form (p,s,a) for each p and s.
   // The variables linked to this factor must be in the same order as
   // the incoming arcs.
@@ -326,11 +324,11 @@ class FactorArgumentAutomaton : public GenericFactor {
       CHECK_EQ(a, incoming_arcs[k]->argument());
       int p = incoming_arcs[k]->predicate();
       int s = incoming_arcs[k]->sense();
-      int position = (right)? p-a : a-p;
+      int position = (right) ? p - a : a - p;
       ++position; // Position 0 is reserved for the case a1=-1.
       CHECK_GE(position, 1) << p << " " << a;
       if (position >= map_senses.size()) {
-        map_senses.resize(position+1);
+        map_senses.resize(position + 1);
       }
       CHECK(map_senses[position].find(s) == map_senses[position].end());
       int sense = map_senses[position].size();
@@ -351,16 +349,16 @@ class FactorArgumentAutomaton : public GenericFactor {
       CHECK_EQ(a, incoming_arcs[k]->argument());
       int p = incoming_arcs[k]->predicate();
       int s = incoming_arcs[k]->sense();
-      int position = (right)? p-a : a-p;
+      int position = (right) ? p - a : a - p;
       ++position; // Position 0 is reserved for the case a1=-1.
       CHECK_GE(position, 1) << p << " " << a;
       CHECK(map_senses[position].find(s) != map_senses[position].end());
       int sense = map_senses[position][s];
       if (position >= predicates.size()) {
-        predicates.resize(position+1);
+        predicates.resize(position + 1);
       }
       if (sense >= predicates[position].size()) {
-        predicates[position].resize(sense+1, -1);
+        predicates[position].resize(sense + 1, -1);
       }
       // This will be replaced by the index of the argument.
       CHECK_LT(predicates[position][sense], 0);
@@ -394,9 +392,9 @@ class FactorArgumentAutomaton : public GenericFactor {
       // Pretend there is a sense 0 for the first predicate.
       int num_senses1 = GetNumSenses(i); //(i == 0)? 1 : index_arcs_[i].size();
       index_coparents_[i].assign(num_senses1,
-                                 vector<vector<int> >(num_predicates+1));
+                                 vector<vector<int> >(num_predicates + 1));
       for (int sense1 = 0; sense1 < num_senses1; ++sense1) {
-        for (int j = 0; j < num_predicates+1; ++j) {
+        for (int j = 0; j < num_predicates + 1; ++j) {
           // Pretend there is a sense 0 for the last predicate.
           int num_senses2 = GetNumSenses(j); // (j == num_predicates)? 1 : index_arcs_[j].size();
           index_coparents_[i][sense1][j].assign(num_senses2, -1);
@@ -410,8 +408,8 @@ class FactorArgumentAutomaton : public GenericFactor {
       int s1 = coparents[k]->first_sense();
       int p2 = coparents[k]->second_predicate();
       int s2 = coparents[k]->second_sense();
-      int position1 = right? p1-a : a-p1;
-      int position2 = right? p2-a : a-p2;
+      int position1 = right ? p1 - a : a - p1;
+      int position2 = right ? p2 - a : a - p2;
       if (p1 < 0) position1 = -1; // To handle p1=-1.
       ++position1; // Position 0 is reserved for the case p1=-1.
       ++position2;
@@ -424,12 +422,12 @@ class FactorArgumentAutomaton : public GenericFactor {
       if (position2 < predicates.size()) {
         CHECK(map_senses[position2].find(s2) != map_senses[position2].end());
       }
-      int sense1 = (position1 > 0)? map_senses[position1][s1] : 0;
-      int sense2 = (position2 < predicates.size())?
+      int sense1 = (position1 > 0) ? map_senses[position1][s1] : 0;
+      int sense2 = (position2 < predicates.size()) ?
         map_senses[position2][s2] : 0;
-      int first_predicate = (position1 > 0)?
+      int first_predicate = (position1 > 0) ?
         predicates[position1][sense1] : 0;
-      int second_predicate = (position2 < predicates.size())?
+      int second_predicate = (position2 < predicates.size()) ?
         predicates[position2][sense2] : GetLength();
       CHECK_GE(first_predicate, 0);
       CHECK_GE(second_predicate, 1);
@@ -446,12 +444,11 @@ class FactorArgumentAutomaton : public GenericFactor {
     }
   }
 
- private:
+private:
   vector<vector<int> > index_arcs_; // Indexed by p, s.
   // Indexed by p1, s1, p2, s2.
   vector<vector<vector<vector<int> > > > index_coparents_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_ARGUMENT_AUTOMATON

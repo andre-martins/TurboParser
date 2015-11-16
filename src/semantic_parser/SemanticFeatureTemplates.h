@@ -61,7 +61,6 @@ struct SemanticFeatureTemplatePredicate {
   };
 };
 
-
 struct SemanticFeatureTemplateArc {
   enum types {
     // There is a cross-product between these and direction, distance, {word form}, {pos cpos}
@@ -369,7 +368,6 @@ struct SemanticFeatureTemplateGrandparent {
     HW_MP,        /* head word, mod POS */
     HP_MW,        /* head POS, mod word */
     HW_MW,        /* head word, mod word */
-
 
     // Contextual features
     GP_HP_MP_pGP,         /* grandpar POS, head POS, mod POS, grandpar left-POS */
