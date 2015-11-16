@@ -25,10 +25,6 @@
 #include "Utils.h"
 
 
-
-
-
-
 //struct  FeatureLabelPair : Structure to define a a feature-label pair
 struct FeatureLabelPair {
   uint64_t feature;
@@ -336,6 +332,10 @@ public:
       labeled_weights_.Add(averaged_labeled_weights_);
     }
   }
+
+  int GetCachingWeightsHits()   const { return caching_weights_.hits();    };
+  int GetCachingWeightsMisses() const { return caching_weights_.misses();  };
+  int GetCachingWeightsSize()   const { return caching_weights_.GetSize(); };
 
 protected:
   // Average the parameters as in averaged perceptron.

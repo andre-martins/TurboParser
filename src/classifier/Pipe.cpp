@@ -452,9 +452,9 @@ void Pipe::Run() {
   LOG(INFO) << "Number of instances: " << num_instances;
   LOG(INFO) << "Time: " << diff_ms(end, start);
 
-  LOG(INFO) << "Cache size: " << parameters_->caching_weights_.GetSize() << "\t"
-    << "Cache hits: " << parameters_->caching_weights_.hits() << "\t"
-    << "Cache misses: " << parameters_->caching_weights_.misses() << endl;
+  LOG(INFO) << "Cache size: " << parameters_->GetCachingWeightsSize() << "\t"
+    << "Cache hits: " << parameters_->GetCachingWeightsHits() << "\t"
+    << "Cache misses: " << parameters_->GetCachingWeightsMisses() << endl;
 
   if (options_->evaluate()) EndEvaluation();
 }
