@@ -29,8 +29,11 @@
 void MorphologicalPipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
+  static_cast<SequenceDictionary*>(dictionary_)->
+    SetTokenDictionary(token_dictionary_);
   // To get the right reader (instead of the default sequence reader).
-  static_cast<MorphologicalTokenDictionary*>(token_dictionary_)->Initialize(GetMorphologicalReader());
-  static_cast<MorphologicalDictionary*>(dictionary_)->CreateTagDictionary(GetMorphologicalReader());
+  static_cast<MorphologicalTokenDictionary*>(token_dictionary_)->
+    Initialize(GetMorphologicalReader());
+  static_cast<MorphologicalDictionary*>(dictionary_)->
+    CreateTagDictionary(GetMorphologicalReader());
 }

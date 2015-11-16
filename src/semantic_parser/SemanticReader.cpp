@@ -45,11 +45,11 @@ Instance *SemanticReader::GetNext() {
       if (line.length() <= 0) break;
       if (0 == line.substr(0, 1).compare("#")) {
         //LOG(INFO) << line;
-  if (name != "") {
-    name += "\n" + line;
-  } else {
-    name = line;
-  }
+        if (name != "") {
+          name += "\n" + line;
+        } else {
+          name = line;
+        }
         continue; // Sentence ID.
       }
       vector<string> fields;
@@ -66,13 +66,13 @@ Instance *SemanticReader::GetNext() {
 
   // Convert to array of forms, lemmas, etc.
   // Note: the first token is the root symbol.
-  vector<string> forms(length+1);
-  vector<string> lemmas(length+1);
-  vector<string> cpos(length+1);
-  vector<string> pos(length+1);
-  vector<vector<string> > feats(length+1);
-  vector<string> deprels(length+1);
-  vector<int> heads(length+1);
+  vector<string> forms(length + 1);
+  vector<string> lemmas(length + 1);
+  vector<string> cpos(length + 1);
+  vector<string> pos(length + 1);
+  vector<vector<string> > feats(length + 1);
+  vector<string> deprels(length + 1);
+  vector<int> heads(length + 1);
   vector<string> predicate_names; // Names of predicates (e.g. "take.01").
   vector<int> predicate_indices; // Positions of each predicate in the sentence.
   vector<vector<string> > argument_roles; // Semantic roles.
@@ -88,7 +88,7 @@ Instance *SemanticReader::GetNext() {
 
   bool read_semantic_roles = true;
   int num_predicates = 0;
-  for(int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
     int offset = 1;
@@ -97,33 +97,33 @@ Instance *SemanticReader::GetNext() {
     }
 
     // Use splitted forms.
-    forms[i+1] = info[offset];
+    forms[i + 1] = info[offset];
     ++offset;
-    lemmas[i+1] = info[offset];
+    lemmas[i + 1] = info[offset];
     ++offset;
-    cpos[i+1] = info[offset];
-    pos[i+1] = info[offset]; // No distiction between pos and cpos.
+    cpos[i + 1] = info[offset];
+    pos[i + 1] = info[offset]; // No distiction between pos and cpos.
     ++offset;
 
     // No morpho-syntactic information.
-    feats[i+1].clear();
+    feats[i + 1].clear();
 
     if (!semantic_options->use_dependency_syntactic_features()) {
-      heads[i+1] = 0;
-      deprels[i+1] = "NULL";
+      heads[i + 1] = 0;
+      deprels[i + 1] = "NULL";
       offset += 2;
     } else {
       stringstream ss(info[offset]);
       ++offset;
-      ss >> heads[i+1];
-      deprels[i+1] = info[offset];
+      ss >> heads[i + 1];
+      deprels[i + 1] = info[offset];
       ++offset;
 
-      if (heads[i+1] < 0 || heads[i+1] > length) {
-        LOG(INFO) << "Invalid value of head (" << heads[i+1]
-                  << ") not in range [0.." << length
-                  << "] - attaching to the root.";
-        heads[i+1] = 0;
+      if (heads[i + 1] < 0 || heads[i + 1] > length) {
+        LOG(INFO) << "Invalid value of head (" << heads[i + 1]
+          << ") not in range [0.." << length
+          << "] - attaching to the root.";
+        heads[i + 1] = 0;
       }
     }
 
@@ -170,12 +170,12 @@ Instance *SemanticReader::GetNext() {
         //  LOG(INFO) << "Top: " << i+1;
         //}
         argument_roles[0].push_back("__TOP__");
-        argument_indices[0].push_back(i+1);
+        argument_indices[0].push_back(i + 1);
       }
 
       if (is_predicate) {
         predicate_names[num_predicates] = predicate_name;
-        predicate_indices[num_predicates] = i+1;
+        predicate_indices[num_predicates] = i + 1;
         ++num_predicates;
       }
 
@@ -187,7 +187,7 @@ Instance *SemanticReader::GetNext() {
           int k = j - offset;
           if (use_top_nodes_) ++k;
           argument_roles[k].push_back(argument_role);
-          argument_indices[k].push_back(i+1);
+          argument_indices[k].push_back(i + 1);
         }
       }
     }

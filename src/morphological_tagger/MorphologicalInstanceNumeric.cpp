@@ -21,7 +21,7 @@
 #include <algorithm>
 
 void MorphologicalInstanceNumeric::Initialize(const MorphologicalDictionary &dictionary,
-                                      MorphologicalInstance* instance) {
+                                              MorphologicalInstance* instance) {
   SequenceInstanceNumeric::Initialize(dictionary, instance);
 
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();

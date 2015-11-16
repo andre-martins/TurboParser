@@ -22,7 +22,6 @@
 #include <iostream>
 #include <sstream>
 
-
 Pipe::Pipe(Options* options) {
   options_ = options;
   dictionary_ = NULL;
@@ -452,9 +451,11 @@ void Pipe::Run() {
   LOG(INFO) << "Number of instances: " << num_instances;
   LOG(INFO) << "Time: " << diff_ms(end, start);
 
+#if USE_WEIGHT_CACHING == 1
   LOG(INFO) << "Cache size: " << parameters_->GetCachingWeightsSize() << "\t"
     << "Cache hits: " << parameters_->GetCachingWeightsHits() << "\t"
     << "Cache misses: " << parameters_->GetCachingWeightsMisses() << endl;
+#endif
 
   if (options_->evaluate()) EndEvaluation();
 }
@@ -468,17 +469,17 @@ void Pipe::ClassifyInstance(Instance *instance) {
 
   Instance *formatted_instance = GetFormattedInstance(instance);
 
-  //Create parts for this instance
+  // Create parts for this instance.
   MakeParts(formatted_instance, parts, &gold_outputs);
-  //Create features for the parts of this instance
+  // Create features for the parts of this instance.
   MakeFeatures(formatted_instance, parts, features);
-  //Compute scores based on the features and parts of this instance
+  // Compute scores based on the features and parts of this instance.
   ComputeScores(formatted_instance, parts, features, &scores);
-  //Decode, a.k.a., obtain output prediction
+  // Decode, a.k.a., obtain output prediction.
   decoder_->Decode(formatted_instance, parts, scores, &predicted_outputs);
-  //Obtain labels
+  // Obtain labels.
   LabelInstance(parts, predicted_outputs, instance);
-  //Compare with gold standard if 'evaluate' was an execution flag
+  // Compare with gold standard if 'evaluate' was an execution flag.
   if (options_->evaluate()) {
     EvaluateInstance(instance,
                      ((Instance*)NULL),

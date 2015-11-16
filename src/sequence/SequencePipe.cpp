@@ -67,9 +67,11 @@ void SequencePipe::LoadModel(FILE* fs) {
 void SequencePipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SequenceDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
+  static_cast<SequenceDictionary*>(dictionary_)->
+    SetTokenDictionary(token_dictionary_);
   token_dictionary_->Initialize(GetSequenceReader());
-  static_cast<SequenceDictionary*>(dictionary_)->CreateTagDictionary(GetSequenceReader());
+  static_cast<SequenceDictionary*>(dictionary_)->
+    CreateTagDictionary(GetSequenceReader());
 }
 
 void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
@@ -98,8 +100,15 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       allowed_tags[k] = unigram->tag();
     }
     vector<double> tag_scores;
-    parameters_->ComputeLabelScores(unigram_features, allowed_tags,
+#if USE_WEIGHT_CACHING == 1
+    parameters_->ComputeLabelScoresWithCache(unigram_features,
+                                             allowed_tags,
+                                             &tag_scores);
+#else
+    parameters_->ComputeLabelScores(unigram_features,
+                                    allowed_tags,
                                     &tag_scores);
+#endif
     for (int k = 0; k < index_unigram_parts.size(); ++k) {
       (*scores)[index_unigram_parts[k]] = tag_scores[k];
     }
@@ -122,7 +131,15 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-      parameters_->ComputeLabelScores(bigram_features, bigram_tags, &tag_scores);
+#if USE_WEIGHT_CACHING == 1
+      parameters_->ComputeLabelScoresWithCache(bigram_features,
+                                               bigram_tags,
+                                               &tag_scores);
+#else
+      parameters_->ComputeLabelScores(bigram_features,
+                                      bigram_tags,
+                                      &tag_scores);
+#endif
       for (int k = 0; k < index_bigram_parts.size(); ++k) {
         (*scores)[index_bigram_parts[k]] = tag_scores[k];
       }
@@ -148,7 +165,15 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-      parameters_->ComputeLabelScores(trigram_features, trigram_tags, &tag_scores);
+#if USE_WEIGHT_CACHING == 1
+      parameters_->ComputeLabelScoresWithCache(trigram_features,
+                                               trigram_tags,
+                                               &tag_scores);
+#else
+      parameters_->ComputeLabelScores(trigram_features,
+                                      trigram_tags,
+                                      &tag_scores);
+#endif
       for (int k = 0; k < index_trigram_parts.size(); ++k) {
         (*scores)[index_trigram_parts[k]] = tag_scores[k];
       }
@@ -229,7 +254,8 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
         sequence_features->GetUnigramFeatures(unigram->position());
       for (int j = 0; j < unigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(unigram_features[j],
-                                                   unigram->tag(), predicted_output[r] - gold_output[r]);
+                                                   unigram->tag(), 
+                                                   predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_BIGRAM) {
       SequencePartBigram *bigram =
@@ -240,7 +266,8 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
                                                            bigram->tag());
       for (int j = 0; j < bigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(bigram_features[j],
-                                                   bigram_tag, predicted_output[r] - gold_output[r]);
+                                                   bigram_tag, 
+                                                   predicted_output[r] - gold_output[r]);
       }
     } else if ((*parts)[r]->type() == SEQUENCEPART_TRIGRAM) {
       SequencePartTrigram *trigram =
@@ -253,7 +280,8 @@ void SequencePipe::MakeFeatureDifference(Parts *parts,
                                              trigram->tag());
       for (int j = 0; j < trigram_features.size(); ++j) {
         difference->mutable_labeled_weights()->Add(trigram_features[j],
-                                                   trigram_tag, predicted_output[r] - gold_output[r]);
+                                                   trigram_tag, 
+                                                   predicted_output[r] - gold_output[r]);
       }
     } else {
       CHECK(false);

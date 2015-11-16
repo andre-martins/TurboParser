@@ -31,26 +31,22 @@ public:
     instance->Initialize(forms_,
                          lemmas_,
                          cpostags_,
-                         tags_); //feats_);
+                         tags_);
     return static_cast<Instance*>(instance);
   }
 
   void Initialize(const std::vector<std::string> &forms,
                   const std::vector<std::string> &lemmas,
                   const std::vector<std::string> &cpostags,
-                  const std::vector<std::string> &tags); //&feats);
+                  const std::vector<std::string> &tags);
 
   const std::string &GetLemma(int i) const { return lemmas_[i]; }
   const std::string &GetCoarsePosTag(int i) const { return cpostags_[i]; }
-  //const std::string &GetMorphFeat(int i) const { return feats_[i]; }
 
 
 protected:
-  //from sequenceInstance: std::vector<std::string> forms_;
   std::vector<std::string> lemmas_;
   std::vector<std::string> cpostags_;
-  //std::vector<std::string> feats_; //using sequenceInstance: std::vector<std::string> tags_
-  //assuming following terminology: morphs = morph_feats = feats = tags in this case
 };
 
 #endif /* MORPHOLOGICALINSTANCE_H_*/

@@ -92,7 +92,8 @@ protected:
                         vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-                            const vector<bool> &selected_parts, Features *features);
+                            const vector<bool> &selected_parts, 
+                            Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
                      vector<double> *scores);

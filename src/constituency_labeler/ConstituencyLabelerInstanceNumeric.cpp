@@ -21,8 +21,8 @@
 #include <algorithm>
 
 void ConstituencyLabelerInstanceNumeric::Initialize(
-    const ConstituencyLabelerDictionary &dictionary,
-    ConstituencyLabelerInstance* instance) {
+  const ConstituencyLabelerDictionary &dictionary,
+  ConstituencyLabelerInstance* instance) {
   ConstituencyInstanceNumeric::Initialize(dictionary, instance);
 
   constituent_labels_.resize(instance->GetNumConstituents());

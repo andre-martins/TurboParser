@@ -26,7 +26,7 @@
 typedef class NamedSpan EntitySpan;
 
 class Span {
- public:
+public:
   Span() { start_ = -1; end_ = -1; }
   Span(int start, int end) { start_ = start; end_ = end; }
   virtual ~Span() {}
@@ -53,13 +53,13 @@ class Span {
     return NULL;
   }
 
- protected:
+protected:
   int start_;
   int end_;
 };
 
 class NamedSpan : public Span {
- public:
+public:
   NamedSpan() : Span() { name_ = ""; }
   NamedSpan(int start, int end, const std::string &name) : Span(start, end) {
     name_ = name;
@@ -69,12 +69,12 @@ class NamedSpan : public Span {
   const std::string &name() const { return name_; }
   void set_name(const std::string &name) { name_ = name; }
 
- protected:
+protected:
   std::string name_;
 };
 
 class NumericSpan : public Span {
- public:
+public:
   NumericSpan() : Span() { id_ = -1; }
   NumericSpan(int start, int end, int id) : Span(start, end) {
     id_ = id;
@@ -84,7 +84,7 @@ class NumericSpan : public Span {
   int id() const { return id_; }
   void set_id(int id) { id_ = id; }
 
- protected:
+protected:
   int id_;
 };
 

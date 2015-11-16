@@ -69,7 +69,7 @@ void ConstituencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
   scores->resize(parts->size());
 
   // Compute scores for the node parts.
-  for (int i = 0; i<num_nodes; ++i) {
+  for (int i = 0; i < num_nodes; ++i) {
     // Conjoin node features with the label.
     const BinaryFeatures &node_features =
       labeler_features->GetNodeFeatures(i);
@@ -77,7 +77,7 @@ void ConstituencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
     const std::vector<int> &index_node_parts =
       labeler_parts->FindNodeParts(i);
     std::vector<int> allowed_labels(index_node_parts.size());
-    for (int k = 0; k<index_node_parts.size(); ++k) {
+    for (int k = 0; k < index_node_parts.size(); ++k) {
       ConstituencyLabelerPartNode *node =
         static_cast<ConstituencyLabelerPartNode*>(
           (*parts)[index_node_parts[k]]);
@@ -86,7 +86,7 @@ void ConstituencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
     std::vector<double> label_scores;
     parameters_->ComputeLabelScores(node_features, allowed_labels,
                                     &label_scores);
-    for (int k = 0; k<index_node_parts.size(); ++k) {
+    for (int k = 0; k < index_node_parts.size(); ++k) {
       (*scores)[index_node_parts[k]] = label_scores[k];
     }
   }
@@ -102,17 +102,17 @@ void ConstituencyLabelerPipe::MakeGradientStep(
   ConstituencyLabelerFeatures *labeler_features =
     static_cast<ConstituencyLabelerFeatures*>(features);
 
-  for (int r = 0; r<parts->size(); ++r) {
-    if (predicted_output[r]==gold_output[r]) continue;
+  for (int r = 0; r < parts->size(); ++r) {
+    if (predicted_output[r] == gold_output[r]) continue;
 
-    if ((*parts)[r]->type()==CONSTITUENCYLABELERPART_NODE) {
+    if ((*parts)[r]->type() == CONSTITUENCYLABELERPART_NODE) {
       ConstituencyLabelerPartNode *node =
         static_cast<ConstituencyLabelerPartNode*>((*parts)[r]);
       const BinaryFeatures &node_features =
         labeler_features->GetNodeFeatures(node->position());
       parameters_->MakeLabelGradientStep(node_features, eta, iteration,
                                          node->label(),
-                                         predicted_output[r]-gold_output[r]);
+                                         predicted_output[r] - gold_output[r]);
     } else {
       CHECK(false);
     }
@@ -131,19 +131,19 @@ void ConstituencyLabelerPipe::MakeFeatureDifference(
   CHECK_EQ(predicted_output.size(), parts->size());
   CHECK_EQ(gold_output.size(), parts->size());
 
-  for (int r = 0; r<parts->size(); ++r) {
-    if (predicted_output[r]==gold_output[r]) continue;
+  for (int r = 0; r < parts->size(); ++r) {
+    if (predicted_output[r] == gold_output[r]) continue;
 
-    if ((*parts)[r]->type()==CONSTITUENCYLABELERPART_NODE) {
+    if ((*parts)[r]->type() == CONSTITUENCYLABELERPART_NODE) {
       ConstituencyLabelerPartNode *node =
         static_cast<ConstituencyLabelerPartNode*>((*parts)[r]);
       const BinaryFeatures &node_features =
         labeler_features->GetNodeFeatures(node->position());
-      for (int j = 0; j<node_features.size(); ++j) {
+      for (int j = 0; j < node_features.size(); ++j) {
         difference->mutable_labeled_weights()->
           Add(node_features[j],
               node->label(),
-              predicted_output[r]-gold_output[r]);
+              predicted_output[r] - gold_output[r]);
       }
     } else {
       CHECK(false);
@@ -160,7 +160,7 @@ void ConstituencyLabelerPipe::MakeParts(Instance *instance,
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   int num_nodes = sentence->GetNumConstituents();
   labeler_parts->Initialize();
-  bool make_gold = (gold_outputs!=NULL);
+  bool make_gold = (gold_outputs != NULL);
   if (make_gold) gold_outputs->clear();
 
   // Make node parts and compute indices.
@@ -182,18 +182,18 @@ void ConstituencyLabelerPipe::MakeNodeParts(Instance *instance,
   ConstituencyLabelerOptions *labeler_options = GetConstituencyLabelerOptions();
   int sentence_length = sentence->size();
   int num_nodes = sentence->GetNumConstituents();
-  bool make_gold = (gold_outputs!=NULL);
+  bool make_gold = (gold_outputs != NULL);
   std::vector<int> all_labels;
   std::vector<int> allowed_labels;
 
   all_labels.resize(labeler_dictionary->GetLabelAlphabet().size());
-  for (int i = 0; i<all_labels.size(); ++i) {
+  for (int i = 0; i < all_labels.size(); ++i) {
     all_labels[i] = i;
   }
 
   int num_parts_initial = labeler_parts->size();
 
-  for (int i = 0; i<num_nodes; ++i) {
+  for (int i = 0; i < num_nodes; ++i) {
     GetAllowedLabels(instance, i, &allowed_labels);
     if (allowed_labels.empty()) {
       allowed_labels = all_labels;
@@ -201,17 +201,17 @@ void ConstituencyLabelerPipe::MakeNodeParts(Instance *instance,
 
     // Add parts.
     CHECK_GE(allowed_labels.size(), 0);
-    for (int k = 0; k<allowed_labels.size(); ++k) {
+    for (int k = 0; k < allowed_labels.size(); ++k) {
       int label = allowed_labels[k];
-      if (labeler_options->ignore_null_labels()&&
-          label==labeler_dictionary->null_label()) {
+      if (labeler_options->ignore_null_labels() &&
+          label == labeler_dictionary->null_label()) {
         continue;
       }
       // TODO: force the NULL label in some cases.
       Part *part = labeler_parts->CreatePartNode(i, label);
       labeler_parts->push_back(part);
       if (make_gold) {
-        if (sentence->GetConstituentLabelId(i)==label) {
+        if (sentence->GetConstituentLabelId(i) == label) {
           gold_outputs->push_back(1.0);
         } else {
           gold_outputs->push_back(0.0);
@@ -220,7 +220,7 @@ void ConstituencyLabelerPipe::MakeNodeParts(Instance *instance,
     }
   }
   labeler_parts->SetOffsetNode(num_parts_initial,
-                               labeler_parts->size()-num_parts_initial);
+                               labeler_parts->size() - num_parts_initial);
 }
 
 void ConstituencyLabelerPipe::MakeSelectedFeatures(
@@ -241,7 +241,7 @@ void ConstituencyLabelerPipe::MakeSelectedFeatures(
 
   // Build features for nodes only. They will later be conjoined with the
   // labels.
-  for (int i = 0; i<num_nodes; ++i) {
+  for (int i = 0; i < num_nodes; ++i) {
     labeler_features->AddNodeFeatures(sentence, i);
   }
 }
@@ -254,16 +254,16 @@ void ConstituencyLabelerPipe::LabelInstance(Parts *parts,
   ConstituencyLabelerInstance *labeler_instance =
     static_cast<ConstituencyLabelerInstance*>(instance);
   int num_nodes = labeler_instance->GetNumConstituents();
-  for (int i = 0; i<num_nodes; ++i) {
+  for (int i = 0; i < num_nodes; ++i) {
     labeler_instance->SetConstituentLabel(i, "");
   }
   double threshold = 0.5;
   int offset, size;
   labeler_parts->GetOffsetNode(&offset, &size);
-  for (int r = 0; r<size; ++r) {
+  for (int r = 0; r < size; ++r) {
     ConstituencyLabelerPartNode *node =
-      static_cast<ConstituencyLabelerPartNode*>((*labeler_parts)[offset+r]);
-    if (output[offset+r]>=threshold) {
+      static_cast<ConstituencyLabelerPartNode*>((*labeler_parts)[offset + r]);
+    if (output[offset + r] >= threshold) {
       int i = node->position();
       int label = node->label();
       labeler_instance->SetConstituentLabel(i,

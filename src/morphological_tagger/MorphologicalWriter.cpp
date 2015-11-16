@@ -23,7 +23,8 @@
 #include <sstream>
 
 void MorphologicalWriter::Write(Instance *instance) {
-  MorphologicalInstance *morphological_instance = static_cast<MorphologicalInstance*>(instance);
+  MorphologicalInstance *morphological_instance =
+    static_cast<MorphologicalInstance*>(instance);
 
   for (int i = 0; i < morphological_instance->size(); ++i) {
     os_ << (i + 1) << "\t";

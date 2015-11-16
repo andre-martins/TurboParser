@@ -22,10 +22,6 @@
 #include "MorphologicalPipe.h"
 #include <algorithm>
 
-
-
-
-
 void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   SequenceDictionary::CreateTagDictionary(static_cast<SequenceReader*> (reader));
 
@@ -37,7 +33,8 @@ void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   cpostag_morphologicaltags_.resize(token_dictionary_->GetNumCoarsePosTags());
 
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  MorphologicalInstance *instance = static_cast<MorphologicalInstance*>(reader->GetNext());
+  MorphologicalInstance *instance =
+    static_cast<MorphologicalInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -117,7 +114,8 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   // Go through the corpus and build the dictionaries,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  MorphologicalInstance *instance = static_cast<MorphologicalInstance*>(reader->GetNext());
+  MorphologicalInstance *instance =
+    static_cast<MorphologicalInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
@@ -127,7 +125,8 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
       std::string form = instance->GetForm(i);
       int form_length = static_cast<int>(form.length());
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(), form_lower.begin(), ::tolower);
+      transform(form_lower.begin(), form_lower.end(),
+                form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {
@@ -154,11 +153,15 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
 
       // Add prefix/suffix to alphabet.
       //using varying lengths : [1; desired_size].
-      for (int numbchar = 1; numbchar <= std::min(prefix_length, form_length); numbchar++) {
+      for (int numbchar = 1;
+      numbchar <= std::min(prefix_length, form_length);
+        numbchar++) {
         std::string prefix = form.substr(0, numbchar);
         id = prefix_alphabet_.Insert(prefix);
       }
-      for (int numbchar = 1; numbchar <= std::min(suffix_length, form_length); numbchar++) {
+      for (int numbchar = 1;
+      numbchar <= std::min(suffix_length, form_length);
+        numbchar++) {
         int start = form_length - numbchar;
         if (start < 0) start = 0;
         std::string suffix = form.substr(start, numbchar);
@@ -202,7 +205,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       form_alphabet_.Insert(special_symbols[i]);
     }
-    for (Alphabet::iterator iter = form_alphabet.begin(); iter != form_alphabet.end(); ++iter) {
+    for (Alphabet::iterator iter = form_alphabet.begin();
+    iter != form_alphabet.end();
+      ++iter) {
       if (form_freqs[iter->second] > form_cutoff) {
         form_alphabet_.Insert(iter->first);
       }
@@ -218,7 +223,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       form_lower_alphabet_.Insert(special_symbols[i]);
     }
-    for (Alphabet::iterator iter = form_lower_alphabet.begin(); iter != form_lower_alphabet.end(); ++iter) {
+    for (Alphabet::iterator iter = form_lower_alphabet.begin();
+    iter != form_lower_alphabet.end();
+      ++iter) {
       if (form_lower_freqs[iter->second] > form_lower_cutoff) {
         form_lower_alphabet_.Insert(iter->first);
       }
@@ -226,7 +233,8 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
     if (form_lower_alphabet_.size() < kMaxFormAlphabetSize)
       break;
     ++form_lower_cutoff;
-    LOG(INFO) << "Incrementing lower-case form cutoff to " << form_lower_cutoff << "...";
+    LOG(INFO) << "Incrementing lower-case form cutoff to "
+      << form_lower_cutoff << "...";
   }
 
   //while (true) {
@@ -234,7 +242,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
   //    lemma_alphabet_.Insert(special_symbols[i]);
   //  }
-  //  for (Alphabet::iterator iter = lemma_alphabet.begin(); iter != lemma_alphabet.end(); ++iter) {
+  //  for (Alphabet::iterator iter = lemma_alphabet.begin(); 
+  //  iter != lemma_alphabet.end(); 
+  //    ++iter) {
   //    if (lemma_freqs[iter->second] > lemma_cutoff) {
   //      lemma_alphabet_.Insert(iter->first);
   //    }
@@ -250,7 +260,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       cpos_alphabet_.Insert(special_symbols[i]);
     }
-    for (Alphabet::iterator iter = cpos_alphabet.begin(); iter != cpos_alphabet.end(); ++iter) {
+    for (Alphabet::iterator iter = cpos_alphabet.begin();
+    iter != cpos_alphabet.end();
+      ++iter) {
       if (cpos_freqs[iter->second] > cpos_cutoff) {
         cpos_alphabet_.Insert(iter->first);
       }
@@ -266,7 +278,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
   //  for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
   //    feats_alphabet_.Insert(special_symbols[i]);
   //  }
-  //  for (Alphabet::iterator iter = feats_alphabet.begin(); iter != feats_alphabet.end(); ++iter) {
+  //  for (Alphabet::iterator iter = feats_alphabet.begin(); 
+  //  iter != feats_alphabet.end(); 
+  //    ++iter) {
   //    if (feats_freqs[iter->second] > feats_cutoff) {
   //      feats_alphabet_.Insert(iter->first);
   //    }
@@ -283,7 +297,9 @@ void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       shape_alphabet_.Insert(special_symbols[i]);
     }
-    for (Alphabet::iterator iter = shape_alphabet.begin(); iter != shape_alphabet.end(); ++iter) {
+    for (Alphabet::iterator iter = shape_alphabet.begin();
+    iter != shape_alphabet.end();
+      ++iter) {
       if (shape_freqs[iter->second] > shape_cutoff) {
         shape_alphabet_.Insert(iter->first);
       }

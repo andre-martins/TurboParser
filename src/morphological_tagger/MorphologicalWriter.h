@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MORPHWRITER_H_
-#define MORPHWRITER_H_
+#ifndef MORPHOLOGICALWRITER_H_
+#define MORPHOLOGICALWRITER_H_
 
 #include "Writer.h"
 
@@ -30,5 +30,5 @@ public:
   void Write(Instance *instance);
 };
 
-#endif /* MORPHWRITER_H_ */
+#endif /* MORPHOLOGICALWRITER_H_ */
 

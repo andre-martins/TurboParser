@@ -32,7 +32,7 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   // Display information about the entity tags.
   LOG(INFO) << "Found " << tag_alphabet_.size() << " entity tags:";
   for (Alphabet::iterator it = tag_alphabet_.begin();
-  it != tag_alphabet_.end(); ++it) {
+    it != tag_alphabet_.end(); ++it) {
     std::string entity_tag = it->first;
     LOG(INFO) << entity_tag;
 
@@ -199,8 +199,7 @@ void EntityDictionary::ReadGazetteerFiles() {
             entity_type_id = entity_type_inside_id;
           }
           int l = -1;
-          for (l = 0; l < gazetteer_word_entity_tags_[word_id].size();
-          ++l) {
+          for (l = 0; l < gazetteer_word_entity_tags_[word_id].size(); ++l) {
             if (gazetteer_word_entity_tags_[word_id][l] == entity_type_id) {
               break;
             }
@@ -272,11 +271,9 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
       pos_alphabet_.Insert(special_symbols[i]);
     }
-    for (Alphabet::iterator iter = pos_alphabet.begin();
-    iter != pos_alphabet.end();
-      ++iter) {
-      if (pos_freqs[iter->second] > pos_cutoff) {
-        pos_alphabet_.Insert(iter->first);
+    for (const auto& pos_token : pos_alphabet) {
+      if (pos_freqs[pos_token.second] > pos_cutoff) {
+        pos_alphabet_.Insert(pos_token.first);
       }
     }
     if (pos_alphabet_.size() < kMaxPosAlphabetSize) break;

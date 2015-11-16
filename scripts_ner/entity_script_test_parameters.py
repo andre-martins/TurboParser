@@ -58,12 +58,12 @@ PredictionFiles          = []
 Languages = [# 'basque', 'bulgarian','croatian', 'czech', 'danish', 'finnish', 'greek', 'hungarian', 'italian', 'swedish',
 'english']
 TrainAlgorithm              = ['svm_mira']  #--train_algorithm=svm_mira
-TrainRegularizationConstant = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
-TrainEpochs                 = ['2']  #--train_epochs=20 
-SequenceModelType           = ['0']  #--sequence_model_type=0 
+TrainRegularizationConstant = ['10','1','0.1','0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
+TrainEpochs                 = ['5', '50']  #--train_epochs=20 
+SequenceModelType           = ['0','1','2']  #--sequence_model_type=0 
 FormCutoff                  = ['0']  #--form_cutoff=0 
-PrefixLength                = ['0']  #['0','2','3']  #--prefix_length=3
-SuffixLength                = ['3']  #['0','2','3']  #--suffix_length=3
+PrefixLength                = ['0','3']  #['0','2','3']  #--prefix_length=3
+SuffixLength                = ['0','3']  #['0','2','3']  #--suffix_length=3
 EntityTaggingScheme         = ['bio']
 #--logtostderr              
 

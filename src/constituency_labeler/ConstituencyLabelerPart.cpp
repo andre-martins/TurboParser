@@ -26,7 +26,7 @@ void ConstituencyLabelerParts::DeleteAll() {
   DeleteIndices();
 
   for (iterator iter = begin(); iter != end(); iter++) {
-    if  ((*iter) != NULL) {
+    if ((*iter) != NULL) {
       delete (*iter);
       *iter = NULL;
     }

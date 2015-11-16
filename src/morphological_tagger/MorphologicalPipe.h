@@ -55,8 +55,10 @@ protected:
   void PreprocessData();
 
   Instance *GetFormattedInstance(Instance *instance) {
-    MorphologicalInstanceNumeric *instance_numeric = new MorphologicalInstanceNumeric;
-    instance_numeric->Initialize(*GetMorphologicalDictionary(), static_cast<MorphologicalInstance*>(instance));
+    MorphologicalInstanceNumeric *instance_numeric =
+      new MorphologicalInstanceNumeric;
+    instance_numeric->Initialize(*GetMorphologicalDictionary(),
+                                 static_cast<MorphologicalInstance*>(instance));
     return instance_numeric;
   }
 

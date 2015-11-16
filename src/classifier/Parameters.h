@@ -25,19 +25,20 @@
 #include "Utils.h"
 
 
-//struct  FeatureLabelPair : Structure to define a a feature-label pair
+#if USE_WEIGHT_CACHING == 1
+// Structure to define a feature-label pair.
 struct FeatureLabelPair {
   uint64_t feature;
   int label;
 };
 
-//struct  FeatureLabelPairMapper: Structure to define a hash function and a comparison function for FeatureLabelPair
+// Structure to define a hash function and a comparison function for FeatureLabelPair.
 struct FeatureLabelPairMapper {
   template <typename TSeed>
   inline void HashCombine(TSeed value, TSeed *seed) const {
     *seed ^= value + 0x9e3779b9 + (*seed << 6) + (*seed >> 2);
   }
-  //Hash function
+  // Hash function.
   inline size_t operator()(const FeatureLabelPair& p) const {
     size_t hash = std::hash<uint64_t>()(p.feature);
     size_t hash_2 = std::hash<int>()(p.label);
@@ -45,16 +46,16 @@ struct FeatureLabelPairMapper {
     HashCombine<size_t>(hash_2, &hash);
     return hash;
   }
-  //Comparison function
+  // Comparison function.
   inline bool operator()(const FeatureLabelPair &p, const FeatureLabelPair &q) const {
     return p.feature == q.feature && p.label == q.label;
   }
 };
 
-//Defines a hash-table of FeatureLabelPair keys with values, of double type
+// Defines a hash-table of FeatureLabelPair keys with values, of double type.
 typedef std::unordered_map<FeatureLabelPair, double, FeatureLabelPairMapper, FeatureLabelPairMapper > FeatureLabelPairHashMap;
 
-//class  FeatureLabelCache: Hash-table for caching FeatureLabelPair keys with corresponding values
+// Hash-table for caching FeatureLabelPair keys with corresponding values.
 class FeatureLabelCache {
 
 public:
@@ -71,14 +72,14 @@ public:
   void IncrementHits() { hits_ += 1; };
   void IncrementMisses() { misses_ += 1; };
 
-  //Insert a new pair {key, value} in the hash-table
+  // Insert a new pair {key, value} in the hash-table.
   void Insert(FeatureLabelPair key, double value) {
     cache_.insert({ key, value });
   };
 
-  //Searches for a given key in the hash-table.
-  //If found, value is returned in argument 'value'.
-  //return: true if found, false otherwise
+  // Searches for a given key in the hash-table.
+  // If found, value is returned in argument 'value'.
+  // return: true if found, false otherwise.
   bool Find(FeatureLabelPair key, double * value) {
     FeatureLabelPairHashMap::const_iterator caching_iterator;
     caching_iterator = cache_.find(key);
@@ -94,7 +95,7 @@ protected:
   uint64_t hits_;
   uint64_t misses_;
 };
-
+#endif
 
 // This class implements a feature vector, which is convenient to sum over
 // binary features, weight them, etc. It just uses the classes
@@ -222,6 +223,7 @@ public:
     }
   }
 
+#if USE_WEIGHT_CACHING == 1
   // Compute the scores corresponding to a set of features, conjoined with
   // output labels. The vector scores, provided as output, contains the score
   // for each label, with the added functionality 
@@ -268,6 +270,7 @@ public:
       }
     }
   }
+#endif
 
   // Scale the parameter vector by scale_factor.
   void Scale(double scale_factor) {
@@ -333,9 +336,11 @@ public:
     }
   }
 
-  int GetCachingWeightsHits()   const { return caching_weights_.hits();    };
-  int GetCachingWeightsMisses() const { return caching_weights_.misses();  };
+#if USE_WEIGHT_CACHING == 1
+  int GetCachingWeightsHits()   const { return caching_weights_.hits(); };
+  int GetCachingWeightsMisses() const { return caching_weights_.misses(); };
   int GetCachingWeightsSize()   const { return caching_weights_.GetSize(); };
+#endif
 
 protected:
   // Average the parameters as in averaged perceptron.
@@ -351,9 +356,11 @@ protected:
 
 
 public:
+#if USE_WEIGHT_CACHING == 1
   // Caches the weights for feature-label pairs : 
   // FeatureLabelPair = struct {feature; label} .
   FeatureLabelCache caching_weights_;
+#endif
 };
 
 #endif /*PARAMETERS_H_*/

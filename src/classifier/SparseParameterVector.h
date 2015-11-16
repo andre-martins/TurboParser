@@ -269,7 +269,7 @@ protected:
   void Renormalize() {
     LOG(INFO) << "Renormalizing the parameter map...";
     for (typename ParameterMap<Real>::type::iterator iterator = values_.begin();
-    iterator != values_.end();
+      iterator != values_.end();
       ++iterator) {
       iterator->second *= scale_factor_;
     }

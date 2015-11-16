@@ -29,7 +29,6 @@
 #include "Parameters.h"
 #include "AlgUtils.h"
 
-
 // Abstract class for the structured classifier mainframe.
 // It requires parts, features, a dictionary, a reader and writer, and
 // instances, all of which are abstract classes.
@@ -126,7 +125,8 @@ protected:
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeSelectedFeatures(Instance *instance, Parts *parts,
-                                    const vector<bool> &selected_parts, Features *features) = 0;
+                                    const vector<bool> &selected_parts, 
+                                    Features *features) = 0;
 
   // Given an instance, parts, and features, compute the scores. This will
   // look at the current parameters. Each part will receive a score, so the

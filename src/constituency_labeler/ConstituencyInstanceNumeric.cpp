@@ -89,8 +89,8 @@ void ParseTreeNumeric::Initialize(const ConstituencyDictionary &dictionary,
 }
 
 void ConstituencyInstanceNumeric::Initialize(
-    const ConstituencyDictionary &dictionary,
-    ConstituencyInstance* instance) {
+  const ConstituencyDictionary &dictionary,
+  ConstituencyInstance* instance) {
   SequenceInstanceNumeric::Initialize(dictionary, instance);
 
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();

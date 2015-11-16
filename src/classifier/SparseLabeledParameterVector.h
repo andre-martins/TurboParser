@@ -59,8 +59,10 @@ public:
   virtual double GetWeight(int label) const = 0;
   virtual void SetWeight(int label, double weight) = 0;
   virtual void AddWeight(int label, double weight) = 0;
-  virtual double SetWeightAndNormalize(int label, double value, double scaling_factor) = 0;
-  virtual double AddWeightAndNormalize(int label, double value, double scaling_factor) = 0;
+  virtual double SetWeightAndNormalize(int label, double value, 
+                                       double scaling_factor) = 0;
+  virtual double AddWeightAndNormalize(int label, double value, 
+                                       double scaling_factor) = 0;
 
   // Get/set weight querying by position rather than the label.
   virtual void GetLabelWeightByPosition(int position, int *label,
@@ -533,8 +535,12 @@ protected:
     double previous_value = label_weights->AddWeightAndNormalize(label,
                                                                  value,
                                                                  scale_factor_);
-    //squared_norm_ += (value + previous_value) * (value + previous_value) - previous_value * previous_value;   //step1 
-    //squared_norm_ += value * value + 2 * value * previous_value + ( previous_value * previous_value - previous_value * previous_value );  //step2
+    //step1 
+    //squared_norm_ += (value + previous_value) * (value + previous_value) 
+    // - previous_value * previous_value;   
+    //step2
+    //squared_norm_ += value * value + 2 * value * previous_value 
+    //+ ( previous_value * previous_value - previous_value * previous_value ); 
     squared_norm_ += value * value + 2 * value * previous_value;    //step3
 #endif
 
