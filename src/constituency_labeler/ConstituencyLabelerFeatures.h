@@ -25,15 +25,15 @@
 
 class ConstituencyLabelerOptions;
 
-class ConstituencyLabelerFeatures: public Features {
- public:
+class ConstituencyLabelerFeatures : public Features {
+public:
   ConstituencyLabelerFeatures() {};
   ConstituencyLabelerFeatures(Pipe* pipe) { pipe_ = pipe; }
   virtual ~ConstituencyLabelerFeatures() { Clear(); }
 
- public:
+public:
   void Clear() {
-    for (int i = 0; i <  input_features_nodes_.size(); ++i) {
+    for (int i = 0; i < input_features_nodes_.size(); ++i) {
       if (!input_features_nodes_[i]) continue;
       input_features_nodes_[i]->clear();
       delete input_features_nodes_[i];
@@ -68,12 +68,12 @@ class ConstituencyLabelerFeatures: public Features {
   void AddNodeFeatures(ConstituencyLabelerInstanceNumeric *sentence,
                        int position);
 
- protected:
+protected:
   void AddFeature(uint64_t fkey, BinaryFeatures* features) {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   // Vectors of input features.
   std::vector<BinaryFeatures*> input_features_nodes_;
   FeatureEncoder encoder_; // Encoder that converts features into a codeword.

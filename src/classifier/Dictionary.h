@@ -24,7 +24,7 @@
 // Abstract class for a dictionary. Task-specific dictionaries should derive
 // from this class and implement the pure virtual methods.
 class Dictionary {
- public:
+public:
   Dictionary() {};
   virtual ~Dictionary() {};
 

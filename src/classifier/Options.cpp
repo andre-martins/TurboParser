@@ -36,8 +36,8 @@ DEFINE_bool(test, false,
 DEFINE_bool(evaluate, false,
             "True for evaluating the parser (requires --test).");
 DEFINE_string(train_algorithm, "svm_mira",
-             "Training algorithm. Options are perceptron, mira, svm_mira,"
-             "crf_mira, svm_sgd, crf_sgd.");
+              "Training algorithm. Options are perceptron, mira, svm_mira,"
+              "crf_mira, svm_sgd, crf_sgd.");
 DEFINE_double(train_initial_learning_rate, 0.01,
               "Initial learning rate (for SGD only).");
 DEFINE_string(train_learning_rate_schedule, "invsqrt",
@@ -52,7 +52,7 @@ DEFINE_int32(train_epochs, 10,
 DEFINE_double(train_regularization_constant, 1e12,
               "Regularization parameter C.");
 DEFINE_int32(parameters_max_num_buckets, 50000000,
-           "Maximum number of buckets in the hash table that stores the parameters.");
+             "Maximum number of buckets in the hash table that stores the parameters.");
 
 void Options::Initialize() {
   file_train_ = FLAGS_file_train;
@@ -74,4 +74,3 @@ void Options::Initialize() {
   only_supported_features_ = FLAGS_only_supported_features;
   use_averaging_ = FLAGS_use_averaging;
 }
-

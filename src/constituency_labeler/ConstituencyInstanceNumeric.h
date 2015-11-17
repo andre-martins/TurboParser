@@ -25,7 +25,7 @@
 #include "ParseTree.h"
 
 class ParseTreeNumericNode : public TreeNode<int> {
- public:
+public:
   ParseTreeNumericNode() {}
   ParseTreeNumericNode(ParseTreeNumericNode *parent) {
     parent_ = parent;
@@ -63,17 +63,17 @@ class ParseTreeNumericNode : public TreeNode<int> {
   int rule() const { return rule_; }
   void set_rule(int rule) { rule_ = rule; }
 
- protected:
+protected:
   Span span_;
   int rule_; // Production rule whose left side is this node.
 };
 
 class ParseTreeNumeric {
- public:
+public:
   ParseTreeNumeric() { root_ = NULL; }
   virtual ~ParseTreeNumeric() { DeleteAllNodes(); }
 
- public:
+public:
   void DeleteAllNodes() {
     delete root_;
     terminals_.clear();
@@ -94,14 +94,14 @@ class ParseTreeNumeric {
   void Initialize(const ConstituencyDictionary &dictionary,
                   const ParseTree &parse_tree);
 
- protected:
+protected:
   ParseTreeNumericNode* root_;
   std::vector<ParseTreeNumericNode*> terminals_; // Words.
   std::vector<ParseTreeNumericNode*> non_terminals_; // Tags and internal nodes.
 };
 
 class ConstituencyInstanceNumeric : public SequenceInstanceNumeric {
- public:
+public:
   ConstituencyInstanceNumeric() {};
   virtual ~ConstituencyInstanceNumeric() { Clear(); };
 
@@ -122,7 +122,7 @@ class ConstituencyInstanceNumeric : public SequenceInstanceNumeric {
 
   const ParseTreeNumeric &GetParseTree() const { return parse_tree_; }
 
- protected:
+protected:
   std::vector<int> lemma_ids_;
   std::vector<std::vector<int> > morph_ids_;
   ParseTreeNumeric parse_tree_;

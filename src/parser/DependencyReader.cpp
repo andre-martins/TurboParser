@@ -32,7 +32,7 @@ Instance *DependencyReader::GetNext() {
       getline(is_, line);
       if (line.length() <= 0) break;
       vector<string> fields;
-      StringSplit(line, "\t", &fields);
+      StringSplit(line, "\t", &fields, true);
       sentence_fields.push_back(fields);
     }
   }
@@ -42,13 +42,13 @@ Instance *DependencyReader::GetNext() {
 
   // Convert to array of forms, lemmas, etc.
   // Note: the first token is the root symbol.
-  vector<string> forms(length+1);
-  vector<string> lemmas(length+1);
-  vector<string> cpos(length+1);
-  vector<string> pos(length+1);
-  vector<vector<string> > feats(length+1);
-  vector<string> deprels(length+1);
-  vector<int> heads(length+1);
+  vector<string> forms(length + 1);
+  vector<string> lemmas(length + 1);
+  vector<string> cpos(length + 1);
+  vector<string> pos(length + 1);
+  vector<vector<string> > feats(length + 1);
+  vector<string> deprels(length + 1);
+  vector<int> heads(length + 1);
 
   forms[0] = "_root_";
   lemmas[0] = "_root_";
@@ -58,28 +58,28 @@ Instance *DependencyReader::GetNext() {
   heads[0] = -1;
   feats[0] = vector<string>(1, "_root_");
 
-  for(int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     const vector<string> &info = sentence_fields[i];
 
-    forms[i+1] = info[1];
-    lemmas[i+1] = info[2];
-    cpos[i+1] = info[3];
-    pos[i+1] = info[4];
+    forms[i + 1] = info[1];
+    lemmas[i + 1] = info[2];
+    cpos[i + 1] = info[3];
+    pos[i + 1] = info[4];
 
     string feat_seq = info[5];
     if (0 == feat_seq.compare("_")) {
-      feats[i+1].clear();
+      feats[i + 1].clear();
     } else {
-      StringSplit(feat_seq, "|", &feats[i+1]);
+      StringSplit(feat_seq, "|", &feats[i + 1], true);
     }
 
-    deprels[i+1] = info[7];
+    deprels[i + 1] = info[7];
     stringstream ss(info[6]);
-    ss >> heads[i+1];
-    if (heads[i+1] < 0 || heads[i+1] > length) {
-      CHECK(false) << "Invalid value of head (" << heads[i+1]
-                   << " not in range [0.." << length
-                   << "]";
+    ss >> heads[i + 1];
+    if (heads[i + 1] < 0 || heads[i + 1] > length) {
+      CHECK(false) << "Invalid value of head (" << heads[i + 1]
+        << " not in range [0.." << length
+        << "]";
     }
   }
 

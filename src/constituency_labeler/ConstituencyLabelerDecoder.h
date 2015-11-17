@@ -25,7 +25,7 @@
 class ConstituencyLabelerPipe;
 
 class ConstituencyLabelerDecoder : public Decoder {
- public:
+public:
   ConstituencyLabelerDecoder() {};
   ConstituencyLabelerDecoder(ConstituencyLabelerPipe *pipe) : pipe_(pipe) {};
   virtual ~ConstituencyLabelerDecoder() {};
@@ -58,7 +58,7 @@ class ConstituencyLabelerDecoder : public Decoder {
                        double *entropy,
                        double *loss);
 
- protected:
+protected:
   void DecodeLabels(Instance *instance, Parts *parts,
                     const std::vector<double> &scores,
                     std::vector<int> *best_labeled_parts);
@@ -68,7 +68,7 @@ class ConstituencyLabelerDecoder : public Decoder {
                             std::vector<double> *total_scores,
                             std::vector<double> *label_marginals);
 
- protected:
+protected:
   ConstituencyLabelerPipe *pipe_;
 };
 

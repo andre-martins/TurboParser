@@ -7,7 +7,7 @@
 
 template<class Value>
 class HashTableEntry {
- public:
+public:
   HashTableEntry(const Value &value) {
     value_ = value;
   }
@@ -16,11 +16,10 @@ class HashTableEntry {
   HashTableEntry *next() { return next_; }
   void insert(HashTableEntry *next) { next_ = next; }
 
- private:
+private:
   HashTableEntry *next_;
   Value value_;
 };
-
 
 ////////////////////////////////////////////////////////////
 // Iterator in a hash table.
@@ -28,8 +27,7 @@ class HashTableEntry {
 
 template<class Entry, class Value>
 class HashTableIterator {
-
- public:
+public:
   // Construct an iterator pointing to a particular entry.
   // Note: entry should be NULL iff buckets_.size() == position_.
   HashTableIterator(Entry *entry, const std::vector<Entry*> &buckets,
@@ -82,7 +80,7 @@ class HashTableIterator {
     return entry_ != iter.entry_;
   }
 
- private:
+private:
   // Increment position until a non-null bucket is find.
   void MoveToValidBucket() {
     while (position_ < buckets_.size() && !(buckets_[position_])) ++position_;
@@ -100,7 +98,6 @@ class HashTableIterator {
   // Current bucket position.
   uint32_t position_;
 };
-
 
 ////////////////////////////////////////////////////////////
 // General hash function.
@@ -163,24 +160,23 @@ struct HashFunction<uint64_t> {
 #undef u32mix
 #undef u32final
 
-
 ////////////////////////////////////////////////////////////
 // Hash table with templated key, value and hash function.
 ////////////////////////////////////////////////////////////
 
 #define HANDLE_COLLISIONS
 
-template<class Key, class Value, class Hash=HashFunction<Key> >
+template<class Key, class Value, class Hash = HashFunction<Key> >
 class HashTable {
- private:
+private:
   typedef std::pair<Key, Value> key_value;
   typedef HashTableEntry<key_value> entry;
 
- public:
+public:
   typedef HashTableIterator<entry, key_value> iterator;
   typedef HashTableIterator<entry, const key_value> const_iterator;
 
- public:
+public:
   HashTable() {
     num_entries_ = 0;
 #ifdef HANDLE_COLLISIONS
@@ -199,13 +195,13 @@ class HashTable {
 
   // Clear the hash table.
   void clear() {
-     iterator iter = begin();
-     while (iter != end()) {
-       entry *e = iter.entry();
-       ++iter;
-       delete e;
-     }
-     buckets_.assign(buckets_.size(), NULL);
+    iterator iter = begin();
+    while (iter != end()) {
+      entry *e = iter.entry();
+      ++iter;
+      delete e;
+    }
+    buckets_.assign(buckets_.size(), NULL);
   }
 
   // Return number of entries.
@@ -248,9 +244,6 @@ class HashTable {
     if (!e) return end();
     return iterator(e, buckets_, index);
   }
-
-
-
 
   // Insert a new element (key-value pair).
   // Note: this does not check for duplicates. It assumes the key
@@ -313,7 +306,7 @@ class HashTable {
     LOG(INFO) << "Load factor = " << load_factor();
   }
 
- private:
+private:
   // Trigger a call to rehash if the load factor is above the limit
   // and the number of buckets is affordable, in which the case the
   // size of the table is doubled.
@@ -325,7 +318,7 @@ class HashTable {
     }
   }
 
- private:
+private:
   int num_entries_; // Number of entries.
   std::vector<entry*> buckets_; // Table of bucket entries.
   int max_num_buckets_; // Maximum number of buckets.

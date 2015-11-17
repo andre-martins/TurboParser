@@ -95,21 +95,21 @@ DEFINE_string(srl_file_pruner_model, "",
               "Path to the file containing the pre-trained pruner model. Must "
               "activate the flag --use_pretrained_pruner");
 DEFINE_double(srl_pruner_posterior_threshold, 0.0001,
-            "Posterior probability threshold for an arc to be pruned, in basic "
-            "pruning. For each word p, if "
-            "P(p,a) < pruner_posterior_threshold * P(p,a'), "
-            "where a' is the best scored argument, then (p,a) will be pruned out.");
+              "Posterior probability threshold for an arc to be pruned, in basic "
+              "pruning. For each word p, if "
+              "P(p,a) < pruner_posterior_threshold * P(p,a'), "
+              "where a' is the best scored argument, then (p,a) will be pruned out.");
 DEFINE_int32(srl_pruner_max_arguments, 20,
-            "Maximum number of possible arguments for a given word, in basic "
-            "pruning.");
+             "Maximum number of possible arguments for a given word, in basic "
+             "pruning.");
 
 // Options for pruner training.
 // TODO: implement these options.
 DEFINE_string(srl_pruner_train_algorithm, "crf_mira",
-             "Training algorithm for the pruner. Options are perceptron, mira, "
-             "svm_mira, crf_mira, svm_sgd, crf_sgd.");
+              "Training algorithm for the pruner. Options are perceptron, mira, "
+              "svm_mira, crf_mira, svm_sgd, crf_sgd.");
 DEFINE_bool(srl_pruner_only_supported_features, true,
-            "True for the pruner to use supported features only (should be true" 
+            "True for the pruner to use supported features only (should be true"
             "for CRFs).");
 DEFINE_bool(srl_pruner_use_averaging, true,
             "True for the pruner to average the weight vector at the end of"
@@ -175,40 +175,40 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_srl_use_dependency_syntactic_features);
   CHECK(success);
   LOG(INFO) << "Setting --srl_use_dependency_syntactic_features="
-            << FLAGS_srl_use_dependency_syntactic_features;
+    << FLAGS_srl_use_dependency_syntactic_features;
   success = ReadBool(fs, &FLAGS_srl_labeled);
   CHECK(success);
   LOG(INFO) << "Setting --srl_labeled=" << FLAGS_srl_labeled;
   success = ReadBool(fs, &FLAGS_srl_deterministic_labels);
   CHECK(success);
   LOG(INFO) << "Setting --srl_deterministic_labels="
-            << FLAGS_srl_deterministic_labels;
+    << FLAGS_srl_deterministic_labels;
   success = ReadBool(fs, &FLAGS_srl_allow_self_loops);
   CHECK(success);
   LOG(INFO) << "Setting --srl_allow_self_loops=" << FLAGS_srl_allow_self_loops;
   success = ReadBool(fs, &FLAGS_srl_allow_root_predicate);
   CHECK(success);
   LOG(INFO) << "Setting --srl_allow_root_predicate="
-            << FLAGS_srl_allow_root_predicate;
+    << FLAGS_srl_allow_root_predicate;
   success = ReadBool(fs, &FLAGS_srl_allow_unseen_predicates);
   CHECK(success);
   LOG(INFO) << "Setting --srl_allow_unseen_predicates="
-            << FLAGS_srl_allow_unseen_predicates;
+    << FLAGS_srl_allow_unseen_predicates;
   success = ReadBool(fs, &FLAGS_srl_use_predicate_senses);
   CHECK(success);
   LOG(INFO) << "Setting --srl_use_predicate_senses="
-            << FLAGS_srl_use_predicate_senses;
+    << FLAGS_srl_use_predicate_senses;
   success = ReadBool(fs, &FLAGS_srl_prune_labels);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_labels=" << FLAGS_srl_prune_labels;
   success = ReadBool(fs, &FLAGS_srl_prune_labels_with_senses);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_labels_with_senses="
-            << FLAGS_srl_prune_labels_with_senses;
+    << FLAGS_srl_prune_labels_with_senses;
   success = ReadBool(fs, &FLAGS_srl_prune_labels_with_relation_paths);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_labels_with_relation_paths="
-            << FLAGS_srl_prune_labels_with_relation_paths;
+    << FLAGS_srl_prune_labels_with_relation_paths;
   success = ReadBool(fs, &FLAGS_srl_prune_distances);
   CHECK(success);
   LOG(INFO) << "Setting --srl_prune_distances=" << FLAGS_srl_prune_distances;
@@ -218,11 +218,11 @@ void SemanticOptions::Load(FILE* fs) {
   success = ReadDouble(fs, &FLAGS_srl_pruner_posterior_threshold);
   CHECK(success);
   LOG(INFO) << "Setting --srl_pruner_posterior_threshold="
-            << FLAGS_srl_pruner_posterior_threshold;
+    << FLAGS_srl_pruner_posterior_threshold;
   success = ReadInteger(fs, &FLAGS_srl_pruner_max_arguments);
   CHECK(success);
   LOG(INFO) << "Setting --srl_pruner_max_arguments="
-            << FLAGS_srl_pruner_max_arguments;
+    << FLAGS_srl_pruner_max_arguments;
 
   Initialize();
 }
@@ -295,7 +295,7 @@ void SemanticOptions::Initialize() {
   }
   vector<string> enabled_parts;
   bool use_arc_factored = false;
-  StringSplit(model_type, "+", &enabled_parts);
+  StringSplit(model_type, "+", &enabled_parts, true);
   for (int i = 0; i < enabled_parts.size(); ++i) {
     if (enabled_parts[i] == "af") {
       use_arc_factored = true;

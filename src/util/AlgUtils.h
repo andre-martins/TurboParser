@@ -37,11 +37,11 @@ extern void InsertionSort(pair<double, int> arr[], int length);
 
 extern int project_onto_simplex_cached(double* x,
                                        int d,
-                                       double r, 
-                                       vector<pair<double,int> >& y);
+                                       double r,
+                                       vector<pair<double, int> >& y);
 
 extern int project_onto_simplex(double* x, int d, double r);
 
 extern int project_onto_cone_cached(double* x, int d,
-                                    vector<pair<double,int> >& y);
+                                    vector<pair<double, int> >& y);
 #endif // ALGUTILS_H

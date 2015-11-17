@@ -24,7 +24,7 @@
 #include "Instance.h"
 
 class DependencyInstance : public Instance {
- public:
+public:
   DependencyInstance() {};
   virtual ~DependencyInstance() {};
 
@@ -37,10 +37,10 @@ class DependencyInstance : public Instance {
 
   void Initialize(const vector<string> &forms,
                   const vector<string> &lemmas,
-                  const vector<string> &cpos, 
-                  const vector<string> &pos, 
+                  const vector<string> &cpos,
+                  const vector<string> &pos,
                   const vector<vector<string> > &feats,
-                  const vector<string> &deprels, 
+                  const vector<string> &deprels,
                   const vector<int> &heads);
 
   int size() { return forms_.size(); };
@@ -62,7 +62,7 @@ class DependencyInstance : public Instance {
     deprels_[i] = dependency_relation;
   }
 
- protected:
+protected:
   // FORM: the forms - usually words, like "thought"
   vector<string> forms_;
   // LEMMA: the lemmas, or stems, e.g. "think"

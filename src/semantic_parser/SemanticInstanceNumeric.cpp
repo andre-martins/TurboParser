@@ -29,8 +29,8 @@ const int kUnknownRelationPath = 0xffff;
 const int kUnknownPosPath = 0xffff;
 
 void SemanticInstanceNumeric::Initialize(
-    const SemanticDictionary &dictionary,
-    SemanticInstance* instance) {
+  const SemanticDictionary &dictionary,
+  SemanticInstance* instance) {
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   DependencyDictionary *dependency_dictionary =
     dictionary.GetDependencyDictionary();
@@ -79,8 +79,8 @@ void SemanticInstanceNumeric::Initialize(
 }
 
 void SemanticInstanceNumeric::ComputeDependencyInformation(
-    const SemanticDictionary &dictionary,
-    SemanticInstance* instance) {
+  const SemanticDictionary &dictionary,
+  SemanticInstance* instance) {
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   DependencyDictionary *dependency_dictionary =
     dictionary.GetDependencyDictionary();
@@ -105,8 +105,8 @@ void SemanticInstanceNumeric::ComputeDependencyInformation(
   for (int h = 0; h < instance_length; ++h) {
     for (int k = 0; k < modifiers_[h].size(); ++k) {
       int m = modifiers_[h][k];
-      if (k > 0) left_siblings_[m] = modifiers_[h][k-1];
-      if (k+1 < modifiers_[h].size()) right_siblings_[m] = modifiers_[h][k+1];
+      if (k > 0) left_siblings_[m] = modifiers_[h][k - 1];
+      if (k + 1 < modifiers_[h].size()) right_siblings_[m] = modifiers_[h][k + 1];
     }
   }
 
@@ -141,8 +141,8 @@ void SemanticInstanceNumeric::ComputeDependencyInformation(
 }
 
 bool SemanticInstanceNumeric::ComputePassiveVoice(
-    SemanticInstance* instance,
-    int index) {
+  SemanticInstance* instance,
+  int index) {
   const string &form = instance->GetForm(index);
   const string &tag = instance->GetPosTag(index);
   if (!IsVerb(index)) {

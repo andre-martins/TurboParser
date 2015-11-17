@@ -24,22 +24,23 @@
 
 using namespace std;
 
-extern void StringSplit(const string &str,
-                        const string &delim,
-                        vector<string> *results);
+extern void StringSplit(const std::string &str,
+                        const std::string &delim,
+                        std::vector<std::string> *results,
+                        bool ignore_multiple_separators);
 
-extern void StringJoin(const vector<string> &fields,
+extern void StringJoin(const std::vector<std::string> &fields,
                        const char delim,
-                       string *result);
+                       std::string *result);
 
-extern void GetFileNameFromPath(const string &delim, string *file_name);
+extern void GetFileNameFromPath(const std::string &delim, std::string *file_name);
 
-extern void TrimComments(const string &delim, string *line);
+extern void TrimComments(const std::string &delim, std::string *line);
 
-extern void TrimLeft(const string &delim, string *line);
+extern void TrimLeft(const std::string &delim, std::string *line);
 
-extern void TrimRight(const string &delim, string *line);
+extern void TrimRight(const std::string &delim, std::string *line);
 
-extern void Trim(const string &delim, string *line);
+extern void Trim(const std::string &delim, std::string *line);
 
 #endif // STRINGUTILS_H

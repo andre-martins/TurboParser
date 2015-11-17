@@ -24,12 +24,83 @@
 #include "SparseLabeledParameterVector.h"
 #include "Utils.h"
 
+#if USE_WEIGHT_CACHING == 1
+// Structure to define a feature-label pair.
+struct FeatureLabelPair {
+  uint64_t feature;
+  int label;
+};
+
+// Structure to define a hash function and a comparison function for FeatureLabelPair.
+struct FeatureLabelPairMapper {
+  template <typename TSeed>
+  inline void HashCombine(TSeed value, TSeed *seed) const {
+    *seed ^= value + 0x9e3779b9 + (*seed << 6) + (*seed >> 2);
+  }
+  // Hash function.
+  inline size_t operator()(const FeatureLabelPair& p) const {
+    size_t hash = std::hash<uint64_t>()(p.feature);
+    size_t hash_2 = std::hash<int>()(p.label);
+
+    HashCombine<size_t>(hash_2, &hash);
+    return hash;
+  }
+  // Comparison function.
+  inline bool operator()(const FeatureLabelPair &p, const FeatureLabelPair &q) const {
+    return p.feature == q.feature && p.label == q.label;
+  }
+};
+
+// Defines a hash-table of FeatureLabelPair keys with values, of double type.
+typedef std::unordered_map<FeatureLabelPair, double, FeatureLabelPairMapper, FeatureLabelPairMapper > FeatureLabelPairHashMap;
+
+// Hash-table for caching FeatureLabelPair keys with corresponding values.
+class FeatureLabelCache {
+public:
+  FeatureLabelCache() {
+    hits_ = 0;
+    misses_ = 0;
+  };
+  virtual ~FeatureLabelCache() {};
+
+  int hits() const { return hits_; };
+  int misses() const { return misses_; };
+  int GetSize() const { return cache_.size(); };
+
+  void IncrementHits() { hits_ += 1; };
+  void IncrementMisses() { misses_ += 1; };
+
+  // Insert a new pair {key, value} in the hash-table.
+  void Insert(FeatureLabelPair key, double value) {
+    cache_.insert({ key, value });
+  };
+
+  // Searches for a given key in the hash-table.
+  // If found, value is returned in argument 'value'.
+  // return: true if found, false otherwise.
+  bool Find(FeatureLabelPair key, double * value) {
+    FeatureLabelPairHashMap::const_iterator caching_iterator;
+    caching_iterator = cache_.find(key);
+    if (caching_iterator != cache_.end()) {
+      *value = caching_iterator->second;
+      return true;
+    };
+    return false;
+  };
+
+protected:
+  FeatureLabelPairHashMap cache_;
+  uint64_t hits_;
+  uint64_t misses_;
+};
+#endif
+
 // This class implements a feature vector, which is convenient to sum over
 // binary features, weight them, etc. It just uses the classes
 // SparseParameterVector and SparseLabeledParameterVector, which allow fast
 // insertions and lookups.
 class FeatureVector {
- public:
+public:
   FeatureVector() {
     weights_.Initialize();
     labeled_weights_.Initialize();
@@ -47,7 +118,7 @@ class FeatureVector {
     return weights_.GetSquaredNorm() + labeled_weights_.GetSquaredNorm();
   }
 
- protected:
+protected:
   SparseParameterVectorDouble weights_;
   SparseLabeledParameterVector labeled_weights_;
 };
@@ -58,7 +129,7 @@ class FeatureVector {
 // It allows averaging the parameters (as in averaged perceptron), which
 // requires keeping around another weight vector of the same size.
 class Parameters {
- public:
+public:
   Parameters() {
     use_average_ = true;
   };
@@ -79,13 +150,13 @@ class Parameters {
 
   // Lock/unlock the parameter vector. A locked vector means that no features
   // can be added.
-  void StopGrowth () {
+  void StopGrowth() {
     weights_.StopGrowth();
     averaged_weights_.StopGrowth();
     labeled_weights_.StopGrowth();
     averaged_labeled_weights_.StopGrowth();
   }
-  void AllowGrowth () {
+  void AllowGrowth() {
     weights_.AllowGrowth();
     averaged_weights_.AllowGrowth();
     labeled_weights_.AllowGrowth();
@@ -150,6 +221,53 @@ class Parameters {
     }
   }
 
+#if USE_WEIGHT_CACHING == 1
+  // Compute the scores corresponding to a set of features, conjoined with
+  // output labels. The vector scores, provided as output, contains the score
+  // for each label, with the added functionality
+  // of using a cache for already computed scores.
+  void ComputeLabelScoresWithCache(const BinaryFeatures &features,
+                                   const vector<int> &labels,
+                                   vector<double> *scores) {
+    FeatureLabelPair caching_key;
+    double caching_value;
+
+    vector<int> reduced_labels;
+    vector<int> adjust_new_index_reduced_labels;
+
+    scores->clear();
+    scores->resize(labels.size(), 0.0);
+    vector<double> label_scores(labels.size(), 0.0);
+    for (int j = 0; j < features.size(); ++j) {
+      if (!ExistsLabeled(features[j])) continue;
+      reduced_labels.clear();
+      adjust_new_index_reduced_labels.clear();
+
+      for (int k = 0; k < labels.size(); ++k) {
+        caching_key = { features[j], labels[k] };
+        if (!caching_weights_.Find(caching_key, &caching_value)) {
+          // Add such label to reduced labels.
+          reduced_labels.push_back(labels[k]);
+          adjust_new_index_reduced_labels.push_back(k);
+          caching_weights_.IncrementMisses();
+        } else {
+          (*scores)[k] += caching_value;
+          caching_weights_.IncrementHits();
+        }
+      }
+      if (reduced_labels.size() == 0) continue;
+      if (!Get(features[j], reduced_labels, &label_scores)) continue;
+      for (int k = 0; k < reduced_labels.size(); ++k) {
+        (*scores)[adjust_new_index_reduced_labels[k]] += label_scores[k];
+
+        caching_key = { features[j], reduced_labels[k] };
+        caching_value = label_scores[k];
+        caching_weights_.Insert(caching_key, caching_value);
+      }
+    }
+  }
+#endif
+
   // Scale the parameter vector by scale_factor.
   void Scale(double scale_factor) {
     weights_.Scale(scale_factor);
@@ -171,7 +289,7 @@ class Parameters {
         // T*u1 + (T-1)*u2 + ... u_T = T*(u1 + u2 + ...) - u2 - 2*u3 - (T-1)*u_T
         // = T*w_T - u2 - 2*u3 - (T-1)*u_T
         averaged_weights_.Add(features[j],
-          static_cast<double>(iteration) * eta * gradient);
+                              static_cast<double>(iteration) * eta * gradient);
       }
     }
   }
@@ -192,7 +310,7 @@ class Parameters {
     if (use_average_) {
       for (int j = 0; j < features.size(); ++j) {
         averaged_labeled_weights_.Add(features[j], label,
-            static_cast<double>(iteration) * eta * gradient);
+                                      static_cast<double>(iteration) * eta * gradient);
       }
     }
   }
@@ -208,13 +326,19 @@ class Parameters {
       weights_.Add(averaged_weights_);
 
       averaged_labeled_weights_.Scale(
-          1.0 / static_cast<double>(num_iterations));
+        1.0 / static_cast<double>(num_iterations));
 
       labeled_weights_.Add(averaged_labeled_weights_);
     }
   }
 
- protected:
+#if USE_WEIGHT_CACHING == 1
+  int GetCachingWeightsHits()   const { return caching_weights_.hits(); };
+  int GetCachingWeightsMisses() const { return caching_weights_.misses(); };
+  int GetCachingWeightsSize()   const { return caching_weights_.GetSize(); };
+#endif
+
+protected:
   // Average the parameters as in averaged perceptron.
   bool use_average_;
 
@@ -225,6 +349,13 @@ class Parameters {
   // Weights and averaged weights for the "labeled" features.
   SparseLabeledParameterVector labeled_weights_;
   SparseLabeledParameterVector averaged_labeled_weights_;
+
+public:
+#if USE_WEIGHT_CACHING == 1
+  // Caches the weights for feature-label pairs :
+  // FeatureLabelPair = struct {feature; label} .
+  FeatureLabelCache caching_weights_;
+#endif
 };
 
 #endif /*PARAMETERS_H_*/

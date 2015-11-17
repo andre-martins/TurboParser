@@ -5,11 +5,11 @@
 #include "DependencyPipe.h"
 #include "SemanticPipe.h"
 #include "CoreferencePipe.h"
+#include "MorphologicalPipe.h"
 
 namespace TurboParserInterface {
-
 class TurboTaggerWorker {
- public:
+public:
   TurboTaggerWorker();
   virtual ~TurboTaggerWorker();
 
@@ -20,13 +20,13 @@ class TurboTaggerWorker {
 
   void TagSentence(SequenceInstance *sentence);
 
- private:
+private:
   TaggerOptions *tagger_options_;
   TaggerPipe *tagger_pipe_;
 };
 
 class TurboEntityRecognizerWorker {
- public:
+public:
   TurboEntityRecognizerWorker();
   virtual ~TurboEntityRecognizerWorker();
 
@@ -37,13 +37,13 @@ class TurboEntityRecognizerWorker {
 
   void TagSentence(EntityInstance *sentence);
 
- private:
+private:
   EntityOptions *entity_options_;
   EntityPipe *entity_pipe_;
 };
 
 class TurboParserWorker {
- public:
+public:
   TurboParserWorker();
   virtual ~TurboParserWorker();
 
@@ -52,13 +52,13 @@ class TurboParserWorker {
   void Parse(const std::string &file_test,
              const std::string &file_prediction);
 
- private:
+private:
   DependencyOptions *parser_options_;
   DependencyPipe *parser_pipe_;
 };
 
 class TurboSemanticParserWorker {
- public:
+public:
   TurboSemanticParserWorker();
   virtual ~TurboSemanticParserWorker();
 
@@ -67,13 +67,13 @@ class TurboSemanticParserWorker {
   void ParseSemanticDependencies(const std::string &file_test,
                                  const std::string &file_prediction);
 
- private:
+private:
   SemanticOptions *semantic_options_;
   SemanticPipe *semantic_pipe_;
 };
 
 class TurboCoreferenceResolverWorker {
- public:
+public:
   TurboCoreferenceResolverWorker();
   virtual ~TurboCoreferenceResolverWorker();
 
@@ -82,13 +82,30 @@ class TurboCoreferenceResolverWorker {
   void ResolveCoreferences(const std::string &file_test,
                            const std::string &file_prediction);
 
- private:
+private:
   CoreferenceOptions *coreference_options_;
   CoreferencePipe *coreference_pipe_;
 };
 
+class TurboMorphologicalTaggerWorker {
+public:
+  TurboMorphologicalTaggerWorker();
+  virtual ~TurboMorphologicalTaggerWorker();
+
+  void LoadMorphologicalTaggerModel(const std::string &file_model);
+
+  void Tag(const std::string &file_test,
+           const std::string &file_prediction);
+
+  void TagSentence(MorphologicalInstance *sentence);
+
+private:
+  MorphologicalOptions *morphological_tagger_options_;
+  MorphologicalPipe *morphological_tagger_pipe_;
+};
+
 class TurboParserInterface {
- public:
+public:
   TurboParserInterface();
   virtual ~TurboParserInterface();
 
@@ -140,6 +157,13 @@ class TurboParserInterface {
     return coreference_resolver;
   }
 
+  TurboMorphologicalTaggerWorker *CreateMorphologicalTagger() {
+    TurboMorphologicalTaggerWorker *morphological_tagger =
+      new TurboMorphologicalTaggerWorker();
+    morphological_taggers_.push_back(morphological_tagger);
+    return morphological_tagger;
+  }
+
   void DeleteAllTaggers() {
     for (int i = 0; i < taggers_.size(); ++i) {
       delete taggers_[i];
@@ -175,7 +199,14 @@ class TurboParserInterface {
     coreference_resolvers_.clear();
   }
 
- private:
+  void DeleteAllMorphologicalTaggers() {
+    for (int i = 0; i < morphological_taggers_.size(); ++i) {
+      delete morphological_taggers_[i];
+    }
+    morphological_taggers_.clear();
+  }
+
+private:
   int argc_;
   char** argv_;
   std::vector<TurboTaggerWorker*> taggers_;
@@ -183,6 +214,6 @@ class TurboParserInterface {
   std::vector<TurboSemanticParserWorker*> semantic_parsers_;
   std::vector<TurboEntityRecognizerWorker*> entity_recognizers_;
   std::vector<TurboCoreferenceResolverWorker*> coreference_resolvers_;
+  std::vector<TurboMorphologicalTaggerWorker*> morphological_taggers_;
 };
-
 } // namespace TurboParserInterface.

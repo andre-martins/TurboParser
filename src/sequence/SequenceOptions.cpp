@@ -78,4 +78,3 @@ void SequenceOptions::Initialize() {
   //prune_tags_ = FLAGS_sequence_prune_tags;
   //file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
 }
-

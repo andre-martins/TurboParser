@@ -22,14 +22,14 @@
 #include "ConstituencyReader.h"
 
 class ConstituencyLabelerReader : public ConstituencyReader {
- public:
+public:
   ConstituencyLabelerReader() {}
   virtual ~ConstituencyLabelerReader() {}
 
- public:
+public:
   virtual Instance *GetNext();
 
- protected:
+protected:
   void ExtractLemmasAndMorphFeatsFromTag(const std::string &original_tag,
                                          std::string *tag,
                                          std::string *lemma,
@@ -37,4 +37,3 @@ class ConstituencyLabelerReader : public ConstituencyReader {
 };
 
 #endif /* CONSTITUENCYLABELERREADER_H_ */
-

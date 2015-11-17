@@ -54,8 +54,8 @@ class CoreferenceSentenceNumeric;
 class CoreferenceSentence;
 
 class Mention : public NumericSpan {
- public:
-  Mention() { sentence_  = NULL; }
+public:
+  Mention() { sentence_ = NULL; }
   Mention(int start, int end, int id) : NumericSpan(start, end, id) {}
   virtual ~Mention() {}
 
@@ -104,7 +104,7 @@ class Mention : public NumericSpan {
 
   CoreferencePronoun *pronoun() const { return pronoun_; }
 
- public:
+public:
   void ComputeProperties(const CoreferenceDictionary &dictionary,
                          CoreferenceSentence* instance,
                          CoreferenceSentenceNumeric *sentence);
@@ -125,7 +125,7 @@ class Mention : public NumericSpan {
     for (int i = 0; i <= maximum_start; ++i) {
       bool found_match = true;
       for (int j = 0; j < all_word_string_ids.size(); ++j) {
-        if (all_word_string_ids[j] != all_word_string_ids_[i+j]) {
+        if (all_word_string_ids[j] != all_word_string_ids_[i + j]) {
           found_match = false;
           break;
         }
@@ -145,19 +145,25 @@ class Mention : public NumericSpan {
   void GetHeadString(CoreferenceSentence *instance,
                      std::string *head_string);
 
- protected:
+protected:
   void ComputeHead();
   int ComputeNumber(const std::vector<int> &words,
                     const std::vector<int> &words_lower,
-                    int head_index) { return MentionNumber::SINGULAR; }
+                    int head_index) {
+    return MentionNumber::SINGULAR;
+  }
   int ComputePersonGender(const std::vector<int> &words,
                           const std::vector<int> &words_lower,
-                          int head_index) { return MentionGender::MALE; }
+                          int head_index) {
+    return MentionGender::MALE;
+  }
   int ComputeNonPersonGender(const std::vector<int> &words,
                              const std::vector<int> &words_lower,
-                             int head_index) { return MentionGender::MALE; }
+                             int head_index) {
+    return MentionGender::MALE;
+  }
 
- protected:
+protected:
   CoreferenceSentenceNumeric *sentence_;
   int type_; // Type of mention (pronominal, proper, or nominal).
   int entity_tag_; // Entity tag, if applicable (otherwise, -1).

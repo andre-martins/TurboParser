@@ -41,21 +41,21 @@ enum {
 
 // Part for an unlabeled arc linking a predicate and an argument word.
 class SemanticPartArc : public Part {
- public:
+public:
   SemanticPartArc() { p_ = a_ = s_ = -1; }
   SemanticPartArc(int predicate, int argument, int sense) :
     p_(predicate), a_(argument), s_(sense) {}
   virtual ~SemanticPartArc() {}
 
- public:
+public:
   int predicate() { return p_; }
   int argument() { return a_; }
   int sense() { return s_; }
 
- public:
+public:
   int type() { return SEMANTICPART_ARC; }
 
- private:
+private:
   int p_; // Index of the predicate.
   int a_; // Index of the argument.
   int s_; // Predicate sense.
@@ -63,71 +63,68 @@ class SemanticPartArc : public Part {
 
 // Part for a labeled arc linking a predicate and an argument word.
 class SemanticPartLabeledArc : public Part {
- public:
+public:
   SemanticPartLabeledArc() { p_ = a_ = s_ = r_ = -1; }
   SemanticPartLabeledArc(int predicate, int argument, int sense, int role) :
     p_(predicate), a_(argument), s_(sense), r_(role) {}
   virtual ~SemanticPartLabeledArc() {}
 
- public:
+public:
   int predicate() { return p_; }
   int argument() { return a_; }
   int sense() { return s_; }
   int role() { return r_; }
 
- public:
+public:
   int type() { return SEMANTICPART_LABELEDARC; }
 
- private:
+private:
   int p_; // Index of the predicate.
   int a_; // Index of the argument.
   int s_; // Predicate sense.
   int r_; // Role label.
 };
 
-
 // Part for the event that a word is a predicate.
 class SemanticPartPredicate : public Part {
- public:
+public:
   SemanticPartPredicate() { p_ = -1; s_ = -1; }
   SemanticPartPredicate(int predicate, int sense) :
     p_(predicate), s_(sense) {}
   virtual ~SemanticPartPredicate() {}
 
- public:
+public:
   int predicate() { return p_; }
   int sense() { return s_; }
 
- public:
+public:
   int type() { return SEMANTICPART_PREDICATE; }
 
- private:
+private:
   int p_; // Index of the predicate.
   int s_; // Index of the sense.
 };
 
-
 // Part for the event that a word is an argument of at least one predicate.
 class SemanticPartArgument : public Part {
- public:
+public:
   SemanticPartArgument() { a_ = -1; }
   SemanticPartArgument(int argument) :
     a_(argument) {}
   virtual ~SemanticPartArgument() {}
 
- public:
+public:
   int argument() { return a_; }
 
- public:
+public:
   int type() { return SEMANTICPART_ARGUMENT; }
 
- private:
+private:
   int a_; // Index of the argument.
 };
 
-
 class SemanticPartSibling : public Part {
- public:
+public:
   SemanticPartSibling() { p_ = s_ = a1_ = a2_ = -1; };
   SemanticPartSibling(int predicate, int sense, int first_argument,
                       int second_argument) {
@@ -138,16 +135,16 @@ class SemanticPartSibling : public Part {
   }
   virtual ~SemanticPartSibling() {};
 
- public:
+public:
   int type() { return SEMANTICPART_SIBLING; };
 
- public:
+public:
   int predicate() { return p_; };
   int sense() { return s_; };
   int first_argument() { return a1_; };
   int second_argument() { return a2_; };
 
- private:
+private:
   int p_; // Index of the predicate.
   int s_; // Index of the sense.
   int a1_; // Index of the first argument.
@@ -155,7 +152,7 @@ class SemanticPartSibling : public Part {
 };
 
 class SemanticPartConsecutiveSibling : public Part {
- public:
+public:
   SemanticPartConsecutiveSibling() { p_ = s_ = a1_ = a2_ = -1; };
   SemanticPartConsecutiveSibling(int predicate, int sense, int first_argument,
                                  int second_argument) {
@@ -166,16 +163,16 @@ class SemanticPartConsecutiveSibling : public Part {
   }
   virtual ~SemanticPartConsecutiveSibling() {};
 
- public:
+public:
   int type() { return SEMANTICPART_CONSECUTIVESIBLING; };
 
- public:
+public:
   int predicate() { return p_; };
   int sense() { return s_; };
   int first_argument() { return a1_; };
   int second_argument() { return a2_; };
 
- private:
+private:
   int p_; // Index of the predicate.
   int s_; // Index of the sense.
   int a1_; // Index of the first argument (or -1 for a2_ being the first child).
@@ -183,7 +180,7 @@ class SemanticPartConsecutiveSibling : public Part {
 };
 
 class SemanticPartGrandparent : public Part {
- public:
+public:
   SemanticPartGrandparent() { g_ = t_ = p_ = s_ = a_ = -1; };
   SemanticPartGrandparent(int grandparent_predicate, int grandparent_sense,
                           int predicate, int sense, int argument) {
@@ -195,17 +192,17 @@ class SemanticPartGrandparent : public Part {
   }
   virtual ~SemanticPartGrandparent() {};
 
- public:
+public:
   int type() { return SEMANTICPART_GRANDPARENT; };
 
- public:
+public:
   int grandparent_predicate() { return g_; };
   int grandparent_sense() { return t_; };
   int predicate() { return p_; };
   int sense() { return s_; };
   int argument() { return a_; };
 
- private:
+private:
   int g_; // Index of the grandparent predicate.
   int t_; // Index of the grandparent sense.
   int p_; // Index of the predicate.
@@ -214,7 +211,7 @@ class SemanticPartGrandparent : public Part {
 };
 
 class SemanticPartCoparent : public Part {
- public:
+public:
   SemanticPartCoparent() { p1_ = s1_ = p2_ = s2_ = a_ = -1; };
   SemanticPartCoparent(int first_predicate, int first_sense,
                        int second_predicate, int second_sense,
@@ -227,17 +224,17 @@ class SemanticPartCoparent : public Part {
   }
   virtual ~SemanticPartCoparent() {};
 
- public:
+public:
   int type() { return SEMANTICPART_COPARENT; };
 
- public:
+public:
   int first_predicate() { return p1_; };
   int first_sense() { return s1_; };
   int second_predicate() { return p2_; };
   int second_sense() { return s2_; };
   int argument() { return a_; };
 
- private:
+private:
   int p1_; // Index of the first predicate.
   int s1_; // Index of the first sense.
   int p2_; // Index of the second predicate.
@@ -246,7 +243,7 @@ class SemanticPartCoparent : public Part {
 };
 
 class SemanticPartConsecutiveCoparent : public Part {
- public:
+public:
   SemanticPartConsecutiveCoparent() { p1_ = s1_ = p2_ = s2_ = a_ = -1; };
   SemanticPartConsecutiveCoparent(int first_predicate, int first_sense,
                                   int second_predicate, int second_sense,
@@ -259,17 +256,17 @@ class SemanticPartConsecutiveCoparent : public Part {
   }
   virtual ~SemanticPartConsecutiveCoparent() {};
 
- public:
+public:
   int type() { return SEMANTICPART_CONSECUTIVECOPARENT; };
 
- public:
+public:
   int first_predicate() { return p1_; };
   int first_sense() { return s1_; };
   int second_predicate() { return p2_; };
   int second_sense() { return s2_; };
   int argument() { return a_; };
 
- private:
+private:
   int p1_; // Index of the first predicate (or -1 for p2_ being the first).
   int s1_; // Index of the first sense.
   int p2_; // Index of the second predicate (or -1 for p1_ being the last).
@@ -278,7 +275,7 @@ class SemanticPartConsecutiveCoparent : public Part {
 };
 
 class SemanticPartLabeledSibling : public Part {
- public:
+public:
   SemanticPartLabeledSibling() { p_ = s_ = a1_ = a2_ = r1_ = r2_ = -1; };
   SemanticPartLabeledSibling(int predicate, int sense, int first_argument,
                              int second_argument, int first_role,
@@ -292,10 +289,10 @@ class SemanticPartLabeledSibling : public Part {
   }
   virtual ~SemanticPartLabeledSibling() {};
 
- public:
+public:
   int type() { return SEMANTICPART_LABELEDSIBLING; };
 
- public:
+public:
   int predicate() { return p_; };
   int sense() { return s_; };
   int first_argument() { return a1_; };
@@ -303,7 +300,7 @@ class SemanticPartLabeledSibling : public Part {
   int first_role() { return r1_; };
   int second_role() { return r2_; };
 
- private:
+private:
   int p_; // Index of the predicate.
   int s_; // Index of the sense.
   int a1_; // Index of the first argument.
@@ -313,7 +310,7 @@ class SemanticPartLabeledSibling : public Part {
 };
 
 class SemanticParts : public Parts {
- public:
+public:
   SemanticParts() {};
   virtual ~SemanticParts() { DeleteAll(); };
 
@@ -322,7 +319,7 @@ class SemanticParts : public Parts {
     for (int i = 0; i < NUM_SEMANTICPARTS; ++i) {
       offsets_[i] = -1;
     }
-    for (int r = 0;r < all_labeled_parts_.size(); ++r) {
+    for (int r = 0; r < all_labeled_parts_.size(); ++r) {
       all_labeled_parts_[r].clear();
     }
     all_labeled_parts_.clear();
@@ -418,10 +415,10 @@ class SemanticParts : public Parts {
     all_labeled_parts_.resize(num_parts);
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildIndices(int sentence_length, bool labeled);
   void DeleteIndices();
   const vector<int> &GetSenses(int predicate) {
@@ -509,7 +506,7 @@ class SemanticParts : public Parts {
   void BuildOffsets() {
     for (int i = NUM_SEMANTICPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0 || offsets_[i] > size()) {
-        offsets_[i] = (i == NUM_SEMANTICPARTS - 1)? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_SEMANTICPARTS - 1) ? size() : offsets_[i + 1];
       }
     }
   };
@@ -576,11 +573,11 @@ class SemanticParts : public Parts {
     GetOffset(SEMANTICPART_CONSECUTIVECOPARENT, offset, size);
   };
 
- private:
+private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_SEMANTICPARTS - 1)? offsets_[i + 1] - (*offset) :
+    *size = (i < NUM_SEMANTICPARTS - 1) ? offsets_[i + 1] - (*offset) :
       SemanticParts::size() - (*offset);
   }
 
@@ -590,7 +587,7 @@ class SemanticParts : public Parts {
     if (i < NUM_SEMANTICPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
- private:
+private:
   // Sense IDs of each predicate.
   vector<vector<int> > index_senses_;
   // Maps a triple (p, a, s) to a SemanticPartArc index.

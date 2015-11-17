@@ -34,4 +34,3 @@ void Reader::Close() {
   is_.clear();
   is_.close();
 }
-

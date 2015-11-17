@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
   // Parse command line flags.
   google::ParseCommandLineFlags(&argc, &argv, true);
 
-
   if (FLAGS_train) {
     LOG(INFO) << "Training coreference resolver..." << endl;
     TrainCoreferenceResolver();
@@ -47,6 +46,9 @@ int main(int argc, char** argv) {
     TestCoreferenceResolver();
   }
 
+  // Destroy allocated memory regarding line flags.
+  google::ShutDownCommandLineFlags();
+  google::ShutdownGoogleLogging();
   return 0;
 }
 
@@ -69,10 +71,10 @@ void TrainCoreferenceResolver() {
   delete options;
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Training took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TestCoreferenceResolver() {
@@ -92,8 +94,8 @@ void TestCoreferenceResolver() {
   delete options;
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Testing took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }

@@ -21,8 +21,8 @@
 #include <algorithm>
 
 void DependencyInstanceNumeric::Initialize(
-    const DependencyDictionary &dictionary,
-    DependencyInstance* instance) {
+  const DependencyDictionary &dictionary,
+  DependencyInstance* instance) {
   TokenDictionary *token_dictionary = dictionary.GetTokenDictionary();
   int length = instance->size();
   int i;
@@ -141,6 +141,6 @@ void DependencyInstanceNumeric::Initialize(
 
     heads_[i] = instance->GetHead(i);
     relations_[i] = dictionary.GetLabelAlphabet().Lookup(
-        instance->GetDependencyRelation(i));
+      instance->GetDependencyRelation(i));
   }
 }

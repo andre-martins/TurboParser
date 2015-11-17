@@ -22,7 +22,7 @@
 #include "SequenceDictionary.h"
 
 class TaggerDictionary : public SequenceDictionary {
- public:
+public:
   TaggerDictionary() {}
   TaggerDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~TaggerDictionary() {}
@@ -93,7 +93,7 @@ class TaggerDictionary : public SequenceDictionary {
   const vector<int> &GetWordTags(int word) {
     // return word_tags_[word];
     // TODO: Not sure is this should be done here...
-    // It may be cleaner to return an empty vector here and 
+    // It may be cleaner to return an empty vector here and
     // fill it with the unknown tags elsewhere.
     if (!word_tags_[word].empty()) {
       return word_tags_[word];
@@ -102,7 +102,7 @@ class TaggerDictionary : public SequenceDictionary {
     }
   }
 
- protected:
+protected:
   vector<vector<int> > word_tags_;
   vector<int> unknown_word_tags_;
 };

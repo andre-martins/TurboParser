@@ -23,7 +23,7 @@
 #include "ConstituencyReader.h"
 
 class ConstituencyDictionary : public SequenceDictionary {
- public:
+public:
   ConstituencyDictionary() {}
   ConstituencyDictionary(Pipe* pipe) { pipe_ = pipe; }
   virtual ~ConstituencyDictionary() { Clear(); }
@@ -98,7 +98,7 @@ class ConstituencyDictionary : public SequenceDictionary {
     return rule_alphabet_.Lookup(name);
   }
 
- protected:
+protected:
   Alphabet lemma_alphabet_;
   Alphabet morph_alphabet_;
   Alphabet constituent_alphabet_;

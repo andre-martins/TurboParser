@@ -106,17 +106,14 @@ void SemanticPipe::LoadPrunerModelByName(const string &model_name) {
 void SemanticPipe::PreprocessData() {
   delete token_dictionary_;
   CreateTokenDictionary();
-  static_cast<SemanticDictionary*>(dictionary_)->
-    SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromDependencyReader(GetSemanticReader());
+  static_cast<SemanticDictionary*>(dictionary_)->SetTokenDictionary(token_dictionary_);
+  static_cast<DependencyTokenDictionary*>(token_dictionary_)->Initialize(GetSemanticReader());
   delete dependency_dictionary_;
   CreateDependencyDictionary();
   dependency_dictionary_->SetTokenDictionary(token_dictionary_);
-  static_cast<SemanticDictionary*>(dictionary_)->
-    SetDependencyDictionary(dependency_dictionary_);
+  static_cast<SemanticDictionary*>(dictionary_)->SetDependencyDictionary(dependency_dictionary_);
   dependency_dictionary_->CreateLabelDictionary(GetSemanticReader());
-  static_cast<SemanticDictionary*>(dictionary_)->
-    CreatePredicateRoleDictionaries(GetSemanticReader());
+  static_cast<SemanticDictionary*>(dictionary_)->CreatePredicateRoleDictionaries(GetSemanticReader());
 }
 
 void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
@@ -163,16 +160,16 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
       CHECK(has_labeled_features);
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
-          semantic_parts->FindLabeledArcs(arc->predicate(),
-                                          arc->argument(),
-                                          arc->sense());
+        semantic_parts->FindLabeledArcs(arc->predicate(),
+                                        arc->argument(),
+                                        arc->sense());
       vector<int> allowed_labels(index_labeled_parts.size());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         CHECK_GE(index_labeled_parts[k], 0);
         CHECK_LT(index_labeled_parts[k], parts->size());
         SemanticPartLabeledArc *labeled_arc =
-            static_cast<SemanticPartLabeledArc*>(
-                (*parts)[index_labeled_parts[k]]);
+          static_cast<SemanticPartLabeledArc*>(
+            (*parts)[index_labeled_parts[k]]);
         CHECK(labeled_arc != NULL);
         allowed_labels[k] = labeled_arc->role();
       }
@@ -180,7 +177,7 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
       const BinaryFeatures &part_features =
         semantic_features->GetLabeledPartFeatures(r);
       parameters->ComputeLabelScores(part_features, allowed_labels,
-          &label_scores);
+                                     &label_scores);
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         (*scores)[index_labeled_parts[k]] = label_scores[k];
       }
@@ -199,18 +196,18 @@ void SemanticPipe::ComputeScores(Instance *instance, Parts *parts,
         CHECK_GE(index_labeled_parts[k], 0);
         CHECK_LT(index_labeled_parts[k], parts->size());
         SemanticPartLabeledSibling *labeled_sibling =
-            static_cast<SemanticPartLabeledSibling*>(
-                (*parts)[index_labeled_parts[k]]);
+          static_cast<SemanticPartLabeledSibling*>(
+            (*parts)[index_labeled_parts[k]]);
         CHECK(labeled_sibling != NULL);
         bigram_labels[k] = semantic_dictionary->GetRoleBigramLabel(
-                               labeled_sibling->first_role(),
-                               labeled_sibling->second_role());
+          labeled_sibling->first_role(),
+          labeled_sibling->second_role());
       }
       vector<double> label_scores;
       const BinaryFeatures &part_features =
         semantic_features->GetLabeledPartFeatures(r);
       parameters->ComputeLabelScores(part_features, bigram_labels,
-          &label_scores);
+                                     &label_scores);
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         (*scores)[index_labeled_parts[k]] = label_scores[k];
       }
@@ -305,7 +302,7 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
     if (has_unlabeled_features) {
       if (predicted_output[r] != gold_output[r]) {
         const BinaryFeatures &part_features =
-            semantic_features->GetPartFeatures(r);
+          semantic_features->GetPartFeatures(r);
         parameters->MakeGradientStep(part_features, eta, iteration,
                                      predicted_output[r] - gold_output[r]);
       }
@@ -320,15 +317,15 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
         semantic_features->GetLabeledPartFeatures(r);
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
-          semantic_parts->FindLabeledArcs(arc->predicate(),
-                                          arc->argument(),
-                                          arc->sense());
+        semantic_parts->FindLabeledArcs(arc->predicate(),
+                                        arc->argument(),
+                                        arc->sense());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         int index_part = index_labeled_parts[k];
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledArc *labeled_arc =
-            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+          static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
         CHECK(labeled_arc != NULL);
         double value = predicted_output[index_part] - gold_output[index_part];
         if (value != 0.0) {
@@ -354,12 +351,12 @@ void SemanticPipe::MakeGradientStep(Parts *parts,
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledSibling *labeled_sibling =
-            static_cast<SemanticPartLabeledSibling*>(
-                (*parts)[index_part]);
+          static_cast<SemanticPartLabeledSibling*>(
+            (*parts)[index_part]);
         CHECK(labeled_sibling != NULL);
         int bigram_label = semantic_dictionary->GetRoleBigramLabel(
-                               labeled_sibling->first_role(),
-                               labeled_sibling->second_role());
+          labeled_sibling->first_role(),
+          labeled_sibling->second_role());
         double value = predicted_output[index_part] - gold_output[index_part];
         if (value != 0.0) {
           parameters->MakeLabelGradientStep(part_features, eta, iteration,
@@ -407,15 +404,15 @@ void SemanticPipe::TouchParameters(Parts *parts, Features *features,
         semantic_features->GetLabeledPartFeatures(r);
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
-          semantic_parts->FindLabeledArcs(arc->predicate(),
-                                          arc->argument(),
-                                          arc->sense());
+        semantic_parts->FindLabeledArcs(arc->predicate(),
+                                        arc->argument(),
+                                        arc->sense());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         int index_part = index_labeled_parts[k];
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledArc *labeled_arc =
-            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+          static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
         CHECK(labeled_arc != NULL);
         parameters->MakeLabelGradientStep(part_features, 0.0, 0,
                                           labeled_arc->role(), 0.0);
@@ -437,12 +434,12 @@ void SemanticPipe::TouchParameters(Parts *parts, Features *features,
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledSibling *labeled_sibling =
-            static_cast<SemanticPartLabeledSibling*>(
-                (*parts)[index_part]);
+          static_cast<SemanticPartLabeledSibling*>(
+            (*parts)[index_part]);
         CHECK(labeled_sibling != NULL);
         int bigram_label = semantic_dictionary->GetRoleBigramLabel(
-                               labeled_sibling->first_role(),
-                               labeled_sibling->second_role());
+          labeled_sibling->first_role(),
+          labeled_sibling->second_role());
         parameters->MakeLabelGradientStep(part_features, 0.0, 0,
                                           bigram_label, 0.0);
       }
@@ -492,15 +489,15 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
         semantic_features->GetLabeledPartFeatures(r);
       SemanticPartArc *arc = static_cast<SemanticPartArc*>((*parts)[r]);
       const vector<int> &index_labeled_parts =
-          semantic_parts->FindLabeledArcs(arc->predicate(),
-                                          arc->argument(),
-                                          arc->sense());
+        semantic_parts->FindLabeledArcs(arc->predicate(),
+                                        arc->argument(),
+                                        arc->sense());
       for (int k = 0; k < index_labeled_parts.size(); ++k) {
         int index_part = index_labeled_parts[k];
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledArc *labeled_arc =
-            static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
+          static_cast<SemanticPartLabeledArc*>((*parts)[index_part]);
         CHECK(labeled_arc != NULL);
         double value = predicted_output[index_part] - gold_output[index_part];
         if (value != 0.0) {
@@ -528,12 +525,12 @@ void SemanticPipe::MakeFeatureDifference(Parts *parts,
         CHECK_GE(index_part, 0);
         CHECK_LT(index_part, parts->size());
         SemanticPartLabeledSibling *labeled_sibling =
-            static_cast<SemanticPartLabeledSibling*>(
-                (*parts)[index_part]);
+          static_cast<SemanticPartLabeledSibling*>(
+            (*parts)[index_part]);
         CHECK(labeled_sibling != NULL);
         int bigram_label = semantic_dictionary->GetRoleBigramLabel(
-                               labeled_sibling->first_role(),
-                               labeled_sibling->second_role());
+          labeled_sibling->first_role(),
+          labeled_sibling->second_role());
         double value = predicted_output[index_part] - gold_output[index_part];
         if (value != 0.0) {
           for (int j = 0; j < part_features.size(); ++j) {
@@ -551,7 +548,7 @@ void SemanticPipe::MakeParts(Instance *instance,
                              Parts *parts,
                              vector<double> *gold_outputs) {
   int sentence_length =
-      static_cast<SemanticInstanceNumeric*>(instance)->size();
+    static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   semantic_parts->Initialize();
   bool make_gold = (gold_outputs != NULL);
@@ -568,7 +565,7 @@ void SemanticPipe::MakeParts(Instance *instance,
     MakePartsBasic(instance, parts, gold_outputs);
     semantic_parts->BuildOffsets();
     semantic_parts->BuildIndices(sentence_length,
-        GetSemanticOptions()->labeled());
+                                 GetSemanticOptions()->labeled());
 
     // Make global parts.
     MakePartsGlobal(instance, parts, gold_outputs);
@@ -580,7 +577,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
                                   Parts *parts,
                                   vector<double> *gold_outputs) {
   int sentence_length =
-      static_cast<SemanticInstanceNumeric*>(instance)->size();
+    static_cast<SemanticInstanceNumeric*>(instance)->size();
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
 
   MakePartsBasic(instance, false, parts, gold_outputs);
@@ -673,7 +670,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
     // Compute offsets for predicate parts.
     semantic_parts->SetOffsetPredicate(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                       semantic_parts->size() - num_parts_initial);
   }
 
   // Add unlabeled/labeled arc parts.
@@ -722,7 +719,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           allowed_labels.clear();
           if (relation_path_id >= 0 &&
               relation_path_id < semantic_dictionary->
-                GetRelationPathAlphabet().size()) {
+              GetRelationPathAlphabet().size()) {
             allowed_labels = semantic_dictionary->
               GetExistingRolesWithRelationPath(relation_path_id);
             //LOG(INFO) << "Path: " << relation_path_id << " Roles: " << allowed_labels.size();
@@ -736,7 +733,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
           allowed_labels.clear();
           for (set<int>::iterator it = label_set.begin();
-               it != label_set.end(); ++it) {
+          it != label_set.end(); ++it) {
             allowed_labels.push_back(*it);
           }
           if (!add_labeled_parts && allowed_labels.empty()) {
@@ -758,7 +755,7 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
           }
           allowed_labels.clear();
           for (set<int>::iterator it = label_set.begin();
-               it != label_set.end(); ++it) {
+          it != label_set.end(); ++it) {
             allowed_labels.push_back(*it);
           }
           if (!add_labeled_parts && allowed_labels.empty()) {
@@ -768,8 +765,8 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
 
         // Add parts for labeled/unlabeled arcs.
         if (add_labeled_parts) {
-          // If there is no allowed label for this arc, but the unlabeled arc was added, 
-          // then it was forced to be present for some reason (e.g. to maintain connectivity of the 
+          // If there is no allowed label for this arc, but the unlabeled arc was added,
+          // then it was forced to be present for some reason (e.g. to maintain connectivity of the
           // graph). In that case (which should be pretty rare) consider all the
           // possible labels.
           if (allowed_labels.empty()) {
@@ -842,10 +839,10 @@ void SemanticPipe::MakePartsBasic(Instance *instance,
   // Compute offsets for labeled/unlabeled arcs.
   if (!add_labeled_parts) {
     semantic_parts->SetOffsetArc(num_parts_initial,
-        semantic_parts->size() - num_parts_initial);
+                                 semantic_parts->size() - num_parts_initial);
   } else {
     semantic_parts->SetOffsetLabeledArc(num_parts_initial,
-        semantic_parts->size() - num_parts_initial);
+                                        semantic_parts->size() - num_parts_initial);
   }
 }
 
@@ -881,7 +878,7 @@ void SemanticPipe::MakePartsArbitrarySiblings(Instance *instance,
       for (int a1 = 1; a1 < sentence_length; ++a1) {
         int r1 = semantic_parts->FindArc(p, a1, s);
         if (r1 < 0) continue;
-        for (int a2 = a1+1; a2 < sentence_length; ++a2) {
+        for (int a2 = a1 + 1; a2 < sentence_length; ++a2) {
           int r2 = semantic_parts->FindArc(p, a2, s);
           if (r2 < 0) continue;
           Part *part = semantic_parts->CreatePartSibling(p, s, a1, a2);
@@ -1020,7 +1017,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
       // Right side.
       // Allow self loops (a1 = p). We use a1 = p-1 to denote the special case
       // in which a2 is the first argument.
-      for (int a1 = p-1; a1 < sentence_length; ++a1) {
+      for (int a1 = p - 1; a1 < sentence_length; ++a1) {
         int r1 = -1;
         if (a1 >= p) {
           r1 = semantic_parts->FindArc(p, a1, s);
@@ -1037,7 +1034,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
           arc_between = false;
         }
 
-        for (int a2 = a1+1; a2 <= sentence_length; ++a2) {
+        for (int a2 = a1 + 1; a2 <= sentence_length; ++a2) {
           int r2 = -1;
           if (a2 < sentence_length) {
             r2 = semantic_parts->FindArc(p, a2, s);
@@ -1053,7 +1050,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
             }
           }
 
-          Part *part = (a1 >= p)?
+          Part *part = (a1 >= p) ?
             semantic_parts->CreatePartConsecutiveSibling(p, s, a1, a2) :
             semantic_parts->CreatePartConsecutiveSibling(p, s, -1, a2);
           semantic_parts->AddPart(part);
@@ -1074,7 +1071,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
       // NOTE: Self loops (a1 = p) are disabled on the left side, to prevent
       // having repeated parts. We use a1 = p+1 to denote the special case
       // in which a2 is the first argument.
-      for (int a1 = p+1; a1 >= 0; --a1) {
+      for (int a1 = p + 1; a1 >= 0; --a1) {
         int r1 = -1;
         if (a1 <= p) {
           r1 = semantic_parts->FindArc(p, a1, s);
@@ -1092,7 +1089,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
           arc_between = false;
         }
 
-        for (int a2 = a1-1; a2 >= -1; --a2) {
+        for (int a2 = a1 - 1; a2 >= -1; --a2) {
           int r2 = -1;
           if (a2 > -1) {
             r2 = semantic_parts->FindArc(p, a2, s);
@@ -1110,7 +1107,7 @@ void SemanticPipe::MakePartsConsecutiveSiblings(Instance *instance,
             }
           }
 
-          Part *part = (a1 <= p)?
+          Part *part = (a1 <= p) ?
             semantic_parts->CreatePartConsecutiveSibling(p, s, a1, a2) :
             semantic_parts->CreatePartConsecutiveSibling(p, s, -1, a2);
           semantic_parts->AddPart(part);
@@ -1220,7 +1217,7 @@ void SemanticPipe::MakePartsCoparents(Instance *instance,
     }
     for (int s1 = 0; s1 < predicates_p1->size(); ++s1) {
       // Second predicate.
-      for (int p2 = p1+1; p2 < sentence_length; ++p2) {
+      for (int p2 = p1 + 1; p2 < sentence_length; ++p2) {
         int lemma_id_p2 = TOKEN_UNKNOWN;
         if (use_predicate_senses) {
           lemma_id_p2 = sentence->GetLemmaId(p2);
@@ -1275,7 +1272,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
     // Right side.
     // Allow self loops (p1 = a). We use p1 = a-1 to denote the special case
     // in which p2 is the first predicate.
-    for (int p1 = a-1; p1 < sentence_length; ++p1) {
+    for (int p1 = a - 1; p1 < sentence_length; ++p1) {
       int num_senses1;
       if (p1 < a) {
         // If p1 = a-1, pretend there is a single sense (s1=0).
@@ -1314,7 +1311,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
           arc_between = false;
         }
 
-        for (int p2 = p1+1; p2 <= sentence_length; ++p2) {
+        for (int p2 = p1 + 1; p2 <= sentence_length; ++p2) {
           int num_senses2;
           if (p2 == sentence_length) {
             // If p2 = sentence_length, pretend there is a single sense (s2=0).
@@ -1352,7 +1349,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
               }
             }
 
-            Part *part = (p1 >= a)?
+            Part *part = (p1 >= a) ?
               semantic_parts->CreatePartConsecutiveCoparent(p1, s1, p2, s2, a) :
               semantic_parts->CreatePartConsecutiveCoparent(-1, 0, p2, s2, a);
             semantic_parts->AddPart(part);
@@ -1374,7 +1371,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
     // NOTE: Self loops (p1 = a) are disabled on the left side, to prevent
     // having repeated parts. We use p1 = a+1 to denote the special case
     // in which p2 is the first predicate.
-    for (int p1 = a+1; p1 >= 0; --p1) {
+    for (int p1 = a + 1; p1 >= 0; --p1) {
       int num_senses1;
       if (p1 > a) {
         // If p1 = a+1, pretend there is a single sense (s1=0).
@@ -1416,7 +1413,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
           arc_between = false;
         }
 
-        for (int p2 = p1-1; p2 >= -1; --p2) {
+        for (int p2 = p1 - 1; p2 >= -1; --p2) {
           int num_senses2;
           if (p2 == -1) {
             // If p2 = -1, pretend there is a single sense (s2=0).
@@ -1458,7 +1455,7 @@ void SemanticPipe::MakePartsConsecutiveCoparents(Instance *instance,
               }
             }
 
-            Part *part = (p1 <= a)?
+            Part *part = (p1 <= a) ?
               semantic_parts->CreatePartConsecutiveCoparent(p1, s1, p2, s2, a) :
               semantic_parts->CreatePartConsecutiveCoparent(-1, 0, p2, s2, a);
             semantic_parts->AddPart(part);
@@ -1498,7 +1495,7 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
     MakePartsLabeledArbitrarySiblings(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetLabeledSibling(
-      num_parts_initial, semantic_parts->size() - num_parts_initial);
+    num_parts_initial, semantic_parts->size() - num_parts_initial);
   //LOG(INFO) << "Num labeled siblings: " << semantic_parts->size() - num_parts_initial;
 
   num_parts_initial = semantic_parts->size();
@@ -1506,28 +1503,28 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
     MakePartsConsecutiveSiblings(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetConsecutiveSibling(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                              semantic_parts->size() - num_parts_initial);
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_grandparents()) {
     MakePartsGrandparents(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetGrandparent(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                       semantic_parts->size() - num_parts_initial);
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_coparents()) {
     MakePartsCoparents(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetCoparent(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                    semantic_parts->size() - num_parts_initial);
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_consecutive_coparents()) {
     MakePartsConsecutiveCoparents(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetConsecutiveCoparent(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                               semantic_parts->size() - num_parts_initial);
 
 #if 0
   num_parts_initial = semantic_parts->size();
@@ -1535,14 +1532,14 @@ void SemanticPipe::MakePartsGlobal(Instance *instance,
     MakePartsGrandSiblings(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetGrandSiblings(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                         semantic_parts->size() - num_parts_initial);
 
   num_parts_initial = semantic_parts->size();
   if (semantic_options->use_trisiblings()) {
     MakePartsTriSiblings(instance, parts, gold_outputs);
   }
   semantic_parts->SetOffsetTriSiblings(num_parts_initial,
-      semantic_parts->size() - num_parts_initial);
+                                       semantic_parts->size() - num_parts_initial);
 #endif
 }
 
@@ -1661,11 +1658,11 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
       static_cast<SemanticPartConsecutiveSibling*>((*semantic_parts)[r]);
     CHECK_EQ(part->type(), SEMANTICPART_CONSECUTIVESIBLING);
     semantic_features->AddConsecutiveSiblingFeatures(
-        sentence, r,
-        part->predicate(),
-        part->sense(),
-        part->first_argument(),
-        part->second_argument());
+      sentence, r,
+      part->predicate(),
+      part->sense(),
+      part->first_argument(),
+      part->second_argument());
   }
 
   // Build features for grandparents.
@@ -1709,12 +1706,12 @@ void SemanticPipe::MakeSelectedFeatures(Instance *instance,
       static_cast<SemanticPartConsecutiveCoparent*>((*semantic_parts)[r]);
     CHECK_EQ(part->type(), SEMANTICPART_CONSECUTIVECOPARENT);
     semantic_features->AddConsecutiveCoparentFeatures(
-        sentence, r,
-        part->first_predicate(),
-        part->first_sense(),
-        part->second_predicate(),
-        part->second_sense(),
-        part->argument());
+      sentence, r,
+      part->first_predicate(),
+      part->first_sense(),
+      part->second_predicate(),
+      part->second_sense(),
+      part->argument());
   }
 
 #if 0
@@ -1814,7 +1811,7 @@ void SemanticPipe::LabelInstance(Parts *parts,
                                  Instance *instance) {
   SemanticParts *semantic_parts = static_cast<SemanticParts*>(parts);
   SemanticInstance *semantic_instance =
-      static_cast<SemanticInstance*>(instance);
+    static_cast<SemanticInstance*>(instance);
   SemanticDictionary *semantic_dictionary =
     static_cast<SemanticDictionary*>(dictionary_);
   //bool allow_root_predicate = GetSemanticOptions()->allow_root_predicate();

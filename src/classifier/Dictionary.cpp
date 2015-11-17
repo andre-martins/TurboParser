@@ -17,4 +17,3 @@
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Dictionary.h"
-

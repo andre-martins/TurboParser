@@ -34,4 +34,3 @@ public:
 };
 
 #endif /* DEPENDENCYWRITER_H_ */
-

@@ -68,11 +68,11 @@ int GenderNumberStatistics::ComputeGender(const std::vector<int> &phrase,
   if (counts.size() > 0) {
     CHECK_EQ(counts.size(), 4);
     // Require some confidence to decide (taken from the Stanford system).
-    if (counts[0] >= 2*(counts[1] + counts[2]) && counts[0] >= 3) {
+    if (counts[0] >= 2 * (counts[1] + counts[2]) && counts[0] >= 3) {
       return MentionGender::MALE;
-    } else if (counts[1] >= 2*(counts[0] + counts[2]) && counts[1] >= 3) {
+    } else if (counts[1] >= 2 * (counts[0] + counts[2]) && counts[1] >= 3) {
       return MentionGender::FEMALE;
-    } else if (counts[2] >= 2*(counts[0] + counts[1]) && counts[2] >= 3) {
+    } else if (counts[2] >= 2 * (counts[0] + counts[1]) && counts[2] >= 3) {
       return MentionGender::NEUTRAL;
     } else {
       return MentionGender::UNKNOWN;
@@ -83,7 +83,7 @@ int GenderNumberStatistics::ComputeGender(const std::vector<int> &phrase,
 }
 
 void CoreferenceDictionary::CreateEntityDictionary(
-    CoreferenceSentenceReader *reader) {
+  CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating entity dictionary...";
   std::vector<int> entity_freqs;
 
@@ -113,14 +113,14 @@ void CoreferenceDictionary::CreateEntityDictionary(
 
   LOG(INFO) << "Number of entities: " << entity_alphabet_.size();
   for (Alphabet::iterator it = entity_alphabet_.begin();
-       it != entity_alphabet_.end();
-       ++it) {
+  it != entity_alphabet_.end();
+    ++it) {
     LOG(INFO) << it->first;
   }
 }
 
 void CoreferenceDictionary::CreateConstituentDictionary(
-    CoreferenceSentenceReader *reader) {
+  CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating constituent dictionary...";
   std::vector<int> constituent_freqs;
 
@@ -150,15 +150,15 @@ void CoreferenceDictionary::CreateConstituentDictionary(
 
   LOG(INFO) << "Number of constituents: " << constituent_alphabet_.size();
   for (Alphabet::iterator it = constituent_alphabet_.begin();
-       it != constituent_alphabet_.end();
-       ++it) {
+  it != constituent_alphabet_.end();
+    ++it) {
     LOG(INFO) << it->first;
   }
 }
 
 #if 0
 void CoreferenceDictionary::CreateMentionWordDictionaries(
-    CoreferenceSentenceReader *reader) {
+  CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating mention word dictionary...";
 
   int mention_lexical_cutoff = FLAGS_mention_lexical_cutoff;
@@ -244,7 +244,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       ++last_word_freqs[id];
 
       // Add previous word to alphabet.
-      i = mention->start()-1;
+      i = mention->start() - 1;
       if (i >= 0) {
         std::string form = instance->GetForm(i);
         transform(form.begin(), form.end(), form.begin(), ::tolower);
@@ -257,7 +257,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       }
 
       // Add next word to alphabet.
-      i = mention->end()+1;
+      i = mention->end() + 1;
       if (i < instance->size()) {
         std::string form = instance->GetForm(i);
         transform(form.begin(), form.end(), form.begin(), ::tolower);
@@ -282,8 +282,8 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       head_word_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = head_word_alphabet.begin();
-         iter != head_word_alphabet.end();
-         ++iter) {
+    iter != head_word_alphabet.end();
+      ++iter) {
       if (head_word_freqs[iter->second] > head_word_cutoff) {
         head_word_alphabet_.Insert(iter->first);
       }
@@ -291,7 +291,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
     if (head_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
     ++head_word_cutoff;
     LOG(INFO) << "Incrementing head word cutoff to " << head_word_cutoff
-              << "...";
+      << "...";
   }
 
   while (true) {
@@ -300,8 +300,8 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       first_word_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = first_word_alphabet.begin();
-         iter != first_word_alphabet.end();
-         ++iter) {
+    iter != first_word_alphabet.end();
+      ++iter) {
       if (first_word_freqs[iter->second] > first_word_cutoff) {
         first_word_alphabet_.Insert(iter->first);
       }
@@ -309,7 +309,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
     if (first_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
     ++first_word_cutoff;
     LOG(INFO) << "Incrementing first word cutoff to " << first_word_cutoff
-              << "...";
+      << "...";
   }
 
   while (true) {
@@ -318,8 +318,8 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       last_word_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = last_word_alphabet.begin();
-         iter != last_word_alphabet.end();
-         ++iter) {
+    iter != last_word_alphabet.end();
+      ++iter) {
       if (last_word_freqs[iter->second] > last_word_cutoff) {
         last_word_alphabet_.Insert(iter->first);
       }
@@ -327,7 +327,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
     if (last_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
     ++last_word_cutoff;
     LOG(INFO) << "Incrementing head word cutoff to " << last_word_cutoff
-              << "...";
+      << "...";
   }
 
   while (true) {
@@ -336,8 +336,8 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       previous_word_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = previous_word_alphabet.begin();
-         iter != previous_word_alphabet.end();
-         ++iter) {
+    iter != previous_word_alphabet.end();
+      ++iter) {
       if (previous_word_freqs[iter->second] > previous_word_cutoff) {
         previous_word_alphabet_.Insert(iter->first);
       }
@@ -345,7 +345,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
     if (previous_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
     ++previous_word_cutoff;
     LOG(INFO) << "Incrementing head word cutoff to " << previous_word_cutoff
-              << "...";
+      << "...";
   }
 
   while (true) {
@@ -354,8 +354,8 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       next_word_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = next_word_alphabet.begin();
-         iter != next_word_alphabet.end();
-         ++iter) {
+    iter != next_word_alphabet.end();
+      ++iter) {
       if (next_word_freqs[iter->second] > next_word_cutoff) {
         next_word_alphabet_.Insert(iter->first);
       }
@@ -363,7 +363,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
     if (next_word_alphabet_.size() < kMaxMentionWordAlphabetSize) break;
     ++next_word_cutoff;
     LOG(INFO) << "Incrementing head word cutoff to " << next_word_cutoff
-              << "...";
+      << "...";
   }
 
   head_word_alphabet_.StopGrowth();
@@ -373,10 +373,10 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
   next_word_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of head words: " << head_word_alphabet_.size() << endl
-            << "Number of first words: " << first_word_alphabet_.size() << endl
-            << "Number of last words: " << last_word_alphabet_.size() << endl
-            << "Number of previous words: " << previous_word_alphabet_.size() << endl
-            << "Number of next words: " << next_word_alphabet_.size() << endl;
+    << "Number of first words: " << first_word_alphabet_.size() << endl
+    << "Number of last words: " << last_word_alphabet_.size() << endl
+    << "Number of previous words: " << previous_word_alphabet_.size() << endl
+    << "Number of next words: " << next_word_alphabet_.size() << endl;
 
   CHECK_LT(head_word_alphabet_.size(), 0xffff);
   CHECK_LT(first_word_alphabet_.size(), 0xffff);
@@ -387,7 +387,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
 #endif
 
 void CoreferenceDictionary::CreateWordDictionaries(
-    CoreferenceSentenceReader *reader) {
+  CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating word dictionary...";
   std::vector<int> word_freqs;
   std::vector<int> word_lower_freqs;
@@ -449,15 +449,15 @@ void CoreferenceDictionary::CreateWordDictionaries(
 }
 
 void CoreferenceDictionary::ComputeDependencyAncestryStrings(
-    DependencyInstance *instance,
-    int i,
-    std::string *unigram_ancestry_string,
-    std::string *bigram_ancestry_string) const {
+  DependencyInstance *instance,
+  int i,
+  std::string *unigram_ancestry_string,
+  std::string *bigram_ancestry_string) const {
   // Get syntactic head and grandparent.
   int head = instance->GetHead(i);
-  int grandparent = (head > 0)? instance->GetHead(head) : -1;
-  std::string head_tag = (head > 0)? instance->GetPosTag(head) : "ROOT";
-  std::string grandparent_tag = (grandparent > 0)?
+  int grandparent = (head > 0) ? instance->GetHead(head) : -1;
+  std::string head_tag = (head > 0) ? instance->GetPosTag(head) : "ROOT";
+  std::string grandparent_tag = (grandparent > 0) ?
     instance->GetPosTag(grandparent) : "ROOT";
 
   *unigram_ancestry_string = "";
@@ -477,7 +477,7 @@ void CoreferenceDictionary::ComputeDependencyAncestryStrings(
 }
 
 void CoreferenceDictionary::CreateAncestryDictionaries(
-    CoreferenceSentenceReader *reader) {
+  CoreferenceSentenceReader *reader) {
   LOG(INFO) << "Creating ancestry dictionary...";
   std::vector<int> unigram_ancestry_freqs;
   std::vector<int> bigram_ancestry_freqs;
@@ -519,10 +519,10 @@ void CoreferenceDictionary::CreateAncestryDictionaries(
 
   CHECK_LT(unigram_ancestry_alphabet_.size(), 0xffff);
   LOG(INFO) << "Number of syntactic unigram ancestry strings: "
-            << unigram_ancestry_alphabet_.size();
+    << unigram_ancestry_alphabet_.size();
   CHECK_LT(bigram_ancestry_alphabet_.size(), 0xffff);
   LOG(INFO) << "Number of syntactic bigram ancestry strings: "
-            << bigram_ancestry_alphabet_.size();
+    << bigram_ancestry_alphabet_.size();
 }
 
 void CoreferenceDictionary::ReadGenderNumberStatistics() {
@@ -537,25 +537,25 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
   if (options->use_gender_number_statistics() &&
       options->file_gender_number_statistics() != "") {
     LOG(INFO) << "Loading gender/number statistics file "
-              << options->file_gender_number_statistics() << "...";
+      << options->file_gender_number_statistics() << "...";
     std::ifstream is;
     std::string line;
 
     // Read the gender/number statistics, one per line.
     is.open(options->file_gender_number_statistics().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_gender_number_statistics() << ".";
+      << options->file_gender_number_statistics() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, "\t", &fields); // Break on tabs.
+        StringSplit(line, "\t", &fields, true); // Break on tabs.
         CHECK_EQ(fields.size(), 2);
         const std::string &phrase = fields[0];
         const std::string &statistics = fields[1];
         std::vector<std::string> words;
-        StringSplit(phrase, " ", &words); // Break on spaces.
+        StringSplit(phrase, " ", &words, true); // Break on spaces.
         std::vector<int> phrase_ids;
         for (int i = 0; i < words.size(); ++i) {
           const std::string &word = words[i];
@@ -573,7 +573,7 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
         }
 
         std::vector<std::string> subfields;
-        StringSplit(statistics, " ", &subfields); // Break on spaces.
+        StringSplit(statistics, " ", &subfields, true); // Break on spaces.
         CHECK_EQ(subfields.size(), 4);
         std::vector<int> counts;
         for (int i = 0; i < subfields.size(); ++i) {
@@ -607,20 +607,20 @@ void CoreferenceDictionary::ReadPronouns() {
 
   if (options->file_pronouns() != "") {
     LOG(INFO) << "Loading pronouns file "
-              << options->file_pronouns() << "...";
+      << options->file_pronouns() << "...";
     std::ifstream is;
     std::string line;
 
     // Read the pronouns, one per line.
     is.open(options->file_pronouns().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_pronouns() << ".";
+      << options->file_pronouns() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &form = fields[0];
         const std::string code_flags = fields[1];
@@ -631,7 +631,7 @@ void CoreferenceDictionary::ReadPronouns() {
         CHECK_LT(id, 0xffff);
         if (id < 0) {
           LOG(INFO) << "Ignoring unknown word: "
-                    << form_lower;
+            << form_lower;
           continue;
         }
         CHECK(all_pronouns_.find(id) == all_pronouns_.end());
@@ -655,20 +655,20 @@ void CoreferenceDictionary::ReadPronouns() {
 
   if (options->file_pronouns() != "") {
     LOG(INFO) << "Loading pronouns file "
-              << options->file_pronouns() << "...";
+      << options->file_pronouns() << "...";
     std::ifstream is;
     std::string line;
 
     // Read the pronouns, one per line.
     is.open(options->file_pronouns().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_pronouns() << ".";
+      << options->file_pronouns() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
@@ -678,7 +678,7 @@ void CoreferenceDictionary::ReadPronouns() {
         int id = word_lower_alphabet_.Lookup(word_lower);
         if (id < 0) {
           LOG(INFO) << "Adding unknown pronoun: "
-                    << word_lower;
+            << word_lower;
           id = word_lower_alphabet_.Insert(word_lower);
         }
         //int id = token_dictionary_->GetFormLowerId(form_lower);
@@ -715,20 +715,20 @@ void CoreferenceDictionary::ReadDeterminers() {
   if (options->use_gender_number_determiners() &&
       options->file_determiners() != "") {
     LOG(INFO) << "Loading determiners file "
-              << options->file_determiners() << "...";
+      << options->file_determiners() << "...";
     std::ifstream is;
     std::string line;
 
     // Read the determiners, one per line.
     is.open(options->file_determiners().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_determiners() << ".";
+      << options->file_determiners() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_EQ(fields.size(), 2);
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
@@ -738,7 +738,7 @@ void CoreferenceDictionary::ReadDeterminers() {
         int id = word_lower_alphabet_.Lookup(word_lower);
         if (id < 0) {
           LOG(INFO) << "Adding unknown determiner: "
-                    << word_lower;
+            << word_lower;
           id = word_lower_alphabet_.Insert(word_lower);
         }
         CHECK(all_determiners_.find(id) == all_determiners_.end());
@@ -770,20 +770,20 @@ void CoreferenceDictionary::ReadMentionTags() {
 
   if (options->file_mention_tags() != "") {
     LOG(INFO) << "Loading mention tags file "
-              << options->file_mention_tags() << "...";
+      << options->file_mention_tags() << "...";
     std::ifstream is;
     std::string line;
 
     // Read the mention tags, one type per line.
     is.open(options->file_mention_tags().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
-                     << options->file_mention_tags() << ".";
+      << options->file_mention_tags() << ".";
     if (is.is_open()) {
       while (!is.eof()) {
         getline(is, line);
         if (line == "") continue; // Ignore blank lines.
         std::vector<std::string> fields;
-        StringSplit(line, " \t", &fields); // Break on tabs or spaces.
+        StringSplit(line, " \t", &fields, true); // Break on tabs or spaces.
         CHECK_GT(fields.size(), 0);
         const std::string &mention_tag_type = fields[0];
         if (mention_tag_type == "named_entity_tags") {
@@ -793,7 +793,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown entity tag: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             named_entity_tags_.insert(id);
@@ -805,7 +805,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown entity tag: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             person_entity_tags_.insert(id);
@@ -817,7 +817,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xffff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown constituent: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             noun_phrase_tags_.insert(id);
@@ -829,7 +829,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown POS tag: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             noun_tags_.insert(id);
@@ -841,7 +841,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown POS tag: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             proper_noun_tags_.insert(id);
@@ -853,7 +853,7 @@ void CoreferenceDictionary::ReadMentionTags() {
             CHECK_LT(id, 0xff);
             if (id < 0) {
               LOG(INFO) << "Ignoring unknown POS tag: "
-                        << tag_name;
+                << tag_name;
               continue;
             }
             pronominal_tags_.insert(id);

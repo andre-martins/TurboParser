@@ -25,13 +25,13 @@
 
 class SemanticOptions;
 
-class SemanticFeatures: public Features {
- public:
+class SemanticFeatures : public Features {
+public:
   SemanticFeatures() {};
   SemanticFeatures(Pipe* pipe) { pipe_ = pipe; }
   virtual ~SemanticFeatures() { Clear(); }
 
- public:
+public:
   void Clear() {
     CHECK_EQ(input_features_.size(), input_labeled_features_.size());
     for (int r = 0; r < input_features_.size(); ++r) {
@@ -58,12 +58,12 @@ class SemanticFeatures: public Features {
   }
 
   int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r])? 0 : input_features_[r]->size();
+    return (NULL == input_features_[r]) ? 0 : input_features_[r]->size();
   };
 
   int GetNumLabeledPartFeatures(int r) const {
-    return (NULL == input_labeled_features_[r])?
-        0 : input_labeled_features_[r]->size();
+    return (NULL == input_labeled_features_[r]) ?
+      0 : input_labeled_features_[r]->size();
   };
 
   int GetPartFeature(int r, int j) const {
@@ -92,7 +92,7 @@ class SemanticFeatures: public Features {
     return input_labeled_features_[r];
   };
 
- public:
+public:
   void AddPredicateFeatures(SemanticInstanceNumeric *sentence,
                             int r,
                             int predicate,
@@ -181,7 +181,7 @@ class SemanticFeatures: public Features {
                              int other_sibling);
 #endif
 
- protected:
+protected:
   void AddPredicateFeatures(SemanticInstanceNumeric *sentence,
                             bool labeled,
                             uint8_t feature_type,
@@ -209,7 +209,7 @@ class SemanticFeatures: public Features {
     features->push_back(fkey);
   }
 
- protected:
+protected:
   // Vector of input features.
   vector<BinaryFeatures*> input_features_;
   // Vector of input features to be conjoined with a label to produce a

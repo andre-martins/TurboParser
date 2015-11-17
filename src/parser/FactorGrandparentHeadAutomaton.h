@@ -23,9 +23,8 @@
 #include "ad3/GenericFactor.h"
 
 namespace AD3 {
-
 class FactorGrandparentHeadAutomaton : public GenericFactor {
- public:
+public:
   FactorGrandparentHeadAutomaton() {}
   virtual ~FactorGrandparentHeadAutomaton() { ClearActiveSet(); }
 
@@ -42,27 +41,27 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
         int index = index_grandparents_[g][m];
         ++total;
         stream << " " << setprecision(9)
-               << additional_log_potentials_[index];
+          << additional_log_potentials_[index];
       }
     }
     for (int m = 0; m < index_siblings_.size(); ++m) {
-      for (int s = m+1; s <= index_siblings_.size(); ++s) {
+      for (int s = m + 1; s <= index_siblings_.size(); ++s) {
         CHECK_GE(index_siblings_[m][s], 0);
         int index = index_siblings_[m][s];
         ++total;
         stream << " " << setprecision(9)
-               << additional_log_potentials_[index];
+          << additional_log_potentials_[index];
       }
     }
     if (use_grandsiblings_) {
       for (int g = 0; g < index_grandparents_.size(); ++g) {
         for (int m = 0; m < index_siblings_.size(); ++m) {
-          for (int s = m+1; s <= index_siblings_.size(); ++s) {
+          for (int s = m + 1; s <= index_siblings_.size(); ++s) {
             CHECK_GE(index_grandsiblings_[g][m][s], 0);
             int index = index_grandsiblings_[g][m][s];
             ++total;
             stream << " " << setprecision(9)
-                   << additional_log_potentials_[index];
+              << additional_log_potentials_[index];
           }
         }
       }
@@ -95,18 +94,18 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
       for (int m = 1; m < length; ++m) {
         // m+1 possible states: either keep the previous state (no arc added)
         // or transition to a new state (arc between h and m).
-        values[m].resize(m+1);
-        path[m].resize(m+1);
+        values[m].resize(m + 1);
+        path[m].resize(m + 1);
         for (int i = 0; i < m; ++i) {
           // In this case, the previous state must also be i.
-          values[m][i] = values[m-1][i];
+          values[m][i] = values[m - 1][i];
           path[m][i] = i;
         }
         // For the m-th state, the previous state can be anything up to m-1.
         path[m][m] = -1;
         for (int j = 0; j < m; ++j) {
           int index = index_siblings_[j][m];
-          double score = values[m-1][j] + additional_log_potentials[index];
+          double score = values[m - 1][j] + additional_log_potentials[index];
           if (use_grandsiblings_) {
             index = index_grandsiblings_[g][j][m];
             if (index >= 0) score += additional_log_potentials[index];
@@ -117,7 +116,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
           }
         }
         int index = index_grandparents_[g][m];
-        values[m][m] += variable_log_potentials[num_grandparents+m-1] +
+        values[m][m] += variable_log_potentials[num_grandparents + m - 1] +
           additional_log_potentials[index];
       }
 
@@ -126,7 +125,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
       double best_score = -1e12;
       for (int j = 0; j < length; ++j) {
         int index = index_siblings_[j][length];
-        double score = values[length-1][j] + additional_log_potentials[index];
+        double score = values[length - 1][j] + additional_log_potentials[index];
         if (use_grandsiblings_) {
           index = index_grandsiblings_[g][j][length];
           if (index >= 0) score += additional_log_potentials[index];
@@ -145,11 +144,11 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
         // This is the best grandparent so far.
         best_grandparent = g;
         *value = best_score;
-        best_path[length-1] = best_last_state;
+        best_path[length - 1] = best_last_state;
 
         // Backtrack.
-        for (int m = length-1; m > 0; --m) {
-          best_path[m-1] = path[m][best_path[m]];
+        for (int m = length - 1; m > 0; --m) {
+          best_path[m - 1] = path[m][best_path[m]];
         }
       }
     }
@@ -181,7 +180,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
     int m = 0;
     for (int i = 1; i < grandparent_modifiers->size(); ++i) {
       int s = (*grandparent_modifiers)[i];
-      *value += variable_log_potentials[num_grandparents+s-1];
+      *value += variable_log_potentials[num_grandparents + s - 1];
       int index = index_siblings_[m][s];
       *value += additional_log_potentials[index];
       if (use_grandsiblings_) {
@@ -217,7 +216,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
     int m = 0;
     for (int i = 1; i < grandparent_modifiers->size(); ++i) {
       int s = (*grandparent_modifiers)[i];
-      (*variable_posteriors)[num_grandparents+s-1] += weight;
+      (*variable_posteriors)[num_grandparents + s - 1] += weight;
       int index = index_siblings_[m][s];
       (*additional_posteriors)[index] += weight;
       if (use_grandsiblings_) {
@@ -284,7 +283,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
     return static_cast<Configuration>(grandparent_modifiers);
   }
 
- public:
+public:
   // Incoming arcs are of the form (g,h) for each g.
   // Outgoing arcs are of the form (h,m) for eacg m.
   // The variables linked to this factor must be in the same order as
@@ -343,18 +342,18 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
     int num_grandparents = incoming_arcs.size();
     length_ = outgoing_arcs.size() + 1;
     index_grandparents_.assign(num_grandparents, vector<int>(length_, -1));
-    index_siblings_.assign(length_, vector<int>(length_+1, -1));
+    index_siblings_.assign(length_, vector<int>(length_ + 1, -1));
     if (use_grandsiblings_) {
       index_grandsiblings_.assign(num_grandparents,
                                   vector<vector<int> >(length_,
-                                                       vector<int>(length_+1, -1)));
+                                                       vector<int>(length_ + 1, -1)));
     }
 
     // Create a temporary index of modifiers.
-    int h = (outgoing_arcs.size() > 0)? outgoing_arcs[0]->head() : -1;
-    int m = (outgoing_arcs.size() > 0)? outgoing_arcs[0]->modifier() : -1;
+    int h = (outgoing_arcs.size() > 0) ? outgoing_arcs[0]->head() : -1;
+    int m = (outgoing_arcs.size() > 0) ? outgoing_arcs[0]->modifier() : -1;
     vector<int> index_modifiers(1, 0);
-    bool right = (h < m)? true : false;
+    bool right = (h < m) ? true : false;
     for (int k = 0; k < outgoing_arcs.size(); ++k) {
       int previous_modifier = m;
       CHECK_EQ(h, outgoing_arcs[k]->head());
@@ -362,7 +361,7 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
       //cout << "s-arc " << h << " -> " << m << endl;
       if (k > 0) CHECK_EQ((m > previous_modifier), right);
 
-      int position = right? m - h : h - m;
+      int position = right ? m - h : h - m;
       index_modifiers.resize(position + 1, -1);
       index_modifiers[position] = k + 1;
     }
@@ -375,29 +374,29 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
       int s = siblings[k]->next_sibling();
       //cout << "sibling " << h << " -> " << m << " -> " << s << endl;
       if (outgoing_arcs.size() > 0) CHECK_EQ(s > h, right);
-      right = (s > h)? true : false;
-      int position_modifier = right? m - h : h - m;
-      int position_sibling = right? s - h : h - s;
+      right = (s > h) ? true : false;
+      int position_modifier = right ? m - h : h - m;
+      int position_sibling = right ? s - h : h - s;
       CHECK_LT(position_modifier, index_modifiers.size());
       int index_modifier = index_modifiers[position_modifier];
-      int index_sibling = (position_sibling < index_modifiers.size())?
-          index_modifiers[position_sibling] : length_;
+      int index_sibling = (position_sibling < index_modifiers.size()) ?
+        index_modifiers[position_sibling] : length_;
       CHECK_GE(index_modifier, 0);
       CHECK_LT(index_modifier, length_);
       CHECK_GE(index_sibling, 1) << h << " " << m << " " << s;
-      CHECK_LT(index_sibling, length_+1);
+      CHECK_LT(index_sibling, length_ + 1);
       // Add an offset to save room for the grandparents.
       index_siblings_[index_modifier][index_sibling] =
         grandparents.size() + k;
     }
 
     // Create a temporary index of grandparents.
-    int g = (incoming_arcs.size() > 0)? incoming_arcs[0]->head() : -1;
-    h = (incoming_arcs.size() > 0)? incoming_arcs[0]->modifier() : -1;
+    int g = (incoming_arcs.size() > 0) ? incoming_arcs[0]->head() : -1;
+    h = (incoming_arcs.size() > 0) ? incoming_arcs[0]->modifier() : -1;
     vector<int> index_incoming;
     for (int k = 0; k < incoming_arcs.size(); ++k) {
       g = incoming_arcs[k]->head();
-      //cout << "g-arc " << g << " -> " 
+      //cout << "g-arc " << g << " -> "
       //     << incoming_arcs[k]->modifier() << endl;
       CHECK_EQ(h, incoming_arcs[k]->modifier());
       // Allow for the case where g is -1 (the head being the root
@@ -416,8 +415,8 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
       //cout << "grandparent " << g << " -> " << h << " -> " << m << endl;
 
       CHECK_NE(h, m);
-      right = (m > h)? true : false;
-      int position_modifier = right? m - h : h - m;
+      right = (m > h) ? true : false;
+      int position_modifier = right ? m - h : h - m;
       int position_grandparent = g + 1;
       CHECK_LT(position_modifier, index_modifiers.size());
       CHECK_LT(position_grandparent, index_incoming.size());
@@ -441,36 +440,35 @@ class FactorGrandparentHeadAutomaton : public GenericFactor {
 
       //cout << "sibling " << h << " -> " << m << " -> " << s << endl;
       if (outgoing_arcs.size() > 0) CHECK_EQ(s > h, right);
-      right = (s > h)? true : false;
+      right = (s > h) ? true : false;
       int position_grandparent = g + 1;
-      int position_modifier = right? m - h : h - m;
-      int position_sibling = right? s - h : h - s;
+      int position_modifier = right ? m - h : h - m;
+      int position_sibling = right ? s - h : h - s;
       CHECK_LT(position_grandparent, index_incoming.size());
       CHECK_LT(position_modifier, index_modifiers.size());
       int index_grandparent = index_incoming[position_grandparent];
       int index_modifier = index_modifiers[position_modifier];
-      int index_sibling = (position_sibling < index_modifiers.size())?
-          index_modifiers[position_sibling] : length_;
+      int index_sibling = (position_sibling < index_modifiers.size()) ?
+        index_modifiers[position_sibling] : length_;
       CHECK_GE(index_grandparent, 0);
       CHECK_LT(index_grandparent, num_grandparents);
       CHECK_GE(index_modifier, 0);
       CHECK_LT(index_modifier, length_);
       CHECK_GE(index_sibling, 1) << h << " " << m << " " << s;
-      CHECK_LT(index_sibling, length_+1);
+      CHECK_LT(index_sibling, length_ + 1);
       // Add an offset to save room for the grandparents and siblings.
       index_grandsiblings_[index_grandparent][index_modifier][index_sibling] =
         siblings.size() + grandparents.size() + k;
     }
   }
 
- private:
+private:
   bool use_grandsiblings_;
   int length_;
   vector<vector<int> > index_siblings_;
   vector<vector<int> > index_grandparents_;
   vector<vector<vector<int> > > index_grandsiblings_;
 };
-
 } // namespace AD3
 
 #endif // FACTOR_GRANDPARENT_HEAD_AUTOMATON

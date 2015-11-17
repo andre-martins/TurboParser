@@ -25,17 +25,16 @@
 #include <fstream>
 
 class EntityReader : public SequenceReader {
- public:
+public:
   EntityReader() { options_ = NULL; };
   EntityReader(Options *options) { options_ = options; };
   virtual ~EntityReader() {};
 
- public:
+public:
   Instance *GetNext();
 
- protected:
+protected:
   Options *options_;
 };
 
 #endif /* ENTITYREADER_H_ */
-

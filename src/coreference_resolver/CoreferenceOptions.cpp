@@ -95,16 +95,16 @@ void CoreferenceOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_use_gender_number_determiners);
   CHECK(success);
   LOG(INFO) << "Setting --use_gender_number_determiners="
-            << FLAGS_use_gender_number_determiners;
+    << FLAGS_use_gender_number_determiners;
   success = ReadBool(fs, &FLAGS_use_gender_number_statistics);
   CHECK(success);
   LOG(INFO) << "Setting --use_gender_number_statistics="
-            << FLAGS_use_gender_number_statistics;
+    << FLAGS_use_gender_number_statistics;
   success = ReadBool(fs,
                      &FLAGS_generate_noun_phrase_mentions_by_dependencies);
   CHECK(success);
   LOG(INFO) << "Setting --generate_noun_phrase_mentions_by_dependencies="
-            << FLAGS_generate_noun_phrase_mentions_by_dependencies;
+    << FLAGS_generate_noun_phrase_mentions_by_dependencies;
   success = ReadDouble(fs, &FLAGS_false_anaphor_cost);
   CHECK(success);
   LOG(INFO) << "Setting --false_anaphor_cost=" << FLAGS_false_anaphor_cost;
@@ -114,7 +114,7 @@ void CoreferenceOptions::Load(FILE* fs) {
   success = ReadDouble(fs, &FLAGS_false_wrong_link_cost);
   CHECK(success);
   LOG(INFO) << "Setting --false_wrong_link_cost="
-            << FLAGS_false_wrong_link_cost;
+    << FLAGS_false_wrong_link_cost;
 
   Initialize();
 }
@@ -137,4 +137,3 @@ void CoreferenceOptions::Initialize() {
   false_new_cost_ = FLAGS_false_new_cost;
   false_wrong_link_cost_ = FLAGS_false_wrong_link_cost;
 }
-

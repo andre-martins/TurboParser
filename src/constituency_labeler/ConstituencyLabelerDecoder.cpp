@@ -32,12 +32,12 @@ DEFINE_double(constituency_labeler_train_cost_false_negatives, 0.5,
               "Cost for predicting false negatives.");
 
 void ConstituencyLabelerDecoder::DecodeCostAugmented(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    const std::vector<double> &gold_output,
-    std::vector<double> *predicted_output,
-    double *cost,
-    double *loss) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  const std::vector<double> &gold_output,
+  std::vector<double> *predicted_output,
+  double *cost,
+  double *loss) {
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeler_parts =
@@ -69,7 +69,7 @@ void ConstituencyLabelerDecoder::DecodeCostAugmented(
 
   std::vector<double> scores_cost = scores;
   for (int r = 0; r < num_labeled_nodes; ++r) {
-    p[r] = a - (a+b) * gold_output[offset_labeled_nodes + r];
+    p[r] = a - (a + b) * gold_output[offset_labeled_nodes + r];
     scores_cost[offset_labeled_nodes + r] += p[r];
     q += b*gold_output[offset_labeled_nodes + r];
   }
@@ -115,12 +115,12 @@ void ConstituencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
 }
 
 void ConstituencyLabelerDecoder::DecodeMarginals(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    const std::vector<double> &gold_output,
-    std::vector<double> *predicted_output,
-    double *entropy,
-    double *loss) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  const std::vector<double> &gold_output,
+  std::vector<double> *predicted_output,
+  double *entropy,
+  double *loss) {
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeled_parts =
@@ -180,9 +180,9 @@ void ConstituencyLabelerDecoder::DecodeMarginals(
 // best_labeled_parts, indexed by the unlabeled arcs, contains the indices
 // of the best labeled part for each arc.
 void ConstituencyLabelerDecoder::DecodeLabels(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    std::vector<int> *best_labeled_parts) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  std::vector<int> *best_labeled_parts) {
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeled_parts =
@@ -194,7 +194,7 @@ void ConstituencyLabelerDecoder::DecodeLabels(
   best_labeled_parts->resize(num_nodes);
   for (int i = 0; i < num_nodes; ++i) {
     const std::vector<int> &index_node_parts =
-        labeled_parts->FindNodeParts(i);
+      labeled_parts->FindNodeParts(i);
     // Find the best label for each node.
     int best_label = -1;
     double best_score;
@@ -218,10 +218,10 @@ void ConstituencyLabelerDecoder::DecodeLabels(
 // total_scores contains the sum of exp-scores (over the labels) for each arc;
 // label_marginals contains those marginals ignoring the tree constraint.
 void ConstituencyLabelerDecoder::DecodeLabelMarginals(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    std::vector<double> *total_scores,
-    std::vector<double> *label_marginals) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  std::vector<double> *total_scores,
+  std::vector<double> *label_marginals) {
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeled_parts =
@@ -239,10 +239,10 @@ void ConstituencyLabelerDecoder::DecodeLabelMarginals(
 
   for (int i = 0; i < num_nodes; ++i) {
     const std::vector<int> &index_node_parts =
-        labeled_parts->FindNodeParts(i);
+      labeled_parts->FindNodeParts(i);
     // If no part for null label, initiliaze log partition to exp(0.0) to
     // account the null label which has score 0.0.
-    LogValD total_score = (labeler_options->ignore_null_labels())?
+    LogValD total_score = (labeler_options->ignore_null_labels()) ?
       LogValD::One() : LogValD::Zero();
     for (int k = 0; k < index_node_parts.size(); ++k) {
       total_score += LogValD(scores[index_node_parts[k]], false);
@@ -250,13 +250,13 @@ void ConstituencyLabelerDecoder::DecodeLabelMarginals(
     (*total_scores)[i] = total_score.logabs();
     // If no part for null label, initiliaze sum to exp(0.0)/Z to
     // account the null label which has score 0.0.
-    double sum = (labeler_options->ignore_null_labels())?
+    double sum = (labeler_options->ignore_null_labels()) ?
       (1.0 / total_score.as_float()) : 0.0;
     for (int k = 0; k < index_node_parts.size(); ++k) {
       LogValD marginal =
-          LogValD(scores[index_node_parts[k]], false) / total_score;
+        LogValD(scores[index_node_parts[k]], false) / total_score;
       (*label_marginals)[index_node_parts[k] - offset_labeled_nodes] =
-          marginal.as_float();
+        marginal.as_float();
       sum += marginal.as_float();
     }
     if (!NEARLY_EQ_TOL(sum, 1.0, 1e-9)) {

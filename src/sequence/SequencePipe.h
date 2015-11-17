@@ -31,7 +31,7 @@
 #include "SequenceDecoder.h"
 
 class SequencePipe : public Pipe {
- public:
+public:
   SequencePipe(Options* options) : Pipe(options) { token_dictionary_ = NULL; }
   virtual ~SequencePipe() { delete token_dictionary_; }
 
@@ -45,7 +45,7 @@ class SequencePipe : public Pipe {
     return static_cast<SequenceOptions*>(options_);
   };
 
- protected:
+protected:
   virtual void CreateDictionary() {
     dictionary_ = new SequenceDictionary(this);
     GetSequenceDictionary()->SetTokenDictionary(token_dictionary_);
@@ -64,13 +64,13 @@ class SequencePipe : public Pipe {
 
   virtual Instance *GetFormattedInstance(Instance *instance) {
     SequenceInstanceNumeric *instance_numeric =
-          new SequenceInstanceNumeric;
+      new SequenceInstanceNumeric;
     instance_numeric->Initialize(*GetSequenceDictionary(),
                                  static_cast<SequenceInstance*>(instance));
     return instance_numeric;
   }
 
- protected:
+protected:
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 
@@ -89,10 +89,11 @@ class SequencePipe : public Pipe {
   void MakeBigramParts(Instance *instance, Parts *parts,
                        vector<double> *gold_outputs);
   void MakeTrigramParts(Instance *instance, Parts *parts,
-                       vector<double> *gold_outputs);
+                        vector<double> *gold_outputs);
 
   void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features);
+                            const vector<bool> &selected_parts,
+                            Features *features);
 
   void ComputeScores(Instance *instance, Parts *parts, Features *features,
                      vector<double> *scores);
@@ -139,19 +140,21 @@ class SequencePipe : public Pipe {
     }
   }
   virtual void EndEvaluation() {
+    LOG(INFO) << "Correct predictions: " << (num_tokens_ - num_tag_mistakes_)
+      << " out of " << static_cast<double>(num_tokens_);
     LOG(INFO) << "Tagging accuracy: " <<
       static_cast<double>(num_tokens_ - num_tag_mistakes_) /
-        static_cast<double>(num_tokens_);
+      static_cast<double>(num_tokens_);
     timeval end_clock;
     gettimeofday(&end_clock, NULL);
     double num_seconds =
-        static_cast<double>(diff_ms(end_clock,start_clock_)) / 1000.0;
+      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Tagging speed: "
-              << tokens_per_second << " tokens per second.";
+      << tokens_per_second << " tokens per second.";
   }
 
- protected:
+protected:
   TokenDictionary *token_dictionary_;
   int num_tag_mistakes_;
   int num_tokens_;
@@ -159,4 +162,3 @@ class SequencePipe : public Pipe {
 };
 
 #endif /* SEQUENCEPIPE_H_ */
-

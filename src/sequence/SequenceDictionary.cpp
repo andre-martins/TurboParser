@@ -24,11 +24,9 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   LOG(INFO) << "Creating tag dictionary...";
   vector<int> tag_freqs;
 
-  // Go through the corpus and build the label dictionary,
-  // counting the frequencies.
+  // Go through the corpus and build the label dictionary, counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
-  SequenceInstance *instance =
-    static_cast<SequenceInstance*>(reader->GetNext());
+  SequenceInstance *instance = static_cast<SequenceInstance*>(reader->GetNext());
   while (instance != NULL) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {

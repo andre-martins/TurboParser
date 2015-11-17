@@ -30,7 +30,7 @@ const std::string kConstituentStart = "_START_"; // Start symbol.
 const std::string kConstituentStop = "_STOP_"; // Stop symbol.
 
 void ConstituencyLabelerDictionary::CreateConstituentDictionary(
-    ConstituencyReader *reader) {
+  ConstituencyReader *reader) {
   std::string special_symbols[NUM_SPECIAL_TOKENS];
   special_symbols[TOKEN_UNKNOWN] = kConstituentUnknown;
   special_symbols[TOKEN_START] = kConstituentStart;
@@ -45,7 +45,7 @@ void ConstituencyLabelerDictionary::CreateConstituentDictionary(
 }
 
 void ConstituencyLabelerDictionary::CreateLabelDictionary(
-    ConstituencyLabelerReader *reader) {
+  ConstituencyLabelerReader *reader) {
   LOG(INFO) << "Creating label dictionary...";
   std::vector<int> label_freqs;
 
@@ -114,7 +114,7 @@ void ConstituencyLabelerDictionary::CreateLabelDictionary(
   LOG(INFO) << "Number of labels: " << label_alphabet_.size();
   LOG(INFO) << "Labels and their frequencies:";
   for (Alphabet::iterator it = label_alphabet_.begin();
-       it != label_alphabet_.end(); ++it) {
+  it != label_alphabet_.end(); ++it) {
     std::string label = it->first;
     int label_id = it->second;
     LOG(INFO) << label << "\t" << label_freqs[label_id];
@@ -124,7 +124,7 @@ void ConstituencyLabelerDictionary::CreateLabelDictionary(
 
   LOG(INFO) << "Labels and their frequencies per constituent:";
   for (Alphabet::iterator it = constituent_alphabet_.begin();
-       it != constituent_alphabet_.end(); ++it) {
+  it != constituent_alphabet_.end(); ++it) {
     std::string constituent = it->first;
     int constituent_id = it->second;
     std::vector<int> &constituent_labels =

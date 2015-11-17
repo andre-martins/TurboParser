@@ -47,9 +47,9 @@ void ParseTreeNode::ComputeSpans(int start) {
   if (IsLeaf()) {
     span_ = Span(start, start);
   } else {
-    int end = start-1;
+    int end = start - 1;
     for (int i = 0; i < children_.size(); ++i) {
-      GetChild(i)->ComputeSpans(end+1);
+      GetChild(i)->ComputeSpans(end + 1);
       end = GetChild(i)->end();
     }
     span_ = Span(start, end);
@@ -99,7 +99,7 @@ void ParseTreeNode::ExpandSingletonSpines() {
   std::vector<std::string> labels;
   std::string delim = "";
   delim += kParseTreeLabelSeparator;
-  StringSplit(label_, delim, &labels);
+  StringSplit(label_, delim, &labels, true);
   if (labels.size() > 1) {
     // Bottom node.
     ParseTreeNode *child = new ParseTreeNode();
@@ -166,14 +166,14 @@ void ParseTree::LoadFromString(const std::string &info) {
       continue;
     } else {
       name += ch;
-      CHECK_LT(j+1, info.length());
-      CHECK_NE(info[j+1], kLeftBracket);
-      if (info[j+1] == kRightBracket) {
+      CHECK_LT(j + 1, info.length());
+      CHECK_NE(info[j + 1], kLeftBracket);
+      if (info[j + 1] == kRightBracket) {
         // Finished a terminal node.
         node = new ParseTreeNode(node_stack.top());
         node->set_label(name);
         node_stack.top()->AddChild(node);
-      } else if (info[j+1] == kWhitespace) {
+      } else if (info[j + 1] == kWhitespace) {
         // Just started a non-terminal or a pre-terminal node.
         node_stack.top()->set_label(name);
         name = "";

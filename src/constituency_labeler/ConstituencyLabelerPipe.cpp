@@ -45,7 +45,7 @@ void ConstituencyLabelerPipe::PreprocessData() {
   CreateTokenDictionary();
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->
     SetTokenDictionary(token_dictionary_);
-  token_dictionary_->InitializeFromSequenceReader(GetConstituencyReader());
+  token_dictionary_->Initialize(GetConstituencyReader());
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->
     CreateConstituentDictionary(GetConstituencyReader());
   static_cast<ConstituencyLabelerDictionary*>(dictionary_)->
@@ -80,12 +80,12 @@ void ConstituencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
     for (int k = 0; k < index_node_parts.size(); ++k) {
       ConstituencyLabelerPartNode *node =
         static_cast<ConstituencyLabelerPartNode*>(
-            (*parts)[index_node_parts[k]]);
+          (*parts)[index_node_parts[k]]);
       allowed_labels[k] = node->label();
     }
     std::vector<double> label_scores;
     parameters_->ComputeLabelScores(node_features, allowed_labels,
-        &label_scores);
+                                    &label_scores);
     for (int k = 0; k < index_node_parts.size(); ++k) {
       (*scores)[index_node_parts[k]] = label_scores[k];
     }
@@ -93,12 +93,12 @@ void ConstituencyLabelerPipe::ComputeScores(Instance *instance, Parts *parts,
 }
 
 void ConstituencyLabelerPipe::MakeGradientStep(
-    Parts *parts,
-    Features *features,
-    double eta,
-    int iteration,
-    const std::vector<double> &gold_output,
-    const std::vector<double> &predicted_output) {
+  Parts *parts,
+  Features *features,
+  double eta,
+  int iteration,
+  const std::vector<double> &gold_output,
+  const std::vector<double> &predicted_output) {
   ConstituencyLabelerFeatures *labeler_features =
     static_cast<ConstituencyLabelerFeatures*>(features);
 
@@ -120,11 +120,11 @@ void ConstituencyLabelerPipe::MakeGradientStep(
 }
 
 void ConstituencyLabelerPipe::MakeFeatureDifference(
-    Parts *parts,
-    Features *features,
-    const std::vector<double> &gold_output,
-    const std::vector<double> &predicted_output,
-    FeatureVector *difference) {
+  Parts *parts,
+  Features *features,
+  const std::vector<double> &gold_output,
+  const std::vector<double> &predicted_output,
+  FeatureVector *difference) {
   ConstituencyLabelerFeatures *labeler_features =
     static_cast<ConstituencyLabelerFeatures*>(features);
 
@@ -224,10 +224,10 @@ void ConstituencyLabelerPipe::MakeNodeParts(Instance *instance,
 }
 
 void ConstituencyLabelerPipe::MakeSelectedFeatures(
-    Instance *instance,
-    Parts *parts,
-    const std::vector<bool> &selected_parts,
-    Features *features) {
+  Instance *instance,
+  Parts *parts,
+  const std::vector<bool> &selected_parts,
+  Features *features) {
   ConstituencyLabelerInstanceNumeric *sentence =
     static_cast<ConstituencyLabelerInstanceNumeric*>(instance);
   ConstituencyLabelerParts *labeler_parts =
@@ -252,7 +252,7 @@ void ConstituencyLabelerPipe::LabelInstance(Parts *parts,
   ConstituencyLabelerParts *labeler_parts =
     static_cast<ConstituencyLabelerParts*>(parts);
   ConstituencyLabelerInstance *labeler_instance =
-      static_cast<ConstituencyLabelerInstance*>(instance);
+    static_cast<ConstituencyLabelerInstance*>(instance);
   int num_nodes = labeler_instance->GetNumConstituents();
   for (int i = 0; i < num_nodes; ++i) {
     labeler_instance->SetConstituentLabel(i, "");
@@ -262,13 +262,12 @@ void ConstituencyLabelerPipe::LabelInstance(Parts *parts,
   labeler_parts->GetOffsetNode(&offset, &size);
   for (int r = 0; r < size; ++r) {
     ConstituencyLabelerPartNode *node =
-        static_cast<ConstituencyLabelerPartNode*>((*labeler_parts)[offset + r]);
+      static_cast<ConstituencyLabelerPartNode*>((*labeler_parts)[offset + r]);
     if (output[offset + r] >= threshold) {
       int i = node->position();
       int label = node->label();
       labeler_instance->SetConstituentLabel(i,
-        GetConstituencyLabelerDictionary()->GetLabelName(label));
+                                            GetConstituencyLabelerDictionary()->GetLabelName(label));
     }
   }
 }
-

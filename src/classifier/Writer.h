@@ -27,11 +27,11 @@ using namespace std;
 // from this class and implement the pure virtual methods.
 // The writer writes instances to a file.
 class Writer {
- public:
+public:
   Writer() {};
   virtual ~Writer() {};
 
- public:
+public:
   virtual void Open(const string &filepath);
   virtual void Close();
   virtual void Write(Instance *instance) = 0;
@@ -41,4 +41,3 @@ protected:
 };
 
 #endif /* SHWRITER_H_ */
-

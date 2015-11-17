@@ -41,7 +41,7 @@ struct CoreferenceDeterminerGender {
 };
 
 class CoreferenceDeterminer {
- public:
+public:
   CoreferenceDeterminer() { ClearFlags(); }
   CoreferenceDeterminer(const std::string &code_flags) { SetFlags(code_flags); }
   virtual ~CoreferenceDeterminer() {}
@@ -99,7 +99,7 @@ class CoreferenceDeterminer {
     }
   }
 
- public:
+public:
   bool IsNumberSingular() {
     return number_flag_ & (0x1 << CoreferenceDeterminerNumber::SINGULAR);
   }
@@ -144,7 +144,7 @@ class CoreferenceDeterminer {
     gender_flag_ |= (0x1 << CoreferenceDeterminerGender::UNDEFINED);
   }
 
- protected:
+protected:
   uint8_t number_flag_;
   uint8_t gender_flag_;
 };

@@ -39,6 +39,5 @@ void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
     dictionary.GetWordGazetteerIds(instance->GetForm(i),
                                    &gazetteer_ids_[i]);
     //LOG(INFO) << instance->GetForm(i) << ": " << gazetteer_ids_[i].size();
-
   }
 }

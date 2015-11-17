@@ -32,27 +32,26 @@ enum {
 };
 
 class CoreferencePartArc : public Part {
- public:
+public:
   CoreferencePartArc() { parent_mention_ = child_mention_ = -1; };
   CoreferencePartArc(int parent_mention, int child_mention) :
     parent_mention_(parent_mention), child_mention_(child_mention) {};
   virtual ~CoreferencePartArc() {};
 
- public:
+public:
   int parent_mention() { return parent_mention_; };
   int child_mention() { return child_mention_; };
 
- public:
+public:
   int type() { return COREFERENCEPART_ARC; };
 
- private:
+private:
   int parent_mention_; // Antecendent mention (-1 if non-anaphoric).
   int child_mention_; // Current mention.
 };
 
-
 class CoreferenceParts : public Parts {
- public:
+public:
   CoreferenceParts() {};
   virtual ~CoreferenceParts() { DeleteAll(); };
 
@@ -70,17 +69,17 @@ class CoreferenceParts : public Parts {
     mentions_ = &mentions;
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildIndices(int num_mentions);
   void DeleteIndices();
   const std::vector<int> &FindArcParts(int child_mention) {
     return index_[child_mention];
   }
 
- private:
+private:
   std::vector<vector<int> > index_;
   const std::vector<Mention*> *mentions_;
 };

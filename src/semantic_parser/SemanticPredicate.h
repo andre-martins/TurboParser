@@ -23,12 +23,12 @@
 #include <set>
 
 class SemanticPredicate {
- public:
+public:
   SemanticPredicate() {}
   SemanticPredicate(int id) { id_ = id; }
   virtual ~SemanticPredicate() { roles_.clear(); }
 
- public:
+public:
   int id() const { return id_; }
   const std::set<int> &GetRoles() const {
     return roles_;
@@ -52,7 +52,7 @@ class SemanticPredicate {
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = roles_.begin();
-         it != roles_.end(); ++it) {
+    it != roles_.end(); ++it) {
       int label = *it;
       success = WriteInteger(fs, label);
       CHECK(success);
@@ -74,7 +74,7 @@ class SemanticPredicate {
     }
   }
 
- protected:
+protected:
   int id_;
   std::set<int> roles_;
 };

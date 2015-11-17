@@ -31,4 +31,3 @@ public:
 };
 
 #endif /* CONSTITUENCYLABELERWRITER_H_ */
-

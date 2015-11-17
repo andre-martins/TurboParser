@@ -31,4 +31,3 @@ public:
 };
 
 #endif /* CONSTITUENCYWRITER_H_ */
-

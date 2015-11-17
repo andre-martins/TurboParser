@@ -25,7 +25,7 @@
 #include "EntitySpan.h"
 
 class CoreferenceSentence : public SemanticInstance {
- public:
+public:
   CoreferenceSentence() {}
   virtual ~CoreferenceSentence() { DeleteAllSpans(); }
 
@@ -84,10 +84,10 @@ class CoreferenceSentence : public SemanticInstance {
     coreference_spans_.push_back(coreference_span);
   }
 
- protected:
+protected:
   void DeleteAllSpans();
 
- protected:
+protected:
   // Speakers (one per word): e.g. "__" or "Speaker#1".
   std::vector<std::string> speakers_;
   // Entity spans: e.g. A "ORG" entity spanning word 6 to 8.

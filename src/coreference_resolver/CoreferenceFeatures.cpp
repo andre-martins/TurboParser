@@ -26,7 +26,7 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
                                          int parent_mention,
                                          int child_mention) {
   CoreferenceOptions *options = static_cast<class CoreferencePipe*>(pipe_)->
-      GetCoreferenceOptions();
+    GetCoreferenceOptions();
 
   CHECK(!input_features_[r]);
   BinaryFeatures *features = new BinaryFeatures;
@@ -39,11 +39,11 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   bool use_speaker_feature = true;
 
   const vector<Mention*> &mentions = document->GetMentions();
-  Mention *parent = (parent_mention >= 0)? mentions[parent_mention] : NULL;
+  Mention *parent = (parent_mention >= 0) ? mentions[parent_mention] : NULL;
   Mention *child = mentions[child_mention];
-  int sentence_distance = (parent)?
+  int sentence_distance = (parent) ?
     child->sentence_index() - parent->sentence_index() : -1;
-  int mention_distance = (parent)? child_mention - parent_mention : -1;
+  int mention_distance = (parent) ? child_mention - parent_mention : -1;
 
   bool nested = false;
   if (parent && child->sentence_index() == parent->sentence_index() &&
@@ -117,48 +117,48 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
 
   CoreferenceSentenceNumeric *child_sentence =
     document->GetSentence(child->sentence_index());
-  CoreferenceSentenceNumeric *parent_sentence = (parent)?
+  CoreferenceSentenceNumeric *parent_sentence = (parent) ?
     document->GetSentence(parent->sentence_index()) : NULL;
 
   // Use POS tags for now (instead of word forms).
   CWID = child_sentence->GetFormId(child->head_index());
   CfWID = child_sentence->GetFormId(child->start());
   ClWID = child_sentence->GetFormId(child->end());
-  CpWID = (child->start() > 0)?
-    child_sentence->GetFormId(child->start()-1) : TOKEN_START;
-  CnWID = (child->end() < child_sentence->size() - 1)?
-    child_sentence->GetFormId(child->end()+1) : TOKEN_STOP;
+  CpWID = (child->start() > 0) ?
+    child_sentence->GetFormId(child->start() - 1) : TOKEN_START;
+  CnWID = (child->end() < child_sentence->size() - 1) ?
+    child_sentence->GetFormId(child->end() + 1) : TOKEN_STOP;
 
   CPID = child_sentence->GetPosId(child->head_index());
   CfPID = child_sentence->GetPosId(child->start());
   ClPID = child_sentence->GetPosId(child->end());
-  CpPID = (child->start() > 0)?
-    child_sentence->GetPosId(child->start()-1) : TOKEN_START;
-  CnPID = (child->end() < child_sentence->size() - 1)?
-    child_sentence->GetPosId(child->end()+1) : TOKEN_STOP;
+  CpPID = (child->start() > 0) ?
+    child_sentence->GetPosId(child->start() - 1) : TOKEN_START;
+  CnPID = (child->end() < child_sentence->size() - 1) ?
+    child_sentence->GetPosId(child->end() + 1) : TOKEN_STOP;
 
   if (parent) {
     PWID = parent_sentence->GetFormId(parent->head_index());
     PfWID = parent_sentence->GetFormId(parent->start());
     PlWID = parent_sentence->GetFormId(parent->end());
-    PpWID = (parent->start() > 0)?
-      parent_sentence->GetFormId(parent->start()-1) : TOKEN_START;
-    PnWID = (parent->end() < parent_sentence->size() - 1)?
-      parent_sentence->GetFormId(parent->end()+1) : TOKEN_STOP;
+    PpWID = (parent->start() > 0) ?
+      parent_sentence->GetFormId(parent->start() - 1) : TOKEN_START;
+    PnWID = (parent->end() < parent_sentence->size() - 1) ?
+      parent_sentence->GetFormId(parent->end() + 1) : TOKEN_STOP;
 
     PPID = parent_sentence->GetPosId(parent->head_index());
     PfPID = parent_sentence->GetPosId(parent->start());
     PlPID = parent_sentence->GetPosId(parent->end());
-    PpPID = (parent->start() > 0)?
-      parent_sentence->GetPosId(parent->start()-1) : TOKEN_START;
-    PnPID = (parent->end() < parent_sentence->size() - 1)?
-      parent_sentence->GetPosId(parent->end()+1) : TOKEN_STOP;
+    PpPID = (parent->start() > 0) ?
+      parent_sentence->GetPosId(parent->start() - 1) : TOKEN_START;
+    PnPID = (parent->end() < parent_sentence->size() - 1) ?
+      parent_sentence->GetPosId(parent->end() + 1) : TOKEN_STOP;
   }
 
   CA1ID = child->unigram_ancestry();
   CA2ID = child->bigram_ancestry();
-  PA1ID = parent? parent->unigram_ancestry() : 0xffff;
-  PA2ID = parent? parent->bigram_ancestry() : 0xffff;
+  PA1ID = parent ? parent->unigram_ancestry() : 0xffff;
+  PA2ID = parent ? parent->bigram_ancestry() : 0xffff;
 
   uint8_t parent_gender_code = 0xff;
   uint8_t parent_number_code = 0xff;
@@ -208,20 +208,20 @@ void CoreferenceFeatures::AddArcFeatures(CoreferenceDocumentNumeric* document,
   }
 
   uint8_t exact_match_code =
-    (parent && (parent->phrase_string_id() == child->phrase_string_id()))?
+    (parent && (parent->phrase_string_id() == child->phrase_string_id())) ?
     0x1 : 0x0;
   uint8_t head_match_code =
-    (parent && (parent->head_string_id() == child->head_string_id()))?
+    (parent && (parent->head_string_id() == child->head_string_id())) ?
     0x1 : 0x0;
 
   uint8_t child_contained_code =
-    (parent && (parent->ContainsMentionString(*child)))? 0x1 : 0x0;
+    (parent && (parent->ContainsMentionString(*child))) ? 0x1 : 0x0;
   uint8_t child_head_contained_code =
-    (parent && (parent->ContainsMentionHead(*child)))? 0x1 : 0x0;
+    (parent && (parent->ContainsMentionHead(*child))) ? 0x1 : 0x0;
   uint8_t parent_contained_code =
-    (parent && (child->ContainsMentionString(*parent)))? 0x1 : 0x0;
+    (parent && (child->ContainsMentionString(*parent))) ? 0x1 : 0x0;
   uint8_t parent_head_contained_code =
-    (parent && (child->ContainsMentionHead(*parent)))? 0x1 : 0x0;
+    (parent && (child->ContainsMentionHead(*parent))) ? 0x1 : 0x0;
 
   uint64_t fkey;
   uint8_t flags = 0x0;

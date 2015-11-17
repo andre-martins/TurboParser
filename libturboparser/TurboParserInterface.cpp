@@ -11,7 +11,6 @@
 #include "TurboParserInterface.h"
 
 namespace TurboParserInterface {
-
 TurboTaggerWorker::TurboTaggerWorker() {
   tagger_options_ = new TaggerOptions;
   tagger_options_->Initialize();
@@ -37,10 +36,10 @@ void TurboTaggerWorker::LoadTaggerModel(const std::string &file_model) {
   tagger_pipe_->LoadModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboTaggerWorker::Tag(const std::string &file_test,
@@ -55,10 +54,10 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
   tagger_pipe_->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
@@ -81,7 +80,7 @@ TurboEntityRecognizerWorker::~TurboEntityRecognizerWorker() {
 }
 
 void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
-    const std::string &file_model) {
+  const std::string &file_model) {
   entity_options_->SetModelFilePath(file_model);
 
   int time;
@@ -91,10 +90,10 @@ void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
   entity_pipe_->LoadModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
@@ -109,10 +108,10 @@ void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
   entity_pipe_->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
@@ -144,10 +143,10 @@ void TurboParserWorker::LoadParserModel(const std::string &file_model) {
   parser_pipe_->LoadModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboParserWorker::Parse(const std::string &file_test,
@@ -162,10 +161,10 @@ void TurboParserWorker::Parse(const std::string &file_test,
   parser_pipe_->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 TurboSemanticParserWorker::TurboSemanticParserWorker() {
@@ -184,7 +183,7 @@ TurboSemanticParserWorker::~TurboSemanticParserWorker() {
 }
 
 void TurboSemanticParserWorker::LoadSemanticParserModel(
-    const std::string &file_model) {
+  const std::string &file_model) {
   semantic_options_->SetModelFilePath(file_model);
 
   int time;
@@ -196,15 +195,15 @@ void TurboSemanticParserWorker::LoadSemanticParserModel(
   semantic_pipe_->LoadModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboSemanticParserWorker::ParseSemanticDependencies(
-    const std::string &file_test,
-    const std::string &file_prediction) {
+  const std::string &file_test,
+  const std::string &file_prediction) {
   semantic_options_->SetTestFilePath(file_test);
   semantic_options_->SetOutputFilePath(file_prediction);
 
@@ -215,10 +214,10 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
   semantic_pipe_->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 TurboCoreferenceResolverWorker::TurboCoreferenceResolverWorker() {
@@ -237,7 +236,7 @@ TurboCoreferenceResolverWorker::~TurboCoreferenceResolverWorker() {
 }
 
 void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
-    const std::string &file_model) {
+  const std::string &file_model) {
   coreference_options_->SetModelFilePath(file_model);
 
   int time;
@@ -249,15 +248,15 @@ void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
   coreference_pipe_->LoadModelFile();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
 }
 
 void TurboCoreferenceResolverWorker::ResolveCoreferences(
-    const std::string &file_test,
-    const std::string &file_prediction) {
+  const std::string &file_test,
+  const std::string &file_prediction) {
   coreference_options_->SetTestFilePath(file_test);
   coreference_options_->SetOutputFilePath(file_prediction);
 
@@ -268,10 +267,65 @@ void TurboCoreferenceResolverWorker::ResolveCoreferences(
   coreference_pipe_->Run();
 
   gettimeofday(&end, NULL);
-  time = diff_ms(end,start);
+  time = diff_ms(end, start);
 
-  LOG(INFO) << "Took " << static_cast<double>(time)/1000.0
-            << " sec." << endl;
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
+}
+
+TurboMorphologicalTaggerWorker::TurboMorphologicalTaggerWorker() {
+  morphological_tagger_options_ = new MorphologicalOptions;
+  morphological_tagger_options_->Initialize();
+
+  morphological_tagger_pipe_ =
+    new MorphologicalPipe(morphological_tagger_options_);
+  morphological_tagger_pipe_->Initialize();
+}
+
+TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {
+  LOG(INFO) << "Deleting tagger pipe.";
+  delete morphological_tagger_pipe_;
+  LOG(INFO) << "Deleting tagger options.";
+  delete morphological_tagger_options_;
+}
+
+void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(const std::string
+                                                                  &file_model) {
+  morphological_tagger_options_->SetModelFilePath(file_model);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  morphological_tagger_pipe_->LoadModelFile();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end, start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
+}
+
+void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
+                                         const std::string &file_prediction) {
+  morphological_tagger_options_->SetTestFilePath(file_test);
+  morphological_tagger_options_->SetOutputFilePath(file_prediction);
+
+  int time;
+  timeval start, end;
+  gettimeofday(&start, NULL);
+
+  morphological_tagger_pipe_->Run();
+
+  gettimeofday(&end, NULL);
+  time = diff_ms(end, start);
+
+  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
+    << " sec." << endl;
+}
+
+void TurboMorphologicalTaggerWorker::TagSentence(MorphologicalInstance *sentence) {
+  morphological_tagger_pipe_->ClassifyInstance(sentence);
 }
 
 TurboParserInterface::TurboParserInterface() {
@@ -306,10 +360,12 @@ TurboParserInterface::~TurboParserInterface() {
   LOG(INFO) << "Deleting coreference resolver workers.";
   DeleteAllCoreferenceResolvers();
 
+  LOG(INFO) << "Deleting morphlogical tagger workers.";
+  DeleteAllMorphologicalTaggers();
+
   LOG(INFO) << "Clearing argument list.";
   ClearArgumentList();
 
   LOG(INFO) << "Done.";
 }
-
 } // namespace TurboParserInterface.

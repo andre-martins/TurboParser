@@ -25,7 +25,7 @@
 #include "Mention.h"
 
 class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
- public:
+public:
   CoreferenceSentenceNumeric() {};
   virtual ~CoreferenceSentenceNumeric() { Clear(); };
 
@@ -57,7 +57,7 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
   // be inherited from that class.
   bool FirstUpper(int i) { return first_upper_[i]; }
 
- protected:
+protected:
   void DeleteAllSpans() {
     for (int i = 0; i < entity_spans_.size(); ++i) {
       delete entity_spans_[i];
@@ -101,7 +101,7 @@ class CoreferenceSentenceNumeric : public SemanticInstanceNumeric {
                   CoreferenceSentence* instance,
                   int start, int end, int id);
 
- private:
+private:
   std::vector<NumericSpan*> entity_spans_;
   std::vector<NumericSpan*> constituent_spans_;
   std::vector<NumericSpan*> coreference_spans_;

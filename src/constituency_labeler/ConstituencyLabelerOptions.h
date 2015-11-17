@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class ConstituencyLabelerOptions : public Options {
- public:
+public:
   ConstituencyLabelerOptions() {};
   virtual ~ConstituencyLabelerOptions() {};
 
@@ -38,7 +38,7 @@ class ConstituencyLabelerOptions : public Options {
   const std::string &null_label() { return null_label_; }
   bool ignore_null_labels() { return ignore_null_labels_; }
 
- protected:
+protected:
   std::string file_format_;
   bool prune_labels_;
   std::string null_label_;

@@ -24,12 +24,12 @@
 #include "logval.h"
 
 void DependencyLabelerDecoder::DecodeCostAugmented(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    const std::vector<double> &gold_output,
-    std::vector<double> *predicted_output,
-    double *cost,
-    double *loss) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  const std::vector<double> &gold_output,
+  std::vector<double> *predicted_output,
+  double *cost,
+  double *loss) {
   DependencyLabelerParts *dependency_parts =
     static_cast<DependencyLabelerParts*>(parts);
   int offset_arcs, num_arcs;
@@ -56,9 +56,9 @@ void DependencyLabelerDecoder::DecodeCostAugmented(
     DependencyLabelerPartArc *arc =
       static_cast<DependencyLabelerPartArc*>((*dependency_parts)[offset_arcs + r]);
 #if 0
-    LOG(INFO) << arc->head() << " -> "  << arc->modifier() << " " << arc->label()
-              << " gold=" << gold_output[offset_arcs + r]
-              << " predicted=" << (*predicted_output)[offset_arcs + r];
+    LOG(INFO) << arc->head() << " -> " << arc->modifier() << " " << arc->label()
+      << " gold=" << gold_output[offset_arcs + r]
+      << " predicted=" << (*predicted_output)[offset_arcs + r];
 #endif
   }
 
@@ -92,12 +92,12 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
       std::vector<std::vector<double> > node_scores(
         siblings[h].size(), std::vector<double>(0));
       std::vector<std::vector<std::vector<double> > > edge_scores(
-        siblings[h].size()-1, std::vector<std::vector<double> >(0));
+        siblings[h].size() - 1, std::vector<std::vector<double> >(0));
       for (int i = 0; i < siblings[h].size() + 1; ++i) {
         const std::vector<int> &sibling_parts =
           dependency_parts->FindSiblings(h, i);
-        int m = (i < siblings[h].size())? siblings[h][i] : -1;
-        int s = (i > 0)? siblings[h][i-1] : -1;
+        int m = (i < siblings[h].size()) ? siblings[h][i] : -1;
+        int s = (i > 0) ? siblings[h][i - 1] : -1;
         if (m >= 0) {
           const std::vector<int> &current_arcs = dependency_parts->FindArcs(m);
           node_scores[i].resize(current_arcs.size());
@@ -141,14 +141,14 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
               if (sibling_label == arc->label()) break;
             }
             CHECK_GE(l, 0);
-            node_scores[i-1][l] += scores[r];
+            node_scores[i - 1][l] += scores[r];
           }
         } else if (m >= 0 && s >= 0) {
           const std::vector<int> &current_arcs = dependency_parts->FindArcs(m);
           const std::vector<int> &previous_arcs = dependency_parts->FindArcs(s);
-          edge_scores[i-1].resize(current_arcs.size(),
-                                  std::vector<double>(previous_arcs.size(),
-                                                      0.0));
+          edge_scores[i - 1].resize(current_arcs.size(),
+                                    std::vector<double>(previous_arcs.size(),
+                                                        0.0));
           for (int j = 0; j < sibling_parts.size(); ++j) {
             int r = sibling_parts[j];
             DependencyLabelerPartSibling *sibling =
@@ -172,7 +172,7 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
               if (sibling_label == arc->label()) break;
             }
             CHECK_GE(l, 0);
-            edge_scores[i-1][k][l] = scores[r];
+            edge_scores[i - 1][k][l] = scores[r];
           }
         }
       }
@@ -183,8 +183,8 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
       for (int i = 0; i < siblings[h].size() + 1; ++i) {
         const std::vector<int> &sibling_parts =
           dependency_parts->FindSiblings(h, i);
-        int m = (i < siblings[h].size())? siblings[h][i] : -1;
-        int s = (i > 0)? siblings[h][i-1] : -1;
+        int m = (i < siblings[h].size()) ? siblings[h][i] : -1;
+        int s = (i > 0) ? siblings[h][i - 1] : -1;
         if (m >= 0) {
           const std::vector<int> &current_arcs = dependency_parts->FindArcs(m);
           int best_label = best_path[i];
@@ -217,7 +217,7 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
               static_cast<DependencyLabelerPartSibling*>((*parts)[r]);
             int sibling_label = sibling->sibling_label();
             CHECK_EQ(sibling->modifier_label(), -1);
-            int best_previous_label = best_path[i-1];
+            int best_previous_label = best_path[i - 1];
             DependencyLabelerPartArc *previous_arc =
               static_cast<DependencyLabelerPartArc*>(
                 (*parts)[previous_arcs[best_previous_label]]);
@@ -237,7 +237,7 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
             int sibling_label = sibling->sibling_label();
 
             int best_current_label = best_path[i];
-            int best_previous_label = best_path[i-1];
+            int best_previous_label = best_path[i - 1];
             DependencyLabelerPartArc *current_arc =
               static_cast<DependencyLabelerPartArc*>(
                 (*parts)[current_arcs[best_current_label]]);
@@ -258,9 +258,9 @@ void DependencyLabelerDecoder::Decode(Instance *instance, Parts *parts,
 }
 
 void DependencyLabelerDecoder::DecodeBasic(
-    Instance *instance, Parts *parts,
-    const std::vector<double> &scores,
-    std::vector<double> *predicted_output) {
+  Instance *instance, Parts *parts,
+  const std::vector<double> &scores,
+  std::vector<double> *predicted_output) {
   DependencyLabelerParts *dependency_parts =
     static_cast<DependencyLabelerParts*>(parts);
   int instance_length =
@@ -299,9 +299,9 @@ void DependencyLabelerDecoder::DecodeBasic(
 }
 
 double DependencyLabelerDecoder::RunViterbi(
-    const std::vector<std::vector<double> > &node_scores,
-    const std::vector<std::vector<std::vector<double> > > &edge_scores,
-    std::vector<int> *best_path) {
+  const std::vector<std::vector<double> > &node_scores,
+  const std::vector<std::vector<std::vector<double> > > &edge_scores,
+  std::vector<int> *best_path) {
   int length = node_scores.size(); // Length of the sequence.
   // To accommodate the partial scores.
   std::vector<std::vector<double> > deltas(length);
@@ -319,7 +319,7 @@ double DependencyLabelerDecoder::RunViterbi(
 
   // Recursion.
   for (int i = 0; i < length - 1; ++i) {
-    int num_current_labels = node_scores[i+1].size();
+    int num_current_labels = node_scores[i + 1].size();
     deltas[i + 1].resize(num_current_labels);
     backtrack[i + 1].resize(num_current_labels);
     for (int k = 0; k < num_current_labels; ++k) {
@@ -337,8 +337,8 @@ double DependencyLabelerDecoder::RunViterbi(
       }
       CHECK_GE(best, 0) << node_scores[i].size() << " possible tags.";
 
-      deltas[i+1][k] = best_value + node_scores[i+1][k];
-      backtrack[i+1][k] = best;
+      deltas[i + 1][k] = best_value + node_scores[i + 1][k];
+      backtrack[i + 1][k] = best;
     }
   }
 

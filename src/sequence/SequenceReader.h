@@ -33,4 +33,3 @@ public:
 };
 
 #endif /* SEQUENCEREADER_H_ */
-

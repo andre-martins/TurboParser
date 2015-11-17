@@ -26,7 +26,7 @@
 #include "ConstituencyDictionary.h"
 
 class ConstituencyLabelerDictionary : public ConstituencyDictionary {
- public:
+public:
   ConstituencyLabelerDictionary() {}
   ConstituencyLabelerDictionary(Pipe* pipe) { pipe_ = pipe; }
   virtual ~ConstituencyLabelerDictionary() { Clear(); }
@@ -126,7 +126,7 @@ class ConstituencyLabelerDictionary : public ConstituencyDictionary {
 
   int null_label() { return null_label_; }
 
- protected:
+protected:
   Alphabet label_alphabet_;
   int null_label_;
   std::vector<std::vector<int> > constituent_labels_;

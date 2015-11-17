@@ -24,7 +24,7 @@
 #include "EntityDictionary.h"
 
 class EntityInstanceNumeric : public SequenceInstanceNumeric {
- public:
+public:
   EntityInstanceNumeric() {};
   virtual ~EntityInstanceNumeric() { Clear(); };
 
@@ -45,7 +45,7 @@ class EntityInstanceNumeric : public SequenceInstanceNumeric {
     return gazetteer_ids_[i];
   }
 
- private:
+private:
   std::vector<int> pos_ids_;
   std::vector<vector<int> > gazetteer_ids_;
 };

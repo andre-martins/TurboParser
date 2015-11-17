@@ -29,26 +29,26 @@ enum {
 };
 
 class ConstituencyLabelerPartNode : public Part {
- public:
+public:
   ConstituencyLabelerPartNode() { position_ = label_ = -1; };
- ConstituencyLabelerPartNode(int position, int label) :
+  ConstituencyLabelerPartNode(int position, int label) :
     position_(position), label_(label) {};
   virtual ~ConstituencyLabelerPartNode() {};
 
- public:
+public:
   int position() { return position_; };
   int label() { return label_; };
 
- public:
+public:
   int type() { return CONSTITUENCYLABELERPART_NODE; };
 
- private:
+private:
   int position_; // Node position.
   int label_; // Label ID.
 };
 
 class ConstituencyLabelerParts : public Parts {
- public:
+public:
   ConstituencyLabelerParts() {};
   virtual ~ConstituencyLabelerParts() { DeleteAll(); };
 
@@ -63,10 +63,10 @@ class ConstituencyLabelerParts : public Parts {
     return new ConstituencyLabelerPartNode(position, label);
   }
 
- public:
+public:
   void DeleteAll();
 
- public:
+public:
   void BuildNodeIndices(int num_nodes);
   void BuildIndices(int num_nodes);
   void DeleteNodeIndices();
@@ -79,7 +79,7 @@ class ConstituencyLabelerParts : public Parts {
   void BuildOffsets() {
     for (int i = NUM_CONSTITUENCYLABELERPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_CONSTITUENCYLABELERPARTS - 1)?
+        offsets_[i] = (i == NUM_CONSTITUENCYLABELERPARTS - 1) ?
           size() : offsets_[i + 1];
       }
     }
@@ -91,11 +91,11 @@ class ConstituencyLabelerParts : public Parts {
     GetOffset(CONSTITUENCYLABELERPART_NODE, offset, size);
   };
 
- private:
+private:
   // Get offset from part index.
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
-    *size =  (i < NUM_CONSTITUENCYLABELERPARTS - 1)?
+    *size = (i < NUM_CONSTITUENCYLABELERPARTS - 1) ?
       offsets_[i + 1] - (*offset) :
       ConstituencyLabelerParts::size() - (*offset);
   }
@@ -106,7 +106,7 @@ class ConstituencyLabelerParts : public Parts {
     if (i < NUM_CONSTITUENCYLABELERPARTS - 1) offsets_[i + 1] = offset + size;
   }
 
- private:
+private:
   std::vector<std::vector<int> >  index_;
   int offsets_[NUM_CONSTITUENCYLABELERPARTS];
 };

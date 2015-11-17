@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class DependencyLabelerOptions : public Options {
- public:
+public:
   DependencyLabelerOptions() {};
   virtual ~DependencyLabelerOptions() {};
 
@@ -38,7 +38,7 @@ class DependencyLabelerOptions : public Options {
   bool prune_labels() { return prune_labels_; }
   bool use_sibling_parts() { return use_sibling_parts_; }
 
- protected:
+protected:
   std::string file_format_;
   //string model_type_;
   //bool projective_;

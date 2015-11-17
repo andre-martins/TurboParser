@@ -28,11 +28,10 @@
 #endif
 
 namespace AD3 {
-
 typedef std::tr1::unordered_map<int, int> HashMapIntInt;
 
 class FactorPredicateAutomaton : public GenericFactor {
- public:
+public:
   FactorPredicateAutomaton() {}
   virtual ~FactorPredicateAutomaton() { ClearActiveSet(); }
 
@@ -45,12 +44,12 @@ class FactorPredicateAutomaton : public GenericFactor {
     int total = 0; // Delete this later.
     for (int s = 0; s < GetNumSenses(); ++s) {
       for (int a1 = 0; a1 < index_siblings_[s].size(); ++a1) {
-        for (int a2 = a1+1; a2 <= index_siblings_[s][a1].size(); ++a2) {
+        for (int a2 = a1 + 1; a2 <= index_siblings_[s][a1].size(); ++a2) {
           CHECK_GE(index_siblings_[s][a1][a2], 0);
           int index = index_siblings_[s][a1][a2];
           ++total;
           stream << " " << setprecision(9)
-                 << additional_log_potentials_[index];
+            << additional_log_potentials_[index];
         }
       }
     }
@@ -72,10 +71,10 @@ class FactorPredicateAutomaton : public GenericFactor {
     return variable_log_potentials[sense];
   }
   double GetArgumentScore(
-      int sense,
-      int argument,
-      const vector<double> &variable_log_potentials,
-      const vector<double> &additional_log_potentials) const {
+    int sense,
+    int argument,
+    const vector<double> &variable_log_potentials,
+    const vector<double> &additional_log_potentials) const {
     CHECK_GE(sense, 0);
     CHECK_LT(sense, index_arguments_.size());
     CHECK_GE(argument, 0);
@@ -86,11 +85,11 @@ class FactorPredicateAutomaton : public GenericFactor {
     return variable_log_potentials[index];
   }
   double GetSiblingScore(
-      int sense,
-      int first_argument,
-      int second_argument,
-      const vector<double> &variable_log_potentials,
-      const vector<double> &additional_log_potentials) const {
+    int sense,
+    int first_argument,
+    int second_argument,
+    const vector<double> &variable_log_potentials,
+    const vector<double> &additional_log_potentials) const {
     CHECK_GE(sense, 0);
     CHECK_LT(sense, index_siblings_.size());
     CHECK_GE(first_argument, 0);
@@ -154,17 +153,17 @@ class FactorPredicateAutomaton : public GenericFactor {
       for (int a = 1; a < length; ++a) {
         // a+1 possible states: either keep the previous state (no arc added)
         // or transition to a new state (arc between p and a).
-        values[a].resize(a+1);
-        path[a].resize(a+1);
+        values[a].resize(a + 1);
+        path[a].resize(a + 1);
         for (int i = 0; i < a; ++i) {
           // In this case, the previous state must also be i.
-          values[a][i] = values[a-1][i];
+          values[a][i] = values[a - 1][i];
           path[a][i] = i;
         }
         // For the a-th state, the previous state can be anything up to a-1.
         path[a][a] = -1;
         for (int j = 0; j < a; ++j) {
-          double score = values[a-1][j];
+          double score = values[a - 1][j];
           score += GetSiblingScore(s, j, a, variable_log_potentials,
                                    additional_log_potentials);
           if (path[a][a] < 0 || score > values[a][a]) {
@@ -182,7 +181,7 @@ class FactorPredicateAutomaton : public GenericFactor {
       for (int j = 0; j < length; ++j) {
         //int index = index_siblings_[s][j][length];
         //CHECK_GE(index, 0);
-        double score = values[length-1][j] +
+        double score = values[length - 1][j] +
           GetSiblingScore(s, j, length, variable_log_potentials,
                           additional_log_potentials);
         if (best_last_state < 0 || score > best_score) {
@@ -202,19 +201,19 @@ class FactorPredicateAutomaton : public GenericFactor {
         best_sense = s;
         *value = best_score;
         best_path.resize(length);
-        best_path[length-1] = best_last_state;
+        best_path[length - 1] = best_last_state;
 
         // Backtrack.
-        for (int a = length-1; a > 0; --a) {
-          CHECK_GE(a-1, 0);
-          CHECK_LT(a-1, best_path.size());
+        for (int a = length - 1; a > 0; --a) {
+          CHECK_GE(a - 1, 0);
+          CHECK_LT(a - 1, best_path.size());
           CHECK_GE(a, 0);
           CHECK_LT(a, best_path.size());
           CHECK_GE(a, 0);
           CHECK_LT(a, path.size());
           CHECK_GE(best_path[a], 0);
           CHECK_LT(best_path[a], path[a].size());
-          best_path[a-1] = path[a][best_path[a]];
+          best_path[a - 1] = path[a][best_path[a]];
         }
       }
     }
@@ -223,7 +222,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     vector<int> *sense_arguments =
       static_cast<vector<int>*>(configuration);
     sense_arguments->push_back(best_sense);
-    int length = (best_sense >= 0)? GetLength(best_sense) : 0;
+    int length = (best_sense >= 0) ? GetLength(best_sense) : 0;
     for (int a = 1; a < length; ++a) {
       if (best_path[a] == a) {
         sense_arguments->push_back(a);
@@ -348,7 +347,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     return static_cast<Configuration>(sense_arguments);
   }
 
- public:
+public:
   // Predicate senses are of the form (p,s) for each s.
   // Outgoing arcs are of the form (p,s,a) for each s, a.
   // The variables linked to this factor must be in the same order as
@@ -386,13 +385,13 @@ class FactorPredicateAutomaton : public GenericFactor {
       CHECK_EQ(p, outgoing_arcs[k]->predicate());
       int a = outgoing_arcs[k]->argument();
       int s = outgoing_arcs[k]->sense();
-      int position = (right)? a-p : p-a;
+      int position = (right) ? a - p : p - a;
       ++position; // Position 0 is reserved for the case a1=-1.
       CHECK_GE(position, 1) << p << " " << a;
       CHECK(map_senses.find(s) != map_senses.end());
       int sense = map_senses[s];
       if (position >= sense_arguments[sense].size()) {
-        sense_arguments[sense].resize(position+1, -1);
+        sense_arguments[sense].resize(position + 1, -1);
       }
       // This will be replaced by the index of the argument.
       sense_arguments[sense][position] = offset_outgoing_arcs + k;
@@ -401,7 +400,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     index_arguments_.assign(num_senses, vector<int>(0));
     for (int sense = 0; sense < num_senses; ++sense) {
       for (int position = 0; position < sense_arguments[sense].size();
-           ++position) {
+      ++position) {
         int index = sense_arguments[sense][position];
         // Always put something in the zero position (which is special).
         // In this case, index will be -1.
@@ -419,7 +418,7 @@ class FactorPredicateAutomaton : public GenericFactor {
     index_siblings_.assign(num_senses, vector<vector<int> >(0));
     for (int sense = 0; sense < num_senses; ++sense) {
       int length = GetLength(sense);
-      index_siblings_[sense].resize(length, vector<int>(length+1, -1));
+      index_siblings_[sense].resize(length, vector<int>(length + 1, -1));
     }
     for (int k = 0; k < siblings.size(); ++k) {
       CHECK_EQ(p, siblings[k]->predicate());
@@ -427,8 +426,8 @@ class FactorPredicateAutomaton : public GenericFactor {
       int a1 = siblings[k]->first_argument();
       int a2 = siblings[k]->second_argument();
 
-      int position1 = right? a1-p : p-a1;
-      int position2 = right? a2-p : p-a2;
+      int position1 = right ? a1 - p : p - a1;
+      int position2 = right ? a2 - p : p - a2;
       if (a1 < 0) position1 = -1; // To handle a1=-1.
       ++position1; // Position 0 is reserved for the case a1=-1.
       ++position2;
@@ -440,7 +439,7 @@ class FactorPredicateAutomaton : public GenericFactor {
       //CHECK_LT(position2, sense_arguments[sense].size()+1) << p << " " << a1 << " " << a2 << " " << GetLength(sense);
       CHECK_EQ(GetLength(sense), index_arguments_[sense].size());
       int first_argument = sense_arguments[sense][position1];
-      int second_argument = (position2 < sense_arguments[sense].size())?
+      int second_argument = (position2 < sense_arguments[sense].size()) ?
         sense_arguments[sense][position2] : GetLength(sense);
       CHECK_GE(first_argument, 0);
       CHECK_GE(second_argument, 1);
@@ -452,11 +451,10 @@ class FactorPredicateAutomaton : public GenericFactor {
     CHECK_GE(index_siblings_[0][0][1], 0);
   }
 
- private:
+private:
   vector<vector<int> > index_arguments_; // Indexed by s, a.
   vector<vector<vector<int> > > index_siblings_; // Indexed by s, a1, a2.
 };
-
 } // namespace AD3
 
 #endif // FACTOR_PREDICATE_AUTOMATON

@@ -74,4 +74,3 @@ void ConstituencyLabelerOptions::Initialize() {
   null_label_ = FLAGS_null_label;
   ignore_null_labels_ = FLAGS_ignore_null_labels;
 }
-

@@ -36,7 +36,7 @@ DEFINE_int32(constituency_morph_cutoff, 0,
              "Ignore morphological features whose frequency is less than this.");
 
 void ConstituencyDictionary::CreateConstituentDictionary(
-    ConstituencyReader *reader) {
+  ConstituencyReader *reader) {
   // Create tag dictionary.
   CreateTagDictionary(reader);
 
@@ -65,7 +65,6 @@ void ConstituencyDictionary::CreateConstituentDictionary(
     morph_freqs.push_back(-1);
   }
 
-
   // Go through the corpus and build the label dictionary,
   // counting the frequencies.
   reader->Open(pipe_->GetOptions()->GetTrainingFilePath());
@@ -86,7 +85,7 @@ void ConstituencyDictionary::CreateConstituentDictionary(
 
       // Add FEATS to alphabet.
       for (int j = 0; j < instance->GetNumMorphFeatures(i); ++j) {
-        id = morph_alphabet.Insert(instance->GetMorphFeature(i,j));
+        id = morph_alphabet.Insert(instance->GetMorphFeature(i, j));
         if (id >= morph_freqs.size()) {
           CHECK_EQ(id, morph_freqs.size());
           morph_freqs.push_back(0);
@@ -133,8 +132,8 @@ void ConstituencyDictionary::CreateConstituentDictionary(
       lemma_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = lemma_alphabet.begin();
-         iter != lemma_alphabet.end();
-         ++iter) {
+    iter != lemma_alphabet.end();
+      ++iter) {
       if (lemma_freqs[iter->second] > lemma_cutoff) {
         lemma_alphabet_.Insert(iter->first);
       }
@@ -150,8 +149,8 @@ void ConstituencyDictionary::CreateConstituentDictionary(
       morph_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = morph_alphabet.begin();
-         iter != morph_alphabet.end();
-         ++iter) {
+    iter != morph_alphabet.end();
+      ++iter) {
       if (morph_freqs[iter->second] > morph_cutoff) {
         morph_alphabet_.Insert(iter->first);
       }
@@ -173,7 +172,7 @@ void ConstituencyDictionary::CreateConstituentDictionary(
   LOG(INFO) << "Number of rules: " << rule_alphabet_.size();
   LOG(INFO) << "Constituent tags and their frequencies:";
   for (Alphabet::iterator it = constituent_alphabet_.begin();
-       it != constituent_alphabet_.end(); ++it) {
+  it != constituent_alphabet_.end(); ++it) {
     std::string label = it->first;
     int label_id = it->second;
     LOG(INFO) << label << "\t" << label_freqs[label_id];

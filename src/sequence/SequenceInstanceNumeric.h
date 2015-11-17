@@ -60,8 +60,8 @@ public:
   int GetFormId(int i) { return form_ids_[i]; }
   int GetMaxPrefixLength(int i) { return prefix_ids_[i].size(); }
   int GetMaxSuffixLength(int i) { return suffix_ids_[i].size(); }
-  int GetPrefixId(int i, int length) { return prefix_ids_[i][length-1]; }
-  int GetSuffixId(int i, int length) { return suffix_ids_[i][length-1]; }
+  int GetPrefixId(int i, int length) { return prefix_ids_[i][length - 1]; }
+  int GetSuffixId(int i, int length) { return suffix_ids_[i][length - 1]; }
   int GetShapeId(int i) { return shape_ids_[i]; }
   bool HasDigit(int i) { return has_digit_[i]; }
   bool HasUpper(int i) { return has_upper_[i]; }
@@ -111,7 +111,7 @@ protected:
 
   bool EndsWithPeriod(const char* word, int len) {
     if (len <= 0) return false;
-    return IsPeriod(word[len-1]);
+    return IsPeriod(word[len - 1]);
   }
 
   bool HasInternalPeriod(const char* word, int len) {

@@ -35,7 +35,7 @@
 // Task-specific classifiers should derive from this class and implement the
 // pure virtual methods.
 class Pipe {
- public:
+public:
   // Constructor/destructor.
   Pipe() {};
   Pipe(Options* options);
@@ -64,7 +64,7 @@ class Pipe {
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
- protected:
+protected:
   // Create basic objects.
   virtual void CreateDictionary() = 0;
   virtual void CreateReader() = 0;
@@ -74,8 +74,8 @@ class Pipe {
   virtual Features *CreateFeatures() = 0;
 
   // Save/load model.
-  void SaveModelByName(const string &model_name);
-  void LoadModelByName(const string &model_name);
+  void SaveModelByName(const std::string &model_name);
+  void LoadModelByName(const std::string &model_name);
   virtual void SaveModel(FILE* fs);
   virtual void LoadModel(FILE* fs);
 
@@ -86,6 +86,7 @@ class Pipe {
     }
     instances_.clear();
   }
+
   void AddInstance(Instance *instance) {
     Instance *formatted_instance = GetFormattedInstance(instance);
     instances_.push_back(formatted_instance);
@@ -124,7 +125,8 @@ class Pipe {
   // Note: this function is task-specific and needs to be implemented by the
   // deriving class.
   virtual void MakeSelectedFeatures(Instance *instance, Parts *parts,
-      const vector<bool> &selected_parts, Features *features) = 0;
+                                    const vector<bool> &selected_parts,
+                                    Features *features) = 0;
 
   // Given an instance, parts, and features, compute the scores. This will
   // look at the current parameters. Each part will receive a score, so the
@@ -159,10 +161,10 @@ class Pipe {
   // prediction.
   // In CRFs, it is the vector of posterior marginals for the parts.
   virtual void MakeFeatureDifference(Parts *parts,
-                                   Features *features,
-                                   const vector<double> &gold_output,
-                                   const vector<double> &predicted_output,
-                                   FeatureVector *difference);
+                                     Features *features,
+                                     const vector<double> &gold_output,
+                                     const vector<double> &predicted_output,
+                                     FeatureVector *difference);
 
   // Given an instance, a vector of parts, and features for those parts,
   // remove all the features which are not supported, i.e., that were not
@@ -245,17 +247,17 @@ class Pipe {
   virtual void EndEvaluation() {
     LOG(INFO) << "Accuracy (parts): " <<
       static_cast<double>(num_total_parts_ - num_mistakes_) /
-        static_cast<double>(num_total_parts_);
+      static_cast<double>(num_total_parts_);
   }
 
- protected:
+protected:
   Options *options_; // Classifier options.
   Dictionary *dictionary_; // Dictionary for the classifier.
   Reader *reader_; // Reader for reading instances from a file.
-  Writer* writer_; // Writer for writing instance to a file.
-  Decoder* decoder_; // Decoder for this classification task.
+  Writer *writer_; // Writer for writing instance to a file.
+  Decoder *decoder_; // Decoder for this classification task.
   Parameters *parameters_; // Parameter vector.
-  vector<Instance*> instances_; // Set of training instances.
+  vector<Instance*> instances_; // Set of instances.
 
   // Number of mistakes and number of total parts at test time (used for
   // evaluation purposes).

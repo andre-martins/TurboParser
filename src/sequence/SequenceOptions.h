@@ -22,7 +22,7 @@
 #include "Options.h"
 
 class SequenceOptions : public Options {
- public:
+public:
   SequenceOptions() {};
   virtual ~SequenceOptions() {};
 
@@ -36,7 +36,7 @@ class SequenceOptions : public Options {
   // Get option flags.
   int markov_order() { return model_type_; }
 
- protected:
+protected:
   int model_type_;
 };
 

@@ -24,7 +24,7 @@
 class SequencePipe;
 
 class SequenceDecoderNodeScores {
- public:
+public:
   SequenceDecoderNodeScores() {}
   virtual ~SequenceDecoderNodeScores() {}
 
@@ -65,13 +65,12 @@ class SequenceDecoderNodeScores {
     return -1;
   }
 
- private:
+private:
   std::vector<std::pair<int, double> > scores_;
 };
 
-
 class SequenceDecoderEdgeScores {
- public:
+public:
   SequenceDecoderEdgeScores() {}
   virtual ~SequenceDecoderEdgeScores() {}
 
@@ -128,13 +127,13 @@ class SequenceDecoderEdgeScores {
 
   // Get all previous states and their scores with respect to the current state.
   const std::vector<std::pair<int, double> > &GetAllPreviousStateScores(
-      int current_state) const {
+    int current_state) const {
     return scores_[current_state];
   }
 
   // Same, but return a mutable pointer.
   std::vector<std::pair<int, double> > *GetMutableAllPreviousStateScores(
-      int current_state) {
+    int current_state) {
     return &scores_[current_state];
   }
 
@@ -150,13 +149,12 @@ class SequenceDecoderEdgeScores {
   // Compute number of bigram indices.
   int GetNumStatePairs() const { return GetStatePairIndex(scores_.size(), 0); }
 
- private:
+private:
   std::vector<std::vector<std::pair<int, double> > > scores_;
 };
 
-
 class SequenceDecoder : public Decoder {
- public:
+public:
   SequenceDecoder() {};
   SequenceDecoder(SequencePipe *pipe) : pipe_(pipe) {};
   virtual ~SequenceDecoder() {};
@@ -183,11 +181,11 @@ class SequenceDecoder : public Decoder {
   }
 
   virtual void DecodeMarginals(Instance *instance, Parts *parts,
-                                 const vector<double> &scores,
-                                 const vector<double> &gold_output,
-                                 vector<double> *predicted_output,
-                                 double *entropy,
-                                 double *loss) {
+                               const vector<double> &scores,
+                               const vector<double> &gold_output,
+                               vector<double> *predicted_output,
+                               double *entropy,
+                               double *loss) {
     // TODO: Implement forward-backward.
     CHECK(false) << "Not implemented yet.";
   }
@@ -202,9 +200,12 @@ class SequenceDecoder : public Decoder {
   void RecoverBestPath(const std::vector<int> &best_path,
                        std::vector<int> *transformed_best_path);
 
+  double SolveMarkovZeroOrder(const std::vector<SequenceDecoderNodeScores> &node_scores,
+                              std::vector<int> *best_path);
+
   double RunViterbi(const vector<vector<double> > &node_scores,
                     const vector<vector<vector<double > > >
-                     &edge_scores,
+                    &edge_scores,
                     vector<int> *best_path);
 
   double RunViterbi(const std::vector<SequenceDecoderNodeScores> &node_scores,
@@ -213,12 +214,12 @@ class SequenceDecoder : public Decoder {
 
 #ifdef USE_CPLEX
   double DecodeCPLEX(Instance *instance, Parts *parts,
-      const vector<double> &scores,
-      bool relax,
-      vector<double> *predicted_output);
+                     const vector<double> &scores,
+                     bool relax,
+                     vector<double> *predicted_output);
 #endif
 
- protected:
+protected:
   SequencePipe *pipe_;
 };
 

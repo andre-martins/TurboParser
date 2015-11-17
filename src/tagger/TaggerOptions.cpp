@@ -67,7 +67,7 @@ void TaggerOptions::Load(FILE* fs) {
   success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_large_feature_set="
-            << FLAGS_tagger_large_feature_set;
+    << FLAGS_tagger_large_feature_set;
   success = ReadBool(fs, &FLAGS_tagger_prune_tags);
   CHECK(success);
   LOG(INFO) << "Setting --tagger_prune_tags=" << FLAGS_tagger_prune_tags;
@@ -87,4 +87,3 @@ void TaggerOptions::Initialize() {
   prune_tags_ = FLAGS_tagger_prune_tags;
   file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
 }
-

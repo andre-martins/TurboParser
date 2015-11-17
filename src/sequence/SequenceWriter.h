@@ -31,4 +31,3 @@ public:
 };
 
 #endif /* SEQUENCEWRITER_H_ */
-

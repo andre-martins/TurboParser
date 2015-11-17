@@ -27,21 +27,21 @@ using namespace std;
 // Abstract class for a part. Task-specific parts should derive
 // from this class and implement the pure virtual methods.
 class Part {
- public:
+public:
   Part() {};
   virtual ~Part() {};
 
- public:
+public:
   virtual int type() = 0;
 };
 
 // A vector of parts.
 class Parts : public vector<Part*> {
- public:
+public:
   Parts() {};
   virtual ~Parts() {};
 
- public:
+public:
   void DeleteAll() {
     for (iterator iter = begin(); iter != end(); iter++) {
       delete (*iter);

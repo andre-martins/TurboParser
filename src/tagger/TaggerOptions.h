@@ -22,7 +22,7 @@
 #include "SequenceOptions.h"
 
 class TaggerOptions : public SequenceOptions {
- public:
+public:
   TaggerOptions() {};
   virtual ~TaggerOptions() {};
 
@@ -40,7 +40,7 @@ class TaggerOptions : public SequenceOptions {
     return file_unknown_word_tags_;
   }
 
- protected:
+protected:
   bool prune_tags_;
   string file_format_;
   bool large_feature_set_;

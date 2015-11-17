@@ -20,9 +20,11 @@
 #define ENTITYDICTIONARY_H_
 
 #include "SequenceDictionary.h"
+#include "TokenDictionary.h"
+#include "EntityReader.h"
 
 class EntityDictionary : public SequenceDictionary {
- public:
+public:
   EntityDictionary() {}
   EntityDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
   virtual ~EntityDictionary() {}
@@ -96,9 +98,9 @@ class EntityDictionary : public SequenceDictionary {
     gazetteer_word_alphabet_.StopGrowth();
     gazetteer_entity_tag_alphabet_.StopGrowth();
     LOG(INFO) << "Number of gazetteer words: "
-              << gazetteer_word_alphabet_.size();
+      << gazetteer_word_alphabet_.size();
     LOG(INFO) << "Number of gazetteer entity tags: "
-              << gazetteer_entity_tag_alphabet_.size();
+      << gazetteer_entity_tag_alphabet_.size();
 
     success = ReadInteger(fs, &length);
     CHECK(success);
@@ -136,11 +138,17 @@ class EntityDictionary : public SequenceDictionary {
     return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
- protected:
+protected:
   std::vector<std::vector<bool> > allowed_bigrams_;
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
 };
 
+class EntityTokenDictionary : public TokenDictionary {
+public:
+  EntityTokenDictionary() {};
+  virtual ~EntityTokenDictionary() {};
+  void Initialize(EntityReader *reader);
+};
 #endif /* ENTITYDICTIONARY_H_ */

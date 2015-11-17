@@ -31,7 +31,7 @@ using namespace std;
 // builds all necessary dictionaries given a set of dependency
 // instances.
 class SemanticReader : public DependencyReader {
- public:
+public:
   SemanticReader() {
     options_ = NULL;
     use_sdp_format_ = false;
@@ -44,7 +44,7 @@ class SemanticReader : public DependencyReader {
   }
   virtual ~SemanticReader() {}
 
- public:
+public:
   void UseTopNodes(bool use_top_nodes) { use_top_nodes_ = use_top_nodes; }
   void SetFormat(const string &format) {
     if (format == "sdp") {
@@ -56,11 +56,10 @@ class SemanticReader : public DependencyReader {
 
   Instance *GetNext();
 
- protected:
+protected:
   Options *options_;
   bool use_sdp_format_;
   bool use_top_nodes_;
 };
 
 #endif /* SEMANTICREADER_H_ */
-

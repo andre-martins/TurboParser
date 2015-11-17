@@ -53,9 +53,9 @@ Instance *ConstituencyLabelerReader::GetNext() {
         std::string all_morph_feats = "";
         StringJoin(feats[i], '+', &all_morph_feats);
         LOG(INFO) << "Word=" << words[i] << " "
-                  << "Tag=" << tags[i] << " "
-                  << "Lemma=" << lemmas[i] << " "
-                  << "Morph=" << all_morph_feats;
+          << "Tag=" << tags[i] << " "
+          << "Lemma=" << lemmas[i] << " "
+          << "Morph=" << all_morph_feats;
 #endif
       }
 
@@ -83,7 +83,7 @@ Instance *ConstituencyLabelerReader::GetNext() {
         std::vector<std::string> labels;
         std::string delim = "";
         delim += kParseTreeLabelSeparator;
-        StringSplit(full_label, delim, &labels);
+        StringSplit(full_label, delim, &labels, true);
         if (labels.size() > 1) {
           non_terminals[i]->set_label(labels.back());
           labels.pop_back();
@@ -106,45 +106,43 @@ Instance *ConstituencyLabelerReader::GetNext() {
       std::cout << info << std::endl;
       for (int i = 0; i < instance->size(); ++i) {
         std::cout << instance->GetForm(i) << "\t"
-                  << instance->GetTag(i) << std::endl;
+          << instance->GetTag(i) << std::endl;
       }
       CHECK_EQ(terminals.size(), instance->size());
       for (int i = 0; i < terminals.size(); ++i) {
         std::cout << terminals[i]->label() << "("
-                  << terminals[i]->start() << ","
-                  << terminals[i]->end() << ")"
-                  << " fathered by "
-                  << terminals[i]->parent()->label() << "("
-                  << terminals[i]->parent()->start() << ","
-                  << terminals[i]->parent()->end() << ")"
-                  << endl;
+          << terminals[i]->start() << ","
+          << terminals[i]->end() << ")"
+          << " fathered by "
+          << terminals[i]->parent()->label() << "("
+          << terminals[i]->parent()->start() << ","
+          << terminals[i]->parent()->end() << ")"
+          << endl;
       }
       for (int i = 0; i < non_terminals.size(); ++i) {
         CHECK(non_terminals[i]);
         std::cout << non_terminals[i]->label() << "("
-                  << non_terminals[i]->start() << ","
-                  << non_terminals[i]->end() << ")";
+          << non_terminals[i]->start() << ","
+          << non_terminals[i]->end() << ")";
         if (non_terminals[i]->parent() != NULL) {
           std::cout << " fathered by "
-                    << non_terminals[i]->parent()->label() << "("
-                    << non_terminals[i]->parent()->start() << ","
-                    << non_terminals[i]->parent()->end() << ")";
+            << non_terminals[i]->parent()->label() << "("
+            << non_terminals[i]->parent()->start() << ","
+            << non_terminals[i]->parent()->end() << ")";
         }
         std::cout << " -> " << instance->GetConstituentLabels()[i] << endl;
       }
 #endif
-
     }
   }
   return static_cast<Instance*>(instance);
 }
 
 void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
-    const std::string &original_tag,
-    std::string *tag,
-    std::string *lemma,
-    std::vector<std::string> *morph_feats) {
-
+  const std::string &original_tag,
+  std::string *tag,
+  std::string *lemma,
+  std::vector<std::string> *morph_feats) {
   std::string start_info_marker = "##";
   std::string end_info_marker = "##";
 
@@ -166,7 +164,7 @@ void ConstituencyLabelerReader::ExtractLemmasAndMorphFeatsFromTag(
     *lemma = "_";
     morph_feats->clear();
   } else {
-    StringSplit(feat_seq, "|", morph_feats);
+    StringSplit(feat_seq, "|", morph_feats, true);
     for (int j = 0; j < morph_feats->size(); ++j) {
       std::string lemma_prefix = "lem=";
       if ((*morph_feats)[j].compare(0, lemma_prefix.length(),

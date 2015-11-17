@@ -20,11 +20,11 @@
 #include <glog/logging.h>
 
 void ConstituencyInstance::Initialize(
-    const std::vector<std::string> &forms,
-    const std::vector<std::string> &lemmas,
-    const std::vector<std::string> &tags,
-    const std::vector<std::vector<std::string> > &morph,
-    const ParseTree &parse_tree) {
+  const std::vector<std::string> &forms,
+  const std::vector<std::string> &lemmas,
+  const std::vector<std::string> &tags,
+  const std::vector<std::vector<std::string> > &morph,
+  const ParseTree &parse_tree) {
   SequenceInstance::Initialize(forms, tags);
   lemmas_ = lemmas;
   morph_ = morph;
@@ -32,4 +32,3 @@ void ConstituencyInstance::Initialize(
   parse_tree.SaveToString(&info);
   parse_tree_.LoadFromString(info);
 }
-
