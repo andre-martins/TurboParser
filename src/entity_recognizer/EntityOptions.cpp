@@ -34,6 +34,9 @@ DEFINE_string(entity_tagging_scheme, "bio",
 DEFINE_string(entity_file_gazetteer, "",
               "Path to a gazetteer file (one entity per line with the "
               "corresponding class, separated by tabs.");
+DEFINE_int32(entity_recognizer_large_feature_set, 2,
+             "The greater the value, the larger feature set used. Taggers are "
+             "usually more accurate but slower and have a larger memory footprint.");
 
 // Save current option flags to the model file.
 void EntityOptions::Save(FILE* fs) {
@@ -41,6 +44,8 @@ void EntityOptions::Save(FILE* fs) {
 
   bool success;
   success = WriteString(fs, tagging_scheme_name_);
+  CHECK(success);
+  success = WriteInteger(fs, large_feature_set_);
   CHECK(success);
 }
 
@@ -54,6 +59,10 @@ void EntityOptions::Load(FILE* fs) {
   CHECK(success);
   LOG(INFO) << "Setting --entity_tagging_scheme=" <<
     FLAGS_entity_tagging_scheme;
+  success = ReadInteger(fs, &FLAGS_entity_recognizer_large_feature_set);
+  CHECK(success);
+  LOG(INFO) << "Setting --entity_recognizer_large_feature_set="
+    << FLAGS_entity_recognizer_large_feature_set;
 
   Initialize();
 }
@@ -73,4 +82,5 @@ void EntityOptions::Initialize() {
   } else {
     CHECK(false) << "Unknown entity scheme: " << tagging_scheme_name_;
   }
+  large_feature_set_ = FLAGS_entity_recognizer_large_feature_set;
 }

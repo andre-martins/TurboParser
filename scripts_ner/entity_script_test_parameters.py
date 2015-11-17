@@ -3,6 +3,7 @@ import sys
 import os
 import subprocess
 import time
+import itertools
 
 dir = os.path.abspath(  os.path.dirname(__file__) )
 
@@ -44,8 +45,8 @@ TrainFiles_template      = '*__LANGUAGE__*_train.conll.ner'
 DevFiles_template        = '*__LANGUAGE__*_dev.conll.ner'
 TestFiles_template       = '*__LANGUAGE__*_test.conll.ner'
 GazetteersFiles_template = '*__LANGUAGE__*_all_gazetteers.txt'
-ModelFiles_template      = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*'
-PredictionFiles_template = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.pred'
+ModelFiles_template      = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*'
+PredictionFiles_template = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.pred'
 
 TrainFiles               = []     
 DevFiles                 = []  
@@ -58,13 +59,14 @@ PredictionFiles          = []
 Languages = [# 'basque', 'bulgarian','croatian', 'czech', 'danish', 'finnish', 'greek', 'hungarian', 'italian', 'swedish',
 'english']
 TrainAlgorithm              = ['svm_mira']  #--train_algorithm=svm_mira
-TrainRegularizationConstant = ['10','1','0.1','0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
-TrainEpochs                 = ['5', '50']  #--train_epochs=20 
-SequenceModelType           = ['0','1','2']  #--sequence_model_type=0 
-FormCutoff                  = ['0']  #--form_cutoff=0 
-PrefixLength                = ['0','3']  #['0','2','3']  #--prefix_length=3
-SuffixLength                = ['0','3']  #['0','2','3']  #--suffix_length=3
+TrainRegularizationConstant = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
+TrainEpochs                 = ['50']  #--train_epochs=20 
+SequenceModelType           = ['1']  #['0','1','2']  #--sequence_model_type=0 
+FormCutoff                  = ['0', '1']  #--form_cutoff=0 
+PrefixLength                = ['3']  #['0','2','3']  #--prefix_length=3
+SuffixLength                = ['3']  #['0','2','3']  #--suffix_length=3
 EntityTaggingScheme         = ['bio']
+EntityFeatureSelection      = ['0', '1', '2']  #['0', '1', '2']  #--entity_recognizer_large_feature_set=0
 #--logtostderr              
 
 
@@ -112,7 +114,7 @@ for i in range(len(PredictionFiles_Folder)) :
     PredictionFiles.append(os.path.join( PredictionFiles_Folder[i], PredictionFiles_template))
  
 string_to_write=""
-string_to_write=string_to_write+"Program; Language; Markov Order; Train Algorithm; Regularization Constant; Train Epochs; Form cutoff; Prefix Length; Suffix Length"
+string_to_write=string_to_write+"Program; Language; Features; Markov Order; Train Algorithm; Regularization Constant; Train Epochs; Form cutoff; Prefix Length; Suffix Length"
 #string_to_write=string_to_write+"; "+"Training time"  #Commented for Windows execution; turn on in Linux environment
 if NumberOfRuns == 1:
     #string_to_write=string_to_write+"; "+"Run(Test) time"  #Commented for Windows execution; turn on in Linux environment
@@ -128,239 +130,233 @@ else:
      
 string_to_write=string_to_write+"\n"
 csv.write(string_to_write)
-     
-for program in Programs:
-    for language in Languages:    
-        for sequence_model_type in SequenceModelType:
-            for train_algorithm in TrainAlgorithm:
-                for train_regularization_constant in TrainRegularizationConstant:
-                    for train_epochs in TrainEpochs:
-                        for form_cutoff in FormCutoff: 
-                            for prefix_length in PrefixLength:
-                                for suffix_length  in  SuffixLength:
-                                    for tagging_scheme in EntityTaggingScheme:
-                    
-                                        TrainFile       = TrainFiles[0]
-                                        TrainFile       = TrainFile.replace('*__LANGUAGE__*', language)
 
-                                        DevFile         = DevFiles[0]
-                                        DevFile         = DevFile.replace('*__LANGUAGE__*', language)
-                                        
-                                        TestFile        = TestFiles[0]
-                                        TestFile        = TestFile.replace('*__LANGUAGE__*', language)
-                                        
-                                        GazetteersFile  = GazetteersFiles[0]
-                                        GazetteersFile  = GazetteersFile.replace('*__LANGUAGE__*', language)
-                                        
-                                        ModelFile       = ModelFiles[0]
-                                        ModelFile       = ModelFile.replace('*__LANGUAGE__*', language)
-                                        ModelFile       = ModelFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
-                                        ModelFile       = ModelFile.replace('*__REGCONST__*', train_regularization_constant)
-                                        ModelFile       = ModelFile.replace('*__PREFIX__*', prefix_length)
-                                        ModelFile       = ModelFile.replace('*__SUFFIX__*', suffix_length)
-                                        
-                                        PredictionFile  = PredictionFiles[0]
-                                        PredictionFile  = PredictionFile.replace('*__LANGUAGE__*', language)
-                                        PredictionFile  = PredictionFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
-                                        PredictionFile  = PredictionFile.replace('*__REGCONST__*', train_regularization_constant)
-                                        PredictionFile  = PredictionFile.replace('*__PREFIX__*', prefix_length)
-                                        PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)                                            
-                                        
-                                        #TRAIN
-                                        command = []
-                                        #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
-                                        command.append(program)
-                                        command.append("--train")
-                                        command.append("--file_train="+TrainFile)
-                                        command.append("--file_model="+ModelFile)
-                                        command.append("--entity_file_gazetteer="+GazetteersFile)
-                                        command.append("--train_algorithm="+train_algorithm)
-                                        command.append("--train_regularization_constant="+train_regularization_constant)
-                                        command.append("--sequence_model_type="+sequence_model_type)
-                                        command.append("--entity_tagging_scheme="+tagging_scheme)
-                                        command.append("--train_epochs="+train_epochs)
-                                        command.append("--form_cutoff="+form_cutoff)
-                                        command.append("--prefix_length="+prefix_length)
-                                        command.append("--suffix_length="+suffix_length)
-                                        command.append("--logtostderr")
+for program, language, features, sequence_model_type, train_algorithm, train_regularization_constant, train_epochs, form_cutoff, prefix_length, suffix_length, tagging_scheme in itertools.product(Programs, Languages, EntityFeatureSelection, SequenceModelType, TrainAlgorithm, TrainRegularizationConstant, TrainEpochs, FormCutoff, PrefixLength, SuffixLength, EntityTaggingScheme):
+    TrainFile       = TrainFiles[0]
+    TrainFile       = TrainFile.replace('*__LANGUAGE__*', language)
+    
+    DevFile         = DevFiles[0]
+    DevFile         = DevFile.replace('*__LANGUAGE__*', language)
+    
+    TestFile        = TestFiles[0]
+    TestFile        = TestFile.replace('*__LANGUAGE__*', language)
+    
+    GazetteersFile  = GazetteersFiles[0]
+    GazetteersFile  = GazetteersFile.replace('*__LANGUAGE__*', language)
+    
+    ModelFile       = ModelFiles[0]
+    ModelFile       = ModelFile.replace('*__LANGUAGE__*', language)
+    ModelFile       = ModelFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
+    ModelFile       = ModelFile.replace('*__FEATURES__*', features)
+    ModelFile       = ModelFile.replace('*__REGCONST__*', train_regularization_constant)
+    ModelFile       = ModelFile.replace('*__PREFIX__*', prefix_length)
+    ModelFile       = ModelFile.replace('*__SUFFIX__*', suffix_length)
+    
+    PredictionFile  = PredictionFiles[0]
+    PredictionFile  = PredictionFile.replace('*__LANGUAGE__*', language)
+    PredictionFile  = PredictionFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
+    PredictionFile  = PredictionFile.replace('*__FEATURES__*', features)
+    PredictionFile  = PredictionFile.replace('*__REGCONST__*', train_regularization_constant)
+    PredictionFile  = PredictionFile.replace('*__PREFIX__*', prefix_length)
+    PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)                                            
+    
+    #TRAIN
+    command = []
+    #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
+    command.append(program)
+    command.append("--train")
+    command.append("--file_train="+TrainFile)
+    command.append("--file_model="+ModelFile)
+    command.append("--entity_file_gazetteer="+GazetteersFile)
+    command.append("--train_algorithm="+train_algorithm)
+    command.append("--train_regularization_constant="+train_regularization_constant)
+    command.append("--sequence_model_type="+sequence_model_type)
+    command.append("--entity_tagging_scheme="+tagging_scheme)
+    command.append("--train_epochs="+train_epochs)
+    command.append("--form_cutoff="+form_cutoff)
+    command.append("--prefix_length="+prefix_length)
+    command.append("--suffix_length="+suffix_length)
+    command.append("--entity_recognizer_large_feature_set="+features)
+    command.append("--logtostderr")
 
-                                        print "Executing: "
-                                        sys.stdout.flush()
+    print "Executing: "
+    sys.stdout.flush()
 
-                                        print       ' '.join(command)
-                                        sys.stdout.flush()
-                                        pylog.write(' '.join(command) + "\n")
-                                        log.write(  ' '.join(command) + "\n")
-                                        err.write(  ' '.join(command) + "\n")
-                                        #run program
-                                        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                        (stdout__output,stderr_output) = process.communicate()
-                                        print "Finished executing: " + ' '.join(command)
-                                        sys.stdout.flush()
-                                            
-                                        # print "- - - * * * - - -"
-                                        stdout__output = stdout__output.splitlines()
-                                        for line in stdout__output:
-                                            log.write(line + "\n")
-                                            # print line.rstrip("\n")
-                                                
-                                        # print "- - - * * * - - -"
-                                        stderr_output = stderr_output.splitlines()
-                                        for line in stderr_output:
-                                            err.write(line + "\n")
-                                            # print line.rstrip("\n")                                        
-                                            where=line.find("Training took ")
-                                            if where != -1:
-                                                print line[where:]
-                                                sys.stdout.flush()
-                                                training_time = float(line[where+len("Training took "):len(line)-len(" sec.")])
-                                                print       "Training time = "+str(training_time)+" seconds\n"
-                                                sys.stdout.flush()
-                                                pylog.write("Training time = "+str(training_time)+" seconds\n")
-                                                log.write(  "Training time = "+str(training_time)+" seconds\n")
-                                                err.write(  "Training time = "+str(training_time)+" seconds\n")
+    print       ' '.join(command)
+    sys.stdout.flush()
+    pylog.write(' '.join(command) + "\n")
+    log.write(  ' '.join(command) + "\n")
+    err.write(  ' '.join(command) + "\n")
+    #run program
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (stdout__output,stderr_output) = process.communicate()
+    print "Finished executing: " + ' '.join(command)
+    sys.stdout.flush()
+        
+    # print "- - - * * * - - -"
+    stdout__output = stdout__output.splitlines()
+    for line in stdout__output:
+        log.write(line + "\n")
+        # print line.rstrip("\n")
+            
+    # print "- - - * * * - - -"
+    stderr_output = stderr_output.splitlines()
+    for line in stderr_output:
+        err.write(line + "\n")
+        # print line.rstrip("\n")                                        
+        where=line.find("Training took ")
+        if where != -1:
+            print line[where:]
+            sys.stdout.flush()
+            training_time = float(line[where+len("Training took "):len(line)-len(" sec.")])
+            print       "Training time = "+str(training_time)+" seconds\n"
+            sys.stdout.flush()
+            pylog.write("Training time = "+str(training_time)+" seconds\n")
+            log.write(  "Training time = "+str(training_time)+" seconds\n")
+            err.write(  "Training time = "+str(training_time)+" seconds\n")
 
-                                            if line[0:4]=="real":
-                                               train_time = float(line[5:])
-                                               print       "time of execution = "+str(train_time)+" seconds\n"
-                                               sys.stdout.flush()
-                                               pylog.write("time of execution = "+str(train_time)+" seconds\n")
-                                               log.write(  "time of execution = "+str(train_time)+" seconds\n")
-                                               err.write(  "time of execution = "+str(train_time)+" seconds\n")
-                                            # print line
-                                        
-                                        #TEST
-                                        command = []
-                                        #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
-                                        command.append(program)        
-                                        command.append("--test")        
-                                        command.append("--evaluate")
-                                        command.append("--file_model="+ModelFile)
-                                        command.append("--file_test="+TestFile)
-                                        command.append("--file_prediction="+PredictionFile)    
-                                        command.append("--entity_tagging_scheme="+tagging_scheme)
-                                        command.append("--logtostderr")
+        if line[0:4]=="real":
+           train_time = float(line[5:])
+           print       "time of execution = "+str(train_time)+" seconds\n"
+           sys.stdout.flush()
+           pylog.write("time of execution = "+str(train_time)+" seconds\n")
+           log.write(  "time of execution = "+str(train_time)+" seconds\n")
+           err.write(  "time of execution = "+str(train_time)+" seconds\n")
+        # print line
+    
+    #TEST
+    command = []
+    #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
+    command.append(program)        
+    command.append("--test")        
+    command.append("--evaluate")
+    command.append("--file_model="+ModelFile)
+    command.append("--file_test="+TestFile)
+    command.append("--file_prediction="+PredictionFile)    
+    command.append("--entity_tagging_scheme="+tagging_scheme)
+    command.append("--logtostderr")
 
-                                        print "Executing: "
-                                        sys.stdout.flush()
-                                    
-                                        #warm-up X iterations
-                                        for iteration in range(0,NumberWarmUps):                                            
-                                            print       "Warm-up #" + str(iteration+1) +": " + ' '.join(command)
-                                            sys.stdout.flush()
-                                            pylog.write("Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
-                                            log.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
-                                            err.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
-                                            #run program
-                                            process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                            (stdout__output,stderr_output) = process.communicate()
-                                            print "Finished executing: " + ' '.join(command)
-                                            sys.stdout.flush()
-                                    
-                                        test_time=[]
-                                        correct_predictions=[]
-                                        accuracy=[]
-                                        tagspeed=[]
-                                        for iteration in range(NumberOfRuns):
-                                            print       "\n"
-                                            pylog.write("\n")
-                                            log.write(  "\n")
-                                            err.write(  "\n")
-                                            if NumberOfRuns > 1:
-                                                print       "\n**** ITER "+str(iteration)+" ****\n"
-                                                sys.stdout.flush()
-                                                pylog.write("\n**** ITER "+str(iteration)+" ****\n")
-                                                log.write(  "\n**** ITER "+str(iteration)+" ****\n")
-                                                err.write(  "\n**** ITER "+str(iteration)+" ****\n")
-                                            print       ' '.join(command)
-                                            sys.stdout.flush()
-                                            pylog.write(' '.join(command) + "\n")
-                                            log.write(  ' '.join(command) + "\n")
-                                            err.write(  ' '.join(command) + "\n")
-                                            #run program
-                                            process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                                            (stdout__output,stderr_output) = process.communicate()
-                                            print "Finished executing: " + ' '.join(command)
-                                            sys.stdout.flush()
-                                            
-                                            # print "- - - * * * - - -"
-                                            stdout__output = stdout__output.splitlines()                                      
-                                            for line in stdout__output:
-                                                log.write(line + "\n")
-                                                # print line.rstrip("\n")
-                                            # print "- - - * * * - - -"
-                                            stderr_output = stderr_output.splitlines()
-                                            for line in stderr_output:
-                                                err.write(line + "\n")
-                                                # print line.rstrip("\n")
-                                                where=line.find("Correct predictions:")  
-                                                if where != -1:    
-                                                    print line[where:]
-                                                    sys.stdout.flush()
-                                                    correct_predictions.append( line[where+len("Correct predictions: "):] )
-                                                    print       "Correct predictions: "+correct_predictions[iteration]+"\n"
-                                                    sys.stdout.flush()
-                                                    pylog.write("Correct predictions: "+correct_predictions[iteration]+"\n")
-                                                    log.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
-                                                    err.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
-                                                
-                                                where=line.find("Tagging accuracy: ")
-                                                if where != -1:
-                                                    print line[where:]
-                                                    sys.stdout.flush()
-                                                    accuracy.append( float(line[where+len("Tagging accuracy: "):]) )
-                                                    print       "Tagging accuracy = "+str(accuracy[iteration])+"\n"
-                                                    sys.stdout.flush()
-                                                    pylog.write("Tagging accuracy = "+str(accuracy[iteration])+"\n")
-                                                    log.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
-                                                    err.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
-                                               
-                                                where=line.find("Tagging speed: ")  
-                                                if where != -1:    
-                                                    print line[where:]
-                                                    sys.stdout.flush()
-                                                    tagspeed.append( float(line[where+len("Tagging speed: "):len(line) - len(" tokens per second.")]) )
-                                                    print       "Tagging speed = "+str(tagspeed[iteration])+"\n"
-                                                    sys.stdout.flush()
-                                                    pylog.write("Tagging speed = "+str(tagspeed[iteration])+"\n")
-                                                    log.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
-                                                    err.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
-                                                
-                                                if line[0:4]=="real":
-                                                    test_time.append( float(line[5:]) )
-                                                    print       "time of execution = "+str(test_time[iteration])+" seconds\n"
-                                                    sys.stdout.flush()
-                                                    pylog.write("time of execution = "+str(test_time[iteration])+" seconds\n")
-                                                    log.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
-                                                    err.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
-                                                # print line    
-                                                
-                                        string_to_write=""
-                                        string_to_write=string_to_write+program
-                                        string_to_write=string_to_write+";"+language
-                                        string_to_write=string_to_write+";"+sequence_model_type
-                                        string_to_write=string_to_write+";"+train_algorithm
-                                        string_to_write=string_to_write+";"+train_regularization_constant
-                                        string_to_write=string_to_write+";"+train_epochs
-                                        string_to_write=string_to_write+";"+form_cutoff
-                                        string_to_write=string_to_write+";"+prefix_length
-                                        string_to_write=string_to_write+";"+suffix_length
-                                        
-                                        #string_to_write=string_to_write+";"+str(train_time) #Commented for Windows execution; turn on in Linux environment
+    print "Executing: "
+    sys.stdout.flush()
 
-                                        for i in range(NumberOfRuns):
-                                            #string_to_write=string_to_write+";"+str(test_time[i]) #Commented for Windows execution; turn on in Linux environment
-                                            string_to_write=string_to_write+";"+str(correct_predictions[i])
-                                            string_to_write=string_to_write+";"+str(accuracy[i])
-                                            string_to_write=string_to_write+";"+str(tagspeed[i])
-                                        string_to_write=string_to_write+"\n"
-                                        
-                                        csv.write(string_to_write)
+    #warm-up X iterations
+    for iteration in range(0,NumberWarmUps):                                            
+        print       "Warm-up #" + str(iteration+1) +": " + ' '.join(command)
+        sys.stdout.flush()
+        pylog.write("Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
+        log.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
+        err.write(  "Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
+        #run program
+        process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout__output,stderr_output) = process.communicate()
+        print "Finished executing: " + ' '.join(command)
+        sys.stdout.flush()
 
-                                        csv.flush()
-                                        log.flush()
-                                        pylog.flush()
-                                        err.flush()
+    test_time=[]
+    correct_predictions=[]
+    accuracy=[]
+    tagspeed=[]
+    for iteration in range(NumberOfRuns):
+        print       "\n"
+        pylog.write("\n")
+        log.write(  "\n")
+        err.write(  "\n")
+        if NumberOfRuns > 1:
+            print       "\n**** ITER "+str(iteration)+" ****\n"
+            sys.stdout.flush()
+            pylog.write("\n**** ITER "+str(iteration)+" ****\n")
+            log.write(  "\n**** ITER "+str(iteration)+" ****\n")
+            err.write(  "\n**** ITER "+str(iteration)+" ****\n")
+        print       ' '.join(command)
+        sys.stdout.flush()
+        pylog.write(' '.join(command) + "\n")
+        log.write(  ' '.join(command) + "\n")
+        err.write(  ' '.join(command) + "\n")
+        #run program
+        process=subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout__output,stderr_output) = process.communicate()
+        print "Finished executing: " + ' '.join(command)
+        sys.stdout.flush()
+        
+        # print "- - - * * * - - -"
+        stdout__output = stdout__output.splitlines()                                      
+        for line in stdout__output:
+            log.write(line + "\n")
+            # print line.rstrip("\n")
+        # print "- - - * * * - - -"
+        stderr_output = stderr_output.splitlines()
+        for line in stderr_output:
+            err.write(line + "\n")
+            # print line.rstrip("\n")
+            where=line.find("Correct predictions:")  
+            if where != -1:    
+                print line[where:]
+                sys.stdout.flush()
+                correct_predictions.append( line[where+len("Correct predictions: "):] )
+                print       "Correct predictions: "+correct_predictions[iteration]+"\n"
+                sys.stdout.flush()
+                pylog.write("Correct predictions: "+correct_predictions[iteration]+"\n")
+                log.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
+                err.write(  "Correct predictions: "+correct_predictions[iteration]+"\n")  
+            
+            where=line.find("Tagging accuracy: ")
+            if where != -1:
+                print line[where:]
+                sys.stdout.flush()
+                accuracy.append( float(line[where+len("Tagging accuracy: "):]) )
+                print       "Tagging accuracy = "+str(accuracy[iteration])+"\n"
+                sys.stdout.flush()
+                pylog.write("Tagging accuracy = "+str(accuracy[iteration])+"\n")
+                log.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
+                err.write(  "Tagging accuracy = "+str(accuracy[iteration])+"\n")
+           
+            where=line.find("Tagging speed: ")  
+            if where != -1:    
+                print line[where:]
+                sys.stdout.flush()
+                tagspeed.append( float(line[where+len("Tagging speed: "):len(line) - len(" tokens per second.")]) )
+                print       "Tagging speed = "+str(tagspeed[iteration])+"\n"
+                sys.stdout.flush()
+                pylog.write("Tagging speed = "+str(tagspeed[iteration])+"\n")
+                log.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
+                err.write(  "Tagging speed = "+str(tagspeed[iteration])+"\n")
+            
+            if line[0:4]=="real":
+                test_time.append( float(line[5:]) )
+                print       "time of execution = "+str(test_time[iteration])+" seconds\n"
+                sys.stdout.flush()
+                pylog.write("time of execution = "+str(test_time[iteration])+" seconds\n")
+                log.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
+                err.write(  "time of execution = "+str(test_time[iteration])+" seconds\n")
+            # print line    
+            
+    string_to_write=""
+    string_to_write=string_to_write+program
+    string_to_write=string_to_write+";"+language
+    string_to_write=string_to_write+";"+features
+    string_to_write=string_to_write+";"+sequence_model_type
+    string_to_write=string_to_write+";"+train_algorithm
+    string_to_write=string_to_write+";"+train_regularization_constant
+    string_to_write=string_to_write+";"+train_epochs
+    string_to_write=string_to_write+";"+form_cutoff
+    string_to_write=string_to_write+";"+prefix_length
+    string_to_write=string_to_write+";"+suffix_length
+    
+    #string_to_write=string_to_write+";"+str(train_time) #Commented for Windows execution; turn on in Linux environment
+
+    for i in range(NumberOfRuns):
+        #string_to_write=string_to_write+";"+str(test_time[i]) #Commented for Windows execution; turn on in Linux environment
+        string_to_write=string_to_write+";"+str(correct_predictions[i])
+        string_to_write=string_to_write+";"+str(accuracy[i])
+        string_to_write=string_to_write+";"+str(tagspeed[i])
+    string_to_write=string_to_write+"\n"
+    
+    csv.write(string_to_write)
+
+    csv.flush()
+    log.flush()
+    pylog.flush()
+    err.flush()
 
 #CLOSING						
 csv.close()
