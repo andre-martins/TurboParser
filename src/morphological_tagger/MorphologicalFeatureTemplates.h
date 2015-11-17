@@ -52,14 +52,14 @@ struct MorphologicalFeatureTemplateUnigram {
 
     P,          /* POS */                               // 'cpostag'
     pP,         /* POS on the left */                   // 'cpostag_minusone'
-    nP,         /* POS on the right */                 // 'cpostag_plusone'
+    nP,         /* POS on the right */                  // 'cpostag_plusone'
     ppP,        /* POS two positions on the left */     // 'cpostag_minustwo'
-    nnP,        /* POS two positions on the right */   //  'cpostag_plustwo'
+    nnP,        /* POS two positions on the right */    // 'cpostag_plustwo'
     PpP,        /* POS + POS on the left */             // 'cpostag_bigram'
-    PnP,        /* POS + POS on the right */           //
+    PnP,        /* POS + POS on the right */            //
     PpPppP,     /* POS trigram on the left */           // 'cpostag_trigram'
-    PnPnnP,     /* POS trigram on the right */         //
-    PpPnP,       /* POS trigram on the center */         //
+    PnPnnP,     /* POS trigram on the right */          //
+    PpPnP,       /* POS trigram on the center */        //
 
     S,          /* shape */
     pS,         /* shape on the left */

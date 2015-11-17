@@ -7,10 +7,10 @@ import itertools
 
 dir = os.path.abspath(  os.path.dirname(__file__) )
 
-NumberOfRuns=1
-NumberWarmUps=0
+number_of_runs=1
+number_of_warmups=0
 
-RUNNING_TEST=1
+running_test=1
 
 if len(sys.argv) == 2:
     Programs = [sys.argv[1]]
@@ -29,100 +29,100 @@ else:
     sys.exit()
 
 
-timestr                  = time.strftime("%Y%m%d-%H%M%S")
-OutputLogFilenamePrefix  = "*T**__LANGUAGE__*_turbo_entityrecogn_run"
-OutputLogFilenameSufix   = timestr
-OutputLog_Folder         = [os.path.join(dir, '..','ner','logs')]
+timestr                     = time.strftime("%Y%m%d-%H%M%S")
+output_log_filename_prefix  = "*T**__LANGUAGE__*_turbo_entityrecogn_run"
+output_log_filename_sufix   = timestr
+output_log_folder           = [os.path.join(dir, '..','ner','logs')]
 
-TrainFiles_Folder        = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
-DevFiles_Folder          = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
-TestFiles_Folder         = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
-GazetteersFiles_Folder   = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
-ModelFiles_Folder        = [os.path.join(dir, '..','ner','models','*__LANGUAGE__*')]
-PredictionFiles_Folder   = [os.path.join(dir, '..','ner','results','*__LANGUAGE__*')]
+train_files_Folder          = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
+dev_files_Folder            = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
+test_files_Folder           = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
+gazetteers_files_Folder     = [os.path.join(dir, '..','ner','data','*__LANGUAGE__*')] 
+model_files_Folder          = [os.path.join(dir, '..','ner','models','*__LANGUAGE__*')]
+prediction_files_Folder     = [os.path.join(dir, '..','ner','results','*__LANGUAGE__*')]
+    
+train_files_template        = '*__LANGUAGE__*_train.conll.ner' 
+dev_files_template          = '*__LANGUAGE__*_dev.conll.ner'
+test_files_template         = '*__LANGUAGE__*_test.conll.ner'
+gazetteers_files_template   = '*__LANGUAGE__*_all_gazetteers.txt'
+model_files_template        = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_fco*__form_cutoffs__*_p*__PREFIX__*s*__SUFFIX__*'
+prediction_files_template   = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_fco*__form_cutoffs__*_p*__PREFIX__*s*__SUFFIX__*.pred'
 
-TrainFiles_template      = '*__LANGUAGE__*_train.conll.ner' 
-DevFiles_template        = '*__LANGUAGE__*_dev.conll.ner'
-TestFiles_template       = '*__LANGUAGE__*_test.conll.ner'
-GazetteersFiles_template = '*__LANGUAGE__*_all_gazetteers.txt'
-ModelFiles_template      = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*'
-PredictionFiles_template = '*T**__LANGUAGE__*_entityrecogn.model_mo*__MARKOV_ORDER__*_feat*__FEATURES__*_trc*__REGCONST__*_p*__PREFIX__*s*__SUFFIX__*.pred'
-
-TrainFiles               = []     
-DevFiles                 = []  
-TestFiles                = []
-GazetteersFiles          = []
-ModelFiles               = []
-PredictionFiles          = []
+train_files                 = []     
+dev_files                   = []  
+test_files                  = []
+gazetteers_files            = []
+model_files                 = []
+prediction_files            = []
 
 
-Languages = [# 'basque', 'bulgarian','croatian', 'czech', 'danish', 'finnish', 'greek', 'hungarian', 'italian', 'swedish',
+languages = [# 'basque', 'bulgarian','croatian', 'czech', 'danish', 'finnish', 'greek', 'hungarian', 'italian', 'swedish',
 'english']
-TrainAlgorithm              = ['svm_mira']  #--train_algorithm=svm_mira
-TrainRegularizationConstant = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
-TrainEpochs                 = ['50']  #--train_epochs=20 
-SequenceModelType           = ['1']  #['0','1','2']  #--sequence_model_type=0 
-FormCutoff                  = ['0', '1']  #--form_cutoff=0 
-PrefixLength                = ['3']  #['0','2','3']  #--prefix_length=3
-SuffixLength                = ['3']  #['0','2','3']  #--suffix_length=3
-EntityTaggingScheme         = ['bio']
-EntityFeatureSelection      = ['0', '1', '2']  #['0', '1', '2']  #--entity_recognizer_large_feature_set=0
+train_algorithms                = ['svm_mira']  #--train_algorithm=svm_mira
+train_regularization_constants  = ['0.01']  #['1.0', '0.1', '0.01']  #--train_regularization_constant=0.01 
+train_epochs_picker             = ['50']  #--train_epochs=20 
+sequence_model_types            = ['0','1','2']  #--sequence_model_type=0 
+form_cutoffs                    = ['0']  #--form_cutoff=0 
+prefix_lengths                  = ['3']  #['0','2','3']  #--prefix_length=3
+suffix_lengths                  = ['3']  #['0','2','3']  #--suffix_length=3
+entity_tagging_schemes          = ['bio']
+entity_features_picker          = ['0', '1', '2', '3', '4', '5', '6', '7']  #['0', '1', '2']  #--entity_recognizer_large_feature_set=0
 #--logtostderr              
 
 
-if RUNNING_TEST == 1:
-    ModelFiles_template      = ModelFiles_template.replace('*T*', "TEST_")
-    PredictionFiles_template = PredictionFiles_template.replace('*T*', "TEST_")
-    OutputLogFilenamePrefix  = OutputLogFilenamePrefix.replace('*T*', "TEST_")
+if running_test == 1:
+    model_files_template        = model_files_template.replace('*T*', "TEST_")
+    prediction_files_template   = prediction_files_template.replace('*T*', "TEST_")
+    output_log_filename_prefix  = output_log_filename_prefix.replace('*T*', "TEST_")
 else:
-    ModelFiles_template      = ModelFiles_template.replace('*T*', "")
-    PredictionFiles_template = PredictionFiles_template.replace('*T*', "")
-    OutputLogFilenamePrefix  = OutputLogFilenamePrefix.replace('*T*', "")
+    model_files_template        = model_files_template.replace('*T*', "")
+    prediction_files_template   = prediction_files_template.replace('*T*', "")
+    output_log_filename_prefix  = output_log_filename_prefix.replace('*T*', "")
 
-if len(Languages) == 1:
-    OutputLogFilenamePrefix = OutputLogFilenamePrefix.replace('*__LANGUAGE__*', Languages[0])
+if len(languages) == 1:
+    output_log_filename_prefix  = output_log_filename_prefix.replace('*__LANGUAGE__*', languages[0])
 else:
-    OutputLogFilenamePrefix = OutputLogFilenamePrefix.replace('*__LANGUAGE__*', "")
+    output_log_filename_prefix  = output_log_filename_prefix.replace('*__LANGUAGE__*', "")
     
-if not os.path.exists(OutputLog_Folder[0]):
-    os.makedirs(OutputLog_Folder[0])
+if not os.path.exists(output_log_folder[0]):
+    os.makedirs(output_log_folder[0])
 
-for language in Languages:    
-    temp_folder  = ModelFiles_Folder[0].replace('*__LANGUAGE__*', language)
+for language in languages:    
+    temp_folder  = model_files_Folder[0].replace('*__LANGUAGE__*', language)
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
-    temp_folder  = PredictionFiles_Folder[0].replace('*__LANGUAGE__*', language)
+    temp_folder  = prediction_files_Folder[0].replace('*__LANGUAGE__*', language)
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
 
-csv   = open( os.path.join( OutputLog_Folder[0],OutputLogFilenamePrefix+OutputLogFilenameSufix+".csv")   ,"wb")
-log   = open( os.path.join( OutputLog_Folder[0],OutputLogFilenamePrefix+OutputLogFilenameSufix+".log")   ,"wb")
-err   = open( os.path.join( OutputLog_Folder[0],OutputLogFilenamePrefix+OutputLogFilenameSufix+".err")   ,"wb")
-pylog = open( os.path.join( OutputLog_Folder[0],OutputLogFilenamePrefix+OutputLogFilenameSufix+".pylog") ,"wb")
+csv   = open( os.path.join( output_log_folder[0],output_log_filename_prefix+output_log_filename_sufix+".csv")   ,"wb")
+log   = open( os.path.join( output_log_folder[0],output_log_filename_prefix+output_log_filename_sufix+".log")   ,"wb")
+err   = open( os.path.join( output_log_folder[0],output_log_filename_prefix+output_log_filename_sufix+".err")   ,"wb")
+pylog = open( os.path.join( output_log_folder[0],output_log_filename_prefix+output_log_filename_sufix+".pylog") ,"wb")
 
-for i in range(len(TrainFiles_Folder)) :
-    TrainFiles.append(os.path.join( TrainFiles_Folder[i], TrainFiles_template))
-for i in range(len(DevFiles_Folder)) :
-    DevFiles.append(os.path.join( DevFiles_Folder[i], DevFiles_template))
-for i in range(len(TestFiles_Folder)) :
-    TestFiles.append(os.path.join( TestFiles_Folder[i], TestFiles_template))
-for i in range(len(GazetteersFiles_Folder)) :
-    GazetteersFiles.append(os.path.join( GazetteersFiles_Folder[i], GazetteersFiles_template))
-for i in range(len(ModelFiles_Folder)) :
-    ModelFiles.append(os.path.join( ModelFiles_Folder[i], ModelFiles_template))
-for i in range(len(PredictionFiles_Folder)) :
-    PredictionFiles.append(os.path.join( PredictionFiles_Folder[i], PredictionFiles_template))
+for i in range(len(train_files_Folder)) :
+    train_files.append(os.path.join( train_files_Folder[i], train_files_template))
+for i in range(len(dev_files_Folder)) :
+    dev_files.append(os.path.join( dev_files_Folder[i], dev_files_template))
+for i in range(len(test_files_Folder)) :
+    test_files.append(os.path.join( test_files_Folder[i], test_files_template))
+for i in range(len(gazetteers_files_Folder)) :
+    gazetteers_files.append(os.path.join( gazetteers_files_Folder[i], gazetteers_files_template))
+for i in range(len(model_files_Folder)) :
+    model_files.append(os.path.join( model_files_Folder[i], model_files_template))
+for i in range(len(prediction_files_Folder)) :
+    prediction_files.append(os.path.join( prediction_files_Folder[i], prediction_files_template))
  
 string_to_write=""
 string_to_write=string_to_write+"Program; Language; Features; Markov Order; Train Algorithm; Regularization Constant; Train Epochs; Form cutoff; Prefix Length; Suffix Length"
 #string_to_write=string_to_write+"; "+"Training time"  #Commented for Windows execution; turn on in Linux environment
-if NumberOfRuns == 1:
+if number_of_runs == 1:
     #string_to_write=string_to_write+"; "+"Run(Test) time"  #Commented for Windows execution; turn on in Linux environment
     string_to_write=string_to_write+"; "+"CorrectPredict"
     string_to_write=string_to_write+"; "+"Accuracy"
     string_to_write=string_to_write+"; "+"Speed (token/sec)"
 else:
-    for i in range(NumberOfRuns):
+    for i in range(number_of_runs):
         #string_to_write=string_to_write+"; "+"Run(Test) time["+str(i)+"]"  #Commented for Windows execution; turn on in Linux environment
         string_to_write=string_to_write+"; "+"CorrectPredict["+str(i)+"]"
         string_to_write=string_to_write+"; "+"Accuracy["+str(i)+"]"
@@ -131,43 +131,45 @@ else:
 string_to_write=string_to_write+"\n"
 csv.write(string_to_write)
 
-for program, language, features, sequence_model_type, train_algorithm, train_regularization_constant, train_epochs, form_cutoff, prefix_length, suffix_length, tagging_scheme in itertools.product(Programs, Languages, EntityFeatureSelection, SequenceModelType, TrainAlgorithm, TrainRegularizationConstant, TrainEpochs, FormCutoff, PrefixLength, SuffixLength, EntityTaggingScheme):
-    TrainFile       = TrainFiles[0]
-    TrainFile       = TrainFile.replace('*__LANGUAGE__*', language)
+for program, language, sequence_model_type, features, train_algorithm, train_regularization_constant, train_epochs, form_cutoff, prefix_length, suffix_length, tagging_scheme in itertools.product(Programs, languages, sequence_model_types, entity_features_picker, train_algorithms, train_regularization_constants, train_epochs_picker, form_cutoffs, prefix_lengths, suffix_lengths, entity_tagging_schemes):
+    train_file       = train_files[0]
+    train_file       = train_file.replace('*__LANGUAGE__*', language)
     
-    DevFile         = DevFiles[0]
-    DevFile         = DevFile.replace('*__LANGUAGE__*', language)
+    dev_file         = dev_files[0]
+    dev_file         = dev_file.replace('*__LANGUAGE__*', language)
     
-    TestFile        = TestFiles[0]
-    TestFile        = TestFile.replace('*__LANGUAGE__*', language)
+    test_file        = test_files[0]
+    test_file        = test_file.replace('*__LANGUAGE__*', language)
     
-    GazetteersFile  = GazetteersFiles[0]
-    GazetteersFile  = GazetteersFile.replace('*__LANGUAGE__*', language)
+    gazetteers_file  = gazetteers_files[0]
+    gazetteers_file  = gazetteers_file.replace('*__LANGUAGE__*', language)
     
-    ModelFile       = ModelFiles[0]
-    ModelFile       = ModelFile.replace('*__LANGUAGE__*', language)
-    ModelFile       = ModelFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
-    ModelFile       = ModelFile.replace('*__FEATURES__*', features)
-    ModelFile       = ModelFile.replace('*__REGCONST__*', train_regularization_constant)
-    ModelFile       = ModelFile.replace('*__PREFIX__*', prefix_length)
-    ModelFile       = ModelFile.replace('*__SUFFIX__*', suffix_length)
+    model_file       = model_files[0]
+    model_file       = model_file.replace('*__LANGUAGE__*', language)
+    model_file       = model_file.replace('*__MARKOV_ORDER__*', sequence_model_type)
+    model_file       = model_file.replace('*__FEATURES__*', features)
+    model_file       = model_file.replace('*__REGCONST__*', train_regularization_constant)
+    model_file       = model_file.replace('*__form_cutoffs__*', form_cutoff)
+    model_file       = model_file.replace('*__PREFIX__*', prefix_length)
+    model_file       = model_file.replace('*__SUFFIX__*', suffix_length)
     
-    PredictionFile  = PredictionFiles[0]
-    PredictionFile  = PredictionFile.replace('*__LANGUAGE__*', language)
-    PredictionFile  = PredictionFile.replace('*__MARKOV_ORDER__*', sequence_model_type)
-    PredictionFile  = PredictionFile.replace('*__FEATURES__*', features)
-    PredictionFile  = PredictionFile.replace('*__REGCONST__*', train_regularization_constant)
-    PredictionFile  = PredictionFile.replace('*__PREFIX__*', prefix_length)
-    PredictionFile  = PredictionFile.replace('*__SUFFIX__*', suffix_length)                                            
+    prediction_file  = prediction_files[0]
+    prediction_file  = prediction_file.replace('*__LANGUAGE__*', language)
+    prediction_file  = prediction_file.replace('*__MARKOV_ORDER__*', sequence_model_type)
+    prediction_file  = prediction_file.replace('*__FEATURES__*', features)
+    prediction_file  = prediction_file.replace('*__REGCONST__*', train_regularization_constant)
+    prediction_file  = prediction_file.replace('*__form_cutoffs__*', form_cutoff)
+    prediction_file  = prediction_file.replace('*__PREFIX__*', prefix_length)
+    prediction_file  = prediction_file.replace('*__SUFFIX__*', suffix_length)                                            
     
     #TRAIN
     command = []
     #command.append("time -p") #Commented for Windows execution; turn on in Linux environment
     command.append(program)
     command.append("--train")
-    command.append("--file_train="+TrainFile)
-    command.append("--file_model="+ModelFile)
-    command.append("--entity_file_gazetteer="+GazetteersFile)
+    command.append("--file_train="+train_file)
+    command.append("--file_model="+model_file)
+    command.append("--entity_file_gazetteer="+gazetteers_file)
     command.append("--train_algorithm="+train_algorithm)
     command.append("--train_regularization_constant="+train_regularization_constant)
     command.append("--sequence_model_type="+sequence_model_type)
@@ -230,9 +232,9 @@ for program, language, features, sequence_model_type, train_algorithm, train_reg
     command.append(program)        
     command.append("--test")        
     command.append("--evaluate")
-    command.append("--file_model="+ModelFile)
-    command.append("--file_test="+TestFile)
-    command.append("--file_prediction="+PredictionFile)    
+    command.append("--file_model="+model_file)
+    command.append("--file_test="+test_file)
+    command.append("--file_prediction="+prediction_file)    
     command.append("--entity_tagging_scheme="+tagging_scheme)
     command.append("--logtostderr")
 
@@ -240,7 +242,7 @@ for program, language, features, sequence_model_type, train_algorithm, train_reg
     sys.stdout.flush()
 
     #warm-up X iterations
-    for iteration in range(0,NumberWarmUps):                                            
+    for iteration in range(0,number_of_warmups):                                            
         print       "Warm-up #" + str(iteration+1) +": " + ' '.join(command)
         sys.stdout.flush()
         pylog.write("Warm-up #" + str(iteration+1) +": " + ' '.join(command) + "\n")
@@ -256,12 +258,12 @@ for program, language, features, sequence_model_type, train_algorithm, train_reg
     correct_predictions=[]
     accuracy=[]
     tagspeed=[]
-    for iteration in range(NumberOfRuns):
+    for iteration in range(number_of_runs):
         print       "\n"
         pylog.write("\n")
         log.write(  "\n")
         err.write(  "\n")
-        if NumberOfRuns > 1:
+        if number_of_runs > 1:
             print       "\n**** ITER "+str(iteration)+" ****\n"
             sys.stdout.flush()
             pylog.write("\n**** ITER "+str(iteration)+" ****\n")
@@ -344,7 +346,7 @@ for program, language, features, sequence_model_type, train_algorithm, train_reg
     
     #string_to_write=string_to_write+";"+str(train_time) #Commented for Windows execution; turn on in Linux environment
 
-    for i in range(NumberOfRuns):
+    for i in range(number_of_runs):
         #string_to_write=string_to_write+";"+str(test_time[i]) #Commented for Windows execution; turn on in Linux environment
         string_to_write=string_to_write+";"+str(correct_predictions[i])
         string_to_write=string_to_write+";"+str(accuracy[i])

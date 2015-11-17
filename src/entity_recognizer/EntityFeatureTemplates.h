@@ -72,6 +72,11 @@ struct EntityFeatureTemplateBigram {
     PpPppP,         /* POS trigram on the left */
     PnPnnP,         /* POS trigram on the right */
     PpPnP,          /* POS trigram on the center */
+    S,              /* shape */
+    pS,             /* shape on the left */
+    nS,             /* shape on the right */
+    ppS,            /* shape two positions on the left */
+    nnS,            /* shape two positions on the right */
     COUNT
   };
 };

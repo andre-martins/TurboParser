@@ -20,6 +20,7 @@
 #include "EntityFeatures.h"
 #include "SequencePart.h"
 #include "EntityFeatureTemplates.h"
+#include <bitset>
 
 void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
                                         int position) {
@@ -73,14 +74,16 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
     entity_sentence->GetGazetteerIds(position + 2) : empty_GIDs;
 
   // POS tags.
-  uint8_t PID = (*pos_ids)[position]; // Current word.
+  uint8_t PID = (*pos_ids)[position]; // Current POS.
   // POS on the left.
-  uint8_t pPID = (position > 0) ? (*pos_ids)[position - 1] : TOKEN_START;
+  uint8_t pPID = (position > 0) ? 
+    (*pos_ids)[position - 1] : TOKEN_START;
   // POS on the right.
   uint8_t nPID = (position < sentence_length - 1) ?
     (*pos_ids)[position + 1] : TOKEN_STOP;
   // POS two positions on the left.
-  uint8_t ppPID = (position > 1) ? (*pos_ids)[position - 2] : TOKEN_START;
+  uint8_t ppPID = (position > 1) ? 
+    (*pos_ids)[position - 2] : TOKEN_START;
   // POS two positions on the right.
   uint8_t nnPID = (position < sentence_length - 2) ?
     (*pos_ids)[position + 2] : TOKEN_STOP;
@@ -271,6 +274,8 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   EntityOptions *options = static_cast<class EntityPipe*>(pipe_)->
     GetEntityOptions();
+  std::bitset<32> *feature_set_bitmap;
+  feature_set_bitmap = new bitset<32>(options->large_feature_set());
 
   // Array of form IDs.
   const vector<int>* word_ids = &entity_sentence->GetFormIds();
@@ -280,7 +285,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // Words.
   uint16_t WID, pWID, nWID, ppWID, nnWID;
-  if (options->large_feature_set() >= 1) {
+  if (feature_set_bitmap->test(0)) {
     WID = (position < sentence_length) ?
       (*word_ids)[position] : TOKEN_STOP; // Current word.
     // Word on the left.
@@ -299,7 +304,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // POS tags.
   uint8_t PID, pPID, nPID, ppPID, nnPID;
-  if (options->large_feature_set() >= 2) {
+  if (feature_set_bitmap->test(1)) {
     PID = (position < sentence_length) ?
       (*pos_ids)[position] : TOKEN_STOP; // Current POS.
     // POS on the left.
@@ -316,6 +321,26 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
       (*pos_ids)[position + 2] : TOKEN_STOP;
   }
 
+
+  // Word shapes.
+  uint16_t SID, pSID, nSID, ppSID, nnSID;
+  if (feature_set_bitmap->test(2)) {
+    SID = (position < sentence_length) ? 
+      sentence->GetShapeId(position) : TOKEN_STOP; // Current shape.
+     // Shape on the left.
+    pSID = (position > 0) ?
+      sentence->GetShapeId(position - 1) : TOKEN_START;
+    // Shape on the right.
+    nSID = (position < sentence_length - 1) ?
+      sentence->GetShapeId(position + 1) : TOKEN_STOP;
+    // Shape two positions on the left.
+    ppSID = (position > 1) ?
+      sentence->GetShapeId(position - 2) : TOKEN_START;
+    // Shape two positions on the right.
+    nnSID = (position < sentence_length - 2) ?
+      sentence->GetShapeId(position + 2) : TOKEN_STOP;
+  }
+
   // Maximum is 255 feature templates.
   CHECK_LT(EntityFeatureTemplateBigram::COUNT, 256);
 
@@ -324,7 +349,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
 
   // Lexical features.
-  if (options->large_feature_set() >= 1) {
+  if (feature_set_bitmap->test(0)) {
     fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::W,
                                  flags, WID);
     AddFeature(fkey, features);
@@ -343,7 +368,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   }
 
   // POS features.
-  if (options->large_feature_set() >= 2) {
+  if (feature_set_bitmap->test(1)) {
     fkey = encoder_.CreateFKey_P(EntityFeatureTemplateBigram::P,
                                  flags, PID);
     AddFeature(fkey, features);
@@ -359,6 +384,24 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
     fkey = encoder_.CreateFKey_PPP(EntityFeatureTemplateBigram::PnPnnP,
                                    flags, PID, nPID, nnPID);
     AddFeature(fkey, features);
+  }
+
+  // Shape features.
+  if (feature_set_bitmap->test(2)) {
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::S,
+                               flags, SID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::pS,
+                               flags, pSID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nS,
+                               flags, nSID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::ppS,
+                               flags, ppSID);
+  AddFeature(fkey, features);
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nnS,
+                               flags, nnSID);
   }
 }
 
