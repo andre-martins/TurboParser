@@ -4916,15 +4916,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile
- src/tagger/Makefile
- src/parser/Makefile
- src/semantic_parser/Makefile
- src/entity_recognizer/Makefile
- src/coreference_resolver/Makefile
- src/dependency_labeler/Makefile
- src/constituency_labeler/Makefile
- src/morphological_tagger/Makefile"
+ac_config_files="$ac_config_files Makefile src/tagger/Makefile src/parser/Makefile src/semantic_parser/Makefile src/entity_recognizer/Makefile src/coreference_resolver/Makefile src/dependency_labeler/Makefile src/constituency_labeler/Makefile src/morphological_tagger/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5662,33 +5654,15 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-    "Makefile
-") CONFIG_FILES="$CONFIG_FILES Makefile
-" ;;
-    "src/tagger/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/tagger/Makefile
-" ;;
-    "src/parser/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/parser/Makefile
-" ;;
-    "src/semantic_parser/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/semantic_parser/Makefile
-" ;;
-    "src/entity_recognizer/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/entity_recognizer/Makefile
-" ;;
-    "src/coreference_resolver/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/coreference_resolver/Makefile
-" ;;
-    "src/dependency_labeler/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/dependency_labeler/Makefile
-" ;;
-    "src/constituency_labeler/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/constituency_labeler/Makefile
-" ;;
-    "src/morphological_tagger/Makefile
-") CONFIG_FILES="$CONFIG_FILES src/morphological_tagger/Makefile
-" ;;
+    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "src/tagger/Makefile") CONFIG_FILES="$CONFIG_FILES src/tagger/Makefile" ;;
+    "src/parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/parser/Makefile" ;;
+    "src/semantic_parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/semantic_parser/Makefile" ;;
+    "src/entity_recognizer/Makefile") CONFIG_FILES="$CONFIG_FILES src/entity_recognizer/Makefile" ;;
+    "src/coreference_resolver/Makefile") CONFIG_FILES="$CONFIG_FILES src/coreference_resolver/Makefile" ;;
+    "src/dependency_labeler/Makefile") CONFIG_FILES="$CONFIG_FILES src/dependency_labeler/Makefile" ;;
+    "src/constituency_labeler/Makefile") CONFIG_FILES="$CONFIG_FILES src/constituency_labeler/Makefile" ;;
+    "src/morphological_tagger/Makefile") CONFIG_FILES="$CONFIG_FILES src/morphological_tagger/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
