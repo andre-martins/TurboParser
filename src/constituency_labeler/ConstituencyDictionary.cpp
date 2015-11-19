@@ -149,8 +149,8 @@ void ConstituencyDictionary::CreateConstituentDictionary(
       morph_alphabet_.Insert(special_symbols[i]);
     }
     for (Alphabet::iterator iter = morph_alphabet.begin();
-    iter != morph_alphabet.end();
-      ++iter) {
+         iter != morph_alphabet.end();
+         ++iter) {
       if (morph_freqs[iter->second] > morph_cutoff) {
         morph_alphabet_.Insert(iter->first);
       }
@@ -172,7 +172,8 @@ void ConstituencyDictionary::CreateConstituentDictionary(
   LOG(INFO) << "Number of rules: " << rule_alphabet_.size();
   LOG(INFO) << "Constituent tags and their frequencies:";
   for (Alphabet::iterator it = constituent_alphabet_.begin();
-  it != constituent_alphabet_.end(); ++it) {
+       it != constituent_alphabet_.end();
+       ++it) {
     std::string label = it->first;
     int label_id = it->second;
     LOG(INFO) << label << "\t" << label_freqs[label_id];

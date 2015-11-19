@@ -23,7 +23,7 @@
 #include <algorithm>
 
 void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
-  SequenceDictionary::CreateTagDictionary(static_cast<SequenceReader*> (reader));
+  SequenceDictionary::CreateTagDictionary(static_cast<SequenceReader*>(reader));
 
   LOG(INFO) << "Creating cpostag-morphtag dictionary...";
   bool form_case_sensitive = FLAGS_form_case_sensitive;
@@ -50,7 +50,7 @@ void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
       // already. NOTE: this is inefficient, maybe we should be using a
       // different data structure.
       if (cpostag_id >= 0) {
-        vector<int> &tags = cpostag_morphologicaltags_[cpostag_id];
+        std::vector<int> &tags = cpostag_morphologicaltags_[cpostag_id];
         int j;
         for (j = 0; j < tags.size(); ++j) {
           if (tags[j] == id) break;
@@ -63,11 +63,19 @@ void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   }
   reader->Close();
 
+  LOG(INFO) << "Number of morphological tags: "
+            << tag_alphabet_.size();
+  for (Alphabet::iterator it = tag_alphabet_.begin();
+       it != tag_alphabet_.end();
+       ++it) {
+    LOG(INFO) << it->first;
+  }
+
   for (int i = 0; i < tag_alphabet_.size(); ++i) {
     unknown_cpostag_morphologicaltags_.push_back(i);
   }
   LOG(INFO) << "Number of unknown morphological tags: "
-    << unknown_cpostag_morphologicaltags_.size();
+            << unknown_cpostag_morphologicaltags_.size();
 }
 
 void MorphologicalTokenDictionary::Initialize(MorphologicalReader *reader) {
