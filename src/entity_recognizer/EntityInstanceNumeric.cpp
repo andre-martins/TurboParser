@@ -36,7 +36,13 @@ void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
     if (id < 0) id = TOKEN_UNKNOWN;
     pos_ids_[i] = id;
 
-    dictionary.GetWordGazetteerIds(instance->GetForm(i),
+    std::string form = instance->GetForm(i);
+    // Uncomment next 'if's to allow different-case occurences
+    // to map to the same entry.
+    if (!FLAGS_form_case_sensitive) {
+      transform(form.begin(), form.end(), form.begin(), ::tolower);
+    }
+    dictionary.GetWordGazetteerIds(form,
                                    &gazetteer_ids_[i]);
     //LOG(INFO) << instance->GetForm(i) << ": " << gazetteer_ids_[i].size();
   }

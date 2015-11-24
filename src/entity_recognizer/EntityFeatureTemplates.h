@@ -29,61 +29,61 @@ struct EntityFeatureTemplateParts {
 
 struct EntityFeatureTemplateUnigram {
   enum types {
-    BIAS = 0,       /* bias */
-    W,              /* word */
-    pW,             /* word on the left */
-    nW,             /* word on the right */
-    ppW,            /* word two positions on the left */
-    nnW,            /* word two positions on the right */
-    G,              /* gazetteer */
-    pG,             /* gazetteer on the left */
-    nG,             /* gazetteer on the right */
-    ppG,            /* gazetteer two positions on the left */
-    nnG,            /* gazetteer two positions on the right */
-    P,              /* POS */
-    PpP,            /* POS + POS on the left */
-    PnP,            /* POS + POS on the right */
-    PpPppP,         /* POS trigram on the left */
-    PnPnnP,         /* POS trigram on the right */
-    PpPnP,          /* POS trigram on the center */
-    S,              /* shape */
-    pS,             /* shape on the left */
-    nS,             /* shape on the right */
-    ppS,            /* shape two positions on the left */
-    nnS,            /* shape two positions on the right */
-    A,              /* prefix */
-    Z,              /* suffix */
-    FLAG,           /* flag indicating presence of special characters */
+    BIAS = 0,   /* bias */                                            //WORD
+    W,          /* word */                                            //WORD
+    pW,         /* word on the left */                                //CONTEXT
+    nW,         /* word on the right */                               //CONTEXT
+    ppW,        /* word two positions on the left */                  //CONTEXT
+    nnW,        /* word two positions on the right */                 //CONTEXT
+    G,          /* gazetteer */                                       //WORD
+    pG,         /* gazetteer on the left */                           //CONTEXT
+    nG,         /* gazetteer on the right */                          //CONTEXT
+    ppG,        /* gazetteer two positions on the left */             //CONTEXT
+    nnG,        /* gazetteer two positions on the right */            //CONTEXT
+    P,          /* POS */                                             //WORD
+    PpP,        /* POS + POS on the left */                           //CONTEXT
+    PnP,        /* POS + POS on the right */                          //CONTEXT
+    PpPppP,     /* POS trigram on the left */                         //CONTEXT
+    PnPnnP,     /* POS trigram on the right */                        //CONTEXT
+    PpPnP,      /* POS trigram on the center */                       //CONTEXT
+    S,          /* shape */                                           //WORD
+    pS,         /* shape on the left */                               //CONTEXT
+    nS,         /* shape on the right */                              //CONTEXT
+    ppS,        /* shape two positions on the left */                 //CONTEXT
+    nnS,        /* shape two positions on the right */                //CONTEXT
+    A,          /* prefix */                                          //WORD
+    Z,          /* suffix */                                          //WORD
+    FLAG,       /* flag indicating presence of special characters */  //WORD
     COUNT
   };
 };
 
 struct EntityFeatureTemplateBigram {
   enum types {
-    BIAS = 0,       /* bias */
-    W,              /* word */
-    pW,             /* word on the left */
-    nW,             /* word on the right */
-    ppW,            /* word two positions on the left */
-    nnW,            /* word two positions on the right */
-    P,              /* POS */
-    PpP,            /* POS + POS on the left */
-    PnP,            /* POS + POS on the right */
-    PpPppP,         /* POS trigram on the left */
-    PnPnnP,         /* POS trigram on the right */
-    PpPnP,          /* POS trigram on the center */
-    S,              /* shape */
-    pS,             /* shape on the left */
-    nS,             /* shape on the right */
-    ppS,            /* shape two positions on the left */
-    nnS,            /* shape two positions on the right */
+    BIAS = 0,   /* bias */
+    W,          /* word */
+    pW,         /* word on the left */
+    nW,         /* word on the right */
+    ppW,        /* word two positions on the left */
+    nnW,        /* word two positions on the right */
+    P,          /* POS */
+    PpP,        /* POS + POS on the left */
+    PnP,        /* POS + POS on the right */
+    PpPppP,     /* POS trigram on the left */
+    PnPnnP,     /* POS trigram on the right */
+    PpPnP,      /* POS trigram on the center */
+    S,          /* shape */
+    pS,         /* shape on the left */
+    nS,         /* shape on the right */
+    ppS,        /* shape two positions on the left */
+    nnS,        /* shape two positions on the right */
     COUNT
   };
 };
 
 struct EntityFeatureTemplateTrigram {
   enum types {
-    BIAS = 0,       /* bias */
+    BIAS = 0,   /* bias */
   };
 };
 

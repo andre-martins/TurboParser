@@ -372,6 +372,7 @@ void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
   CHECK_LT(pos_alphabet_.size(), 0xff);
   CHECK_LT(cpos_alphabet_.size(), 0xff);
 
-  // TODO: Remove this (only for debugging purposes).
+#ifndef NDEBUG
   BuildNames();
+#endif
 }

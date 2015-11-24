@@ -20,6 +20,7 @@
 #include "EntityOptions.h"
 #include "EntityPipe.h"
 #include <algorithm>
+#include <cctype>
 
 void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   SequenceDictionary::CreateTagDictionary(reader);
@@ -154,6 +155,12 @@ void EntityDictionary::ReadGazetteerFiles() {
         gazetteer_entity_tag_alphabet_.Insert("L-" + entity_type);
         gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
+          // Uncomment next 'if's to allow different-case occurences
+          // to map to the same entry.
+          if (!FLAGS_form_case_sensitive) {
+            transform(fields[k].begin(), fields[k].end(),
+                      fields[k].begin(), std::tolower);
+          }
           const std::string &word = fields[k];
           gazetteer_word_alphabet_.Insert(word);
         }
@@ -184,6 +191,12 @@ void EntityDictionary::ReadGazetteerFiles() {
         int entity_type_unique_id =
           gazetteer_entity_tag_alphabet_.Lookup("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
+          // Uncomment next 'if's to allow different-case occurences
+          // to map to the same entry.
+          if (!FLAGS_form_case_sensitive) {
+            transform(fields[k].begin(), fields[k].end(),
+                      fields[k].begin(), std::tolower);
+          }
           const std::string &word = fields[k];
           int word_id = gazetteer_word_alphabet_.Lookup(word);
           CHECK_GE(word_id, 0);
@@ -223,9 +236,16 @@ void EntityDictionary::ReadGazetteerFiles() {
 }
 
 void EntityTokenDictionary::Initialize(EntityReader *reader) {
-  this->TokenDictionary::Initialize(reader);
+  SetTokenDictionaryFlagValues();
+  LOG(INFO) << "Creating token dictionary...";
 
+  std::vector<int> form_freqs;
+  std::vector<int> form_lower_freqs;
+  std::vector<int> shape_freqs;
   std::vector<int> pos_freqs;
+  Alphabet form_alphabet;
+  Alphabet form_lower_alphabet;
+  Alphabet shape_alphabet;
   Alphabet pos_alphabet;
 
   std::string special_symbols[NUM_SPECIAL_TOKENS];
@@ -234,9 +254,17 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
   special_symbols[TOKEN_STOP] = kTokenStop;
 
   for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+    prefix_alphabet_.Insert(special_symbols[i]);
+    suffix_alphabet_.Insert(special_symbols[i]);
+    form_alphabet.Insert(special_symbols[i]);
+    form_lower_alphabet.Insert(special_symbols[i]);
+    shape_alphabet.Insert(special_symbols[i]);
     pos_alphabet.Insert(special_symbols[i]);
 
     // Counts of special symbols are set to -1:
+    form_freqs.push_back(-1);
+    form_lower_freqs.push_back(-1);
+    shape_freqs.push_back(-1);
     pos_freqs.push_back(-1);
   }
 
@@ -249,6 +277,46 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
     int instance_length = instance->size();
     for (int i = 0; i < instance_length; ++i) {
       int id;
+
+      // Add form to alphabet.
+      std::string form = instance->GetForm(i);
+      std::string form_lower(form);
+      transform(form_lower.begin(), form_lower.end(),
+                form_lower.begin(), ::tolower);
+      if (!form_case_sensitive) form = form_lower;
+      id = form_alphabet.Insert(form);
+      if (id >= form_freqs.size()) {
+        CHECK_EQ(id, form_freqs.size());
+        form_freqs.push_back(0);
+      }
+      ++form_freqs[id];
+
+      // Add lower-case form to the alphabet.
+      id = form_lower_alphabet.Insert(form_lower);
+      if (id >= form_lower_freqs.size()) {
+        CHECK_EQ(id, form_lower_freqs.size());
+        form_lower_freqs.push_back(0);
+      }
+      ++form_lower_freqs[id];
+
+      // Add prefix/suffix to alphabet.
+      std::string prefix = form.substr(0, prefix_length);
+      id = prefix_alphabet_.Insert(prefix);
+      int start = form.length() - suffix_length;
+      if (start < 0) start = 0;
+      std::string suffix = form.substr(start, suffix_length);
+      id = suffix_alphabet_.Insert(suffix);
+
+      // Add shape to alphabet.
+      std::string shape;
+      GetWordShape(instance->GetForm(i), &shape);
+      id = shape_alphabet.Insert(shape);
+      if (id >= shape_freqs.size()) {
+        CHECK_EQ(id, shape_freqs.size());
+        shape_freqs.push_back(0);
+      }
+      ++shape_freqs[id];
+
       // Add POS to alphabet.
       id = pos_alphabet.Insert(instance->GetPosTag(i));
       if (id >= pos_freqs.size()) {
@@ -263,6 +331,58 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
   reader->Close();
 
   // Now adjust the cutoffs if necessary.
+  while (true) {
+    form_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      form_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = form_alphabet.begin();
+    iter != form_alphabet.end();
+      ++iter) {
+      if (form_freqs[iter->second] > form_cutoff) {
+        form_alphabet_.Insert(iter->first);
+      }
+    }
+    if (form_alphabet_.size() < kMaxFormAlphabetSize) break;
+    ++form_cutoff;
+    LOG(INFO) << "Incrementing form cutoff to " << form_cutoff << "...";
+  }
+
+  while (true) {
+    form_lower_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      form_lower_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = form_lower_alphabet.begin();
+    iter != form_lower_alphabet.end();
+      ++iter) {
+      if (form_lower_freqs[iter->second] > form_lower_cutoff) {
+        form_lower_alphabet_.Insert(iter->first);
+      }
+    }
+    if (form_lower_alphabet_.size() < kMaxFormAlphabetSize) break;
+    ++form_lower_cutoff;
+    LOG(INFO) << "Incrementing lower-case form cutoff to "
+      << form_lower_cutoff << "...";
+  }
+
+  while (true) {
+    shape_alphabet_.clear();
+    for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
+      shape_alphabet_.Insert(special_symbols[i]);
+    }
+    for (Alphabet::iterator iter = shape_alphabet.begin();
+    iter != shape_alphabet.end();
+      ++iter) {
+      if (shape_freqs[iter->second] > shape_cutoff) {
+        shape_alphabet_.Insert(iter->first);
+      }
+    }
+    if (shape_alphabet_.size() < kMaxShapeAlphabetSize) break;
+    ++shape_cutoff;
+    LOG(INFO) << "Incrementing shape cutoff to " << shape_cutoff << "...";
+  }
+
   while (true) {
     pos_alphabet_.clear();
     for (int i = 0; i < NUM_SPECIAL_TOKENS; ++i) {
@@ -280,6 +400,7 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
 
   form_alphabet_.StopGrowth();
   form_lower_alphabet_.StopGrowth();
+  shape_alphabet_.StopGrowth();
   lemma_alphabet_.StopGrowth();
   prefix_alphabet_.StopGrowth();
   suffix_alphabet_.StopGrowth();
@@ -287,6 +408,24 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
   pos_alphabet_.StopGrowth();
   cpos_alphabet_.StopGrowth();
 
-  LOG(INFO) << "Number of pos: " << pos_alphabet_.size();
+  LOG(INFO) << "Number of forms: " << form_alphabet_.size() << endl
+    << "Number of lower-case forms: " << form_lower_alphabet_.size() << endl
+    << "Number of prefixes: " << prefix_alphabet_.size() << endl
+    << "Number of suffixes: " << suffix_alphabet_.size() << endl
+    << "Number of word shapes: " << shape_alphabet_.size() << endl
+    << "Number of pos: " << pos_alphabet_.size();
+
+  CHECK_LT(form_alphabet_.size(), 0xffff);
+  CHECK_LT(form_lower_alphabet_.size(), 0xffff);
+  CHECK_LT(shape_alphabet_.size(), 0xffff);
+  CHECK_LT(lemma_alphabet_.size(), 0xffff);
+  CHECK_LT(prefix_alphabet_.size(), 0xffff);
+  CHECK_LT(suffix_alphabet_.size(), 0xffff);
+  CHECK_LT(feats_alphabet_.size(), 0xffff);
   CHECK_LT(pos_alphabet_.size(), 0xff);
+  CHECK_LT(cpos_alphabet_.size(), 0xff);
+
+#ifndef NDEBUG
+  BuildNames();
+#endif
 }

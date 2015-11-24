@@ -449,12 +449,6 @@ void Pipe::Run() {
   LOG(INFO) << "Number of instances: " << num_instances;
   LOG(INFO) << "Time: " << diff_ms(end, start);
 
-#if USE_WEIGHT_CACHING == 1
-  LOG(INFO) << "Cache size: " << parameters_->GetCachingWeightsSize() << "\t"
-    << "Cache hits: " << parameters_->GetCachingWeightsHits() << "\t"
-    << "Cache misses: " << parameters_->GetCachingWeightsMisses() << endl;
-#endif
-
   if (options_->evaluate()) EndEvaluation();
 }
 

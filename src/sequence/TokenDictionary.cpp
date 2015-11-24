@@ -62,8 +62,9 @@ void TokenDictionary::Load(FILE* fs) {
   if (0 > cpos_alphabet_.Load(fs)) CHECK(false);
   if (0 > shape_alphabet_.Load(fs)) CHECK(false);
 
-  // TODO: Remove this (only for debugging purposes)
-  //BuildNames();
+#ifndef NDEBUG
+  BuildNames();
+#endif
 }
 
 void TokenDictionary::Save(FILE* fs) {

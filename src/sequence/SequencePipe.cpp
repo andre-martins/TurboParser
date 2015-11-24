@@ -74,7 +74,8 @@ void SequencePipe::PreprocessData() {
     CreateTagDictionary(GetSequenceReader());
 }
 
-void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
+void SequencePipe::ComputeScores(Instance *instance,
+                                 Parts *parts,
                                  Features *features,
                                  vector<double> *scores) {
   SequenceInstanceNumeric *sentence =
@@ -100,15 +101,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       allowed_tags[k] = unigram->tag();
     }
     vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-    parameters_->ComputeLabelScoresWithCache(unigram_features,
-                                             allowed_tags,
-                                             &tag_scores);
-#else
     parameters_->ComputeLabelScores(unigram_features,
                                     allowed_tags,
                                     &tag_scores);
-#endif
     for (int k = 0; k < index_unigram_parts.size(); ++k) {
       (*scores)[index_unigram_parts[k]] = tag_scores[k];
     }
@@ -131,15 +126,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-      parameters_->ComputeLabelScoresWithCache(bigram_features,
-                                               bigram_tags,
-                                               &tag_scores);
-#else
       parameters_->ComputeLabelScores(bigram_features,
                                       bigram_tags,
                                       &tag_scores);
-#endif
       for (int k = 0; k < index_bigram_parts.size(); ++k) {
         (*scores)[index_bigram_parts[k]] = tag_scores[k];
       }
@@ -165,15 +154,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-      parameters_->ComputeLabelScoresWithCache(trigram_features,
-                                               trigram_tags,
-                                               &tag_scores);
-#else
       parameters_->ComputeLabelScores(trigram_features,
                                       trigram_tags,
                                       &tag_scores);
-#endif
       for (int k = 0; k < index_trigram_parts.size(); ++k) {
         (*scores)[index_trigram_parts[k]] = tag_scores[k];
       }

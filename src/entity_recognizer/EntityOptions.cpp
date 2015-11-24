@@ -34,7 +34,7 @@ DEFINE_string(entity_tagging_scheme, "bio",
 DEFINE_string(entity_file_gazetteer, "",
               "Path to a gazetteer file (one entity per line with the "
               "corresponding class, separated by tabs.");
-DEFINE_int32(entity_recognizer_large_feature_set, 2,
+DEFINE_int32(entity_recognizer_large_feature_set, 3,
              "The greater the value, the larger feature set used. Taggers are "
              "usually more accurate but slower and have a larger memory footprint.");
 
