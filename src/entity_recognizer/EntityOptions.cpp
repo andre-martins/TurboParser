@@ -37,6 +37,8 @@ DEFINE_string(entity_file_gazetteer, "",
 DEFINE_int32(entity_recognizer_large_feature_set, 3,
              "The greater the value, the larger feature set used. Taggers are "
              "usually more accurate but slower and have a larger memory footprint.");
+DEFINE_bool(entity_gazetteer_case_sensitive, true,
+            "Distinguish upper/lower case of gazetteers words");
 
 // Save current option flags to the model file.
 void EntityOptions::Save(FILE* fs) {
@@ -46,6 +48,8 @@ void EntityOptions::Save(FILE* fs) {
   success = WriteString(fs, tagging_scheme_name_);
   CHECK(success);
   success = WriteInteger(fs, large_feature_set_);
+  CHECK(success);
+  success = WriteBool(fs, gazetteer_case_sensitive_);
   CHECK(success);
 }
 
@@ -57,12 +61,16 @@ void EntityOptions::Load(FILE* fs) {
   bool success;
   success = ReadString(fs, &FLAGS_entity_tagging_scheme);
   CHECK(success);
-  LOG(INFO) << "Setting --entity_tagging_scheme=" <<
-    FLAGS_entity_tagging_scheme;
+  LOG(INFO) << "Setting --entity_tagging_scheme="
+    << FLAGS_entity_tagging_scheme;
   success = ReadInteger(fs, &FLAGS_entity_recognizer_large_feature_set);
   CHECK(success);
   LOG(INFO) << "Setting --entity_recognizer_large_feature_set="
     << FLAGS_entity_recognizer_large_feature_set;
+  success = ReadBool(fs, &FLAGS_entity_gazetteer_case_sensitive);
+  CHECK(success);
+  LOG(INFO) << "Setting --entity_gazetteer_case_sensitive="
+    << FLAGS_entity_gazetteer_case_sensitive;
 
   Initialize();
 }
@@ -83,4 +91,5 @@ void EntityOptions::Initialize() {
     CHECK(false) << "Unknown entity scheme: " << tagging_scheme_name_;
   }
   large_feature_set_ = FLAGS_entity_recognizer_large_feature_set;
+  gazetteer_case_sensitive_ = FLAGS_entity_gazetteer_case_sensitive;
 }

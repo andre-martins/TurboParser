@@ -127,6 +127,7 @@ void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
 void EntityDictionary::ReadGazetteerFiles() {
   EntityOptions *options =
     static_cast<EntityOptions*>(pipe_->GetOptions());
+  gazetteer_case_sensitive_ = options->gazetteer_case_sensitive();
 
   gazetteer_word_alphabet_.AllowGrowth();
   gazetteer_entity_tag_alphabet_.AllowGrowth();
@@ -155,9 +156,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         gazetteer_entity_tag_alphabet_.Insert("L-" + entity_type);
         gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
-          // Uncomment next 'if's to allow different-case occurences
-          // to map to the same entry.
-          if (!FLAGS_form_case_sensitive) {
+          if (!gazetteer_case_sensitive_) {
             transform(fields[k].begin(), fields[k].end(),
                       fields[k].begin(), std::tolower);
           }
@@ -191,9 +190,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         int entity_type_unique_id =
           gazetteer_entity_tag_alphabet_.Lookup("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
-          // Uncomment next 'if's to allow different-case occurences
-          // to map to the same entry.
-          if (!FLAGS_form_case_sensitive) {
+          if (!gazetteer_case_sensitive_) {
             transform(fields[k].begin(), fields[k].end(),
                       fields[k].begin(), std::tolower);
           }

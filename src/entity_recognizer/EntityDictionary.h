@@ -138,11 +138,16 @@ public:
     return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
+  const bool gazetteer_case_sensitive() const { 
+    return gazetteer_case_sensitive_; 
+  }
+
 protected:
   std::vector<std::vector<bool> > allowed_bigrams_;
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
+  bool gazetteer_case_sensitive_; //stores the value of the corresponding flag
 };
 
 class EntityTokenDictionary : public TokenDictionary {
