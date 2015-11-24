@@ -71,6 +71,9 @@ public:
         CHECK(success);
       }
     }
+
+    success = WriteBool(fs, gazetteer_case_sensitive_);
+    CHECK(success);
   }
 
   void Load(FILE *fs) {
@@ -116,6 +119,9 @@ public:
         allowed_bigrams_[j][k] = allowed;
       }
     }
+
+    success = ReadBool(fs, &gazetteer_case_sensitive_);
+    CHECK(success);
   }
 
   void CreateTagDictionary(SequenceReader *reader);
