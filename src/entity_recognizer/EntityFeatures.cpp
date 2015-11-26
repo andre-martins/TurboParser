@@ -76,13 +76,13 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   // POS tags.
   uint8_t PID = (*pos_ids)[position]; // Current POS.
   // POS on the left.
-  uint8_t pPID = (position > 0) ? 
+  uint8_t pPID = (position > 0) ?
     (*pos_ids)[position - 1] : TOKEN_START;
   // POS on the right.
   uint8_t nPID = (position < sentence_length - 1) ?
     (*pos_ids)[position + 1] : TOKEN_STOP;
   // POS two positions on the left.
-  uint8_t ppPID = (position > 1) ? 
+  uint8_t ppPID = (position > 1) ?
     (*pos_ids)[position - 2] : TOKEN_START;
   // POS two positions on the right.
   uint8_t nnPID = (position < sentence_length - 2) ?
@@ -140,38 +140,38 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
 
   // Lexical features.
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::W, 
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::W,
                                flags, WID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::pW, 
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::pW,
                                flags, pWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nW, 
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nW,
                                flags, nWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::ppW, 
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::ppW,
                                flags, ppWID);
   AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnW, 
+  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnW,
                                flags, nnWID);
   AddFeature(fkey, features);
 
   // Gazetteer features.
   for (int k = 0; k < GIDs.size(); ++k) {
     uint16_t GID = GIDs[k];
-    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::G, 
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::G,
                                  flags, GID);
     AddFeature(fkey, features);
   }
   for (int k = 0; k < pGIDs.size(); ++k) {
     uint16_t pGID = pGIDs[k];
-    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::pG, 
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::pG,
                                  flags, pGID);
     AddFeature(fkey, features);
   }
   for (int k = 0; k < nGIDs.size(); ++k) {
     uint16_t nGID = nGIDs[k];
-    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nG, 
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nG,
                                  flags, nGID);
     AddFeature(fkey, features);
   }
@@ -183,7 +183,7 @@ void EntityFeatures::AddUnigramFeatures(SequenceInstanceNumeric *sentence,
   }
   for (int k = 0; k < nnGIDs.size(); ++k) {
     uint16_t nnGID = nnGIDs[k];
-    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnG, 
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateUnigram::nnG,
                                  flags, nnGID);
     AddFeature(fkey, features);
   }
@@ -292,7 +292,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
     pWID = (position > 0) ?
       (*word_ids)[position - 1] : TOKEN_START;
     // Word on the right.
-   nWID = (position < sentence_length - 1) ?
+    nWID = (position < sentence_length - 1) ?
       (*word_ids)[position + 1] : TOKEN_STOP;
     // Word two positions on the left.
     ppWID = (position > 1) ?
@@ -321,11 +321,10 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
       (*pos_ids)[position + 2] : TOKEN_STOP;
   }
 
-
   // Word shapes.
   uint16_t SID, pSID, nSID, ppSID, nnSID;
   if (feature_set_bitmap->test(2)) {
-    SID = (position < sentence_length) ? 
+    SID = (position < sentence_length) ?
       sentence->GetShapeId(position) : TOKEN_STOP; // Current shape.
      // Shape on the left.
     pSID = (position > 0) ?
@@ -388,20 +387,20 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // Shape features.
   if (feature_set_bitmap->test(2)) {
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::S,
-                               flags, SID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::pS,
-                               flags, pSID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nS,
-                               flags, nSID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::ppS,
-                               flags, ppSID);
-  AddFeature(fkey, features);
-  fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nnS,
-                               flags, nnSID);
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::S,
+                                 flags, SID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::pS,
+                                 flags, pSID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nS,
+                                 flags, nSID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::ppS,
+                                 flags, ppSID);
+    AddFeature(fkey, features);
+    fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nnS,
+                                 flags, nnSID);
   }
 }
 

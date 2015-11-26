@@ -144,8 +144,8 @@ public:
     return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
-  const bool gazetteer_case_sensitive() const { 
-    return gazetteer_case_sensitive_; 
+  const bool gazetteer_case_sensitive() const {
+    return gazetteer_case_sensitive_;
   }
 
 protected:
