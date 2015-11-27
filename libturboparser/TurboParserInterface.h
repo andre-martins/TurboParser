@@ -52,6 +52,8 @@ public:
   void Parse(const std::string &file_test,
              const std::string &file_prediction);
 
+  void ParseSentence(DependencyInstance *sentence);
+
 private:
   DependencyOptions *parser_options_;
   DependencyPipe *parser_pipe_;
@@ -67,6 +69,8 @@ public:
   void ParseSemanticDependencies(const std::string &file_test,
                                  const std::string &file_prediction);
 
+  void ParseSemanticDependenciesFromSentence(SemanticInstance *sentence);
+
 private:
   SemanticOptions *semantic_options_;
   SemanticPipe *semantic_pipe_;
@@ -81,6 +85,8 @@ public:
 
   void ResolveCoreferences(const std::string &file_test,
                            const std::string &file_prediction);
+
+  void ResolveCoreferencesFromDocument(CoreferenceDocument *document);
 
 private:
   CoreferenceOptions *coreference_options_;

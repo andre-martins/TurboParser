@@ -167,6 +167,10 @@ void TurboParserWorker::Parse(const std::string &file_test,
     << " sec." << endl;
 }
 
+void TurboParserWorker::ParseSentence(DependencyInstance *sentence) {
+  parser_pipe_->ClassifyInstance(sentence);
+}
+
 TurboSemanticParserWorker::TurboSemanticParserWorker() {
   semantic_options_ = new SemanticOptions;
   semantic_options_->Initialize();
@@ -218,6 +222,11 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
 
   LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
     << " sec." << endl;
+}
+
+void TurboSemanticParserWorker::ParseSemanticDependenciesFromSentence(
+    SemanticInstance *sentence) {
+  semantic_pipe_->ClassifyInstance(sentence);
 }
 
 TurboCoreferenceResolverWorker::TurboCoreferenceResolverWorker() {
@@ -273,6 +282,11 @@ void TurboCoreferenceResolverWorker::ResolveCoreferences(
     << " sec." << endl;
 }
 
+void TurboCoreferenceResolverWorker::ResolveCoreferencesFromDocument(
+    CoreferenceDocument *document) {
+  coreference_pipe_->ClassifyInstance(document);
+}
+
 TurboMorphologicalTaggerWorker::TurboMorphologicalTaggerWorker() {
   morphological_tagger_options_ = new MorphologicalOptions;
   morphological_tagger_options_->Initialize();
@@ -289,8 +303,9 @@ TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {
   delete morphological_tagger_options_;
 }
 
-void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(const std::string
-                                                                  &file_model) {
+void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(
+    const std::string
+    &file_model) {
   morphological_tagger_options_->SetModelFilePath(file_model);
 
   int time;
@@ -324,7 +339,8 @@ void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
     << " sec." << endl;
 }
 
-void TurboMorphologicalTaggerWorker::TagSentence(MorphologicalInstance *sentence) {
+void TurboMorphologicalTaggerWorker::TagSentence(
+    MorphologicalInstance *sentence) {
   morphological_tagger_pipe_->ClassifyInstance(sentence);
 }
 
@@ -348,6 +364,9 @@ TurboParserInterface::~TurboParserInterface() {
   LOG(INFO) << "Deleting tagger workers.";
   DeleteAllTaggers();
 
+  LOG(INFO) << "Deleting morphological tagger workers.";
+  DeleteAllMorphologicalTaggers();
+
   LOG(INFO) << "Deleting entity recognizer workers.";
   DeleteAllEntityRecognizers();
 
@@ -359,9 +378,6 @@ TurboParserInterface::~TurboParserInterface() {
 
   LOG(INFO) << "Deleting coreference resolver workers.";
   DeleteAllCoreferenceResolvers();
-
-  LOG(INFO) << "Deleting morphlogical tagger workers.";
-  DeleteAllMorphologicalTaggers();
 
   LOG(INFO) << "Clearing argument list.";
   ClearArgumentList();
