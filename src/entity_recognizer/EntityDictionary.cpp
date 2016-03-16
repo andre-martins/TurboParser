@@ -158,7 +158,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         for (int k = 1; k < fields.size(); ++k) {
           if (!gazetteer_case_sensitive_) {
             transform(fields[k].begin(), fields[k].end(),
-                      fields[k].begin(), std::tolower);
+                      fields[k].begin(), ::tolower);
           }
           const std::string &word = fields[k];
           gazetteer_word_alphabet_.Insert(word);
@@ -192,7 +192,7 @@ void EntityDictionary::ReadGazetteerFiles() {
         for (int k = 1; k < fields.size(); ++k) {
           if (!gazetteer_case_sensitive_) {
             transform(fields[k].begin(), fields[k].end(),
-                      fields[k].begin(), std::tolower);
+                      fields[k].begin(), ::tolower);
           }
           const std::string &word = fields[k];
           int word_id = gazetteer_word_alphabet_.Lookup(word);
