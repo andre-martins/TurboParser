@@ -401,6 +401,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
     AddFeature(fkey, features);
     fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::nnS,
                                  flags, nnSID);
+	AddFeature(fkey, features);
   }
 }
 
