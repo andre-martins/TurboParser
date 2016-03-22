@@ -142,7 +142,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>AD3.lib;libgflags.lib;libglog_static.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3_120mddx64.lib;libgflags_120mddx64.lib;libglog_static_120mddx64.lib;gtest-md_120mddx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Debug;..\..\deps\gflags-2.0\x64\Debug;..\..\deps\AD3-2.0.2\vsprojects\x64\Debug;..\..\deps\googletest\msvc\x64\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
