@@ -225,7 +225,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>AD3.lib;libgflags.lib;libglog_static.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3_120mdx64.lib;libgflags_120mdx64.lib;libglog_static_120mdx64.lib;gtest-md_120mdx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Release;..\..\deps\gflags-2.0\x64\Release;..\..\deps\AD3-2.0.2\vsprojects\x64\Release;..\..\deps\googletest\msvc\x64\Release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
