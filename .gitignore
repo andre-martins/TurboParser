@@ -9,6 +9,7 @@ config.status
 deps/AD3-2.0.2/
 deps/gflags-2.0/
 deps/glog-0.3.2/
+deps/googletest/
 deps/eigen-eigen-c58038c56923/
 deps/local/
 data_local/
