@@ -40,7 +40,7 @@ void EntityInstanceNumeric::Initialize(const EntityDictionary &dictionary,
     // Uncomment next 'if's to allow different-case occurences
     // to map to the same entry.
     if (!dictionary.gazetteer_case_sensitive()) {
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      std::transform(form.begin(), form.end(), form.begin(), ::tolower);
     }
     dictionary.GetWordGazetteerIds(form,
                                    &gazetteer_ids_[i]);

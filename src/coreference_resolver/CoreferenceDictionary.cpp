@@ -213,7 +213,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       // Add head word to alphabet.
       i = mention->head_index();
       std::string form = instance->GetForm(i);
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      std::transform(form.begin(), form.end(), form.begin(), ::tolower);
       id = head_word_alphabet_.Insert(form);
       if (id >= head_word_freqs.size()) {
         CHECK_EQ(id, head_word_freqs.size());
@@ -224,7 +224,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       // Add first word to alphabet.
       i = mention->start();
       std::string form = instance->GetForm(i);
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      std::transform(form.begin(), form.end(), form.begin(), ::tolower);
       id = first_word_alphabet_.Insert(form);
       if (id >= first_word_freqs.size()) {
         CHECK_EQ(id, first_word_freqs.size());
@@ -235,7 +235,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       // Add last word to alphabet.
       i = mention->end();
       std::string form = instance->GetForm(i);
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      std::transform(form.begin(), form.end(), form.begin(), ::tolower);
       id = last_word_alphabet_.Insert(form);
       if (id >= last_word_freqs.size()) {
         CHECK_EQ(id, last_word_freqs.size());
@@ -247,7 +247,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       i = mention->start() - 1;
       if (i >= 0) {
         std::string form = instance->GetForm(i);
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
+        std::transform(form.begin(), form.end(), form.begin(), ::tolower);
         id = previous_word_alphabet_.Insert(form);
         if (id >= previous_word_freqs.size()) {
           CHECK_EQ(id, previous_word_freqs.size());
@@ -260,7 +260,7 @@ void CoreferenceDictionary::CreateMentionWordDictionaries(
       i = mention->end() + 1;
       if (i < instance->size()) {
         std::string form = instance->GetForm(i);
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
+        std::transform(form.begin(), form.end(), form.begin(), ::tolower);
         id = next_word_alphabet_.Insert(form);
         if (id >= next_word_freqs.size()) {
           CHECK_EQ(id, next_word_freqs.size());
@@ -418,8 +418,8 @@ void CoreferenceDictionary::CreateWordDictionaries(
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
-                ::tolower);
+      std::transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                     ::tolower);
       id = word_alphabet_.Insert(form);
       if (id >= word_freqs.size()) {
         CHECK_EQ(id, word_freqs.size());
@@ -560,8 +560,8 @@ void CoreferenceDictionary::ReadGenderNumberStatistics() {
         for (int i = 0; i < words.size(); ++i) {
           const std::string &word = words[i];
           std::string word_lower(word);
-          transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                    ::tolower);
+          std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                         ::tolower);
 
           int word_id = word_alphabet_.Insert(word);
 
@@ -625,8 +625,8 @@ void CoreferenceDictionary::ReadPronouns() {
         const std::string &form = fields[0];
         const std::string code_flags = fields[1];
         std::string form_lower(form);
-        transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
-                  ::tolower);
+        std::transform(form_lower.begin(), form_lower.end(), form_lower.begin(),
+                       ::tolower);
         int id = token_dictionary_->GetFormLowerId(form_lower);
         CHECK_LT(id, 0xffff);
         if (id < 0) {
@@ -673,8 +673,8 @@ void CoreferenceDictionary::ReadPronouns() {
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
         std::string word_lower(word);
-        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                  ::tolower);
+        std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                       ::tolower);
         int id = word_lower_alphabet_.Lookup(word_lower);
         if (id < 0) {
           LOG(INFO) << "Adding unknown pronoun: "
@@ -733,8 +733,8 @@ void CoreferenceDictionary::ReadDeterminers() {
         const std::string &word = fields[0];
         const std::string code_flags = fields[1];
         std::string word_lower(word);
-        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                  ::tolower);
+        std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                       ::tolower);
         int id = word_lower_alphabet_.Lookup(word_lower);
         if (id < 0) {
           LOG(INFO) << "Adding unknown determiner: "

@@ -40,7 +40,7 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
       int id;
       string form = instance->GetForm(i);
       if (!form_case_sensitive) {
-        transform(form.begin(), form.end(), form.begin(), ::tolower);
+        std::transform(form.begin(), form.end(), form.begin(), ::tolower);
       }
       int word_id = token_dictionary_->GetFormId(form);
       //CHECK_GE(word_id, 0);

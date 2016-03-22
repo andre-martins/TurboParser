@@ -157,8 +157,8 @@ void EntityDictionary::ReadGazetteerFiles() {
         gazetteer_entity_tag_alphabet_.Insert("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
           if (!gazetteer_case_sensitive_) {
-            transform(fields[k].begin(), fields[k].end(),
-                      fields[k].begin(), ::tolower);
+            std::transform(fields[k].begin(), fields[k].end(),
+                           fields[k].begin(), ::tolower);
           }
           const std::string &word = fields[k];
           gazetteer_word_alphabet_.Insert(word);
@@ -191,8 +191,8 @@ void EntityDictionary::ReadGazetteerFiles() {
           gazetteer_entity_tag_alphabet_.Lookup("U-" + entity_type);
         for (int k = 1; k < fields.size(); ++k) {
           if (!gazetteer_case_sensitive_) {
-            transform(fields[k].begin(), fields[k].end(),
-                      fields[k].begin(), ::tolower);
+            std::transform(fields[k].begin(), fields[k].end(),
+                           fields[k].begin(), ::tolower);
           }
           const std::string &word = fields[k];
           int word_id = gazetteer_word_alphabet_.Lookup(word);
@@ -278,8 +278,8 @@ void EntityTokenDictionary::Initialize(EntityReader *reader) {
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(),
-                form_lower.begin(), ::tolower);
+      std::transform(form_lower.begin(), form_lower.end(),
+                     form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {

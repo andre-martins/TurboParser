@@ -58,8 +58,8 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
 
   const std::string &word = instance->GetForm(head_index_);
   std::string word_lower(word);
-  transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-            ::tolower);
+  std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                 ::tolower);
   int id = dictionary.GetWordLowerAlphabet().Lookup(word_lower);
   //if (id < 0) id = TOKEN_UNKNOWN;
   int head_word = id; // This uses the extended word dictionary.
@@ -106,8 +106,8 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
       if (i >= 0) {
         const std::string &word = instance->GetForm(i);
         std::string word_lower(word);
-        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                  ::tolower);
+        std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                       ::tolower);
         int word_lower_id =
           dictionary.GetWordLowerAlphabet().Lookup(word_lower);
         number_ = MentionNumber::UNKNOWN;
@@ -141,8 +141,8 @@ void Mention::ComputeProperties(const CoreferenceDictionary &dictionary,
       for (int i = start_; i <= end_; ++i) {
         const std::string &word = instance->GetForm(i);
         std::string word_lower(word);
-        transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
-                  ::tolower);
+        std::transform(word_lower.begin(), word_lower.end(), word_lower.begin(),
+                       ::tolower);
         int id = dictionary.GetWordAlphabet().Lookup(word);
         //if (id < 0) id = TOKEN_UNKNOWN;
         phrase.push_back(id);
