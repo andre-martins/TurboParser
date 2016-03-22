@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
   google::LogToStderr();
 #endif
   if (FLAGS_train) {
-    LOG(INFO) << "Training Morphological tagger..." << endl;
+    LOG(INFO) << "Training morphological tagger..." << endl;
     TrainMorphologicalTagger();
   } else if (FLAGS_test) {
-    LOG(INFO) << "Running Morphological tagger..." << endl;
+    LOG(INFO) << "Running morphological tagger..." << endl;
     TestMorphologicalTagger();
   }
 
