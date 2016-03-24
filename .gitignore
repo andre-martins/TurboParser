@@ -27,5 +27,7 @@ vsprojects/*/Release
 vsprojects/Release/*
 vsprojects/*/*.vcxproj.user
 vsprojects/*/*.vcxproj.filters
-vsprojects/*.sdf
+vsprojects/*.opendb
 vsprojects/*.opensdf
+vsprojects/*.sdf
+vsprojects/*.cachefile

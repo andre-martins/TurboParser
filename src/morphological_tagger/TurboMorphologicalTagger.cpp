@@ -40,9 +40,9 @@ int main(int argc, char** argv) {
 }
 
 void TrainMorphologicalTagger() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
@@ -52,20 +52,19 @@ void TrainMorphologicalTagger() {
   pipe->Train();
   pipe->SaveModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
-
-  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
-
   delete pipe;
   delete options;
+
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
+
+  LOG(INFO) << "Training took " << time << " sec." << endl;
 }
 
 void TestMorphologicalTagger() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   MorphologicalOptions *options = new MorphologicalOptions;
   options->Initialize();
@@ -75,12 +74,11 @@ void TestMorphologicalTagger() {
   pipe->LoadModelFile();
   pipe->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
-
-  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
-
   delete pipe;
   delete options;
+
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
+
+  LOG(INFO) << "Testing took " << time << " sec." << endl;
 }

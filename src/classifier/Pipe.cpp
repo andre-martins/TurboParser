@@ -156,8 +156,8 @@ void Pipe::Train() {
 }
 
 void Pipe::CreateInstances() {
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   LOG(INFO) << "Creating instances...";
 
@@ -172,8 +172,8 @@ void Pipe::CreateInstances() {
 
   LOG(INFO) << "Number of instances: " << instances_.size();
 
-  gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end, start);
+  chrono.StopTime();
+  LOG(INFO) << "Time: " << chrono.GetElapsedTime() << " sec.";
 }
 
 void Pipe::MakeSupportedParameters() {
@@ -218,10 +218,10 @@ void Pipe::TrainEpoch(int epoch) {
   int num_instances = instances_.size();
   double lambda = 1.0 / (options_->GetRegularizationConstant() *
                          (static_cast<double>(num_instances)));
-  timeval start, end;
-  gettimeofday(&start, NULL);
-  int time_decoding = 0;
-  int time_scores = 0;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
+  double time_decoding = 0;
+  double time_scores = 0;
   int num_mistakes = 0;
 
   if (epoch == 0) {
@@ -246,11 +246,11 @@ void Pipe::TrainEpoch(int epoch) {
       RemoveUnsupportedFeatures(instance, parts, features);
     }
 
-    timeval start_scores, end_scores;
-    gettimeofday(&start_scores, NULL);
+    chronowrap::Chronometer chrono_scores;
+    chrono_scores.GetTime();
     ComputeScores(instance, parts, features, &scores);
-    gettimeofday(&end_scores, NULL);
-    time_scores += diff_ms(end_scores, start_scores);
+    chrono_scores.StopTime();
+    time_scores += chrono_scores.GetElapsedTime();
 
     // This is a no-op by default. But it's convenient to have it here to build
     // latent-variable structured classifiers (e.g. for coreference resolution).
@@ -259,11 +259,11 @@ void Pipe::TrainEpoch(int epoch) {
 
     if (options_->GetTrainingAlgorithm() == "perceptron" ||
         options_->GetTrainingAlgorithm() == "mira") {
-      timeval start_decoding, end_decoding;
-      gettimeofday(&start_decoding, NULL);
+      chronowrap::Chronometer chrono_decoding;
+      chrono_decoding.GetTime();
       decoder_->Decode(instance, parts, scores, &predicted_outputs);
-      gettimeofday(&end_decoding, NULL);
-      time_decoding += diff_ms(end_decoding, start_decoding);
+      chrono_decoding.StopTime();
+      time_decoding += chrono_decoding.GetElapsedTime();
 
       if (options_->GetTrainingAlgorithm() == "perceptron") {
         for (int r = 0; r < parts->size(); ++r) {
@@ -285,8 +285,8 @@ void Pipe::TrainEpoch(int epoch) {
                options_->GetTrainingAlgorithm() == "crf_sgd" ||
                options_->GetTrainingAlgorithm() == "crf_margin_sgd") {
       double loss;
-      timeval start_decoding, end_decoding;
-      gettimeofday(&start_decoding, NULL);
+      chronowrap::Chronometer chrono_decoding;
+      chrono_decoding.GetTime();
       if (options_->GetTrainingAlgorithm() == "svm_mira" ||
           options_->GetTrainingAlgorithm() == "svm_sgd") {
         // Do cost-augmented inference.
@@ -310,8 +310,8 @@ void Pipe::TrainEpoch(int epoch) {
                                   &predicted_outputs, &entropy, &loss);
         CHECK_GE(entropy, 0.0);
       }
-      gettimeofday(&end_decoding, NULL);
-      time_decoding += diff_ms(end_decoding, start_decoding);
+      chrono_decoding.StopTime();
+      time_decoding += chrono_decoding.GetElapsedTime();
 
       loss -= inner_loss;
       if (loss < 0.0) {
@@ -379,10 +379,10 @@ void Pipe::TrainEpoch(int epoch) {
   delete parts;
   delete features;
 
-  gettimeofday(&end, NULL);
-  LOG(INFO) << "Time: " << diff_ms(end, start);
-  LOG(INFO) << "Time to score: " << time_scores;
-  LOG(INFO) << "Time to decode: " << time_decoding;
+  chrono.StopTime();
+  LOG(INFO) << "Time: " << chrono.GetElapsedTime() << " sec.";
+  LOG(INFO) << "Time to score: " << time_scores << " sec.";
+  LOG(INFO) << "Time to decode: " << time_decoding << " sec.";
   LOG(INFO) << "Number of Features: " << parameters_->Size();
   if (options_->GetTrainingAlgorithm() == "perceptron" ||
       options_->GetTrainingAlgorithm() == "mira") {
@@ -403,8 +403,8 @@ void Pipe::Run() {
   vector<double> gold_outputs;
   vector<double> predicted_outputs;
 
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   if (options_->evaluate()) BeginEvaluation();
 
@@ -445,9 +445,9 @@ void Pipe::Run() {
   writer_->Close();
   reader_->Close();
 
-  gettimeofday(&end, NULL);
+  chrono.StopTime();
   LOG(INFO) << "Number of instances: " << num_instances;
-  LOG(INFO) << "Time: " << diff_ms(end, start);
+  LOG(INFO) << "Time: " << chrono.GetElapsedTime() << " sec.";
 
   if (options_->evaluate()) EndEvaluation();
 }

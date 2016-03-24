@@ -20,6 +20,7 @@
 #define CONSTITUENCYLABELERPIPE_H_
 
 #include "Pipe.h"
+#include "TimeUtils.h"
 #include "ConstituencyLabelerOptions.h"
 #include "ConstituencyLabelerReader.h"
 #include "ConstituencyLabelerDictionary.h"
@@ -134,7 +135,7 @@ protected:
     num_gold_labels_ = 0;
     num_pruned_gold_labels_ = 0;
     num_possible_labels_ = 0;
-    gettimeofday(&start_clock_, NULL);
+    chrono.GetTime();
   }
   void EvaluateInstance(Instance *instance,
                         Instance *output_instance,
@@ -225,10 +226,8 @@ protected:
       << " (" << num_possible_labels_ << "/"
       << num_constituents_ << ")";
 
-    timeval end_clock;
-    gettimeofday(&end_clock, NULL);
-    double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    chrono.StopTime();
+    double num_seconds = chrono.GetElapsedTime();
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
       << tokens_per_second << " tokens per second.";
@@ -243,7 +242,7 @@ protected:
   int num_gold_labels_;
   int num_pruned_gold_labels_;
   int num_possible_labels_;
-  timeval start_clock_;
+  chronowrap::Chronometer chrono;
 };
 
 #endif /* CONSTITUENCYLABELERPIPE_H_ */

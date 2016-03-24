@@ -55,9 +55,9 @@ int main(int argc, char** argv) {
 }
 
 void TrainSemanticParser() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   SemanticOptions *options = new SemanticOptions;
   options->Initialize();
@@ -98,17 +98,16 @@ void TrainSemanticParser() {
   delete pipe;
   delete options;
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Training took " << time << " sec." << endl;
 }
 
 void TestSemanticParser() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   SemanticOptions *options = new SemanticOptions;
   options->Initialize();
@@ -121,9 +120,8 @@ void TestSemanticParser() {
   delete pipe;
   delete options;
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Testing took " << time << " sec." << endl;
 }
