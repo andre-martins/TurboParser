@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -36,40 +36,40 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release O0|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release O0|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -143,7 +143,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Debug;..\..\deps\gflags-2.0\x64\Debug;..\..\deps\AD3-2.0.2\vsprojects\x64\Debug;..\..\deps\googletest\msvc\x64\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3_120mddx64.lib;libgflags_120mddx64.lib;libglog_static_120mddx64.lib;gtest-md_120mddx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3_140mddx64.lib;libgflags_140mddx64.lib;libglog_static_140mddx64.lib;gtest-md_140mddx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -207,7 +207,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Release;..\..\deps\gflags-2.0\x64\Release;..\..\deps\AD3-2.0.2\vsprojects\x64\Release;..\..\deps\googletest\msvc\x64\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3_120mdx64.lib;libgflags_120mdx64.lib;libglog_static_120mdx64.lib;gtest-md_120mdx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3_140mdx64.lib;libgflags_140mdx64.lib;libglog_static_140mdx64.lib;gtest-md_140mdx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release O0|x64'">
@@ -233,7 +233,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\..\deps\glog-0.3.2\x64\Release;..\..\deps\gflags-2.0\x64\Release;..\..\deps\AD3-2.0.2\vsprojects\x64\Release;..\..\deps\googletest\msvc\x64\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AD3_120mdx64.lib;libgflags_120mdx64.lib;libglog_static_120mdx64.lib;gtest-md_120mdx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AD3_140mdx64.lib;libgflags_140mdx64.lib;libglog_static_140mdx64.lib;gtest-md_140mdx64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
