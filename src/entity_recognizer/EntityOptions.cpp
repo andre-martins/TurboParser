@@ -17,6 +17,7 @@
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "EntityOptions.h"
+#include "Pipe.h"
 #include "SerializationUtils.h"
 #include <glog/logging.h>
 
@@ -59,19 +60,23 @@ void EntityOptions::Load(FILE* fs) {
   SequenceOptions::Load(fs);
 
   bool success;
+
   success = ReadString(fs, &FLAGS_entity_tagging_scheme);
   CHECK(success);
   LOG(INFO) << "Setting --entity_tagging_scheme="
     << FLAGS_entity_tagging_scheme;
-  success = ReadInteger(fs, &FLAGS_entity_recognizer_large_feature_set);
-  CHECK(success);
-  LOG(INFO) << "Setting --entity_recognizer_large_feature_set="
-    << FLAGS_entity_recognizer_large_feature_set;
-  success = ReadBool(fs, &FLAGS_entity_gazetteer_case_sensitive);
-  CHECK(success);
-  LOG(INFO) << "Setting --entity_gazetteer_case_sensitive="
-    << FLAGS_entity_gazetteer_case_sensitive;
 
+  if (pipe_ != nullptr && pipe_->GetModelVersion() >= 200030001) {
+    success = ReadInteger(fs, &FLAGS_entity_recognizer_large_feature_set);
+    CHECK(success);
+    LOG(INFO) << "Setting --entity_recognizer_large_feature_set="
+      << FLAGS_entity_recognizer_large_feature_set;
+
+    success = ReadBool(fs, &FLAGS_entity_gazetteer_case_sensitive);
+    CHECK(success);
+    LOG(INFO) << "Setting --entity_gazetteer_case_sensitive="
+      << FLAGS_entity_gazetteer_case_sensitive;
+  }
   Initialize();
 }
 

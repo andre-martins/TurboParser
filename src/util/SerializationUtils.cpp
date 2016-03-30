@@ -22,51 +22,62 @@
 bool WriteString(FILE *fs, const std::string& data) {
   const char *buffer = data.c_str();
   int length = strlen(buffer);
-  if (1 != fwrite(&length, sizeof(int), 1, fs)) return false;
-  if (length != fwrite(buffer, sizeof(char), length, fs)) return false;
+  if (1 != fwrite(&length, sizeof(int), 1, fs))
+    return false;
+  if (length != fwrite(buffer, sizeof(char), length, fs))
+    return false;
   return true;
 }
 
 bool WriteBool(FILE *fs, bool value) {
-  if (1 != fwrite(&value, sizeof(bool), 1, fs)) return false;
+  if (1 != fwrite(&value, sizeof(bool), 1, fs))
+    return false;
   return true;
 }
 
 bool WriteInteger(FILE *fs, int value) {
-  if (1 != fwrite(&value, sizeof(int), 1, fs)) return false;
+  if (1 != fwrite(&value, sizeof(int), 1, fs))
+    return false;
   return true;
 }
 
 bool WriteUINT8(FILE *fs, uint8_t value) {
-  if (1 != fwrite(&value, sizeof(uint8_t), 1, fs)) return false;
+  if (1 != fwrite(&value, sizeof(uint8_t), 1, fs))
+    return false;
   return true;
 }
 
 bool WriteUINT64(FILE *fs, uint64_t value) {
-  if (1 != fwrite(&value, sizeof(uint64_t), 1, fs)) return false;
+  if (1 != fwrite(&value, sizeof(uint64_t), 1, fs))
+    return false;
   return true;
 }
 
 bool WriteDouble(FILE *fs, double value) {
-  if (1 != fwrite(&value, sizeof(double), 1, fs)) return false;
+  if (1 != fwrite(&value, sizeof(double), 1, fs))
+    return false;
   return true;
 }
 
 bool WriteIntegerVector(FILE *fs, const std::vector<int> &values) {
   int length = values.size();
-  if (!WriteInteger(fs, length)) return false;
+  if (!WriteInteger(fs, length))
+    return false;
   for (int i = 0; i < length; ++i) {
     int value = values[i];
-    if (!WriteInteger(fs, value)) return false;
+    if (!WriteInteger(fs, value))
+      return false;
   }
   return true;
 }
 
 bool ReadString(FILE *fs, std::string *data) {
   int length;
-  if (1 != fread(&length, sizeof(int), 1, fs)) return false;
+  if (1 != fread(&length, sizeof(int), 1, fs))
+    return false;
   char *buffer = new char[length + 1];
-  if (length != fread(buffer, sizeof(char), length, fs)) return false;
+  if (length != fread(buffer, sizeof(char), length, fs))
+    return false;
   buffer[length] = '\0';
   (*data).assign(buffer, length);  //*data = buffer;
   delete[] buffer;
@@ -74,37 +85,44 @@ bool ReadString(FILE *fs, std::string *data) {
 }
 
 bool ReadBool(FILE *fs, bool *value) {
-  if (1 != fread(value, sizeof(bool), 1, fs)) return false;
+  if (1 != fread(value, sizeof(bool), 1, fs))
+    return false;
   return true;
 }
 
 bool ReadInteger(FILE *fs, int *value) {
-  if (1 != fread(value, sizeof(int), 1, fs)) return false;
+  if (1 != fread(value, sizeof(int), 1, fs))
+    return false;
   return true;
 }
 
 bool ReadUINT8(FILE *fs, uint8_t *value) {
-  if (1 != fread(value, sizeof(uint8_t), 1, fs)) return false;
+  if (1 != fread(value, sizeof(uint8_t), 1, fs))
+    return false;
   return true;
 }
 
 bool ReadUINT64(FILE *fs, uint64_t *value) {
-  if (1 != fread(value, sizeof(uint64_t), 1, fs)) return false;
+  if (1 != fread(value, sizeof(uint64_t), 1, fs))
+    return false;
   return true;
 }
 
 bool ReadDouble(FILE *fs, double *value) {
-  if (1 != fread(value, sizeof(double), 1, fs)) return false;
+  if (1 != fread(value, sizeof(double), 1, fs))
+    return false;
   return true;
 }
 
 bool ReadIntegerVector(FILE *fs, std::vector<int> *values) {
   int length;
-  if (!ReadInteger(fs, &length)) return false;
+  if (!ReadInteger(fs, &length))
+    return false;
   values->resize(length);
   for (int i = 0; i < length; ++i) {
     int value;
-    if (!ReadInteger(fs, &value)) return false;
+    if (!ReadInteger(fs, &value))
+      return false;
     (*values)[i] = value;
   }
   return true;

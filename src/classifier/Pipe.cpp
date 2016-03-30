@@ -24,6 +24,7 @@
 
 Pipe::Pipe(Options* options) {
   options_ = options;
+  options->SetPipe(this);
   dictionary_ = NULL;
   reader_ = NULL;
   writer_ = NULL;

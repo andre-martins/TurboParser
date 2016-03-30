@@ -45,15 +45,13 @@ void DependencyLabelerPipe::SaveModel(FILE* fs) {
 
 void DependencyLabelerPipe::LoadModel(FILE* fs) {
   bool success;
-  uint64_t model_check;
-  uint64_t model_version;
-  success = ReadUINT64(fs, &model_check);
+  success = ReadUINT64(fs, &model_check_);
   CHECK(success);
-  CHECK_EQ(model_check, kDependencyLabelerModelCheck)
+  CHECK_EQ(model_check_, kDependencyLabelerModelCheck)
     << "The model file is too old and not supported anymore.";
-  success = ReadUINT64(fs, &model_version);
+  success = ReadUINT64(fs, &model_version_);
   CHECK(success);
-  CHECK_GE(model_version, kOldestCompatibleDependencyLabelerModelVersion)
+  CHECK_GE(model_version_, kOldestCompatibleDependencyLabelerModelVersion)
     << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();

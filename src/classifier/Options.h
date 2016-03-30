@@ -44,6 +44,8 @@ DECLARE_int32(parameters_max_num_buckets);
 #define USE_N_OPTIMIZATIONS 0 //1
 #endif
 
+class Pipe;
+
 // General training/test options.
 class Options {
 public:
@@ -92,7 +94,13 @@ public:
     file_prediction_ = file_prediction;
   }
 
+  // Set a pointer to the pipe that owns this options handler.
+  void SetPipe(Pipe *pipe) {
+    pipe_ = pipe;
+  }
+
 protected:
+  Pipe *pipe_ = nullptr; // The pipe that owns this options handler.
   std::string file_train_;
   std::string file_test_;
   std::string file_model_;

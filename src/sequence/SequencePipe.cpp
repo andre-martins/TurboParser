@@ -30,7 +30,7 @@ using namespace std;
 
 // Define the current model version and the oldest back-compatible version.
 // The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
-const uint64_t kSequenceModelVersion = 200030000;
+const uint64_t kSequenceModelVersion = 200030001;
 const uint64_t kOldestCompatibleSequenceModelVersion = 200030000;
 const uint64_t kSequenceModelCheck = 1234567890;
 
@@ -46,15 +46,13 @@ void SequencePipe::SaveModel(FILE* fs) {
 
 void SequencePipe::LoadModel(FILE* fs) {
   bool success;
-  uint64_t model_check;
-  uint64_t model_version;
-  success = ReadUINT64(fs, &model_check);
+  success = ReadUINT64(fs, &model_check_);
   CHECK(success);
-  CHECK_EQ(model_check, kSequenceModelCheck)
+  CHECK_EQ(model_check_, kSequenceModelCheck)
     << "The model file is too old and not supported anymore.";
-  success = ReadUINT64(fs, &model_version);
+  success = ReadUINT64(fs, &model_version_);
   CHECK(success);
-  CHECK_GE(model_version, kOldestCompatibleSequenceModelVersion)
+  CHECK_GE(model_version_, kOldestCompatibleSequenceModelVersion)
     << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();
