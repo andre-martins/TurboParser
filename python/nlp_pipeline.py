@@ -1,3 +1,4 @@
+from __future__ import print_function
 import nltk
 import tokenizers.portuguese.word_tokenizer as tokenizer_PT
 import lemmatizer
@@ -8,6 +9,8 @@ import nlp_utils
 from span import Span
 import os
 import pdb
+import sys
+from builtins import range
 
 class NLPPipelineWorker:
     def __init__(self, pipeline, language):
@@ -20,7 +23,7 @@ class NLPPipelineWorker:
         self.coreference_resolver = None
 
         if language not in pipeline.models:
-            print 'Error: no model for language %s.' % language
+            print('Error: no model for language %s.' % language)
             raise NotImplementedError
 
         if 'splitter' in pipeline.models[language]:
@@ -62,8 +65,12 @@ class NLPPipelineWorker:
 class NLPPipeline:
     def __init__(self):
         # Load the initialization file.
-        configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
-            os.sep + 'nlp_pipeline.config'
+        if os.name == 'nt':
+            configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
+                os.sep + 'nlp_pipeline.win.config'
+        else:
+            configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
+                os.sep + 'nlp_pipeline.config'
         self.models = {}
         self.load_configuration_file(configuration_filepath)
         self.turbo_interface = tp.PTurboParser()
@@ -86,7 +93,7 @@ class NLPPipeline:
                 continue
             if language == '':
                 language = line
-                print 'Loading information for %s' % language
+                print('Loading information for %s' % language)
                 self.models[language] = {}
             else:
                 pair = line.split('=')
@@ -181,15 +188,20 @@ class NLPPipeline:
         #sent['heads'] = [h-1 for h in heads]
         sent['dependency_relations'] = deprels
         sent.compute_semantic_dependencies(worker)
-        num_predicates = len(sent['predicate_names'])
-        predicates = ['_' for token in tokenized_sentence]
-        argument_lists = [['_' for k in xrange(num_predicates)] \
-                          for token in tokenized_sentence]
-        for k in xrange(num_predicates):
+        num_predicates = len(sent['predicate_names'])  
+        if sys.version_info[0] == 2:
+            predicates = ['_' for token in tokenized_sentence]
+            argument_lists = [['_' for k in xrange(num_predicates)] \
+                              for token in tokenized_sentence]
+        if sys.version_info[0] == 3:
+            predicates = [b'_' for token in tokenized_sentence]
+            argument_lists = [[b'_' for k in range(num_predicates)] \
+                              for token in tokenized_sentence]
+        for k in range(num_predicates):
             name = sent['predicate_names'][k]
             p = sent['predicate_indices'][k]
             predicates[p] = name
-            for l in xrange(len(sent['argument_roles'][k])):
+            for l in range(len(sent['argument_roles'][k])):
                 role = sent['argument_roles'][k][l]
                 a = sent['argument_indices'][k][l]
                 argument_lists[a][k] = role
@@ -220,7 +232,10 @@ class NLPPipeline:
         for sent in doc['sentences']:
             spans = []
             for (start, end, name) in sent['coreference_spans']:
-                span = Span(start, end, name)
+                if sys.version_info[0] == 2:
+                    span = Span(start, end, name)
+                if sys.version_info[0] == 3:
+                    span = Span(start, end, name.decode(encoding='UTF-8') )
                 spans.append(span)
             coref_info = nlp_utils.construct_coreference_info_from_spans( \
                 spans, len(sent['words']))
@@ -236,10 +251,18 @@ class NLPPipeline:
             tags, lemmas, feats = self.tag(tokenized_sentence, language)
             heads, deprels = self.parse(tokenized_sentence, tags, lemmas,
                                         language)
-            for i, token in enumerate(tokenized_sentence):
-                conll_str += str(i+1) + '\t' + token + '\t' + lemmas[i] + \
-                             '\t' + tags[i] + '\t' + tags[i] + '\t' + \
-                             feats[i] + '\t' + str(heads[i]+1) + '\t' + \
-                             deprels[i] + '\n'
+            if sys.version_info[0] == 2:
+                for i, token in enumerate(tokenized_sentence):
+                    conll_str += str(i+1) + '\t' + token + '\t' + lemmas[i] + \
+                                 '\t' + tags[i] + '\t' + tags[i] + '\t' + \
+                                 feats[i] + '\t' + str(heads[i]+1) + '\t' + \
+                                 deprels[i] + '\n'
+            if sys.version_info[0] == 3:
+                for i, token in enumerate(tokenized_sentence):
+                    conll_str += str(i+1) + '\t' + token + '\t' + lemmas[i] + \
+                                 '\t' + tags[i].decode(encoding='UTF-8') + '\t' + \
+                                 tags[i].decode(encoding='UTF-8') + '\t' + \
+                                 feats[i] + '\t' + str(heads[i]+1) + '\t' + \
+                                 deprels[i].decode(encoding='UTF-8') + '\n'
             conll_str += '\n'
         return conll_str

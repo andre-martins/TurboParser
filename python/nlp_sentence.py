@@ -1,4 +1,6 @@
 import turboparser as tp
+from builtins import range
+import sys
 
 class NLPSentence(dict):
     def __init__(self):
@@ -13,13 +15,16 @@ class NLPSentence(dict):
         sequence_instance = tp.PSequenceInstance()
         sequence_instance.initialize(words, tags)
         worker.tagger.tag_sentence(sequence_instance)
-        tags = [sequence_instance.get_tag(i) for i in xrange(len(words))]
+        tags = [sequence_instance.get_tag(i) for i in range(len(words))]
         self['tags'] = tags
 
         # Compute lemmas.
         self['lemmas'] = None
         if worker.lemmatizer != None:
-            lemmas = worker.lemmatizer.lemmatize_sentence(words, tags)
+            if sys.version_info[0] == 2:
+                lemmas = worker.lemmatizer.lemmatize_sentence(words, tags)
+            if sys.version_info[0] == 3:
+                lemmas = worker.lemmatizer.lemmatize_sentence(words, [t.decode(encoding="UTF-8") for t in tags])
             self['lemmas'] = lemmas
         else:
             lemmas = ['_' for word in words]
@@ -32,7 +37,7 @@ class NLPSentence(dict):
             morphological_instance.initialize(words, lemmas, tags, feats)
             worker.morphological_tagger.tag_sentence(morphological_instance)
             feats = [morphological_instance.get_tag(i) \
-                     for i in xrange(len(words))]
+                     for i in range(len(words))]
             self['morphological_tags'] = [feat.split('|') if feat != '_' \
                                           else [] \
                                           for feat in feats]
@@ -46,7 +51,7 @@ class NLPSentence(dict):
         entity_instance = tp.PEntityInstance()
         entity_instance.initialize(words, tags, entity_tags)
         worker.entity_recognizer.tag_sentence(entity_instance)
-        entity_tags = [entity_instance.get_tag(i) for i in xrange(len(words))]
+        entity_tags = [entity_instance.get_tag(i) for i in range(len(words))]
         self['entity_tags'] = entity_tags
 
     def compute_syntactic_dependencies(self, worker):
@@ -73,10 +78,10 @@ class NLPSentence(dict):
         # Convert back to 0-based indexing. Words attached to the root will get
         # head = -1.
         self['heads'] = [dependency_instance.get_head(i+1)-1 \
-                         for i in xrange(len(words))]
+                         for i in range(len(words))]
         self['dependency_relations'] = \
             [dependency_instance.get_dependency_relation(i+1) \
-             for i in xrange(len(words))]
+             for i in range(len(words))]
 
     def compute_semantic_dependencies(self, worker):
         words = self['words']
@@ -109,19 +114,19 @@ class NLPSentence(dict):
 
         num_predicates = semantic_instance.get_num_predicates()
         predicate_names = [semantic_instance.get_predicate_name(k) \
-                           for k in xrange(num_predicates)]
+                           for k in range(num_predicates)]
         # Convert back to 0-based indexing.
         predicate_indices = [semantic_instance.get_predicate_index(k)-1 \
-                             for k in xrange(num_predicates)]
+                             for k in range(num_predicates)]
         argument_roles = \
             [[semantic_instance.get_argument_role(k, l) \
-              for l in xrange(semantic_instance.get_num_arguments_predicate(k))] \
-             for k in xrange(num_predicates)]
+              for l in range(semantic_instance.get_num_arguments_predicate(k))] \
+             for k in range(num_predicates)]
         # Convert to back 0-based indexing.
         argument_indices = \
             [[semantic_instance.get_argument_index(k, l)-1 \
-              for l in xrange(semantic_instance.get_num_arguments_predicate(k))] \
-             for k in xrange(num_predicates)]
+              for l in range(semantic_instance.get_num_arguments_predicate(k))] \
+             for k in range(num_predicates)]
 
         self['predicate_names'] = predicate_names
         self['predicate_indices'] = predicate_indices
