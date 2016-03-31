@@ -71,9 +71,6 @@ public:
         CHECK(success);
       }
     }
-
-    success = WriteBool(fs, gazetteer_case_sensitive_);
-    CHECK(success);
   }
 
   void Load(FILE *fs) {
@@ -119,9 +116,6 @@ public:
         allowed_bigrams_[j][k] = allowed;
       }
     }
-
-    success = ReadBool(fs, &gazetteer_case_sensitive_);
-    CHECK(success);
   }
 
   void CreateTagDictionary(SequenceReader *reader);
@@ -153,7 +147,7 @@ protected:
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
-  bool gazetteer_case_sensitive_; //stores the value of the corresponding flag
+  bool gazetteer_case_sensitive_; //stores the value of the corresponding option flag
 };
 
 class EntityTokenDictionary : public TokenDictionary {
