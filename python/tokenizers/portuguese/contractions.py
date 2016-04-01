@@ -190,7 +190,7 @@ def generate_contractions():
     contractions['hás-de'] = ['hás', 'de'], ['haver', 'de']    
     
     # Add upper cases.
-    contraction_toks = contractions.keys()
+    contraction_toks = list(contractions)
     for tok in contraction_toks:
         first_char = tok[0]
         if first_char.islower():

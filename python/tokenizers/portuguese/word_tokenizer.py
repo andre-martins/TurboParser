@@ -17,8 +17,8 @@ the Portuguese Cintil or Floresta Treebanks.
 
 import re
 from nltk.tokenize.api import TokenizerI
-import contractions as contr
-import clitics as clit
+from . import contractions as contr
+from . import clitics as clit
 
 class PortugueseWordTokenizer(TokenizerI):
     """

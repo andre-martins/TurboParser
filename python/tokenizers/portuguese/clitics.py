@@ -16,7 +16,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this file.  If not, see <http://www.gnu.org/licenses/>.
 """
-
+from __future__ import print_function
 import numpy as np
 
 def split_clitics(sentence, clitics, suffixes, use_cintil_format=True):
@@ -171,5 +171,5 @@ def generate_clitics():
     
     
 if __name__ == "__main__":
-    print generate_clitics()
+    print (generate_clitics() )
     
