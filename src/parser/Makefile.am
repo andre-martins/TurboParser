@@ -16,6 +16,7 @@ DependencyInstance.h DependencyPart.cpp DependencyReader.h FactorSequence.h \
 DependencyFeatures.cpp DependencyInstanceNumeric.cpp DependencyPart.h \
 DependencyWriter.cpp FactorTree.h \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
+$(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceInstance.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \
