@@ -12,8 +12,8 @@ sudo rm -rf /opt/TurboParser
 sudo cp -r "$PWD" /opt/TurboParser
 sudo ln -s /opt/TurboParser/Turbo* /usr/local/bin/
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/TurboParser/deps/local/lib:
 echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/TurboParser/deps/local/lib:"  >> ~/.bashrc
-source ~/.bashrc
 echo
 echo "Installation finished"
 echo
