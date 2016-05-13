@@ -58,6 +58,7 @@ $(PARSER)/DependencyDictionary.h \
 $(PARSER)/DependencyInstanceNumeric.cpp \
 $(PARSER)/DependencyInstanceNumeric.h \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
+$(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceInstance.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \

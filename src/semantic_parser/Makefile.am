@@ -32,6 +32,7 @@ $(PARSER)/DependencyInstance.h \
 $(PARSER)/DependencyReader.cpp \
 $(PARSER)/DependencyReader.h \
 $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
+$(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceInstance.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \
