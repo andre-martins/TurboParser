@@ -262,7 +262,8 @@ class NLPPipeline:
                     conll_str += str(i+1) + '\t' + token + '\t' + lemmas[i] + \
                                  '\t' + tags[i].decode(encoding='UTF-8') + '\t' + \
                                  tags[i].decode(encoding='UTF-8') + '\t' + \
-                                 feats[i] + '\t' + str(heads[i]+1) + '\t' + \
+                                 feats[i] + '\t' + \
+                                 str(heads[i]+1) + '\t' + \
                                  deprels[i].decode(encoding='UTF-8') + '\n'
             conll_str += '\n'
         return conll_str

@@ -24,7 +24,8 @@ class NLPSentence(dict):
             if sys.version_info[0] == 2:
                 lemmas = worker.lemmatizer.lemmatize_sentence(words, tags)
             if sys.version_info[0] == 3:
-                lemmas = worker.lemmatizer.lemmatize_sentence(words, [t.decode(encoding="UTF-8") for t in tags])
+                lemmas = worker.lemmatizer.lemmatize_sentence(words, 
+                                                              [t.decode(encoding="UTF-8") for t in tags])
             self['lemmas'] = lemmas
         else:
             lemmas = ['_' for word in words]
@@ -33,11 +34,20 @@ class NLPSentence(dict):
         self['morphological_tags'] = None
         if worker.morphological_tagger != None:
             feats = ['_' for word in words]
-            morphological_instance = tp.PMorphologicalInstance()
-            morphological_instance.initialize(words, lemmas, tags, feats)
+            morphological_instance = tp.PMorphologicalInstance()            
+            if sys.version_info[0] == 2:
+                morphological_instance.initialize(words, lemmas, tags, feats)
+            if sys.version_info[0] == 3:
+                morphological_instance.initialize(words, 
+                                                  lemmas, 
+                                                  [t.decode(encoding="UTF-8") for t in tags], 
+                                                  feats)
+
             worker.morphological_tagger.tag_sentence(morphological_instance)
             feats = [morphological_instance.get_tag(i) \
                      for i in range(len(words))]
+            if sys.version_info[0] == 3:
+                feats = [f.decode(encoding="UTF-8") for f in feats]
             self['morphological_tags'] = [feat.split('|') if feat != '_' \
                                           else [] \
                                           for feat in feats]
@@ -70,9 +80,12 @@ class NLPSentence(dict):
         deprels_with_root = ['_root_'] + deprels
         heads_with_root = [-1] + heads
         dependency_instance = tp.PDependencyInstance()
-        dependency_instance.initialize(words_with_root, lemmas_with_root, \
-                                       tags_with_root, tags_with_root, \
-                                       feats_with_root, deprels_with_root, \
+        dependency_instance.initialize(words_with_root, \
+                                       lemmas_with_root, \
+                                       tags_with_root, \
+                                       tags_with_root, \
+                                       feats_with_root, \
+                                       deprels_with_root, \
                                        heads_with_root)
         worker.parser.parse_sentence(dependency_instance)
         # Convert back to 0-based indexing. Words attached to the root will get
@@ -103,11 +116,17 @@ class NLPSentence(dict):
         deprels_with_root = ['_root_'] + deprels
         heads_with_root = [-1] + heads
         semantic_instance = tp.PSemanticInstance()
-        semantic_instance.initialize('', words_with_root, lemmas_with_root, \
-                                     tags_with_root, tags_with_root, \
-                                     feats_with_root, deprels_with_root, \
-                                     heads_with_root, predicate_names, \
-                                     predicate_indices, argument_roles, \
+        semantic_instance.initialize('', \
+                                     words_with_root, \
+                                     lemmas_with_root, \
+                                     tags_with_root, \
+                                     tags_with_root, \
+                                     feats_with_root, \
+                                     deprels_with_root, \
+                                     heads_with_root, \
+                                     predicate_names, \
+                                     predicate_indices, \
+                                     argument_roles, \
                                      argument_indices)
         worker.semantic_parser.parse_semantic_dependencies_from_sentence( \
             semantic_instance)

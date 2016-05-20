@@ -35,7 +35,7 @@ using namespace std;
 // This class implements a dictionary of strings, stored as an hash table
 // for fast lookup. It allows looking up a string for its ID, and also obtain
 // the string with a given ID.
-class Alphabet : public std::tr1::unordered_map <std::string, int> {
+class Alphabet : public std::unordered_map <std::string, int> {
 public:
   Alphabet();
   virtual ~Alphabet();

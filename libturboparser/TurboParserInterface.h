@@ -147,7 +147,8 @@ public:
   }
 
   TurboTaggerWorker *CreateTagger() {
-    TurboTaggerWorker *tagger = new TurboTaggerWorker();
+    TurboTaggerWorker *tagger = 
+      new TurboTaggerWorker();
     taggers_.push_back(tagger);
     return tagger;
   }
@@ -160,7 +161,8 @@ public:
   }
 
   TurboParserWorker *CreateParser() {
-    TurboParserWorker *parser = new TurboParserWorker();
+    TurboParserWorker *parser = 
+      new TurboParserWorker();
     parsers_.push_back(parser);
     return parser;
   }
