@@ -362,15 +362,17 @@ TurboParserInterface::TurboParserInterface() {
   argv_ = NULL;
   BuildArgumentList();
 
+  InitGlog(argv_[0]);
+
   // Initialize Google's logging library.
-  google::InitGoogleLogging(argv_[0]);
+  //google::InitGoogleLogging(argv_[0]);
 
   // Parse command line flags.
-  google::ParseCommandLineFlags(&argc_, &argv_, true);
+  //google::ParseCommandLineFlags(&argc_, &argv_, true);
 
-#ifdef _WIN32
-  google::LogToStderr();
-#endif
+//#ifdef _WIN32
+//  google::LogToStderr();
+//#endif
 }
 
 TurboParserInterface::~TurboParserInterface() {
