@@ -20,11 +20,7 @@
 #define ALPHABET_H_
 
 #include "Utils.h"
-#ifdef _WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 #include <stdio.h>
 #ifdef _WIN32
 #include <glog\logging.h>
@@ -48,7 +44,7 @@ public:
   void clear() {
     num_entries_ = 0;
     names_.clear();
-    std::tr1::unordered_map <std::string, int>::clear();
+    std::unordered_map <std::string, int>::clear();
   }
 
   // Return the dictionary size.

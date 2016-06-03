@@ -61,12 +61,13 @@ struct TurboMorphologicalTaggerWorker::MorphologicalPipeOpaque {
 };
 
 TurboTaggerWorker::TurboTaggerWorker() {
-  options_opaque_ = std::make_unique<TaggerOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<TaggerOptionsOpaque>
+    (new TaggerOptionsOpaque());
   options_opaque_->options_.Initialize();
 
   pipe_opaque_ = 
-    std::make_unique<TaggerPipeOpaque>
-    (TaggerPipeOpaque({ &(options_opaque_->options_) }));
+    std::unique_ptr<TaggerPipeOpaque>
+    (new TaggerPipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
@@ -109,11 +110,12 @@ void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
 }
 
 TurboEntityRecognizerWorker::TurboEntityRecognizerWorker() {
-  options_opaque_ = std::make_unique<EntityOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<EntityOptionsOpaque>
+    (new EntityOptionsOpaque());
   options_opaque_->options_.Initialize();
 
-  pipe_opaque_ = std::make_unique<EntityPipeOpaque>
-    (EntityPipeOpaque({ &(options_opaque_->options_) }));
+  pipe_opaque_ = std::unique_ptr<EntityPipeOpaque>
+    (new EntityPipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
@@ -157,11 +159,12 @@ void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
 }
 
 TurboParserWorker::TurboParserWorker() {
-  options_opaque_ = std::make_unique<DependencyOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<DependencyOptionsOpaque>
+    (new DependencyOptionsOpaque());
   options_opaque_->options_.Initialize();
 
-  pipe_opaque_ = std::make_unique<DependencyPipeOpaque>
-    (DependencyPipeOpaque({ &(options_opaque_->options_) }));
+  pipe_opaque_ = std::unique_ptr<DependencyPipeOpaque>
+    (new DependencyPipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
@@ -204,11 +207,12 @@ void TurboParserWorker::ParseSentence(DependencyInstance *sentence) {
 }
 
 TurboSemanticParserWorker::TurboSemanticParserWorker() {
-  options_opaque_ = std::make_unique<SemanticOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<SemanticOptionsOpaque>
+    (new SemanticOptionsOpaque());
   options_opaque_->options_.Initialize();
 
-  pipe_opaque_ = std::make_unique<SemanticPipeOpaque>
-    (SemanticPipeOpaque({ &(options_opaque_->options_) }));
+  pipe_opaque_ = std::unique_ptr<SemanticPipeOpaque>
+    (new SemanticPipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
@@ -256,11 +260,12 @@ void TurboSemanticParserWorker::ParseSemanticDependenciesFromSentence(
 }
 
 TurboCoreferenceResolverWorker::TurboCoreferenceResolverWorker() {
-  options_opaque_ = std::make_unique<CoreferenceOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<CoreferenceOptionsOpaque>
+    (new CoreferenceOptionsOpaque());
   options_opaque_->options_.Initialize();
 
-  pipe_opaque_ = std::make_unique<CoreferencePipeOpaque>
-    (CoreferencePipeOpaque({ &(options_opaque_->options_) }));
+  pipe_opaque_ = std::unique_ptr<CoreferencePipeOpaque>
+    (new CoreferencePipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
@@ -308,11 +313,12 @@ void TurboCoreferenceResolverWorker::ResolveCoreferencesFromDocument(
 }
 
 TurboMorphologicalTaggerWorker::TurboMorphologicalTaggerWorker() {
-  options_opaque_ = std::make_unique<MorphologicalOptionsOpaque>();
+  options_opaque_ = std::unique_ptr<MorphologicalOptionsOpaque>
+    (new MorphologicalOptionsOpaque());
   options_opaque_->options_.Initialize();
 
-  pipe_opaque_ = std::make_unique<MorphologicalPipeOpaque>
-    (MorphologicalPipeOpaque({ &(options_opaque_->options_) }));
+  pipe_opaque_ = std::unique_ptr<MorphologicalPipeOpaque>
+    (new MorphologicalPipeOpaque({ &(options_opaque_->options_) }));
   pipe_opaque_->pipe_.Initialize();
 }
 
