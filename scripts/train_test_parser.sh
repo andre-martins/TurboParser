@@ -85,15 +85,18 @@ then
         awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
             > ${file_test}
     done
-elif [ "$language" == "english" ] ||  [ "$language" == "german_spmrl" ] # Remove the RHS.
+elif [ "$language" == "english" ]
 then
     file_train=${path_data}/${language}_train.conll
     files_test[0]=${path_data}/${language}_test.conll
     files_test[1]=${path_data}/${language}_dev.conll
-
-    files_test[2]=${path_data}/${language}_test.conll.predpos # Remove this.
-    files_test[3]=${path_data}/${language}_dev.conll.predpos # Remove this.
-
+elif [ "$language" == "german_spmrl" ]
+then
+    file_train=${path_data}/${language}_train.conll
+    files_test[0]=${path_data}/${language}_test.conll
+    files_test[1]=${path_data}/${language}_dev.conll
+    files_test[2]=${path_data}/${language}_test.conll.predpos
+    files_test[3]=${path_data}/${language}_dev.conll.predpos
 elif [ "$language" == "dutch" ]
 then
     file_train=${path_data}/${language}_train.conll

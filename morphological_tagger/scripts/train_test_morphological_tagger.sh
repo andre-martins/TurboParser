@@ -34,7 +34,7 @@ mkdir -p ${path_results}
 
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language_prefix}_${suffix}.model
-if $use_fine_tags
+if ${use_fine_tags}
 then
     file_train_orig=${path_data}/${language_prefix}-train.conllu
     files_test_orig[0]=${path_data}/${language_prefix}-test.conllu
