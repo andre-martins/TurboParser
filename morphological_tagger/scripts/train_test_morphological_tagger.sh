@@ -18,6 +18,7 @@ form_cutoff=1 # Word cutoff. Only words which occur more than these times won't 
 prefix_length=0
 suffix_length=3
 suffix=morphological_tagger
+use_fine_tags=false
 
 # Set path folders.
 path_bin=${root_folder} # Folder containing the binary.
@@ -33,9 +34,33 @@ mkdir -p ${path_results}
 
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language_prefix}_${suffix}.model
-file_train=${path_data}/${language_prefix}-train.conllu
-files_test[0]=${path_data}/${language_prefix}-test.conllu
-files_test[1]=${path_data}/${language_prefix}-dev.conllu
+if $use_fine_tags
+then
+    file_train_orig=${path_data}/${language_prefix}-train.conllu
+    files_test_orig[0]=${path_data}/${language_prefix}-test.conllu
+    files_test_orig[1]=${path_data}/${language_prefix}-dev.conllu
+
+    file_train=${path_data}/${language_prefix}_ftags-train.conllu
+    files_test[0]=${path_data}/${language_prefix}_ftags-test.conllu
+    files_test[1]=${path_data}/${language_prefix}_ftags-dev.conllu
+
+    rm -f file_train
+    awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_train_orig} \
+        > ${file_train}
+
+    for (( i=0; i<${#files_test[*]}; i++ ))
+    do
+        file_test_orig=${files_test_orig[$i]}
+        file_test=${files_test[$i]}
+        rm -f file_test
+        awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
+            > ${file_test}
+    done
+else
+    file_train=${path_data}/${language_prefix}-train.conllu
+    files_test[0]=${path_data}/${language_prefix}-test.conllu
+    files_test[1]=${path_data}/${language_prefix}-dev.conllu
+fi
 
 # Obtain a prediction file path for each test file.
 for (( i=0; i<${#files_test[*]}; i++ ))
