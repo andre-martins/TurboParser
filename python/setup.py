@@ -6,7 +6,7 @@ import os
 
 if os.name == 'nt':
     ext_modules=[Extension("turboparser",
-    ["turboparser.pyx"],
+    ["turbo_parser.pyx"],
     language="c++",
     extra_compile_args=["/Zi", "/Od", "/DGOOGLE_GLOG_DLL_DECL="],
     extra_link_args=['/DEBUG'],
