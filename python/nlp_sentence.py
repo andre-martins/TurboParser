@@ -34,7 +34,7 @@ class NLPSentence(dict):
         self['morphological_tags'] = None
         if worker.morphological_tagger != None:
             feats = ['_' for word in words]
-            morphological_instance = tp.PMorphologicalInstance()            
+            morphological_instance = tp.PMorphologicalInstance()
             if sys.version_info[0] == 2:
                 morphological_instance.initialize(words, lemmas, tags, feats)
             if sys.version_info[0] == 3:

@@ -1,16 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <memory>
-#include "Instance.h"
-#include "SequenceInstance.h"
-#include "EntityInstance.h"
-#include "DependencyInstance.h"
-#include "SemanticInstance.h"
-#include "EntitySpan.h"
-#include "CoreferenceSentence.h"
-#include "CoreferenceDocument.h"
-#include "MorphologicalInstance.h"
+#include "TaggerPipe.h"
+#include "EntityPipe.h"
+#include "DependencyPipe.h"
+#include "SemanticPipe.h"
+#include "CoreferencePipe.h"
+#include "MorphologicalPipe.h"
 
 namespace TurboParserInterface {
 class TurboTaggerWorker {
@@ -26,10 +21,8 @@ public:
   void TagSentence(SequenceInstance *sentence);
 
 private:
-  struct TaggerOptionsOpaque; 
-  std::unique_ptr<TaggerOptionsOpaque> options_opaque_;
-  struct TaggerPipeOpaque;
-  std::unique_ptr<TaggerPipeOpaque> pipe_opaque_;
+  TaggerOptions *tagger_options_;
+  TaggerPipe *tagger_pipe_;
 };
 
 class TurboEntityRecognizerWorker {
@@ -45,10 +38,8 @@ public:
   void TagSentence(EntityInstance *sentence);
 
 private:
-  struct EntityOptionsOpaque;
-  std::unique_ptr<EntityOptionsOpaque> options_opaque_;
-  struct EntityPipeOpaque;
-  std::unique_ptr<EntityPipeOpaque> pipe_opaque_;
+  EntityOptions *entity_options_;
+  EntityPipe *entity_pipe_;
 };
 
 class TurboParserWorker {
@@ -64,10 +55,8 @@ public:
   void ParseSentence(DependencyInstance *sentence);
 
 private:
-  struct DependencyOptionsOpaque;
-  std::unique_ptr<DependencyOptionsOpaque> options_opaque_;
-  struct DependencyPipeOpaque;
-  std::unique_ptr<DependencyPipeOpaque> pipe_opaque_;
+  DependencyOptions *parser_options_;
+  DependencyPipe *parser_pipe_;
 };
 
 class TurboSemanticParserWorker {
@@ -83,10 +72,8 @@ public:
   void ParseSemanticDependenciesFromSentence(SemanticInstance *sentence);
 
 private:
-  struct SemanticOptionsOpaque;
-  std::unique_ptr<SemanticOptionsOpaque> options_opaque_;
-  struct SemanticPipeOpaque;
-  std::unique_ptr<SemanticPipeOpaque> pipe_opaque_;
+  SemanticOptions *semantic_options_;
+  SemanticPipe *semantic_pipe_;
 };
 
 class TurboCoreferenceResolverWorker {
@@ -102,10 +89,8 @@ public:
   void ResolveCoreferencesFromDocument(CoreferenceDocument *document);
 
 private:
-  struct CoreferenceOptionsOpaque;
-  std::unique_ptr<CoreferenceOptionsOpaque> options_opaque_;
-  struct CoreferencePipeOpaque;
-  std::unique_ptr<CoreferencePipeOpaque> pipe_opaque_;
+  CoreferenceOptions *coreference_options_;
+  CoreferencePipe *coreference_pipe_;
 };
 
 class TurboMorphologicalTaggerWorker {
@@ -121,10 +106,8 @@ public:
   void TagSentence(MorphologicalInstance *sentence);
 
 private:
-  struct MorphologicalOptionsOpaque;
-  std::unique_ptr<MorphologicalOptionsOpaque> options_opaque_;
-  struct MorphologicalPipeOpaque;
-  std::unique_ptr<MorphologicalPipeOpaque> pipe_opaque_;
+  MorphologicalOptions *morphological_tagger_options_;
+  MorphologicalPipe *morphological_tagger_pipe_;
 };
 
 class TurboParserInterface {
@@ -148,8 +131,7 @@ public:
   }
 
   TurboTaggerWorker *CreateTagger() {
-    TurboTaggerWorker *tagger = 
-      new TurboTaggerWorker();
+    TurboTaggerWorker *tagger = new TurboTaggerWorker();
     taggers_.push_back(tagger);
     return tagger;
   }
@@ -162,8 +144,7 @@ public:
   }
 
   TurboParserWorker *CreateParser() {
-    TurboParserWorker *parser = 
-      new TurboParserWorker();
+    TurboParserWorker *parser = new TurboParserWorker();
     parsers_.push_back(parser);
     return parser;
   }

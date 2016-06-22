@@ -6,9 +6,9 @@ import os
 
 if os.name == 'nt':
     ext_modules=[Extension("turboparser",
-    ["turbo_parser.pyx"],
+    ["turboparser.pyx"],
     language="c++",
-    extra_compile_args=["/Zi", "/Od", "/DGOOGLE_GLOG_DLL_DECL="],
+    extra_compile_args=["/Zi", "/Od", "/DGOOGLE_GLOG_DLL_DECL=", "/DGFLAGS_DLL_DECL="],
     extra_link_args=['/DEBUG'],
     include_dirs=["..\\src\\util",
     "..\\src\\classifier",
@@ -29,22 +29,12 @@ if os.name == 'nt':
     "..\\deps\\glog-0.3.2\\x64\\Release",            
     "..\\deps\\gflags-2.0\\x64\\Release",            
     "..\\deps\\AD3-2.0.2\\vsprojects\\x64\\Release", 
-    "..\\deps\\googletest\\msvc\\x64\\Release"],     
-    #library_dirs=["..\\vsprojects\\x64\\Debug",
-    #"..\\deps\\glog-0.3.2\\x64\\Debug",           
-    #"..\\deps\\gflags-2.0\\x64\\Debug",           
-    #"..\\deps\\AD3-2.0.2\\vsprojects\\x64\\Debug",
-    #"..\\deps\\googletest\\msvc\\x64\\Debug"],    
+    "..\\deps\\googletest\\msvc\\x64\\Release"],
     extra_objects=["libturboparser.lib", 
     "AD3_140mdx64.lib",                 
     "libgflags_140mdx64.lib",           
     "libglog_static_140mdx64.lib",      
-    "gtest-md_140mdx64.lib"])]          
-    #extra_objects=["libturboparser.lib", 
-    #"AD3_140mddx64.lib",           
-    #"libgflags_140mddx64.lib",     
-    #"libglog_static_140mddx64.lib",
-    #"gtest-md_140mddx64.lib"])]    
+    "gtest-md_140mdx64.lib"])]
     setup(cmdclass={'build_ext': build_ext},
     ext_modules = cythonize(ext_modules, gdb_debug=True)
     )

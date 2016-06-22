@@ -350,7 +350,7 @@ cdef class PCoreferenceSentence:
                    p_entity_spans, \
                    p_constituent_spans, \
                    p_coreference_spans):
-        cdef vector[NamedSpan*] entity_spans
+        cdef vector[EntitySpan*] entity_spans
         for p_span in p_entity_spans:
             entity_spans.push_back((<PEntitySpan>p_span).thisptr)
         cdef vector[NamedSpan*] constituent_spans

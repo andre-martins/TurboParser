@@ -9,78 +9,31 @@
 #include <gflags/gflags.h>
 #include "Utils.h"
 #include "TurboParserInterface.h"
-#include "TaggerPipe.h"
-#include "EntityPipe.h"
-#include "DependencyPipe.h"
-#include "SemanticPipe.h"
-#include "CoreferencePipe.h"
-#include "MorphologicalPipe.h"
-
 
 namespace TurboParserInterface {
-struct TurboTaggerWorker::TaggerOptionsOpaque {
-  TaggerOptions options_;
-};
-struct TurboTaggerWorker::TaggerPipeOpaque {
-  TaggerPipe pipe_;
-};
-
-struct TurboEntityRecognizerWorker::EntityOptionsOpaque {
-  EntityOptions options_;
-};
-struct TurboEntityRecognizerWorker::EntityPipeOpaque {
-  EntityPipe pipe_;
-};
-
-struct TurboParserWorker::DependencyOptionsOpaque {
-  DependencyOptions options_;
-};
-struct TurboParserWorker::DependencyPipeOpaque {
-  DependencyPipe pipe_;
-};
-
-struct TurboSemanticParserWorker::SemanticOptionsOpaque {
-  SemanticOptions options_;
-};
-struct TurboSemanticParserWorker::SemanticPipeOpaque {
-  SemanticPipe pipe_;
-};
-
-struct TurboCoreferenceResolverWorker::CoreferenceOptionsOpaque {
-  CoreferenceOptions options_;
-};
-struct TurboCoreferenceResolverWorker::CoreferencePipeOpaque {
-  CoreferencePipe pipe_;
-};
-
-struct TurboMorphologicalTaggerWorker::MorphologicalOptionsOpaque {
-  MorphologicalOptions options_;
-};
-struct TurboMorphologicalTaggerWorker::MorphologicalPipeOpaque {
-  MorphologicalPipe pipe_;
-};
-
 TurboTaggerWorker::TurboTaggerWorker() {
-  options_opaque_ = std::unique_ptr<TaggerOptionsOpaque>
-    (new TaggerOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  tagger_options_ = new TaggerOptions;
+  tagger_options_->Initialize();
 
-  pipe_opaque_ = 
-    std::unique_ptr<TaggerPipeOpaque>
-    (new TaggerPipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  tagger_pipe_ = new TaggerPipe(tagger_options_);
+  tagger_pipe_->Initialize();
 }
 
-TurboTaggerWorker::~TurboTaggerWorker() {}
+TurboTaggerWorker::~TurboTaggerWorker() {
+  LOG(INFO) << "Deleting tagger pipe.";
+  delete tagger_pipe_;
+  LOG(INFO) << "Deleting tagger options.";
+  delete tagger_options_;
+}
 
 void TurboTaggerWorker::LoadTaggerModel(const std::string &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  tagger_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  tagger_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -90,14 +43,14 @@ void TurboTaggerWorker::LoadTaggerModel(const std::string &file_model) {
 
 void TurboTaggerWorker::Tag(const std::string &file_test,
                             const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  tagger_options_->SetTestFilePath(file_test);
+  tagger_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  tagger_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -106,30 +59,33 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
 }
 
 void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
-  pipe_opaque_->pipe_.ClassifyInstance(sentence);
+  tagger_pipe_->ClassifyInstance(sentence);
 }
 
 TurboEntityRecognizerWorker::TurboEntityRecognizerWorker() {
-  options_opaque_ = std::unique_ptr<EntityOptionsOpaque>
-    (new EntityOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  entity_options_ = new EntityOptions;
+  entity_options_->Initialize();
 
-  pipe_opaque_ = std::unique_ptr<EntityPipeOpaque>
-    (new EntityPipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  entity_pipe_ = new EntityPipe(entity_options_);
+  entity_pipe_->Initialize();
 }
 
-TurboEntityRecognizerWorker::~TurboEntityRecognizerWorker() {}
+TurboEntityRecognizerWorker::~TurboEntityRecognizerWorker() {
+  LOG(INFO) << "Deleting entity recognizer pipe.";
+  delete entity_pipe_;
+  LOG(INFO) << "Deleting entity recognizer options.";
+  delete entity_options_;
+}
 
 void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
   const std::string &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  entity_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  entity_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -139,14 +95,14 @@ void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
 
 void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
                                       const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  entity_options_->SetTestFilePath(file_test);
+  entity_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  entity_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -155,29 +111,32 @@ void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
 }
 
 void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
-  pipe_opaque_->pipe_.ClassifyInstance(sentence);
+  entity_pipe_->ClassifyInstance(sentence);
 }
 
 TurboParserWorker::TurboParserWorker() {
-  options_opaque_ = std::unique_ptr<DependencyOptionsOpaque>
-    (new DependencyOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  parser_options_ = new DependencyOptions;
+  parser_options_->Initialize();
 
-  pipe_opaque_ = std::unique_ptr<DependencyPipeOpaque>
-    (new DependencyPipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  parser_pipe_ = new DependencyPipe(parser_options_);
+  parser_pipe_->Initialize();
 }
 
-TurboParserWorker::~TurboParserWorker() {}
+TurboParserWorker::~TurboParserWorker() {
+  LOG(INFO) << "Deleting parser pipe.";
+  delete parser_pipe_;
+  LOG(INFO) << "Deleting parser options.";
+  delete parser_options_;
+}
 
 void TurboParserWorker::LoadParserModel(const std::string &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  parser_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  parser_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -187,14 +146,14 @@ void TurboParserWorker::LoadParserModel(const std::string &file_model) {
 
 void TurboParserWorker::Parse(const std::string &file_test,
                               const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  parser_options_->SetTestFilePath(file_test);
+  parser_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  parser_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -203,24 +162,27 @@ void TurboParserWorker::Parse(const std::string &file_test,
 }
 
 void TurboParserWorker::ParseSentence(DependencyInstance *sentence) {
-  pipe_opaque_->pipe_.ClassifyInstance(sentence);
+  parser_pipe_->ClassifyInstance(sentence);
 }
 
 TurboSemanticParserWorker::TurboSemanticParserWorker() {
-  options_opaque_ = std::unique_ptr<SemanticOptionsOpaque>
-    (new SemanticOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  semantic_options_ = new SemanticOptions;
+  semantic_options_->Initialize();
 
-  pipe_opaque_ = std::unique_ptr<SemanticPipeOpaque>
-    (new SemanticPipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  semantic_pipe_ = new SemanticPipe(semantic_options_);
+  semantic_pipe_->Initialize();
 }
 
-TurboSemanticParserWorker::~TurboSemanticParserWorker() {}
+TurboSemanticParserWorker::~TurboSemanticParserWorker() {
+  LOG(INFO) << "Deleting semantic pipe.";
+  delete semantic_pipe_;
+  LOG(INFO) << "Deleting semantic options.";
+  delete semantic_options_;
+}
 
 void TurboSemanticParserWorker::LoadSemanticParserModel(
   const std::string &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  semantic_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
@@ -228,7 +190,7 @@ void TurboSemanticParserWorker::LoadSemanticParserModel(
 
   LOG(INFO) << "Loading model file " << file_model;
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  semantic_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -239,14 +201,14 @@ void TurboSemanticParserWorker::LoadSemanticParserModel(
 void TurboSemanticParserWorker::ParseSemanticDependencies(
   const std::string &file_test,
   const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  semantic_options_->SetTestFilePath(file_test);
+  semantic_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  semantic_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -256,24 +218,27 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
 
 void TurboSemanticParserWorker::ParseSemanticDependenciesFromSentence(
   SemanticInstance *sentence) {
-  pipe_opaque_->pipe_.ClassifyInstance(sentence);
+  semantic_pipe_->ClassifyInstance(sentence);
 }
 
 TurboCoreferenceResolverWorker::TurboCoreferenceResolverWorker() {
-  options_opaque_ = std::unique_ptr<CoreferenceOptionsOpaque>
-    (new CoreferenceOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  coreference_options_ = new CoreferenceOptions;
+  coreference_options_->Initialize();
 
-  pipe_opaque_ = std::unique_ptr<CoreferencePipeOpaque>
-    (new CoreferencePipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  coreference_pipe_ = new CoreferencePipe(coreference_options_);
+  coreference_pipe_->Initialize();
 }
 
-TurboCoreferenceResolverWorker::~TurboCoreferenceResolverWorker() {}
+TurboCoreferenceResolverWorker::~TurboCoreferenceResolverWorker() {
+  LOG(INFO) << "Deleting coreference pipe.";
+  delete coreference_pipe_;
+  LOG(INFO) << "Deleting coreference options.";
+  delete coreference_options_;
+}
 
 void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
   const std::string &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  coreference_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
@@ -281,7 +246,7 @@ void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
 
   LOG(INFO) << "Loading model file " << file_model;
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  coreference_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -292,14 +257,14 @@ void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
 void TurboCoreferenceResolverWorker::ResolveCoreferences(
   const std::string &file_test,
   const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  coreference_options_->SetTestFilePath(file_test);
+  coreference_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  coreference_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -309,31 +274,35 @@ void TurboCoreferenceResolverWorker::ResolveCoreferences(
 
 void TurboCoreferenceResolverWorker::ResolveCoreferencesFromDocument(
   CoreferenceDocument *document) {
-  pipe_opaque_->pipe_.ClassifyInstance(document);
+  coreference_pipe_->ClassifyInstance(document);
 }
 
 TurboMorphologicalTaggerWorker::TurboMorphologicalTaggerWorker() {
-  options_opaque_ = std::unique_ptr<MorphologicalOptionsOpaque>
-    (new MorphologicalOptionsOpaque());
-  options_opaque_->options_.Initialize();
+  morphological_tagger_options_ = new MorphologicalOptions;
+  morphological_tagger_options_->Initialize();
 
-  pipe_opaque_ = std::unique_ptr<MorphologicalPipeOpaque>
-    (new MorphologicalPipeOpaque({ &(options_opaque_->options_) }));
-  pipe_opaque_->pipe_.Initialize();
+  morphological_tagger_pipe_ =
+    new MorphologicalPipe(morphological_tagger_options_);
+  morphological_tagger_pipe_->Initialize();
 }
 
-TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {}
+TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {
+  LOG(INFO) << "Deleting tagger pipe.";
+  delete morphological_tagger_pipe_;
+  LOG(INFO) << "Deleting tagger options.";
+  delete morphological_tagger_options_;
+}
 
 void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(
   const std::string
   &file_model) {
-  options_opaque_->options_.SetModelFilePath(file_model);
+  morphological_tagger_options_->SetModelFilePath(file_model);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.LoadModelFile();
+  morphological_tagger_pipe_->LoadModelFile();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -343,14 +312,14 @@ void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(
 
 void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
                                          const std::string &file_prediction) {
-  options_opaque_->options_.SetTestFilePath(file_test);
-  options_opaque_->options_.SetOutputFilePath(file_prediction);
+  morphological_tagger_options_->SetTestFilePath(file_test);
+  morphological_tagger_options_->SetOutputFilePath(file_prediction);
 
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
-  pipe_opaque_->pipe_.Run();
+  morphological_tagger_pipe_->Run();
 
   chrono.StopTime();
   time = chrono.GetElapsedTime();
@@ -360,7 +329,7 @@ void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
 
 void TurboMorphologicalTaggerWorker::TagSentence(
   MorphologicalInstance *sentence) {
-  pipe_opaque_->pipe_.ClassifyInstance(sentence);
+  morphological_tagger_pipe_->ClassifyInstance(sentence);
 }
 
 TurboParserInterface::TurboParserInterface() {
