@@ -33,6 +33,8 @@ void TurboTaggerWorker::LoadTaggerModel(const std::string &file_model) {
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
+  LOG(INFO) << "Loading model file " << file_model;
+
   tagger_pipe_->LoadModelFile();
 
   chrono.StopTime();
@@ -85,6 +87,8 @@ void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
   chronowrap::Chronometer chrono;
   chrono.GetTime();
 
+  LOG(INFO) << "Loading model file " << file_model;
+
   entity_pipe_->LoadModelFile();
 
   chrono.StopTime();
@@ -135,6 +139,8 @@ void TurboParserWorker::LoadParserModel(const std::string &file_model) {
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   parser_pipe_->LoadModelFile();
 
@@ -301,6 +307,8 @@ void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(
   double time;
   chronowrap::Chronometer chrono;
   chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   morphological_tagger_pipe_->LoadModelFile();
 

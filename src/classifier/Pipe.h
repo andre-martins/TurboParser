@@ -66,6 +66,7 @@ public:
 
   // Get model version.
   uint64_t GetModelVersion() {
+    LOG(INFO) << "model version: " << model_version_;
     return model_version_;
   }
 protected:
