@@ -221,7 +221,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
     }
   }
 
-  coreference_parts->BuildIndices(mentions.size());
+  coreference_parts->BuildIndices((int)mentions.size());
   // Necessary to store this information here for LabelInstance at test time.
   coreference_parts->SetMentions(mentions);
 }
@@ -268,7 +268,7 @@ void CoreferencePipe::LabelInstance(Parts *parts,
     CHECK_EQ(mention_clusters[arc->child_mention()], -1);
     if (arc->parent_mention() < 0) {
       // Non-anaphoric mention; create its own cluster.
-      mention_clusters[arc->child_mention()] = entities.size();
+      mention_clusters[arc->child_mention()] = (int)entities.size();
       entities.push_back(std::vector<int>(1, arc->child_mention()));
     } else {
       int k = mention_clusters[arc->parent_mention()];

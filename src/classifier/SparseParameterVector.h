@@ -138,7 +138,7 @@ public:
   }
 
   // Get the number of instantiated features.
-  int Size() const { return values_.size(); }
+  int Size() const { return (int) values_.size(); }
 
   // True if this feature key is already instantiated.
   bool Exists(uint64_t key) const {

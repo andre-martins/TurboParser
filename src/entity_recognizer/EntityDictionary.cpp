@@ -22,6 +22,12 @@
 #include <algorithm>
 #include <cctype>
 
+EntityDictionary::EntityDictionary(Pipe* pipe) : SequenceDictionary(pipe) {
+  EntityOptions *options =
+    static_cast<EntityOptions*>(pipe->GetOptions());
+  gazetteer_case_sensitive_ = options->gazetteer_case_sensitive();
+}
+
 void EntityDictionary::CreateTagDictionary(SequenceReader *reader) {
   SequenceDictionary::CreateTagDictionary(reader);
 

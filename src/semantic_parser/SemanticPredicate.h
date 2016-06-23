@@ -46,7 +46,7 @@ public:
 
   void Save(FILE *fs) {
     bool success;
-    int length = roles_.size();
+    int length = (int)roles_.size();
     success = WriteInteger(fs, id_);
     CHECK(success);
     success = WriteInteger(fs, length);

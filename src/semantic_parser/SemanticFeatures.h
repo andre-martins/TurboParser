@@ -58,12 +58,12 @@ public:
   }
 
   int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r]) ? 0 : input_features_[r]->size();
+    return (NULL == input_features_[r]) ? 0 : (int)(input_features_[r]->size());
   };
 
   int GetNumLabeledPartFeatures(int r) const {
     return (NULL == input_labeled_features_[r]) ?
-      0 : input_labeled_features_[r]->size();
+      0 : (int)(input_labeled_features_[r]->size());
   };
 
   int GetPartFeature(int r, int j) const {

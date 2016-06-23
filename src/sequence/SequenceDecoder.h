@@ -29,7 +29,7 @@ public:
   virtual ~SequenceDecoderNodeScores() {}
 
   // Get the number of states.
-  int GetNumStates() const { return scores_.size(); }
+  int GetNumStates() const { return (int) scores_.size(); }
 
   // Set the number of states.
   void SetNumStates(int num_states) { scores_.resize(num_states); }
@@ -76,14 +76,14 @@ public:
 
   // Get/Set the number of states for the current node. The states must be
   // numbered 0, 1, 2, ...
-  int GetNumCurrentStates() const { return scores_.size(); }
+  int GetNumCurrentStates() const { return (int) scores_.size(); }
   void SetNumCurrentStates(int num_current_states) {
     scores_.resize(num_current_states);
   }
 
   // Get/set the number of previous states compatible with the current node.
   int GetNumPreviousStates(int current_state) const {
-    return scores_[current_state].size();
+    return (int) scores_[current_state].size();
   }
   void SetNumPreviousStates(int current_state, int num_previous_states) {
     scores_[current_state].resize(num_previous_states);
@@ -141,13 +141,13 @@ public:
   int GetStatePairIndex(int current_state, int k) const {
     int bigram_index = k;
     for (int state = 0; state < current_state; ++state) {
-      bigram_index += scores_[state].size();
+      bigram_index += (int)scores_[state].size();
     }
     return bigram_index;
   }
 
   // Compute number of bigram indices.
-  int GetNumStatePairs() const { return GetStatePairIndex(scores_.size(), 0); }
+  int GetNumStatePairs() const { return GetStatePairIndex((int)scores_.size(), 0); }
 
 private:
   std::vector<std::vector<std::pair<int, double> > > scores_;

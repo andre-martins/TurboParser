@@ -38,7 +38,7 @@ public:
     return NULL;
   }
 
-  int size() { return form_ids_.size(); };
+  int size() { return  (int)form_ids_.size(); };
 
   void Clear() {
     DependencyInstanceNumeric::Clear();
@@ -113,10 +113,10 @@ public:
     return argument_indices_;
   }
 
-  int GetNumPredicates() { return predicate_ids_.size(); }
+  int GetNumPredicates() { return (int) predicate_ids_.size(); }
   int GetPredicateId(int k) { return predicate_ids_[k]; }
   int GetPredicateIndex(int k) { return predicate_indices_[k]; }
-  int GetNumArgumentsPredicate(int k) { return argument_role_ids_[k].size(); }
+  int GetNumArgumentsPredicate(int k) { return (int) argument_role_ids_[k].size(); }
   int GetArgumentRoleId(int k, int l) { return argument_role_ids_[k][l]; }
   int GetArgumentIndex(int k, int l) { return argument_indices_[k][l]; }
 

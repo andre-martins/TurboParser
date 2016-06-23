@@ -37,7 +37,7 @@ public:
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
     bool success;
-    int length = unknown_cpostag_morphologicaltags_.size();
+    int length = (int) unknown_cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int j = 0; j < unknown_cpostag_morphologicaltags_.size(); ++j) {
@@ -46,11 +46,11 @@ public:
       CHECK(success);
     }
 
-    length = cpostag_morphologicaltags_.size();
+    length = (int)cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < cpostag_morphologicaltags_.size(); ++i) {
-      length = cpostag_morphologicaltags_[i].size();
+      length = (int)cpostag_morphologicaltags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int j = 0; j < cpostag_morphologicaltags_[i].size(); ++j) {

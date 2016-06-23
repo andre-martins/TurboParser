@@ -482,7 +482,7 @@ public:
   void BuildOffsets() {
     for (int i = NUM_DEPENDENCYPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_DEPENDENCYPARTS - 1) ? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_DEPENDENCYPARTS - 1) ? (int)size() : offsets_[i + 1];
       }
     }
   };
@@ -554,7 +554,7 @@ private:
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
     *size = (i < NUM_DEPENDENCYPARTS - 1) ? offsets_[i + 1] - (*offset) :
-      DependencyParts::size() - (*offset);
+      (int)DependencyParts::size() - (*offset);
   }
 
   // Set offset from part index.

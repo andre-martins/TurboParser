@@ -34,7 +34,7 @@ public:
     return NULL;
   }
 
-  int size() { return form_ids_.size(); };
+  int size() { return (int) form_ids_.size(); };
 
   virtual void Clear() {
     form_ids_.clear();
@@ -58,8 +58,8 @@ public:
   const std::vector<int> &GetTagIds() const { return tag_ids_; }
 
   int GetFormId(int i) { return form_ids_[i]; }
-  int GetMaxPrefixLength(int i) { return prefix_ids_[i].size(); }
-  int GetMaxSuffixLength(int i) { return suffix_ids_[i].size(); }
+  int GetMaxPrefixLength(int i) { return (int) prefix_ids_[i].size(); }
+  int GetMaxSuffixLength(int i) { return (int) suffix_ids_[i].size(); }
   int GetPrefixId(int i, int length) { return prefix_ids_[i][length - 1]; }
   int GetSuffixId(int i, int length) { return suffix_ids_[i][length - 1]; }
   int GetShapeId(int i) { return shape_ids_[i]; }

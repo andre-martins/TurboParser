@@ -43,7 +43,7 @@ public:
                   const vector<string> &deprels,
                   const vector<int> &heads);
 
-  int size() { return forms_.size(); };
+  int size() { return (int) forms_.size(); };
 
   const vector<int> &GetHeads() { return heads_; }
   const vector<string> &GetDependencyRelations() { return deprels_; }
@@ -52,7 +52,7 @@ public:
   const string &GetLemma(int i) { return lemmas_[i]; };
   const string &GetCoarsePosTag(int i) { return cpostags_[i]; };
   const string &GetPosTag(int i) { return postags_[i]; };
-  int GetNumMorphFeatures(int i) { return feats_[i].size(); };
+  int GetNumMorphFeatures(int i) { return (int)(feats_[i].size()); };
   const string &GetMorphFeature(int i, int j) { return feats_[i][j]; };
   int GetHead(int i) { return heads_[i]; };
   const string &GetDependencyRelation(int i) { return deprels_[i]; };

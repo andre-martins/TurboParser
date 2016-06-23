@@ -101,25 +101,25 @@ public:
 
 public:
   bool IsNumberSingular() {
-    return number_flag_ & (0x1 << CoreferenceDeterminerNumber::SINGULAR);
+    return (number_flag_ & (0x1 << CoreferenceDeterminerNumber::SINGULAR)) != 0;
   }
   bool IsNumberPlural() {
-    return number_flag_ & (0x1 << CoreferenceDeterminerNumber::PLURAL);
+    return (number_flag_ & (0x1 << CoreferenceDeterminerNumber::PLURAL)) != 0;
   }
   bool IsNumberUndefined() {
-    return number_flag_ & (0x1 << CoreferenceDeterminerNumber::UNDEFINED);
+    return (number_flag_ & (0x1 << CoreferenceDeterminerNumber::UNDEFINED)) != 0;
   }
   bool IsGenderMale() {
-    return gender_flag_ & (0x1 << CoreferenceDeterminerGender::MALE);
+    return (gender_flag_ & (0x1 << CoreferenceDeterminerGender::MALE)) != 0;
   }
   bool IsGenderFemale() {
-    return gender_flag_ & (0x1 << CoreferenceDeterminerGender::FEMALE);
+    return (gender_flag_ & (0x1 << CoreferenceDeterminerGender::FEMALE)) != 0;
   }
   bool IsGenderNeutral() {
-    return gender_flag_ & (0x1 << CoreferenceDeterminerGender::NEUTRAL);
+    return (gender_flag_ & (0x1 << CoreferenceDeterminerGender::NEUTRAL)) != 0;
   }
   bool IsGenderUndefined() {
-    return gender_flag_ & (0x1 << CoreferenceDeterminerGender::UNDEFINED);
+    return (gender_flag_ & (0x1 << CoreferenceDeterminerGender::UNDEFINED) ) != 0;
   }
 
   void SetNumberSingular() {

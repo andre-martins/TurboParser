@@ -52,10 +52,10 @@ public:
                   const vector<vector<int> > &argument_indices);
 
   const string &GetName() { return name_; }
-  int GetNumPredicates() { return predicate_names_.size(); }
+  int GetNumPredicates() { return (int) predicate_names_.size(); }
   const string &GetPredicateName(int k) { return predicate_names_[k]; }
   int GetPredicateIndex(int k) { return predicate_indices_[k]; }
-  int GetNumArgumentsPredicate(int k) { return argument_roles_[k].size(); }
+  int GetNumArgumentsPredicate(int k) { return (int) argument_roles_[k].size(); }
   const string &GetArgumentRole(int k, int l) { return argument_roles_[k][l]; }
   int GetArgumentIndex(int k, int l) { return argument_indices_[k][l]; }
 

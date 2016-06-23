@@ -58,15 +58,15 @@ public:
   void Save(FILE *fs) {
     if (0 > label_alphabet_.Save(fs)) CHECK(false);
     bool success;
-    int length = existing_labels_.size();
+    int length = (int)existing_labels_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < existing_labels_.size(); ++i) {
-      length = existing_labels_[i].size();
+      length = (int)existing_labels_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int j = 0; j < existing_labels_[i].size(); ++j) {
-        length = existing_labels_[i][j].size();
+        length = (int)existing_labels_[i][j].size();
         success = WriteInteger(fs, length);
         CHECK(success);
         for (int k = 0; k < existing_labels_[i][j].size(); ++k) {

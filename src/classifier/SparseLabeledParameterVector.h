@@ -77,7 +77,7 @@ public:
   virtual ~SparseLabelWeights() {};
 
   bool IsSparse() const { return true; }
-  int Size() const { return label_weights_.size(); }
+  int Size() const { return (int) label_weights_.size(); }
 
   double GetWeight(int label) const {
     for (int k = 0; k < label_weights_.size(); ++k) {
@@ -169,7 +169,7 @@ public:
   virtual ~DenseLabelWeights() {};
 
   bool IsSparse() const { return false; }
-  int Size() const { return weights_.size(); }
+  int Size() const { return (int) weights_.size(); }
 
   double GetWeight(int label) const {
     if (label >= weights_.size()) return 0.0;
@@ -352,7 +352,7 @@ public:
 
   // Get the number of instantiated features.
   // This is the number of parameters up to different labels.
-  int Size() const { return values_.size(); }
+  int Size() const { return (int) values_.size(); }
 
   // True if this feature key is already instantiated.
   bool Exists(uint64_t key) const {

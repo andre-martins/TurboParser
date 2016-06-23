@@ -153,7 +153,7 @@ void Pipe::Train() {
     TrainEpoch(i);
   }
 
-  parameters_->Finalize(options_->GetNumEpochs() * instances_.size());
+  parameters_->Finalize(options_->GetNumEpochs() * (int)instances_.size());
 }
 
 void Pipe::CreateInstances() {
@@ -216,7 +216,7 @@ void Pipe::TrainEpoch(int epoch) {
   double total_cost = 0.0;
   double total_loss = 0.0;
   double eta;
-  int num_instances = instances_.size();
+  int num_instances = (int)instances_.size();
   double lambda = 1.0 / (options_->GetRegularizationConstant() *
                          (static_cast<double>(num_instances)));
   chronowrap::Chronometer chrono;

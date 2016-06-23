@@ -48,7 +48,7 @@ public:
   }
 
   int GetNumPartFeatures(int r) const {
-    return (NULL == input_features_[r]) ? 0 : input_features_[r]->size();
+    return (NULL == input_features_[r]) ? 0 : (int)(input_features_[r]->size());
   };
 
   int GetPartFeature(int r, int j) const {

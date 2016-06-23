@@ -147,7 +147,7 @@ public:
   void BuildOffsets() {
     for (int i = NUM_SEQUENCEPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0) {
-        offsets_[i] = (i == NUM_SEQUENCEPARTS - 1) ? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_SEQUENCEPARTS - 1) ? (int)size() : offsets_[i + 1];
       }
     }
   };
@@ -175,7 +175,7 @@ private:
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
     *size = (i < NUM_SEQUENCEPARTS - 1) ? offsets_[i + 1] - (*offset) :
-      SequenceParts::size() - (*offset);
+      (int)SequenceParts::size() - (*offset);
   }
 
   // Set offset from part index.

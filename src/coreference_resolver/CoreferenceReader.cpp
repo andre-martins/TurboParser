@@ -121,7 +121,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
   if (!is_.eof()) read_next_sentence = true;
 
   // Sentence length.
-  int length = sentence_fields.size();
+  int length = (int)sentence_fields.size();
 
   //LOG(INFO) << "Sentence has length " << length;
 
@@ -223,7 +223,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
 
     if (i == 0) {
       // Allocate space for predicates.
-      num_predicates = info.size() - 1 - offset;
+      num_predicates = (int)info.size() - 1 - offset;
       //LOG(INFO) << num_predicates;
       // Top nodes will be considered arguments of a special root node.
       if (use_top_nodes_) ++num_predicates;
@@ -262,7 +262,7 @@ Instance *CoreferenceSentenceReader::GetNext() {
         argument_indices[k].push_back(i + 1);
       }
     }
-    offset = info.size() - 1;
+    offset = (int)info.size() - 1;
 
     // Add coreference information.
     coreference_info[i + 1] = info[offset];
