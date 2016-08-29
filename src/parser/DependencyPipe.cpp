@@ -320,9 +320,12 @@ void DependencyPipe::MakeParts(Instance *instance,
 void DependencyPipe::MakePartsBasic(Instance *instance,
                                     Parts *parts,
                                     vector<double> *gold_outputs) {
+  DependencyInstanceNumeric *sentence =
+    static_cast<DependencyInstanceNumeric*>(instance);
   int sentence_length =
     static_cast<DependencyInstanceNumeric*>(instance)->size();
   DependencyParts *dependency_parts = static_cast<DependencyParts*>(parts);
+  bool make_gold = (gold_outputs != NULL);
 
   MakePartsBasic(instance, false, parts, gold_outputs);
   dependency_parts->BuildOffsets();
@@ -335,6 +338,38 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
     } else {
       Prune(instance, parts, gold_outputs, false);
     }
+    // In principle, the pruner should never make the graph
+    // ill-formed, but this seems to happen sometimes...
+    int num_parts_initial = 0;
+    vector<Part*> arcs(dependency_parts->begin() +
+                       num_parts_initial,
+                       dependency_parts->end());
+    vector<int> inserted_heads;
+    vector<int> inserted_modifiers;
+    EnforceWellFormedGraph(sentence, arcs, &inserted_heads,
+                           &inserted_modifiers);
+    if (inserted_modifiers.size() > 0) {
+      LOG(INFO) << "The pruner made the graph ill-formed!";
+    }
+    for (int k = 0; k < inserted_modifiers.size(); ++k) {
+      int m = inserted_modifiers[k];
+      int h = inserted_heads[k];
+      Part *part = dependency_parts->CreatePartArc(h, m);
+      dependency_parts->push_back(part);
+      if (make_gold) {
+        if (sentence->GetHead(m) == h) {
+          gold_outputs->push_back(1.0);
+        } else {
+          gold_outputs->push_back(0.0);
+        }
+      }
+    }
+
+    dependency_parts->
+      SetOffsetArc(num_parts_initial,
+                   dependency_parts->size() - num_parts_initial);
+
+
     dependency_parts->BuildOffsets();
     dependency_parts->BuildIndices(sentence_length, false);
   }
@@ -344,16 +379,30 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
   }
 }
 
+void DependencyPipe::EnforceWellFormedGraph(Instance *instance,
+                                            const vector<Part*> &arcs,
+                                            vector<int> *inserted_heads,
+                                            vector<int> *inserted_modifiers) {
+  DependencyOptions *dependency_options = GetDependencyOptions();
+  if (dependency_options->projective()) {
+    EnforceProjectiveGraph(instance, arcs, inserted_heads, inserted_modifiers);
+  } else {
+    EnforceConnectedGraph(instance, arcs, inserted_heads, inserted_modifiers);
+  }
+}
+
 // Make sure the graph formed by the unlabeled arc parts is connected,
 // otherwise there is no feasible solution.
 // If necessary, root nodes are added and passed back through the last
 // argument.
 void DependencyPipe::EnforceConnectedGraph(Instance *instance,
                                            const vector<Part*> &arcs,
-                                           vector<int> *inserted_root_nodes) {
+                                           vector<int> *inserted_heads,
+                                           vector<int> *inserted_modifiers) {
   DependencyInstanceNumeric *sentence =
     static_cast<DependencyInstanceNumeric*>(instance);
-  inserted_root_nodes->clear();
+  inserted_heads->clear();
+  inserted_modifiers->clear();
 
   // Create a list of children for each node.
   vector<vector<int> > children(sentence->size());
@@ -386,7 +435,8 @@ void DependencyPipe::EnforceConnectedGraph(Instance *instance,
       for (int m = 1; m < sentence->size(); ++m) {
         if (!visited[m]) {
           LOG(INFO) << "Inserted root node 0 -> " << m << ".";
-          inserted_root_nodes->push_back(m);
+          inserted_heads->push_back(0);
+          inserted_modifiers->push_back(m);
           nodes_to_explore.push(m);
           break;
         }
@@ -539,47 +589,31 @@ void DependencyPipe::MakePartsBasic(Instance *instance,
     vector<Part*> arcs(dependency_parts->begin() +
                        num_parts_initial,
                        dependency_parts->end());
-    if (dependency_options->projective()) {
-      vector<int> inserted_heads;
-      vector<int> inserted_modifiers;
-      EnforceProjectiveGraph(sentence, arcs, &inserted_heads,
-                             &inserted_modifiers);
-      for (int k = 0; k < inserted_modifiers.size(); ++k) {
-        int m = inserted_modifiers[k];
-        int h = inserted_heads[k];
-        Part *part = dependency_parts->CreatePartArc(h, m);
-        dependency_parts->push_back(part);
-        if (make_gold) {
-          if (sentence->GetHead(m) == h) {
-            gold_outputs->push_back(1.0);
-          } else {
-            gold_outputs->push_back(0.0);
-          }
-        }
-      }
-    } else {
-      vector<int> inserted_root_nodes;
-      EnforceConnectedGraph(sentence, arcs, &inserted_root_nodes);
-      for (int k = 0; k < inserted_root_nodes.size(); ++k) {
-        int m = inserted_root_nodes[k];
-        int h = 0;
-        Part *part = dependency_parts->CreatePartArc(h, m);
-        dependency_parts->push_back(part);
-        if (make_gold) {
-          if (sentence->GetHead(m) == h) {
-            gold_outputs->push_back(1.0);
-          } else {
-            gold_outputs->push_back(0.0);
-          }
+    vector<int> inserted_heads;
+    vector<int> inserted_modifiers;
+    EnforceWellFormedGraph(sentence, arcs, &inserted_heads,
+                           &inserted_modifiers);
+    for (int k = 0; k < inserted_modifiers.size(); ++k) {
+      int m = inserted_modifiers[k];
+      int h = inserted_heads[k];
+      Part *part = dependency_parts->CreatePartArc(h, m);
+      dependency_parts->push_back(part);
+      if (make_gold) {
+        if (sentence->GetHead(m) == h) {
+          gold_outputs->push_back(1.0);
+        } else {
+          gold_outputs->push_back(0.0);
         }
       }
     }
 
-    dependency_parts->SetOffsetArc(num_parts_initial,
-                                   dependency_parts->size() - num_parts_initial);
+    dependency_parts->
+      SetOffsetArc(num_parts_initial,
+                   dependency_parts->size() - num_parts_initial);
   } else {
-    dependency_parts->SetOffsetLabeledArc(num_parts_initial,
-                                          dependency_parts->size() - num_parts_initial);
+    dependency_parts->
+      SetOffsetLabeledArc(num_parts_initial,
+                          dependency_parts->size() - num_parts_initial);
   }
 }
 
