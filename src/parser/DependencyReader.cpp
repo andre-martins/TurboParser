@@ -21,18 +21,20 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 Instance *DependencyReader::GetNext() {
   // Fill all fields for the entire sentence.
-  vector<vector<string> > sentence_fields;
-  string line;
+  std::vector<std::vector<std::string> > sentence_fields;
+  std::string line;
   if (is_.is_open()) {
     while (!is_.eof()) {
       getline(is_, line);
       if (line.length() <= 0) break;
-      vector<string> fields;
+      // Ignore comment lines (necessary for CONLLU files).
+      if (0 == line.substr(0, 1).compare("#")) continue;
+      std::vector<std::string> fields;
       StringSplit(line, "\t", &fields, true);
+      // Ignore contraction tokens (necessary for CONLLU files).
+      if (fields[0].find_first_of("-") != fields[0].npos) continue;
       sentence_fields.push_back(fields);
     }
   }
@@ -42,13 +44,13 @@ Instance *DependencyReader::GetNext() {
 
   // Convert to array of forms, lemmas, etc.
   // Note: the first token is the root symbol.
-  vector<string> forms(length + 1);
-  vector<string> lemmas(length + 1);
-  vector<string> cpos(length + 1);
-  vector<string> pos(length + 1);
-  vector<vector<string> > feats(length + 1);
-  vector<string> deprels(length + 1);
-  vector<int> heads(length + 1);
+  std::vector<std::string> forms(length + 1);
+  std::vector<std::string> lemmas(length + 1);
+  std::vector<std::string> cpos(length + 1);
+  std::vector<std::string> pos(length + 1);
+  std::vector<std::vector<std::string> > feats(length + 1);
+  std::vector<std::string> deprels(length + 1);
+  std::vector<int> heads(length + 1);
 
   forms[0] = "_root_";
   lemmas[0] = "_root_";
@@ -56,17 +58,22 @@ Instance *DependencyReader::GetNext() {
   pos[0] = "_root_";
   deprels[0] = "_root_";
   heads[0] = -1;
-  feats[0] = vector<string>(1, "_root_");
+  feats[0] = std::vector<std::string>(1, "_root_");
 
   for (int i = 0; i < length; i++) {
-    const vector<string> &info = sentence_fields[i];
+    const std::vector<std::string> &info = sentence_fields[i];
+
+    int index;
+    std::stringstream ss(info[0]);
+    ss >> index;
+    CHECK_EQ(index, i+1) << "Token indices are not correct.";
 
     forms[i + 1] = info[1];
     lemmas[i + 1] = info[2];
     cpos[i + 1] = info[3];
     pos[i + 1] = info[4];
 
-    string feat_seq = info[5];
+    std::string feat_seq = info[5];
     if (0 == feat_seq.compare("_")) {
       feats[i + 1].clear();
     } else {
@@ -74,7 +81,9 @@ Instance *DependencyReader::GetNext() {
     }
 
     deprels[i + 1] = info[7];
-    stringstream ss(info[6]);
+    ss.str("");
+    ss.clear();
+    ss << info[6];
     ss >> heads[i + 1];
     if (heads[i + 1] < 0 || heads[i + 1] > length) {
       CHECK(false) << "Invalid value of head (" << heads[i + 1]

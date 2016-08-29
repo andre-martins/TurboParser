@@ -11,7 +11,7 @@ num_epochs=10 # Number of training epochs.
 regularization_parameter=1e12 # The C parameter in MIRA.
 train=true
 test=true
-jackknifing=false # True for performing jackknifing in the training data. Useful for downstream applications.
+jackknifing=true #false # True for performing jackknifing in the training data. Useful for downstream applications.
 model_type=2 # Second-order model (trigrams).
 form_cutoff=1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
 suffix=tagger
@@ -37,12 +37,12 @@ if [ -e "${path_data}/${language}_train.conll" ] && [ ! -e "${path_data}/${langu
 then
     echo "Creating tagging corpus from CoNLL data."
 
-    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_train.conll"
-    ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_test.conll"
+    ${path_scripts}/create_tagging_corpus.sh "${path_data}/${language}_train.conll"
+    ${path_scripts}/create_tagging_corpus.sh "${path_data}/${language}_test.conll"
 
     if [ "$language" == "english_proj" ]
     then
-        ${path_bin}/scripts/create_tagging_corpus.sh "${path_data}/${language}_dev.conll"
+        ${path_scripts}/create_tagging_corpus.sh "${path_data}/${language}_dev.conll"
     fi
 fi
 
@@ -52,6 +52,7 @@ then
     files_test[1]=${path_data}/${language}_dev.conll.tagging
 else
     files_test[0]=${path_data}/${language}_test.conll.tagging
+    files_test[1]=${path_data}/${language}_dev.conll.tagging
 fi
 
 # Obtain a prediction file path for each test file.
@@ -75,7 +76,8 @@ then
 	file_train_jackknifed=${file_train}.pred
 
 	echo "Jackknifing with ${num_jackknifing_partitions} partitions..."
-	python split_corpus_jackknifing.py ${file_train} ${num_jackknifing_partitions}
+	python ${path_scripts}/split_corpus_jackknifing.py ${file_train} \
+            ${num_jackknifing_partitions}
 
 	for (( i=0; i<${num_jackknifing_partitions}; i++ ))
 	do
