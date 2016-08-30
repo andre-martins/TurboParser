@@ -1,6 +1,6 @@
 from __future__ import print_function
 import nltk
-import tokenizers.portuguese.word_tokenizer as tokenizer_PT
+from tokenizer.universal_word_tokenizer import UniversalWordTokenizer
 import lemmatizer
 import turboparser as tp
 from nlp_sentence import NLPSentence
@@ -31,14 +31,12 @@ class NLPPipelineWorker:
         else:
             # If no splitter is specified, use the English model.
             self.sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-
-        if language == 'PT':
-            self.word_tokenizer = tokenizer_PT.PortugueseFlorestaWordTokenizer()
-        elif language == 'PT-Cintil':
-            self.word_tokenizer = tokenizer_PT.PortugueseCintilWordTokenizer()
+        if 'tokenizer' in pipeline.models[language]:
+            tokenizer_language = pipeline.models[language]['tokenizer']
+            self.word_tokenizer = \
+                UniversalWordTokenizer(language=tokenizer_language)
         else:
-            self.word_tokenizer = nltk.TreebankWordTokenizer() # For now...
-
+            self.word_tokenizer = UniversalWordTokenizer(language='none')
         if 'tagger' in pipeline.models[language]:
             self.tagger = pipeline.turbo_interface.create_tagger()
             self.tagger.load_tagger_model(pipeline.models[language]['tagger'])
@@ -65,12 +63,12 @@ class NLPPipelineWorker:
 class NLPPipeline:
     def __init__(self):
         # Load the initialization file.
+        configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
+                os.sep 
         if os.name == 'nt':
-            configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
-                os.sep + 'nlp_pipeline.win.config'
+            configuration_filepath += 'nlp_pipeline.win.config'
         else:
-            configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
-                os.sep + 'nlp_pipeline.config'
+            configuration_filepath += 'nlp_pipeline.config'
         self.models = {}
         self.load_configuration_file(configuration_filepath)
         self.turbo_interface = tp.PTurboParser()
@@ -118,7 +116,11 @@ class NLPPipeline:
 
     def tokenize(self, sentence, language):
         worker = self.get_worker(language)
+        # Note: need to convert the sentence to Unicode and back to uft8.
+        sentence = sentence.decode('utf8')
         tokenized_sentence = worker.word_tokenizer.tokenize(sentence)
+        tokenized_sentence = [word.encode('utf8') \
+                              for word in tokenized_sentence]
         return tokenized_sentence
 
     def tag(self, tokenized_sentence, language):

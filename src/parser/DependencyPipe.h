@@ -112,9 +112,14 @@ protected:
   void LoadPrunerModel(FILE* fs);
   void LoadPrunerModelByName(const string &model_name);
 
+  void EnforceWellFormedGraph(Instance *instance,
+                              const vector<Part*> &arcs,
+                              vector<int> *inserted_heads,
+                              vector<int> *inserted_modifiers);
   void EnforceConnectedGraph(Instance *instance,
                              const vector<Part*> &arcs,
-                             vector<int> *inserted_root_nodes);
+                             vector<int> *inserted_heads,
+                             vector<int> *inserted_modifiers);
   void EnforceProjectiveGraph(Instance *instance,
                               const vector<Part*> &arcs,
                               vector<int> *inserted_heads,
