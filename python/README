@@ -4,6 +4,10 @@ Cython, type
 
 easy_install cython
 
+You need also to install the Python regex library:
+
+pip install regex
+
 Then run:
 
 ./install_wrapper.sh

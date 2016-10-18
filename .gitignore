@@ -26,6 +26,7 @@ vsprojects/*.sln.docstates
 vsprojects/*.aps
 vsprojects/*.ncb
 vsprojects/*.opendb
+vsprojects/*.VC.db
 vsprojects/*.opensdf
 vsprojects/*.sdf
 vsprojects/*.cachefile
@@ -40,3 +41,13 @@ vsprojects/*/Debug
 vsprojects/Debug/*
 vsprojects/*/Release
 vsprojects/Release/*
+/python/tokenizers/portuguese/__pycache__
+/python/__pycache__
+/python/cython_debug
+/python/build
+/python/tokenizers/__pycache__
+/python/turboparser.cp35-win_amd64.pyd
+/python/turboparser.cp35-win_amd64.pdb
+/python/vc140.pdb
+/python/turboparser.cpp
+/python/test2.py

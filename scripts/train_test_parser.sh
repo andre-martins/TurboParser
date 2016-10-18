@@ -90,23 +90,39 @@ then
     file_train=${path_data}/${language}_train.conll
     files_test[0]=${path_data}/${language}_test.conll
     files_test[1]=${path_data}/${language}_dev.conll
+elif [ "$language" == "german_spmrl" ]
+then
+    file_train=${path_data}/${language}_train.conll
+    files_test[0]=${path_data}/${language}_test.conll
+    files_test[1]=${path_data}/${language}_dev.conll
+    files_test[2]=${path_data}/${language}_test.conll.predpos
+    files_test[3]=${path_data}/${language}_dev.conll.predpos
 elif [ "$language" == "dutch" ]
 then
     file_train=${path_data}/${language}_train.conll
     files_test[0]=${path_data}/${language}_test.conll
 else
-    # For all languages except english and dutch,
+    # For all languages except English and Dutch,
     # replace coarse tags by fine tags.
-    file_train_orig=${path_data}/${language}_train.conll
-    file_test_orig=${path_data}/${language}_test.conll
-    file_train=${path_data}/${language}_ftags_train.conll
-    file_test=${path_data}/${language}_ftags_test.conll
-    rm -f file_train file_test
+    file_train_orig=${path_data}/${language}_train.conll.predpos
+    files_test_orig[0]=${path_data}/${language}_test.conll
+    files_test_orig[1]=${path_data}/${language}_test.conll.predpos
+    file_train=${path_data}/${language}_ftags_train.conll.predpos
+    files_test[0]=${path_data}/${language}_ftags_test.conll
+    files_test[1]=${path_data}/${language}_ftags_test.conll.predpos
+
+    rm -f file_train
     awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_train_orig} \
         > ${file_train}
-    awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
-        > ${file_test}
-    files_test[0]=${file_test}
+
+    for (( i=0; i<${#files_test[*]}; i++ ))
+    do
+        file_test_orig=${files_test_orig[$i]}
+        file_test=${files_test[$i]}
+        rm -f file_test
+        awk 'NF>0{OFS="\t";NF=10;$4=$5;$5=$5;print}NF==0{print}' ${file_test_orig} \
+            > ${file_test}
+    done
 fi
 
 # Obtain a prediction file path for each test file.
