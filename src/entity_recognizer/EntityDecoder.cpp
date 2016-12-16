@@ -16,22 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "SequenceDecoder.h"
+#include "EntityDecoder.h"
 #include "SequencePart.h"
-#include "SequencePipe.h"
+#include "EntityPipe.h"
 #include <iostream> // Remove this.
 
-//DEFINE_double(ner_train_cost_false_positives, 0.5,
-//              "Cost for 'false positives' -- penalises recall and favours precision in BIO tagging.");
+DEFINE_double(ner_train_cost_false_positives, 0.5,
+              "Cost for 'false positives' -- penalises recall and favours precision in BIO tagging.");
 //DEFINE_double(ner_train_cost_false_negatives, 0.5,
 //              "Cost for 'false negatives' -- penalises precision and favours recall in BIO tagging.");
 
-void SequenceDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
+void EntityDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                           const vector<double> &scores,
                                           const vector<double> &gold_output,
                                           vector<double> *predicted_output,
                                           double *cost,
                                           double *loss) {
+  LOG(INFO) << "  [DEBUG]  @EntityDecoder::DecodeCostAugmented";  
+  return SequenceDecoder::DecodeCostAugmented(instance, parts, scores, gold_output,
+                                        predicted_output, cost, loss);
+#if 0
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   int offset_unigrams, num_unigrams;
 
@@ -74,11 +78,17 @@ void SequenceDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
   for (int r = 0; r < parts->size(); ++r) {
     *loss += scores[r] * ((*predicted_output)[r] - gold_output[r]);
   }
+#endif
 }
 
-void SequenceDecoder::Decode(Instance *instance, Parts *parts,
+void EntityDecoder::Decode(Instance *instance, Parts *parts,
                              const vector<double> &scores,
                              vector<double> *predicted_output) {
+
+  LOG(INFO) << "  [DEBUG]  @EntityDecoder::Decode";  
+  return SequenceDecoder::Decode(instance, parts, scores, predicted_output);
+
+#if 0                                 
 #ifdef USE_CPLEX
   return DecodeCPLEX(instance, parts, scores, false, predicted_output);
 #endif
@@ -434,457 +444,5 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
       CHECK(found || sentence->size() == 1);
     }
   }
-}
-
-// TODO: we need also to specify a map between bigram codes and their two tags.
-void SequenceDecoder::RecoverBestPath(const std::vector<int> &best_path,
-                                      std::vector<int> *transformed_best_path) {
-  int length = best_path.size() + 1;
-  transformed_best_path->clear();
-  transformed_best_path->resize(length, -1);
-
-  for (int i = 0; i < length - 1; ++i) {
-    int bigram_label = best_path[i];
-    int left_tag, tag;
-    pipe_->GetSequenceDictionary()->GetBigramTags(bigram_label,
-                                                  &left_tag,
-                                                  &tag);
-    if (i == 0) {
-      (*transformed_best_path)[i] = left_tag;
-    } else {
-      CHECK_EQ((*transformed_best_path)[i], left_tag);
-    }
-    (*transformed_best_path)[i + 1] = tag;
-
-    CHECK_GE((*transformed_best_path)[i + 1], 0);
-    //std::cout << (*transformed_best_path)[i] << " ";
-  }
-  //std::cout << (*transformed_best_path)[length-1] << std::endl;
-}
-
-// TODO: edge_scores will need to be in the same format as transformed_edge_scores,
-// and we'll also to specify a map between bigram codes and their two tags.
-// TODO: implement a suitable structure for the triplets.
-void SequenceDecoder::ConvertToFirstOrderModel(
-  const std::vector<SequenceDecoderNodeScores> &node_scores,
-  const std::vector<SequenceDecoderEdgeScores> &edge_scores,
-  const std::vector<SequenceDecoderEdgeScores> &triplet_scores,
-  std::vector<SequenceDecoderNodeScores> *transformed_node_scores,
-  std::vector<SequenceDecoderEdgeScores> *transformed_edge_scores) {
-  int length = node_scores.size();
-
-  // The transformed node scores will have one less element.
-  transformed_node_scores->resize(length - 1);
-  for (int i = 0; i < length - 1; ++i) {
-    // Position i.
-    int num_bigram_states = edge_scores[i].GetNumStatePairs();
-
-    (*transformed_node_scores)[i].SetNumStates(num_bigram_states);
-    int bigram_index = 0;
-    for (int j = 0; j < edge_scores[i].GetNumCurrentStates(); ++j) {
-      // Tag j at position i+1.
-      int tag = node_scores[i + 1].GetState(j);
-      const vector<std::pair<int, double> > &previous_state_scores =
-        edge_scores[i].GetAllPreviousStateScores(j);
-
-      for (int t = 0; t < previous_state_scores.size(); ++t) {
-        // Tag k at position i.
-        int k = previous_state_scores[t].first;
-        double score = previous_state_scores[t].second;
-        int left_tag = node_scores[i].GetState(k);
-        int bigram_label = pipe_->GetSequenceDictionary()->
-          GetBigramLabel(left_tag, tag);
-        if (i == length - 2) {
-          (*transformed_node_scores)[i].
-            SetStateScore(bigram_index, bigram_label,
-                          score + node_scores[i + 1].GetScore(j) +
-                          node_scores[i].GetScore(k));
-        } else {
-          (*transformed_node_scores)[i].
-            SetStateScore(bigram_index, bigram_label,
-                          score + node_scores[i].GetScore(k));
-        }
-        ++bigram_index;
-      }
-    }
-  }
-
-  // The transformed edge scores will have one less element.
-  // Just copy the triplet structure and adjust the scores.
-  transformed_edge_scores->resize(length - 2);
-  for (int i = 0; i < length - 2; ++i) {
-    // Position i.
-    int num_current_states = triplet_scores[i].GetNumCurrentStates();
-    (*transformed_edge_scores)[i].SetNumCurrentStates(num_current_states);
-    for (int t = 0; t < num_current_states; ++t) {
-      int num_previous_states = triplet_scores[i].GetNumPreviousStates(t);
-      const std::vector<std::pair<int, double> > previous_state_scores =
-        triplet_scores[i].GetAllPreviousStateScores(t);
-      (*transformed_edge_scores)[i].
-        SetNumPreviousStates(t, previous_state_scores.size());
-      for (int j = 0; j < previous_state_scores.size(); ++j) {
-        (*transformed_edge_scores)[i].
-          SetPreviousStateScore(t, j, previous_state_scores[j].first,
-                                previous_state_scores[j].second);
-      }
-    }
-  }
-}
-
-double SequenceDecoder::SolveMarkovZeroOrder(const std::vector<SequenceDecoderNodeScores> &node_scores,
-                                             std::vector<int> *best_path) {
-  int length = node_scores.size(); // Length of the sequence.
-  std::vector<int> temp_path(length);
-  std::vector<double> temp_scores(length);
-
-  for (int i = 0; i < length; ++i) {
-    int num_current_labels = node_scores[i].GetNumStates();
-
-    double current_score;
-    double best_value = -1e-12;
-    int best = -1;
-    for (int l = 0; l < num_current_labels; ++l) {
-      current_score = node_scores[i].GetScore(l);
-      if (best < 0 || current_score > best_value) {
-        best_value = current_score;
-        temp_scores[i] = best_value;
-        best = l;
-        temp_path[i] = best;
-      }
-    }
-    CHECK_GE(best, 0) << node_scores[i].GetNumStates() << " possible tags.";
-  }
-
-  // Termination.
-  // Convert to the actual node states.
-  best_path->resize(length);
-  double best_value = 0.0;
-  for (int i = 0; i < length; ++i) {
-    (*best_path)[i] = node_scores[i].GetState(temp_path[i]);
-    best_value += temp_scores[i];
-  }
-  return best_value;
-}
-
-// TODO(atm): adapt description.
-// Computes the Viterbi path of a sequence model.
-// Note: the initial and final transitions are incorporated in the node scores.
-// 1) node_scores is a vector whose size is the length of the sequence, where
-// each position contains a vector of scores for each label.
-// 2) edge_scores is a vector whose size is the sequence length minus one, where
-// each position contains a 2D array of scores for each pair of labels (the
-// first index is the current label and the second index is the next label).
-// 3) best_path is a vector given as output, containing indices that describe
-// the path maximizing the score.
-// 4) the returned value is the optimal score.
-double SequenceDecoder::RunViterbi(const std::vector<SequenceDecoderNodeScores>
-                                   &node_scores,
-                                   const std::vector<SequenceDecoderEdgeScores>
-                                   &edge_scores,
-                                   std::vector<int> *best_path) {
-  int length = node_scores.size(); // Length of the sequence.
-  // To accommodate the partial scores.
-  std::vector<std::vector<double> > deltas(length);
-  std::vector<std::vector<int> > backtrack(length); // To backtrack.
-
-  // Initialization.
-  int num_current_labels = node_scores[0].GetNumStates();
-  deltas[0].resize(num_current_labels);
-  backtrack[0].resize(num_current_labels);
-  for (int l = 0; l < num_current_labels; ++l) {
-    // The score of the first node absorbs the score of a start transition.
-    deltas[0][l] = node_scores[0].GetScore(l);
-    backtrack[0][l] = -1; // This won't be used.
-  }
-
-  // Recursion.
-  for (int i = 0; i < length - 1; ++i) {
-    int num_current_labels = node_scores[i + 1].GetNumStates();
-    deltas[i + 1].resize(num_current_labels);
-    backtrack[i + 1].resize(num_current_labels);
-    for (int k = 0; k < num_current_labels; ++k) {
-      double best_value = -1e-12;
-      int best = -1;
-      // Edges from the previous position.
-      const std::vector<std::pair<int, double> > &previous_state_scores =
-        edge_scores[i].GetAllPreviousStateScores(k);
-      for (std::vector<std::pair<int, double> >::const_iterator it =
-           previous_state_scores.begin();
-           it != previous_state_scores.end();
-           ++it) {
-        int l = it->first;
-        double edge_score = it->second;
-        double value = deltas[i][l] + edge_score;
-        if (best < 0 || value > best_value) {
-          best_value = value;
-          best = l;
-        }
-      }
-      CHECK_GE(best, 0) << node_scores[i].GetNumStates() << " possible tags.";
-
-      deltas[i + 1][k] = best_value + node_scores[i + 1].GetScore(k);
-      backtrack[i + 1][k] = best;
-    }
-  }
-
-  // Termination.
-  double best_value = -1e12;
-  int best = -1;
-  for (int l = 0; l < node_scores[length - 1].GetNumStates(); ++l) {
-    // The score of the last node had already absorbed the score of a final
-    // transition.
-    double value = deltas[length - 1][l];
-    if (best < 0 || value > best_value) {
-      best_value = value;
-      best = l;
-    }
-  }
-  CHECK_GE(best, 0);
-
-  // Path (state sequence) backtracking.
-  best_path->resize(length);
-  (*best_path)[length - 1] = best;
-  for (int i = length - 1; i > 0; --i) {
-    (*best_path)[i - 1] = backtrack[i][(*best_path)[i]];
-  }
-
-  // Convert to the actual node states.
-  for (int i = 0; i < length; ++i) {
-    (*best_path)[i] = node_scores[i].GetState((*best_path)[i]);
-  }
-
-  return best_value;
-}
-
-#ifdef USE_CPLEX
-
-#include <limits.h>
-#define ILOUSESTL
-#include <ilcplex/ilocplex.h>
-ILOSTLBEGIN
-double SequenceDecoder::DecodeCPLEX(Instance *instance, Parts *parts,
-                                    const vector<double> &scores,
-                                    bool relax,
-                                    vector<double> *predicted_output) {
-  SequenceInstanceNumeric *sentence =
-    static_cast<SequenceInstanceNumeric*>(instance);
-  SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
-  int offset, size;
-
-  try {
-    IloEnv env;
-    IloModel mod(env);
-    IloCplex cplex(mod);
-
-    ///////////////////////////////////////////////////////////////////
-    // Variable definition
-    ///////////////////////////////////////////////////////////////////
-
-    IloNumVar::Type var_type = relax ? ILOFLOAT : ILOBOOL;
-    IloNumVarArray z(env, parts->size(), 0.0, 1.0, var_type);
-
-    ///////////////////////////////////////////////////////////////////
-    // Objective
-    ///////////////////////////////////////////////////////////////////
-
-    IloExpr expr_obj(env);
-    for (int r = 0; r < parts->size(); ++r) {
-      expr_obj += -scores[r] * z[r];
-    }
-    IloObjective obj(env, expr_obj, IloObjective::Minimize);
-    mod.add(obj);
-    expr_obj.end();
-
-    ///////////////////////////////////////////////////////////////////
-    // Constraints
-    ///////////////////////////////////////////////////////////////////
-
-    IloExpr expr(env);
-
-    // One label per word
-    // sum_l (z_il) = 1 for all i
-    for (int i = 0; i < sentence->size(); ++i) {
-      expr = IloExpr(env);
-      const vector<int> &unigrams = sequence_parts->FindUnigramParts(i);
-      for (int k = 0; k < unigrams.size(); ++k) {
-        int r = unigrams[k];
-        expr += z[r];
-      }
-      mod.add(expr == 1.0);
-      expr.end();
-    }
-
-    ///////////////////////////////////////////////////////////////
-    // Add global constraints (if any)
-    ///////////////////////////////////////////////////////////////
-
-    if (pipe_->GetSequenceOptions()->markov_order() >= 1) {
-      // z_illprev <= z_il for each i,l,lprev
-      // z_illprev <= z_(i-1)lprev for each i,l,lprev
-      // z_illprev >= z_il + z_(i-1)lprev - 1 for each i,l,lprev
-      for (int i = 0; i < sentence->size() + 1; ++i) {
-        const vector<int> &index_bigram_parts =
-          sequence_parts->FindBigramParts(i);
-        for (int k = 0; k < index_bigram_parts.size(); ++k) {
-          int r = index_bigram_parts[k];
-          SequencePartBigram *bigram =
-            static_cast<SequencePartBigram*>((*parts)[r]);
-
-          // Get unigram for current tag.
-          int r1 = -1;
-          if (i < sentence->size()) {
-            const vector<int> &unigrams = sequence_parts->FindUnigramParts(i);
-            for (int k = 0; k < unigrams.size(); ++k) {
-              r1 = unigrams[k];
-              SequencePartUnigram *unigram =
-                static_cast<SequencePartUnigram*>((*parts)[r1]);
-              if (unigram->tag() == bigram->tag()) break;
-            }
-            CHECK_GE(r1, 0);
-          }
-
-          // Get unigram for previous tag.
-          int r2 = -1;
-          if (i > 0) {
-            const vector<int> &unigrams = sequence_parts->FindUnigramParts(i - 1);
-            for (int k = 0; k < unigrams.size(); ++k) {
-              r2 = unigrams[k];
-              SequencePartUnigram *unigram =
-                static_cast<SequencePartUnigram*>((*parts)[r2]);
-              if (unigram->tag() == bigram->tag_left()) break;
-            }
-            CHECK_GE(r2, 0);
-          }
-
-          if (i == 0) {
-            mod.add(z[r] - z[r1] == 0.0);
-          } else if (i == sentence->size()) {
-            mod.add(z[r] - z[r2] == 0.0);
-          } else {
-            mod.add(z[r] - z[r1] <= 0.0);
-            mod.add(z[r] - z[r2] <= 0.0);
-            mod.add(z[r] - z[r1] - z[r2] >= -1.0);
-          }
-        }
-      }
-    }
-
-    if (pipe_->GetSequenceOptions()->markov_order() >= 1 &&
-        sentence->size() > 1) {
-      // z_illprevlprevprev <= z_il for each i,l,lprev,lprevprev
-      // z_illprevlprevprev <= z_(i-1)lprev for each i,l,lprev,lprevprev
-      // z_illprevlprevprev <= z_(i-2)lprevlprev for each i,l,lprev,lprevprev
-      // z_illprevlprevprev >= z_il + z_(i-1)lprev + z_(i-2)lprevlprev - 2 for each i,l,lprev
-      for (int i = 1; i < sentence->size() + 1; ++i) {
-        const vector<int> &index_trigram_parts =
-          sequence_parts->FindTrigramParts(i);
-        for (int k = 0; k < index_trigram_parts.size(); ++k) {
-          int r = index_trigram_parts[k];
-          SequencePartTrigram *trigram =
-            static_cast<SequencePartTrigram*>((*parts)[r]);
-
-          // Get unigram for current tag.
-          int r1 = -1;
-          if (i < sentence->size()) {
-            const vector<int> &unigrams = sequence_parts->FindUnigramParts(i);
-            for (int k = 0; k < unigrams.size(); ++k) {
-              r1 = unigrams[k];
-              SequencePartUnigram *unigram =
-                static_cast<SequencePartUnigram*>((*parts)[r1]);
-              if (unigram->tag() == trigram->tag()) break;
-            }
-            CHECK_GE(r1, 0);
-          }
-
-          // Get unigram for previous tag.
-          int r2 = -1;
-          if (i > 0) {
-            const vector<int> &unigrams = sequence_parts->FindUnigramParts(i - 1);
-            for (int k = 0; k < unigrams.size(); ++k) {
-              r2 = unigrams[k];
-              SequencePartUnigram *unigram =
-                static_cast<SequencePartUnigram*>((*parts)[r2]);
-              if (unigram->tag() == trigram->tag_left()) break;
-            }
-            CHECK_GE(r2, 0);
-          }
-
-          // Get unigram for before previous tag.
-          int r3 = -1;
-          if (i > 1) {
-            const vector<int> &unigrams = sequence_parts->FindUnigramParts(i - 2);
-            for (int k = 0; k < unigrams.size(); ++k) {
-              r3 = unigrams[k];
-              SequencePartUnigram *unigram =
-                static_cast<SequencePartUnigram*>((*parts)[r3]);
-              if (unigram->tag() == trigram->tag_left_left()) break;
-            }
-            CHECK_GE(r3, 0);
-          }
-
-          if (i == 1) {
-            mod.add(z[r] - z[r1] <= 0.0);
-            mod.add(z[r] - z[r2] <= 0.0);
-            mod.add(z[r] - z[r1] - z[r2] >= -1.0);
-          } else if (i == sentence->size()) {
-            mod.add(z[r] - z[r2] <= 0.0);
-            mod.add(z[r] - z[r3] <= 0.0);
-            mod.add(z[r] - z[r2] - z[r3] >= -1.0);
-          } else {
-            mod.add(z[r] - z[r1] <= 0.0);
-            mod.add(z[r] - z[r2] <= 0.0);
-            mod.add(z[r] - z[r3] <= 0.0);
-            mod.add(z[r] - z[r1] - z[r2] - z[r3] >= -2.0);
-          }
-        }
-      }
-    }
-
-    ///////////////////////////////////////////////////////////////////
-    // Solve
-    ///////////////////////////////////////////////////////////////////
-    //CPXsetdblparam(env, CPX_PARAM_TILIM, 120);
-    double value = 0.0;
-    cplex.setParam(IloCplex::TiLim, 60.0); // 60 seconds
-    if (cplex.solve()) {
-      cplex.out() << "Solution status = " << cplex.getStatus() << endl;
-      cplex.out() << "Solution value = " << cplex.getObjValue() << endl;
-      value = -cplex.getObjValue();
-
-      IloNumArray zOpt(env, parts->size());
-      double thres = 0.5;
-
-      cplex.getValues(z, zOpt);
-
-      predicted_output->resize(parts->size());
-      for (int r = 0; r < parts->size(); ++r) {
-        (*predicted_output)[r] = zOpt[r];
-        if (relax) {
-          double val = (*predicted_output)[r];
-          if (val*(1 - val) > 0.001) {
-            cout << "Fractional value!" << endl;
-          }
-        }
-      }
-    } else {
-      cout << "Could not solve the LP!" << endl;
-      if (cplex.getCplexStatus() == IloCplex::AbortTimeLim) {
-        cout << "Time out!" << endl;
-        cplex.out() << "Solution best value = " << cplex.getBestObjValue() << endl;
-      }
-    }
-
-    env.end();
-
-    return value;
-  } catch (IloException& ex) {
-    cout << "Error: " << ex << endl;
-    cerr << "Error: " << ex << endl;
-  } catch (...) {
-    cout << "Unspecified error" << endl;
-    cerr << "Unspecified error" << endl;
-  }
-
-  return 0.0;
-}
 #endif
+}
