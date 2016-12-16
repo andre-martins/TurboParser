@@ -96,6 +96,28 @@ public:
   void AllowGrowth() { growth_stopped_ = false; }
   bool growth_stopped() const { return growth_stopped_; }
 
+  // Overwrite
+  void Overwrite(SparseParameterVector *output_parameters) {
+    output_parameters->scale_factor_ = scale_factor_;
+    output_parameters->squared_norm_ = squared_norm_;
+    output_parameters->growth_stopped_ = growth_stopped_;
+
+    for (const auto & element : values_) {
+      output_parameters->values_[element.first] = element.second;
+    }
+  }
+  
+  // Copy 
+  void Copy(SparseParameterVector *output_parameters){
+    output_parameters->scale_factor_=scale_factor_; 
+    output_parameters->squared_norm_=squared_norm_; 
+    output_parameters->growth_stopped_=growth_stopped_; 
+    
+    for (const auto & element : values_){
+      output_parameters->values_.insert(pair<uint64_t, Real>(element.first, element.second));
+    }
+  }
+  
   // Save/load the parameters to/from a file.
   void Save(FILE *fs) const {
     bool success;

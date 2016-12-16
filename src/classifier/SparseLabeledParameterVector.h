@@ -76,6 +76,8 @@ public:
   SparseLabelWeights() {};
   virtual ~SparseLabelWeights() {};
 
+  SparseLabelWeights(const SparseLabelWeights & other) = default;
+
   bool IsSparse() const { return true; }
   int Size() const { return (int) label_weights_.size(); }
 
@@ -267,6 +269,42 @@ public:
     }
     values_.clear();
   }
+
+  // Overwrite
+  void Overwrite(SparseLabeledParameterVector *output_parameters) {
+    output_parameters->scale_factor_ = scale_factor_;
+    output_parameters->squared_norm_ = squared_norm_;
+    output_parameters->growth_stopped_ = growth_stopped_;
+
+    for (const auto & element : values_) {
+      if (element.second->IsSparse()){
+         *(static_cast<SparseLabelWeights*>(output_parameters->values_[element.first])) = *(static_cast<SparseLabelWeights*>(element.second));
+      }else{
+        *(static_cast<DenseLabelWeights*>(output_parameters->values_[element.first])) = *(static_cast<DenseLabelWeights*>(element.second));
+      }
+      
+    }
+  }
+
+  // Copy
+  void Copy(SparseLabeledParameterVector *output_parameters){
+    output_parameters->scale_factor_=scale_factor_; 
+    output_parameters->squared_norm_=squared_norm_; 
+    output_parameters->growth_stopped_=growth_stopped_; 
+
+    for (const auto & element : values_){
+      if (element.second->IsSparse()){
+        SparseLabelWeights *label_weights = new SparseLabelWeights;
+        *label_weights = *(static_cast<SparseLabelWeights*>(element.second));
+        output_parameters->values_.insert(pair<uint64_t, LabelWeights*>(element.first, label_weights));
+      }else{
+        DenseLabelWeights *label_weights = new DenseLabelWeights;
+        *label_weights = *(static_cast<DenseLabelWeights*>(element.second));
+        output_parameters->values_.insert(pair<uint64_t, LabelWeights*>(element.first, label_weights));
+      }
+    }
+  }
+
 
   // Save/load the parameters to/from a file.
   void Save(FILE *fs) const {

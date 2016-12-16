@@ -39,6 +39,8 @@ DECLARE_string(train_learning_rate_schedule);
 
 DECLARE_int32(parameters_max_num_buckets);
 
+DECLARE_int32(save_model_period);
+
 //1 to use new developments regarding performance optimizations
 #ifndef USE_N_OPTIMIZATIONS
 #define USE_N_OPTIMIZATIONS 0 //1
@@ -79,6 +81,7 @@ public:
   bool train() { return train_; }
   bool test() { return test_; }
   bool evaluate() { return evaluate_; }
+  int save_model_period() { return save_model_period_; } 
 
   // Set option values.
   void SetTrainingFilePath(const std::string &file_train) {
@@ -129,6 +132,7 @@ protected:
 
   bool only_supported_features_; // Use only supported features.
   bool use_averaging_; // Include a final averaging step during training.
+  int save_model_period_; // Number of iteration after which a temporaty model is saved.
 };
 
 #endif /*OPTIONS_H_*/
