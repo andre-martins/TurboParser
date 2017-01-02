@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "Dictionary.h"
 #include "EntityDecoder.h"
 #include "SequencePart.h"
 #include "EntityPipe.h"
@@ -23,8 +24,8 @@
 
 DEFINE_double(ner_train_cost_false_positives, 0.5,
               "Cost for 'false positives' -- penalises recall and favours precision in BIO tagging.");
-//DEFINE_double(ner_train_cost_false_negatives, 0.5,
-//              "Cost for 'false negatives' -- penalises precision and favours recall in BIO tagging.");
+DEFINE_double(ner_train_cost_false_negatives, 0.5,
+              "Cost for 'false negatives' -- penalises precision and favours recall in BIO tagging.");
 
 void EntityDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                           const vector<double> &scores,
@@ -32,9 +33,74 @@ void EntityDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                           vector<double> *predicted_output,
                                           double *cost,
                                           double *loss) {
-  LOG(INFO) << "  [DEBUG]  @EntityDecoder::DecodeCostAugmented";  
-  return SequenceDecoder::DecodeCostAugmented(instance, parts, scores, gold_output,
-                                        predicted_output, cost, loss);
+  //LOG(INFO) << "  [DEBUG]  @EntityDecoder::DecodeCostAugmented";  
+  //return SequenceDecoder::DecodeCostAugmented(instance, parts, scores, gold_output,
+  //                                      predicted_output, cost, loss);
+
+  SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
+  int offset_unigrams, num_unigrams;
+  //int offset_bigrams, num_bigrams;
+  //int offset_trigrams, num_trigrams;
+
+  sequence_parts->GetOffsetUnigram(&offset_unigrams, &num_unigrams);
+  //sequence_parts->GetOffsetBigram(&offset_bigrams, &num_bigrams);
+  //sequence_parts->GetOffsetTrigram(&offset_trigrams, &num_trigrams);
+
+  ////////////////////////////////////////////////////
+  // F1: a = 0.5, b = 0.5.
+  // Recall: a = 0, b = 1.
+  // In general:
+  // p = a - (a+b)*z0
+  // q = b*sum(z0)
+  // p'*z + q = a*sum(z) - (a+b)*z0'*z + b*sum(z0)
+  //          = a*(1-z0)'*z + b*(1-z)'*z0.
+  ////////////////////////////////////////////////////
+
+  // Penalty for predicting 1 when it is 0 (FP).
+  double a = FLAGS_ner_train_cost_false_positives;
+  // Penalty for predicting 0 when it is 1 (FN).
+  double b = FLAGS_ner_train_cost_false_negatives;
+  //double b = 1 - a;
+
+  // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
+  double q = 0.0;
+  vector<double> p(num_unigrams, 0.0);
+
+  vector<double> scores_cost = scores;
+  //SequencePartUnigram *sequence_unigram_parts = static_cast<SequencePartUnigram*>(parts);
+  for (int r = 0; r < num_unigrams; ++r) {
+    
+    SequenceDictionary *dictionary;
+    dictionary = static_cast<SequenceDictionary*>(pipe_->GetSequenceDictionary());
+    SequencePartUnigram *unigram_part = (static_cast<SequencePartUnigram*>((*sequence_parts)[r]));
+    int tag = unigram_part->tag();
+    const std::string & tag_name = dictionary->GetTagName(tag);
+    EntityOptions *entity_options = static_cast<EntityPipe*>(pipe_)->GetEntityOptions();
+    /*if (entity_options->tagging_scheme() == EntityTaggingSchemes::BIO){
+    // Independent of TaggingSchemme 
+    }*/
+    if (tag_name[0] != 'O'){ // if inside (not outside)
+      p[r] = a - (a+b)*gold_output[offset_unigrams + r];
+      q += b*gold_output[offset_unigrams + r];
+    } else {
+      p[r] = 0;
+    }
+    scores_cost[offset_unigrams + r] += p[r];    
+  }
+
+  Decode(instance, parts, scores_cost, predicted_output);
+
+  *cost = q;
+  for (int r = 0; r < num_unigrams; ++r) {
+    *cost += p[r] * (*predicted_output)[offset_unigrams + r];
+  }
+
+  *loss = *cost;
+  for (int r = 0; r < parts->size(); ++r) {
+    *loss += scores[r] * ((*predicted_output)[r] - gold_output[r]);
+  }
+
+
 #if 0
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   int offset_unigrams, num_unigrams;
@@ -85,7 +151,7 @@ void EntityDecoder::Decode(Instance *instance, Parts *parts,
                              const vector<double> &scores,
                              vector<double> *predicted_output) {
 
-  LOG(INFO) << "  [DEBUG]  @EntityDecoder::Decode";  
+  //LOG(INFO) << "  [DEBUG]  @EntityDecoder::Decode";  
   return SequenceDecoder::Decode(instance, parts, scores, predicted_output);
 
 #if 0                                 
