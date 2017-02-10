@@ -53,7 +53,7 @@ public:
   bool is_conversation() { return conversation_; }
 
   // Returns the number of sentences in the document.
-  int GetNumSentences() { return sentences_.size(); }
+  int GetNumSentences() { return (int)sentences_.size(); }
 
   // Returns the number of words in the document.
   int GetNumWords() { return sentence_cumulative_lengths_.back(); }

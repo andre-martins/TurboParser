@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -35,40 +35,40 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release O0|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release O0|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -115,7 +115,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;GOOGLE_GLOG_DLL_DECL=;GFLAGS_DLL_DECL=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\morphological_tagger;$(SolutionDir)..\src\parser;$(SolutionDir)..\src\tagger;$(SolutionDir)..\src\semantic_parser;$(SolutionDir)..\src\coreference_resolver;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;$(SolutionDir)..\deps\googletest\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
@@ -168,7 +168,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;GOOGLE_GLOG_DLL_DECL=;GFLAGS_DLL_DECL=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\morphological_tagger;$(SolutionDir)..\src\parser;$(SolutionDir)..\src\tagger;$(SolutionDir)..\src\semantic_parser;$(SolutionDir)..\src\coreference_resolver;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;$(SolutionDir)..\deps\googletest\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -190,11 +190,10 @@
       <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;GOOGLE_GLOG_DLL_DECL=;GFLAGS_DLL_DECL=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\src\util;$(SolutionDir)..\src\classifier;$(SolutionDir)..\src\sequence;$(SolutionDir)..\src\entity_recognizer;$(SolutionDir)..\src\morphological_tagger;$(SolutionDir)..\src\parser;$(SolutionDir)..\src\tagger;$(SolutionDir)..\src\semantic_parser;$(SolutionDir)..\src\coreference_resolver;$(SolutionDir)..\deps\AD3-2.0.2\ad3;$(SolutionDir)..\deps\AD3-2.0.2\;$(SolutionDir)..\deps\glog-0.3.2\src\windows;$(SolutionDir)..\deps\gflags-2.0\src\windows;$(SolutionDir)..\deps\eigen-eigen-c58038c56923\;$(SolutionDir)..\deps\googletest\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>
-      </FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -225,6 +224,22 @@
     <ClInclude Include="..\..\src\classifier\SparseLabeledParameterVector.h" />
     <ClInclude Include="..\..\src\classifier\SparseParameterVector.h" />
     <ClInclude Include="..\..\src\classifier\Writer.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceDecoder.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceDeterminer.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceDictionary.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceDocument.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceDocumentNumeric.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceFeatures.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceFeatureTemplates.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceOptions.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferencePart.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferencePipe.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferencePronoun.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceReader.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceSentence.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceSentenceNumeric.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\CoreferenceWriter.h" />
+    <ClInclude Include="..\..\src\coreference_resolver\Mention.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityDictionary.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatures.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatureTemplates.h" />
@@ -235,6 +250,15 @@
     <ClInclude Include="..\..\src\entity_recognizer\EntityReader.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntitySpan.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityWriter.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalDictionary.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalFeatures.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalFeatureTemplates.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalInstance.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalInstanceNumeric.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalOptions.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalPipe.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalReader.h" />
+    <ClInclude Include="..\..\src\morphological_tagger\MorphologicalWriter.h" />
     <ClInclude Include="..\..\src\parser\DependencyDecoder.h" />
     <ClInclude Include="..\..\src\parser\DependencyDictionary.h" />
     <ClInclude Include="..\..\src\parser\DependencyFeatures.h" />
@@ -298,6 +322,19 @@
     <ClCompile Include="..\..\src\classifier\Pipe.cpp" />
     <ClCompile Include="..\..\src\classifier\Reader.cpp" />
     <ClCompile Include="..\..\src\classifier\Writer.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceDecoder.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceDictionary.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceDocument.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceDocumentNumeric.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceFeatures.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceOptions.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferencePart.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferencePipe.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceReader.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceSentence.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceSentenceNumeric.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\CoreferenceWriter.cpp" />
+    <ClCompile Include="..\..\src\coreference_resolver\Mention.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityDictionary.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityFeatures.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityInstance.cpp" />
@@ -306,6 +343,14 @@
     <ClCompile Include="..\..\src\entity_recognizer\EntityPipe.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityReader.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityWriter.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalDictionary.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalFeatures.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalInstance.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalInstanceNumeric.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalOptions.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalPipe.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalReader.cpp" />
+    <ClCompile Include="..\..\src\morphological_tagger\MorphologicalWriter.cpp" />
     <ClCompile Include="..\..\src\parser\DependencyDecoder.cpp" />
     <ClCompile Include="..\..\src\parser\DependencyDictionary.cpp" />
     <ClCompile Include="..\..\src\parser\DependencyFeatures.cpp" />

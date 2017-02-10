@@ -30,7 +30,7 @@ using namespace std;
 
 // Define the current model version and the oldest back-compatible version.
 // The format is AAAA.BBBB.CCCC, e.g., 2 0003 0000 means "2.3.0".
-const uint64_t kSequenceModelVersion = 200030000;
+const uint64_t kSequenceModelVersion = 200030001;
 const uint64_t kOldestCompatibleSequenceModelVersion = 200030000;
 const uint64_t kSequenceModelCheck = 1234567890;
 
@@ -46,15 +46,13 @@ void SequencePipe::SaveModel(FILE* fs) {
 
 void SequencePipe::LoadModel(FILE* fs) {
   bool success;
-  uint64_t model_check;
-  uint64_t model_version;
-  success = ReadUINT64(fs, &model_check);
+  success = ReadUINT64(fs, &model_check_);
   CHECK(success);
-  CHECK_EQ(model_check, kSequenceModelCheck)
+  CHECK_EQ(model_check_, kSequenceModelCheck)
     << "The model file is too old and not supported anymore.";
-  success = ReadUINT64(fs, &model_version);
+  success = ReadUINT64(fs, &model_version_);
   CHECK(success);
-  CHECK_GE(model_version, kOldestCompatibleSequenceModelVersion)
+  CHECK_GE(model_version_, kOldestCompatibleSequenceModelVersion)
     << "The model file is too old and not supported anymore.";
   delete token_dictionary_;
   CreateTokenDictionary();
@@ -74,7 +72,8 @@ void SequencePipe::PreprocessData() {
     CreateTagDictionary(GetSequenceReader());
 }
 
-void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
+void SequencePipe::ComputeScores(Instance *instance,
+                                 Parts *parts,
                                  Features *features,
                                  vector<double> *scores) {
   SequenceInstanceNumeric *sentence =
@@ -100,15 +99,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       allowed_tags[k] = unigram->tag();
     }
     vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-    parameters_->ComputeLabelScoresWithCache(unigram_features,
-                                             allowed_tags,
-                                             &tag_scores);
-#else
     parameters_->ComputeLabelScores(unigram_features,
                                     allowed_tags,
                                     &tag_scores);
-#endif
     for (int k = 0; k < index_unigram_parts.size(); ++k) {
       (*scores)[index_unigram_parts[k]] = tag_scores[k];
     }
@@ -131,15 +124,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-      parameters_->ComputeLabelScoresWithCache(bigram_features,
-                                               bigram_tags,
-                                               &tag_scores);
-#else
       parameters_->ComputeLabelScores(bigram_features,
                                       bigram_tags,
                                       &tag_scores);
-#endif
       for (int k = 0; k < index_bigram_parts.size(); ++k) {
         (*scores)[index_bigram_parts[k]] = tag_scores[k];
       }
@@ -165,15 +152,9 @@ void SequencePipe::ComputeScores(Instance *instance, Parts *parts,
       }
 
       vector<double> tag_scores;
-#if USE_WEIGHT_CACHING == 1
-      parameters_->ComputeLabelScoresWithCache(trigram_features,
-                                               trigram_tags,
-                                               &tag_scores);
-#else
       parameters_->ComputeLabelScores(trigram_features,
                                       trigram_tags,
                                       &tag_scores);
-#endif
       for (int k = 0; k < index_trigram_parts.size(); ++k) {
         (*scores)[index_trigram_parts[k]] = tag_scores[k];
       }

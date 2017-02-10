@@ -24,6 +24,7 @@
 #include "FactorGrandparentHeadAutomaton.h"
 #include "FactorTrigramHeadAutomaton.h"
 #include "FactorSequence.h"
+#include "TimeUtils.h"
 #include "AlgUtils.h"
 #include <iostream>
 #include <Eigen/Dense>
@@ -1087,7 +1088,7 @@ void DependencyDecoder::DecodeInsideOutside(Instance *instance, Parts *parts,
   }
   for (int m = 1; m < sentence_length; ++m) {
     LOG(INFO) << "Sum " << m << " = " << sum[m];
-  }
+}
 #endif
 }
 
@@ -1292,14 +1293,14 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
         int m = arc->modifier();
         graph_paths[h][m] = true;
       }
-      timeval start, end;
-      gettimeofday(&start, NULL);
+      chronowrap::Chronometer chrono;
+      chrono.GetTime();
       ComputeTransitiveClosure(&graph_paths);
       for (int i = 0; i < sentence->size(); ++i) {
         graph_paths[i][i] = true;
       }
-      gettimeofday(&end, NULL);
-      double elapsed_time_paths = diff_ms(end, start);
+      chrono.StopTime();
+      double elapsed_time_paths = chrono.GetElapsedTime();
       int num_possible_paths = 0;
       for (int i = 0; i < sentence->size(); ++i) {
         for (int j = 0; j < sentence->size(); ++j) {
@@ -1309,7 +1310,7 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
       VLOG(2) << num_arcs << " possible arcs and "
         << num_possible_paths << " possible paths in "
         << sentence->size() * sentence->size()
-        << " (took " << elapsed_time_paths << " ms.)";
+        << " (took " << elapsed_time_paths << " sec.)";
     }
   }
 
@@ -2511,12 +2512,12 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   bool solved = false;
   if (add_evidence) {
     VLOG(2) << "Adding evidence...";
-    timeval start, end;
-    gettimeofday(&start, NULL);
+    chronowrap::Chronometer chrono;
+    chrono.GetTime();
     int status = factor_graph->AddEvidence(&evidence, &recomputed_indices);
-    gettimeofday(&end, NULL);
-    double elapsed_time = diff_ms(end, start);
-    VLOG(2) << "Graph simplification took " << elapsed_time << "ms.";
+    chrono.StopTime();
+    double elapsed_time = chrono.GetElapsedTime();
+    VLOG(2) << "Graph simplification took " << elapsed_time << "sec.";
     CHECK_NE(status, AD3::STATUS_INFEASIBLE);
     if (status == AD3::STATUS_OPTIMAL_INTEGER) solved = true;
     VLOG(2) << "Number of factors: " << factor_graph->GetNumFactors();
@@ -2552,14 +2553,14 @@ void DependencyDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   //factor_graph->SetResidualThresholdAD3(1e-6);
 
   // Run AD3.
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
   if (!solved) {
     factor_graph->SolveLPMAPWithAD3(&posteriors, &additional_posteriors, value);
   }
-  gettimeofday(&end, NULL);
-  double elapsed_time = diff_ms(end, start);
-  VLOG(2) << "Elapsed time (AD3) = " << elapsed_time
+  chrono.StopTime();
+  double elapsed_time = chrono.GetElapsedTime();
+  VLOG(2) << "Elapsed time (AD3) = " << elapsed_time << " sec."
     << " (" << sentence->size() << ") ";
 
   delete factor_graph;

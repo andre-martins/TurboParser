@@ -42,7 +42,7 @@ void CoreferenceParts::BuildIndices(int num_mentions) {
   DeleteIndices();
   index_.resize(num_mentions);
 
-  int num_arcs = size();
+  int num_arcs = (int)size();
   int offset = 0;
   for (int r = 0; r < num_arcs; ++r) {
     Part *part = (*this)[offset + r];

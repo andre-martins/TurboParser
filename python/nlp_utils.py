@@ -1,4 +1,5 @@
 from span import *
+from builtins import range
 
 def construct_coreference_spans_from_text(span_lines):
     left_bracket = '('
@@ -9,7 +10,7 @@ def construct_coreference_spans_from_text(span_lines):
     span_start_stack = []
     spans = []
 
-    for i in xrange(len(span_lines)):
+    for i in range(len(span_lines)):
         line = span_lines[i]
         fields = line.split('|')
         for field in fields:
@@ -58,7 +59,7 @@ def construct_coreference_info_from_spans(spans, num_words):
                 desc += '|'
             coreference_span_descriptions[span.end] = desc + span.name + ')'
 
-    for j in xrange(num_words):
+    for j in range(num_words):
         if coreference_span_descriptions[j] == '':
             coreference_span_descriptions[j] = '_'
 

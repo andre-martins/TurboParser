@@ -62,8 +62,9 @@ void TokenDictionary::Load(FILE* fs) {
   if (0 > cpos_alphabet_.Load(fs)) CHECK(false);
   if (0 > shape_alphabet_.Load(fs)) CHECK(false);
 
-  // TODO: Remove this (only for debugging purposes)
-  //BuildNames();
+#ifndef NDEBUG
+  BuildNames();
+#endif
 }
 
 void TokenDictionary::Save(FILE* fs) {
@@ -140,8 +141,8 @@ void TokenDictionary::Initialize(SequenceReader *reader) {
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(),
-                form_lower.begin(), ::tolower);
+      std::transform(form_lower.begin(), form_lower.end(),
+                     form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {

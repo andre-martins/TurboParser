@@ -38,7 +38,7 @@ public:
     return NULL;
   }
 
-  int size() { return form_ids_.size(); };
+  int size() { return (int)form_ids_.size(); };
 
   void Clear() {
     form_ids_.clear();
@@ -125,7 +125,7 @@ public:
   int GetSuffixId(int i) { return suffix_ids_[i]; };
   int GetPosId(int i) { return pos_ids_[i]; };
   int GetCoarsePosId(int i) { return cpos_ids_[i]; };
-  int GetNumMorphFeatures(int i) { return feats_ids_[i].size(); };
+  int GetNumMorphFeatures(int i) { return (int) feats_ids_[i].size(); };
   int GetMorphFeature(int i, int j) { return feats_ids_[i][j]; };
   bool IsNoun(int i) { return is_noun_[i]; };
   bool IsVerb(int i) { return is_verb_[i]; };

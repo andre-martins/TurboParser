@@ -1576,14 +1576,14 @@ void SemanticDecoder::DecodeFactorGraph(Instance *instance, Parts *parts,
   //factor_graph->SetResidualThresholdAD3(1e-6);
 
   // Run AD3.
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
   if (!solved) {
     factor_graph->SolveLPMAPWithAD3(&posteriors, &additional_posteriors, value);
   }
-  gettimeofday(&end, NULL);
-  double elapsed_time = diff_ms(end, start);
-  VLOG(2) << "Elapsed time (AD3) = " << elapsed_time
+  chrono.StopTime();
+  double elapsed_time = chrono.GetElapsedTime();
+  VLOG(2) << "Elapsed time (AD3) = " << elapsed_time << " sec."
     << " (" << sentence->size() << ") ";
 
   delete factor_graph;

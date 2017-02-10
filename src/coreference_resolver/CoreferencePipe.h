@@ -20,6 +20,7 @@
 #define COREFERENCEPIPE_H_
 
 #include "Pipe.h"
+#include "TimeUtils.h"
 #include "CoreferenceOptions.h"
 #include "CoreferenceReader.h"
 #include "CoreferenceDictionary.h"
@@ -138,7 +139,7 @@ protected:
 
   void BeginEvaluation() {
     num_tokens_ = 0;
-    gettimeofday(&start_clock_, NULL);
+    chrono.GetTime();
   }
 
   void EvaluateInstance(Instance *instance,
@@ -154,10 +155,8 @@ protected:
   }
 
   void EndEvaluation() {
-    timeval end_clock;
-    gettimeofday(&end_clock, NULL);
-    double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    chrono.StopTime();
+    double num_seconds = chrono.GetElapsedTime();
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
       << tokens_per_second << " tokens per second.";
@@ -169,7 +168,7 @@ protected:
   SemanticDictionary *semantic_dictionary_;
   //int num_tag_mistakes_;
   int num_tokens_;
-  timeval start_clock_;
+  chronowrap::Chronometer chrono;
 };
 
 #endif /* COREFERENCEPIPE_H_ */

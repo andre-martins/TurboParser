@@ -37,7 +37,7 @@ void CoreferenceDecoder::ComputeLinearCostFunction(
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
-  int num_parts = coreference_parts->size();
+  int num_parts = (int)coreference_parts->size();
   const std::vector<Mention*> &mentions = document->GetMentions();
 
   // The cost fucntion is = p'*z + q.
@@ -80,7 +80,7 @@ void CoreferenceDecoder::DecodeCostAugmented(
   double *cost,
   double *loss) {
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
-  int num_parts = parts->size();
+  int num_parts = (int)parts->size();
 
   std::vector<double> p;
   double q;
@@ -116,7 +116,7 @@ void CoreferenceDecoder::DecodeCostAugmentedMarginals(
   CoreferenceDocumentNumeric *document =
     static_cast<CoreferenceDocumentNumeric*>(instance);
   CoreferenceParts *coreference_parts = static_cast<CoreferenceParts*>(parts);
-  int num_parts = coreference_parts->size();
+  int num_parts = (int)coreference_parts->size();
 
   predicted_output->clear();
   predicted_output->resize(num_parts, 0.0);
@@ -191,7 +191,7 @@ void CoreferenceDecoder::DecodeMarginals(Instance *instance, Parts *parts,
   predicted_output->resize(parts->size(), 0.0);
 
   int offset_arcs = 0;
-  int num_arcs = coreference_parts->size();
+  int num_arcs = (int)coreference_parts->size();
 
   double log_partition_function;
   DecodeBasicMarginals(instance, parts, scores, predicted_output,

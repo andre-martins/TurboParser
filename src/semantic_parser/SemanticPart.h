@@ -390,7 +390,7 @@ public:
 
   // Append a part to the array of parts. Return the index.
   int AddPart(Part *part) {
-    int r = size();
+    int r = (int)size();
     push_back(part);
     all_labeled_parts_.push_back(vector<int>(0));
     //LOG(INFO) << "Adding part #" << r << " with type " << part->type();
@@ -506,7 +506,7 @@ public:
   void BuildOffsets() {
     for (int i = NUM_SEMANTICPARTS - 1; i >= 0; --i) {
       if (offsets_[i] < 0 || offsets_[i] > size()) {
-        offsets_[i] = (i == NUM_SEMANTICPARTS - 1) ? size() : offsets_[i + 1];
+        offsets_[i] = (i == NUM_SEMANTICPARTS - 1) ? (int)size() : offsets_[i + 1];
       }
     }
   };
@@ -578,7 +578,7 @@ private:
   void GetOffset(int i, int *offset, int *size) const {
     *offset = offsets_[i];
     *size = (i < NUM_SEMANTICPARTS - 1) ? offsets_[i + 1] - (*offset) :
-      SemanticParts::size() - (*offset);
+      (int)SemanticParts::size() - (*offset);
   }
 
   // Set offset from part index.

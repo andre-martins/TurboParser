@@ -64,6 +64,11 @@ public:
   // Run a previously trained classifier on a single instance.
   void ClassifyInstance(Instance *instance);
 
+  // Get model version.
+  uint64_t GetModelVersion() {
+    LOG(INFO) << "model version: " << model_version_;
+    return model_version_;
+  }
 protected:
   // Create basic objects.
   virtual void CreateDictionary() = 0;
@@ -263,6 +268,9 @@ protected:
   // evaluation purposes).
   int num_mistakes_;
   int num_total_parts_;
+  //Model check
+  uint64_t model_check_;
+  uint64_t model_version_;
 };
 
 #endif /* PIPE_H_ */

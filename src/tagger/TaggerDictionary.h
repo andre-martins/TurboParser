@@ -35,7 +35,7 @@ public:
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
     bool success;
-    int length = unknown_word_tags_.size();
+    int length = (int)unknown_word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int j = 0; j < unknown_word_tags_.size(); ++j) {
@@ -44,11 +44,11 @@ public:
       CHECK(success);
     }
 
-    length = word_tags_.size();
+    length = (int)word_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < word_tags_.size(); ++i) {
-      length = word_tags_[i].size();
+      length = (int)word_tags_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int j = 0; j < word_tags_[i].size(); ++j) {

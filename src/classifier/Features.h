@@ -27,10 +27,6 @@
 #include <unordered_map>
 #include <functional>
 
-#ifndef USE_WEIGHT_CACHING
-#define USE_WEIGHT_CACHING 0 //1
-#endif
-
 // A vector of binary features. Each feature is represented as a 64-bit key.
 typedef vector<uint64_t> BinaryFeatures;
 

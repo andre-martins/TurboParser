@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 
 class Span:
@@ -45,4 +46,4 @@ class Span:
         return start_interval <= end_interval
         
     def print_span(self):
-        print self.name, self.start, self.end
+        print (self.name, self.start, self.end)

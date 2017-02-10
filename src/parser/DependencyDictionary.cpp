@@ -175,8 +175,8 @@ void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
       // Add form to alphabet.
       std::string form = instance->GetForm(i);
       std::string form_lower(form);
-      transform(form_lower.begin(), form_lower.end(),
-                form_lower.begin(), ::tolower);
+      std::transform(form_lower.begin(), form_lower.end(),
+                     form_lower.begin(), ::tolower);
       if (!form_case_sensitive) form = form_lower;
       id = form_alphabet.Insert(form);
       if (id >= form_freqs.size()) {
@@ -372,6 +372,7 @@ void DependencyTokenDictionary::Initialize(DependencyReader *reader) {
   CHECK_LT(pos_alphabet_.size(), 0xff);
   CHECK_LT(cpos_alphabet_.size(), 0xff);
 
-  // TODO: Remove this (only for debugging purposes).
+#ifndef NDEBUG
   BuildNames();
+#endif
 }

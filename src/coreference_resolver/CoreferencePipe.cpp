@@ -42,15 +42,13 @@ void CoreferencePipe::SaveModel(FILE* fs) {
 
 void CoreferencePipe::LoadModel(FILE* fs) {
   bool success;
-  uint64_t model_check;
-  uint64_t model_version;
-  success = ReadUINT64(fs, &model_check);
+  success = ReadUINT64(fs, &model_check_);
   CHECK(success);
-  CHECK_EQ(model_check, kCoreferenceModelCheck)
+  CHECK_EQ(model_check_, kCoreferenceModelCheck)
     << "The model file is too old and not supported anymore.";
-  success = ReadUINT64(fs, &model_version);
+  success = ReadUINT64(fs, &model_version_);
   CHECK(success);
-  CHECK_GE(model_version, kOldestCompatibleCoreferenceModelVersion)
+  CHECK_GE(model_version_, kOldestCompatibleCoreferenceModelVersion)
     << "The model file is too old and not supported anymore.";
 
   delete token_dictionary_;
@@ -223,7 +221,7 @@ void CoreferencePipe::MakeParts(Instance *instance,
     }
   }
 
-  coreference_parts->BuildIndices(mentions.size());
+  coreference_parts->BuildIndices((int)mentions.size());
   // Necessary to store this information here for LabelInstance at test time.
   coreference_parts->SetMentions(mentions);
 }
@@ -270,7 +268,7 @@ void CoreferencePipe::LabelInstance(Parts *parts,
     CHECK_EQ(mention_clusters[arc->child_mention()], -1);
     if (arc->parent_mention() < 0) {
       // Non-anaphoric mention; create its own cluster.
-      mention_clusters[arc->child_mention()] = entities.size();
+      mention_clusters[arc->child_mention()] = (int)entities.size();
       entities.push_back(std::vector<int>(1, arc->child_mention()));
     } else {
       int k = mention_clusters[arc->parent_mention()];

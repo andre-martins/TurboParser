@@ -26,7 +26,7 @@
 class EntityDictionary : public SequenceDictionary {
 public:
   EntityDictionary() {}
-  EntityDictionary(Pipe* pipe) : SequenceDictionary(pipe) {}
+  EntityDictionary(Pipe* pipe);
   virtual ~EntityDictionary() {}
 
   void Clear() {
@@ -44,11 +44,11 @@ public:
     if (0 > gazetteer_entity_tag_alphabet_.Save(fs)) CHECK(false);
 
     bool success;
-    int length = gazetteer_word_entity_tags_.size();
+    int length = (int)gazetteer_word_entity_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int j = 0; j < gazetteer_word_entity_tags_.size(); ++j) {
-      length = gazetteer_word_entity_tags_[j].size();
+      length = (int)gazetteer_word_entity_tags_[j].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int k = 0; k < gazetteer_word_entity_tags_[j].size(); ++k) {
@@ -58,11 +58,11 @@ public:
       }
     }
 
-    length = allowed_bigrams_.size();
+    length = (int)allowed_bigrams_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int j = 0; j < allowed_bigrams_.size(); ++j) {
-      length = allowed_bigrams_[j].size();
+      length = (int)allowed_bigrams_[j].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int k = 0; k < allowed_bigrams_[j].size(); ++k) {
@@ -138,11 +138,16 @@ public:
     return allowed_bigrams_[tag + 1][left_tag + 1];
   }
 
+  const bool gazetteer_case_sensitive() const {
+    return gazetteer_case_sensitive_;
+  }
+
 protected:
   std::vector<std::vector<bool> > allowed_bigrams_;
   Alphabet gazetteer_word_alphabet_;
   Alphabet gazetteer_entity_tag_alphabet_;
   std::vector<std::vector<int> > gazetteer_word_entity_tags_;
+  bool gazetteer_case_sensitive_; //stores the value of the corresponding option flag
 };
 
 class EntityTokenDictionary : public TokenDictionary {

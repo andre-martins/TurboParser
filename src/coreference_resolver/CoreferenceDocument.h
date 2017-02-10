@@ -38,7 +38,7 @@ public:
                   int part_number,
                   const std::vector<CoreferenceSentence*> &sentences);
 
-  int GetNumSentences() { return sentences_.size(); }
+  int GetNumSentences() { return  (int)sentences_.size(); }
   CoreferenceSentence *GetSentence(int i) { return sentences_[i]; }
 
   const std::string &name() { return name_; }

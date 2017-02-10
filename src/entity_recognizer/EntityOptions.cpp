@@ -17,6 +17,7 @@
 // along with TurboParser 2.3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "EntityOptions.h"
+#include "Pipe.h"
 #include "SerializationUtils.h"
 #include <glog/logging.h>
 
@@ -34,6 +35,11 @@ DEFINE_string(entity_tagging_scheme, "bio",
 DEFINE_string(entity_file_gazetteer, "",
               "Path to a gazetteer file (one entity per line with the "
               "corresponding class, separated by tabs.");
+DEFINE_int32(entity_recognizer_large_feature_set, 3,
+             "The greater the value, the larger feature set used. Taggers are "
+             "usually more accurate but slower and have a larger memory footprint.");
+DEFINE_bool(entity_gazetteer_case_sensitive, true,
+            "Distinguish upper/lower case of gazetteers words");
 
 // Save current option flags to the model file.
 void EntityOptions::Save(FILE* fs) {
@@ -41,6 +47,10 @@ void EntityOptions::Save(FILE* fs) {
 
   bool success;
   success = WriteString(fs, tagging_scheme_name_);
+  CHECK(success);
+  success = WriteInteger(fs, large_feature_set_);
+  CHECK(success);
+  success = WriteBool(fs, gazetteer_case_sensitive_);
   CHECK(success);
 }
 
@@ -50,11 +60,23 @@ void EntityOptions::Load(FILE* fs) {
   SequenceOptions::Load(fs);
 
   bool success;
+
   success = ReadString(fs, &FLAGS_entity_tagging_scheme);
   CHECK(success);
-  LOG(INFO) << "Setting --entity_tagging_scheme=" <<
-    FLAGS_entity_tagging_scheme;
+  LOG(INFO) << "Setting --entity_tagging_scheme="
+    << FLAGS_entity_tagging_scheme;
 
+  if (pipe_ != nullptr && pipe_->GetModelVersion() >= 200030001) {
+    success = ReadInteger(fs, &FLAGS_entity_recognizer_large_feature_set);
+    CHECK(success);
+    LOG(INFO) << "Setting --entity_recognizer_large_feature_set="
+      << FLAGS_entity_recognizer_large_feature_set;
+
+    success = ReadBool(fs, &FLAGS_entity_gazetteer_case_sensitive);
+    CHECK(success);
+    LOG(INFO) << "Setting --entity_gazetteer_case_sensitive="
+      << FLAGS_entity_gazetteer_case_sensitive;
+  }
   Initialize();
 }
 
@@ -73,4 +95,6 @@ void EntityOptions::Initialize() {
   } else {
     CHECK(false) << "Unknown entity scheme: " << tagging_scheme_name_;
   }
+  large_feature_set_ = FLAGS_entity_recognizer_large_feature_set;
+  gazetteer_case_sensitive_ = FLAGS_entity_gazetteer_case_sensitive;
 }

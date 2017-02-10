@@ -44,12 +44,16 @@ public:
   // Get option flags.
   int tagging_scheme() { return tagging_scheme_; }
   const std::string &file_gazetteer() { return file_gazetteer_; }
+  const int large_feature_set() { return large_feature_set_; }
+  const bool gazetteer_case_sensitive() { return gazetteer_case_sensitive_; }
 
 protected:
   std::string file_format_;
   std::string tagging_scheme_name_;
   std::string file_gazetteer_;
   int tagging_scheme_;
+  int large_feature_set_;
+  bool gazetteer_case_sensitive_;
 };
 
 #endif // ENTITY_OPTIONS_H_

@@ -53,9 +53,9 @@ int main(int argc, char** argv) {
 }
 
 void TrainCoreferenceResolver() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   CoreferenceOptions *options = new CoreferenceOptions;
   options->Initialize();
@@ -70,17 +70,16 @@ void TrainCoreferenceResolver() {
   delete pipe;
   delete options;
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Training took " << time << " sec." << endl;
 }
 
 void TestCoreferenceResolver() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   CoreferenceOptions *options = new CoreferenceOptions;
   options->Initialize();
@@ -93,9 +92,8 @@ void TestCoreferenceResolver() {
   delete pipe;
   delete options;
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Testing took " << time << " sec." << endl;
 }

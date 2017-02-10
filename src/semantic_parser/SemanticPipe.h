@@ -20,6 +20,7 @@
 #define SEMANTICPIPE_H_
 
 #include "Pipe.h"
+#include "TimeUtils.h"
 #include "SemanticOptions.h"
 #include "SemanticReader.h"
 #include "SemanticDictionary.h"
@@ -215,7 +216,7 @@ protected:
     num_labeled_arcs_after_pruning_ = 0;
     num_pruned_gold_labeled_arcs_ = 0;
     num_possible_labeled_arcs_ = 0;
-    gettimeofday(&start_clock_, NULL);
+    chrono.GetTime();
   }
   virtual void EvaluateInstance(Instance *instance,
                                 Instance *output_instance,
@@ -369,10 +370,8 @@ protected:
       << " (" << num_possible_labeled_arcs_ << "/"
       << num_tokens_ << ")";
 
-    timeval end_clock;
-    gettimeofday(&end_clock, NULL);
-    double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    chrono.StopTime();
+    double num_seconds = chrono.GetElapsedTime();
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Speed: "
       << tokens_per_second << " tokens per second.";
@@ -404,7 +403,7 @@ protected:
   int num_labeled_arcs_after_pruning_;
   int num_pruned_gold_labeled_arcs_;
   int num_possible_labeled_arcs_;
-  timeval start_clock_;
+  chronowrap::Chronometer chrono;
 };
 
 #endif /* SEMANTICPIPE_H_ */

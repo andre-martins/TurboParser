@@ -128,37 +128,37 @@ public:
 
 public:
   bool IsPersonFirst() {
-    return person_flag_ & (0x1 << CoreferencePronounPerson::FIRST);
+    return ( person_flag_ & (0x1 << CoreferencePronounPerson::FIRST) ) != 0;
   }
   bool IsPersonSecond() {
-    return person_flag_ & (0x1 << CoreferencePronounPerson::SECOND);
+    return (person_flag_ & (0x1 << CoreferencePronounPerson::SECOND) ) != 0;
   }
   bool IsPersonThird() {
-    return person_flag_ & (0x1 << CoreferencePronounPerson::THIRD);
+    return (person_flag_ & (0x1 << CoreferencePronounPerson::THIRD) ) != 0;
   }
   bool IsPersonUndefined() {
-    return person_flag_ & (0x1 << CoreferencePronounPerson::UNDEFINED);
+    return (person_flag_ & (0x1 << CoreferencePronounPerson::UNDEFINED) ) != 0;
   }
   bool IsNumberSingular() {
-    return number_flag_ & (0x1 << CoreferencePronounNumber::SINGULAR);
+    return (number_flag_ & (0x1 << CoreferencePronounNumber::SINGULAR) ) != 0;
   }
   bool IsNumberPlural() {
-    return number_flag_ & (0x1 << CoreferencePronounNumber::PLURAL);
+    return (number_flag_ & (0x1 << CoreferencePronounNumber::PLURAL) ) != 0;
   }
   bool IsNumberUndefined() {
-    return number_flag_ & (0x1 << CoreferencePronounNumber::UNDEFINED);
+    return (number_flag_ & (0x1 << CoreferencePronounNumber::UNDEFINED) ) != 0;
   }
   bool IsGenderMale() {
-    return gender_flag_ & (0x1 << CoreferencePronounGender::MALE);
+    return (gender_flag_ & (0x1 << CoreferencePronounGender::MALE) ) != 0;
   }
   bool IsGenderFemale() {
-    return gender_flag_ & (0x1 << CoreferencePronounGender::FEMALE);
+    return (gender_flag_ & (0x1 << CoreferencePronounGender::FEMALE) ) != 0;
   }
   bool IsGenderNeutral() {
-    return gender_flag_ & (0x1 << CoreferencePronounGender::NEUTRAL);
+    return (gender_flag_ & (0x1 << CoreferencePronounGender::NEUTRAL) ) != 0;
   }
   bool IsGenderUndefined() {
-    return gender_flag_ & (0x1 << CoreferencePronounGender::UNDEFINED);
+    return (gender_flag_ & (0x1 << CoreferencePronounGender::UNDEFINED) ) != 0;
   }
 
   void SetPersonFirst() {

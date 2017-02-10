@@ -40,7 +40,7 @@ public:
 
   void Save(FILE *fs) {
     bool success;
-    success = WriteInteger(fs, phrase_counts_.size());
+    success = WriteInteger(fs, (int) phrase_counts_.size());
     CHECK(success);
     for (std::map<std::vector<int>, std::vector<int> >::iterator it =
          phrase_counts_.begin();
@@ -117,7 +117,7 @@ public:
 
     // Save pronouns.
     bool success;
-    int length = all_pronouns_.size();
+    int length = (int)all_pronouns_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::map<int, CoreferencePronoun*>::iterator it =
@@ -132,7 +132,7 @@ public:
     }
 
     // Save determiners.
-    length = all_determiners_.size();
+    length = (int)all_determiners_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::map<int, CoreferenceDeterminer*>::iterator it =
@@ -147,7 +147,7 @@ public:
     }
 
     // Save various tags.
-    length = named_entity_tags_.size();
+    length = (int)named_entity_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = named_entity_tags_.begin();
@@ -158,7 +158,7 @@ public:
       CHECK(success);
     }
 
-    length = person_entity_tags_.size();
+    length = (int)person_entity_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = person_entity_tags_.begin();
@@ -169,7 +169,7 @@ public:
       CHECK(success);
     }
 
-    length = noun_phrase_tags_.size();
+    length = (int)noun_phrase_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = noun_phrase_tags_.begin();
@@ -180,7 +180,7 @@ public:
       CHECK(success);
     }
 
-    length = proper_noun_tags_.size();
+    length = (int)proper_noun_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = proper_noun_tags_.begin();
@@ -191,7 +191,7 @@ public:
       CHECK(success);
     }
 
-    length = noun_tags_.size();
+    length = (int)noun_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = noun_tags_.begin();
@@ -202,7 +202,7 @@ public:
       CHECK(success);
     }
 
-    length = pronominal_tags_.size();
+    length = (int)pronominal_tags_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (std::set<int>::iterator it = pronominal_tags_.begin();

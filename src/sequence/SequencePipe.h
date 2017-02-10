@@ -20,6 +20,7 @@
 #define SEQUENCEPIPE_H_
 
 #include "Pipe.h"
+#include "TimeUtils.h"
 #include "SequenceOptions.h"
 #include "SequenceReader.h"
 #include "SequenceDictionary.h"
@@ -117,7 +118,7 @@ protected:
   virtual void BeginEvaluation() {
     num_tag_mistakes_ = 0;
     num_tokens_ = 0;
-    gettimeofday(&start_clock_, NULL);
+    chrono.GetTime();
   }
   virtual void EvaluateInstance(Instance *instance,
                                 Instance *output_instance,
@@ -145,10 +146,8 @@ protected:
     LOG(INFO) << "Tagging accuracy: " <<
       static_cast<double>(num_tokens_ - num_tag_mistakes_) /
       static_cast<double>(num_tokens_);
-    timeval end_clock;
-    gettimeofday(&end_clock, NULL);
-    double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    chrono.StopTime();
+    double num_seconds = chrono.GetElapsedTime();
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Tagging speed: "
       << tokens_per_second << " tokens per second.";
@@ -158,7 +157,7 @@ protected:
   TokenDictionary *token_dictionary_;
   int num_tag_mistakes_;
   int num_tokens_;
-  timeval start_clock_;
+  chronowrap::Chronometer chrono;
 };
 
 #endif /* SEQUENCEPIPE_H_ */

@@ -129,11 +129,11 @@ public:
     if (0 > relation_path_alphabet_.Save(fs)) CHECK(false);
     if (0 > pos_path_alphabet_.Save(fs)) CHECK(false);
     bool success;
-    int length = lemma_predicates_.size();
+    int length = (int)lemma_predicates_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < lemma_predicates_.size(); ++i) {
-      length = lemma_predicates_[i].size();
+      length = (int)lemma_predicates_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int j = 0; j < lemma_predicates_[i].size(); ++j) {
@@ -141,7 +141,7 @@ public:
       }
     }
     CHECK_EQ(deterministic_roles_.size(), GetNumRoles());
-    length = deterministic_roles_.size();
+    length = (int)deterministic_roles_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < deterministic_roles_.size(); ++i) {
@@ -149,15 +149,15 @@ public:
       success = WriteBool(fs, deterministic);
       CHECK(success);
     }
-    length = existing_roles_.size();
+    length = (int)existing_roles_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < existing_roles_.size(); ++i) {
-      length = existing_roles_[i].size();
+      length = (int)existing_roles_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int j = 0; j < existing_roles_[i].size(); ++j) {
-        length = existing_roles_[i][j].size();
+        length = (int)existing_roles_[i][j].size();
         success = WriteInteger(fs, length);
         CHECK(success);
         for (int k = 0; k < existing_roles_[i][j].size(); ++k) {
@@ -174,11 +174,11 @@ public:
         CHECK(success);
       }
     }
-    length = existing_roles_with_relation_path_.size();
+    length = (int)existing_roles_with_relation_path_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (int i = 0; i < existing_roles_with_relation_path_.size(); ++i) {
-      length = existing_roles_with_relation_path_[i].size();
+      length = (int)existing_roles_with_relation_path_[i].size();
       success = WriteInteger(fs, length);
       CHECK(success);
       for (int k = 0; k < existing_roles_with_relation_path_[i].size(); ++k) {
@@ -187,7 +187,7 @@ public:
         CHECK(success);
       }
     }
-    length = frequent_role_pairs_.size();
+    length = (int)frequent_role_pairs_.size();
     success = WriteInteger(fs, length);
     CHECK(success);
     for (set<int>::iterator it = frequent_role_pairs_.begin();

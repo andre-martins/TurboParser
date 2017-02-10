@@ -29,17 +29,18 @@ TurboTaggerWorker::~TurboTaggerWorker() {
 void TurboTaggerWorker::LoadTaggerModel(const std::string &file_model) {
   tagger_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   tagger_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboTaggerWorker::Tag(const std::string &file_test,
@@ -47,17 +48,16 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
   tagger_options_->SetTestFilePath(file_test);
   tagger_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   tagger_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
@@ -83,17 +83,18 @@ void TurboEntityRecognizerWorker::LoadEntityRecognizerModel(
   const std::string &file_model) {
   entity_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   entity_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
@@ -101,17 +102,16 @@ void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
   entity_options_->SetTestFilePath(file_test);
   entity_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   entity_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
@@ -136,17 +136,18 @@ TurboParserWorker::~TurboParserWorker() {
 void TurboParserWorker::LoadParserModel(const std::string &file_model) {
   parser_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   parser_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboParserWorker::Parse(const std::string &file_test,
@@ -154,17 +155,16 @@ void TurboParserWorker::Parse(const std::string &file_test,
   parser_options_->SetTestFilePath(file_test);
   parser_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   parser_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboParserWorker::ParseSentence(DependencyInstance *sentence) {
@@ -190,19 +190,18 @@ void TurboSemanticParserWorker::LoadSemanticParserModel(
   const std::string &file_model) {
   semantic_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   LOG(INFO) << "Loading model file " << file_model;
 
   semantic_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboSemanticParserWorker::ParseSemanticDependencies(
@@ -211,21 +210,20 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
   semantic_options_->SetTestFilePath(file_test);
   semantic_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   semantic_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboSemanticParserWorker::ParseSemanticDependenciesFromSentence(
-    SemanticInstance *sentence) {
+  SemanticInstance *sentence) {
   semantic_pipe_->ClassifyInstance(sentence);
 }
 
@@ -248,19 +246,18 @@ void TurboCoreferenceResolverWorker::LoadCoreferenceResolverModel(
   const std::string &file_model) {
   coreference_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   LOG(INFO) << "Loading model file " << file_model;
 
   coreference_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboCoreferenceResolverWorker::ResolveCoreferences(
@@ -269,21 +266,20 @@ void TurboCoreferenceResolverWorker::ResolveCoreferences(
   coreference_options_->SetTestFilePath(file_test);
   coreference_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   coreference_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboCoreferenceResolverWorker::ResolveCoreferencesFromDocument(
-    CoreferenceDocument *document) {
+  CoreferenceDocument *document) {
   coreference_pipe_->ClassifyInstance(document);
 }
 
@@ -304,21 +300,22 @@ TurboMorphologicalTaggerWorker::~TurboMorphologicalTaggerWorker() {
 }
 
 void TurboMorphologicalTaggerWorker::LoadMorphologicalTaggerModel(
-    const std::string
-    &file_model) {
+  const std::string
+  &file_model) {
   morphological_tagger_options_->SetModelFilePath(file_model);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
+
+  LOG(INFO) << "Loading model file " << file_model;
 
   morphological_tagger_pipe_->LoadModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
@@ -326,21 +323,20 @@ void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
   morphological_tagger_options_->SetTestFilePath(file_test);
   morphological_tagger_options_->SetOutputFilePath(file_prediction);
 
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   morphological_tagger_pipe_->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
 
-  LOG(INFO) << "Took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
+  LOG(INFO) << "Took " << time << " sec." << endl;
 }
 
 void TurboMorphologicalTaggerWorker::TagSentence(
-    MorphologicalInstance *sentence) {
+  MorphologicalInstance *sentence) {
   morphological_tagger_pipe_->ClassifyInstance(sentence);
 }
 
@@ -349,15 +345,17 @@ TurboParserInterface::TurboParserInterface() {
   argv_ = NULL;
   BuildArgumentList();
 
+  InitGlog(argv_[0]);
+
   // Initialize Google's logging library.
-  google::InitGoogleLogging(argv_[0]);
+  //google::InitGoogleLogging(argv_[0]);
 
   // Parse command line flags.
-  google::ParseCommandLineFlags(&argc_, &argv_, false);
+  //google::ParseCommandLineFlags(&argc_, &argv_, true);
 
-#ifdef _WIN32
-  google::LogToStderr();
-#endif
+//#ifdef _WIN32
+//  google::LogToStderr();
+//#endif
 }
 
 TurboParserInterface::~TurboParserInterface() {

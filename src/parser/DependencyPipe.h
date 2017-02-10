@@ -223,7 +223,7 @@ protected:
     num_head_pruned_mistakes_ = 0;
     num_heads_after_pruning_ = 0;
     num_tokens_ = 0;
-    gettimeofday(&start_clock_, NULL);
+    chrono.GetTime();
   }
   virtual void EvaluateInstance(Instance *instance,
                                 Instance *output_instance,
@@ -269,10 +269,8 @@ protected:
       static_cast<double>(num_heads_after_pruning_) /
       static_cast<double>(num_tokens_)
       << " possible heads per token.";
-    timeval end_clock;
-    gettimeofday(&end_clock, NULL);
-    double num_seconds =
-      static_cast<double>(diff_ms(end_clock, start_clock_)) / 1000.0;
+    chrono.StopTime();
+    double num_seconds = chrono.GetElapsedTime();
     double tokens_per_second = static_cast<double>(num_tokens_) / num_seconds;
     LOG(INFO) << "Parsing speed: "
       << tokens_per_second << " tokens per second.";
@@ -296,7 +294,7 @@ protected:
   int num_head_pruned_mistakes_;
   int num_heads_after_pruning_;
   int num_tokens_;
-  timeval start_clock_;
+  chronowrap::Chronometer chrono;
 };
 
 #endif /* DEPENDENCYPIPE_H_ */

@@ -19,9 +19,43 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <atomic>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "TimeUtils.h"
 #include "StringUtils.h"
+
+class GlogIsInit {
+public:
+  static GlogIsInit & Instance() {
+    static GlogIsInit instance;
+    return instance;
+  }
+
+  static bool Value() {
+    return Instance().value_;
+  }
+
+  static void Set(bool value) {
+    Instance().value_.store(value);
+  }
+private:
+  GlogIsInit() {};
+  std::atomic_bool value_{ false };
+};
+
+static void InitGlog(const char * logging_name) {
+
+
+  if (!GlogIsInit::Value()) {
+    //fLB::FLAGS_colorlogtostderr = true;
+    fLB::FLAGS_alsologtostderr = true;
+    fLI::FLAGS_stderrthreshold = 0;
+    fLI::FLAGS_minloglevel = 0;
+    fLI::FLAGS_v = 0;
+    google::InitGoogleLogging(logging_name);
+    GlogIsInit::Set(true);
+  }
+}
 
 #endif // UTILS_H

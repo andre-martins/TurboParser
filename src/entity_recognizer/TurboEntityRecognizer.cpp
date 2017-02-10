@@ -40,9 +40,9 @@ int main(int argc, char** argv) {
 }
 
 void TrainEntityRecognizer() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   EntityOptions *options = new EntityOptions;
   options->Initialize();
@@ -52,20 +52,19 @@ void TrainEntityRecognizer() {
   pipe->Train();
   pipe->SaveModelFile();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
-
-  LOG(INFO) << "Training took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
-
   delete pipe;
   delete options;
+
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
+
+  LOG(INFO) << "Training took " << time << " sec." << endl;
 }
 
 void TestEntityRecognizer() {
-  int time;
-  timeval start, end;
-  gettimeofday(&start, NULL);
+  double time;
+  chronowrap::Chronometer chrono;
+  chrono.GetTime();
 
   EntityOptions *options = new EntityOptions;
   options->Initialize();
@@ -76,12 +75,11 @@ void TestEntityRecognizer() {
 
   pipe->Run();
 
-  gettimeofday(&end, NULL);
-  time = diff_ms(end, start);
-
-  LOG(INFO) << "Testing took " << static_cast<double>(time) / 1000.0
-    << " sec." << endl;
-
   delete pipe;
   delete options;
+
+  chrono.StopTime();
+  time = chrono.GetElapsedTime();
+
+  LOG(INFO) << "Testing took " << time << " sec." << endl;
 }

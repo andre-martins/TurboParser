@@ -37,7 +37,7 @@ public:
   virtual void Initialize(const std::vector<std::string> &forms,
                           const std::vector<std::string> &tags);
 
-  int size() const { return forms_.size(); };
+  int size() const { return (int) forms_.size(); };
 
   const std::string &GetForm(int i) const { return forms_[i]; }
   const std::string &GetTag(int i) const { return tags_[i]; }

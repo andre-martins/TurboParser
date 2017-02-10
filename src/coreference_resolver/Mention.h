@@ -120,8 +120,8 @@ public:
 
   bool ContainsMentionString(const Mention &mention) const {
     const std::vector<int> &all_word_string_ids = mention.all_word_string_ids();
-    int maximum_start =
-      all_word_string_ids_.size() - all_word_string_ids.size();
+    int maximum_start = 
+      (int)(all_word_string_ids_.size() - all_word_string_ids.size());
     for (int i = 0; i <= maximum_start; ++i) {
       bool found_match = true;
       for (int j = 0; j < all_word_string_ids.size(); ++j) {

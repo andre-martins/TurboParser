@@ -52,7 +52,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
   for (i = 0; i < length; i++) {
     std::string form = instance->GetForm(i);
     if (!form_case_sensitive) {
-      transform(form.begin(), form.end(), form.begin(), ::tolower);
+      std::transform(form.begin(), form.end(), form.begin(), ::tolower);
     }
     id = token_dictionary->GetFormId(form);
     CHECK_LT(id, 0xffff);
@@ -106,7 +106,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     //CHECK_GE(id, 0);
     if (id < 0) {
       id = TOKEN_UNKNOWN;
-      LOG(INFO) << "Unknown tag: " << instance->GetTag(i);
+      //LOG(INFO) << "Unknown tag: " << instance->GetTag(i);
     }
     tag_ids_[i] = id;
   }
