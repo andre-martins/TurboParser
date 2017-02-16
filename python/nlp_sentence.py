@@ -6,6 +6,17 @@ class NLPSentence(dict):
 
     def compute_morphology(self, worker):
         words = self['words']
+        if len(words) == 0:
+            # It is necessary to address this case here, since empty sentences
+            # make TurboParser crash.
+            self['tags'] = []
+            self['lemmas'] = None
+            if worker.lemmatizer != None:
+                self['lemmas'] = []
+            self['morphological_tags'] = None
+            if worker.morphological_tagger != None:
+                self['morphological_tags'] = []
+            return
 
         # Compute POS tags.
         self['tags'] = None
@@ -40,6 +51,12 @@ class NLPSentence(dict):
     def compute_entities(self, worker):
         words = self['words']
         tags = self['tags']
+        if len(words) == 0:
+            # It is necessary to address this case here, since empty sentences
+            # make TurboParser crash.
+            self['entity_tags'] = []
+            return
+
         # For now, use entity BIO tags. Later we should move to entity spans.
         self['entity_tags'] = None
         entity_tags = ['_' for word in words]
