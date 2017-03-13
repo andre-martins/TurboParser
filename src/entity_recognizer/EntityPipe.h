@@ -26,6 +26,7 @@
 #include "EntityInstanceNumeric.h"
 #include "EntityWriter.h"
 #include "EntityFeatures.h"
+#include "EntityDecoder.h" // by MLA
 
 class EntityPipe : public SequencePipe {
 public:
@@ -59,6 +60,8 @@ protected:
                                  static_cast<EntityInstance*>(instance));
     return instance_numeric;
   }
+  
+  void CreateDecoder() { decoder_ = new EntityDecoder(this); }; // by MLA
 
 protected:
   //void SaveModel(FILE* fs);

@@ -21,6 +21,11 @@
 #include "SequencePipe.h"
 #include <iostream> // Remove this.
 
+//DEFINE_double(ner_train_cost_false_positives, 0.5,
+//              "Cost for 'false positives' -- penalises recall and favours precision in BIO tagging.");
+//DEFINE_double(ner_train_cost_false_negatives, 0.5,
+//              "Cost for 'false negatives' -- penalises precision and favours recall in BIO tagging.");
+
 void SequenceDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
                                           const vector<double> &scores,
                                           const vector<double> &gold_output,
@@ -31,6 +36,21 @@ void SequenceDecoder::DecodeCostAugmented(Instance *instance, Parts *parts,
   int offset_unigrams, num_unigrams;
 
   sequence_parts->GetOffsetUnigram(&offset_unigrams, &num_unigrams);
+
+  ////////////////////////////////////////////////////
+  // F1: a = 0.5, b = 0.5.
+  // Recall: a = 0, b = 1.
+  // In general:
+  // p = a - (a+b)*z0
+  // q = b*sum(z0)
+  // p'*z + q = a*sum(z) - (a+b)*z0'*z + b*sum(z0)
+  //          = a*(1-z0)'*z + b*(1-z)'*z0.
+  ////////////////////////////////////////////////////
+
+  // Penalty for predicting 1 when it is 0 (FP).
+  // double a = FLAGS_ner_train_cost_false_positives;
+  // Penalty for predicting 0 when it is 1 (FN).
+  // double b = FLAGS_ner_train_cost_false_negatives;
 
   // p = 0.5-z0, q = 0.5'*z0, loss = p'*z + q
   double q = 0.0;
