@@ -50,6 +50,7 @@ void TrainEntityRecognizer() {
   EntityPipe *pipe = new EntityPipe(options);
   pipe->Initialize();
   pipe->Train();
+  LOG(INFO) << "\n FINAL model: " << options->GetModelFilePath() << "\n";
   pipe->SaveModelFile();
 
   delete pipe;

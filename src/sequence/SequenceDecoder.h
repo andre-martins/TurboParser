@@ -159,11 +159,11 @@ public:
   SequenceDecoder(SequencePipe *pipe) : pipe_(pipe) {};
   virtual ~SequenceDecoder() {};
 
-  void Decode(Instance *instance, Parts *parts,
+  virtual void Decode(Instance *instance, Parts *parts,
               const vector<double> &scores,
               vector<double> *predicted_output);
 
-  void DecodeCostAugmented(Instance *instance, Parts *parts,
+  virtual void DecodeCostAugmented(Instance *instance, Parts *parts,
                            const vector<double> &scores,
                            const vector<double> &gold_output,
                            vector<double> *predicted_output,

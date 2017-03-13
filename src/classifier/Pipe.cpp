@@ -151,6 +151,17 @@ void Pipe::Train() {
 
   for (int i = 0; i < options_->GetNumEpochs(); ++i) {
     TrainEpoch(i);
+    if (options_->save_model_period() == 1 || (i && i%(options_->save_model_period()) == 0)){    
+      Parameters *parameters_aux = new Parameters; 
+      parameters_->Copy(parameters_aux);
+      parameters_->Finalize((i+1) * (int)instances_.size());
+      SaveModelByName(options_->GetModelFilePath() + ".temp." + std::to_string(i));
+      //parameters_aux->Copy(parameters_);
+      //parameters_aux->Overwrite(parameters_);
+      Parameters *aux = parameters_;
+      parameters_ = parameters_aux;
+      delete aux;      
+    }
   }
 
   parameters_->Finalize(options_->GetNumEpochs() * (int)instances_.size());

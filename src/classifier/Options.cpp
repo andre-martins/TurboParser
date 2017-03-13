@@ -53,6 +53,8 @@ DEFINE_double(train_regularization_constant, 1e12,
               "Regularization parameter C.");
 DEFINE_int32(parameters_max_num_buckets, 50000000,
              "Maximum number of buckets in the hash table that stores the parameters.");
+DEFINE_int32(save_model_period, 1000000,
+             "Number of iteration after which a temporaty model is saved.");
 
 void Options::Initialize() {
   file_train_ = FLAGS_file_train;
@@ -73,4 +75,5 @@ void Options::Initialize() {
   train_learning_rate_schedule_ = FLAGS_train_learning_rate_schedule;
   only_supported_features_ = FLAGS_only_supported_features;
   use_averaging_ = FLAGS_use_averaging;
+  save_model_period_ = FLAGS_save_model_period;
 }

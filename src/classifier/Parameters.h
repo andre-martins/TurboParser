@@ -77,6 +77,29 @@ public:
     if (use_average_) averaged_labeled_weights_.Initialize();
   }
 
+  // Overwrite
+  void Overwrite(Parameters *output_parameters){
+    output_parameters->use_average_=use_average_;  // could be removed
+
+    weights_.Overwrite(&output_parameters->weights_);
+    averaged_weights_.Overwrite(&output_parameters->averaged_weights_);
+
+    labeled_weights_.Overwrite(&output_parameters->labeled_weights_);
+    averaged_labeled_weights_.Overwrite(&output_parameters->averaged_labeled_weights_);    
+  }
+
+  // Copy Parameters.
+  void Copy(Parameters *output_parameters){
+    output_parameters->Initialize(use_average_);
+    output_parameters->use_average_=use_average_;  // could be removed
+
+    weights_.Copy(&output_parameters->weights_);
+    averaged_weights_.Copy(&output_parameters->averaged_weights_);
+
+    labeled_weights_.Copy(&output_parameters->labeled_weights_);
+    averaged_labeled_weights_.Copy(&output_parameters->averaged_labeled_weights_);    
+  }
+
   // Lock/unlock the parameter vector. A locked vector means that no features
   // can be added.
   void StopGrowth() {
