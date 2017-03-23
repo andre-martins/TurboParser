@@ -12,6 +12,7 @@ EntityInstance.cpp EntityInstance.h \
 EntityInstanceNumeric.cpp EntityInstanceNumeric.h \
 EntityReader.cpp EntityReader.h \
 EntityWriter.cpp EntityWriter.h \
+EntityDecoder.cpp EntityDecoder.h \
 EntitySpan.h \
 EntityPipe.cpp EntityPipe.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp \

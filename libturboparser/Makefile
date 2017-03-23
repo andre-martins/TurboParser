@@ -10,7 +10,7 @@ MORPHOLOGICALTAGGER = ../src/morphological_tagger
 AUXLIBS = ../deps/local/lib
 AUXINCLUDES = ../deps/local/include
 
-OBJS = TurboParserInterface.o CoreferenceDecoder.o CoreferenceDictionary.o CoreferenceFeatures.o CoreferenceDocumentNumeric.o CoreferenceSentenceNumeric.o Mention.o CoreferenceDocument.o CoreferenceSentence.o CoreferenceOptions.o CoreferencePart.o CoreferencePipe.o CoreferenceReader.o CoreferenceWriter.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o TaggerDictionary.o TaggerFeatures.o TaggerOptions.o TaggerPipe.o MorphologicalDictionary.o MorphologicalFeatures.o MorphologicalInstance.o MorphologicalInstanceNumeric.o MorphologicalOptions.o MorphologicalPipe.o MorphologicalReader.o MorphologicalWriter.o EntityDictionary.o EntityFeatures.o EntityInstance.o EntityInstanceNumeric.o EntityOptions.o EntityPipe.o EntityReader.o EntityWriter.o SequenceDecoder.o SequenceDictionary.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
+OBJS = TurboParserInterface.o CoreferenceDecoder.o CoreferenceDictionary.o CoreferenceFeatures.o CoreferenceDocumentNumeric.o CoreferenceSentenceNumeric.o Mention.o CoreferenceDocument.o CoreferenceSentence.o CoreferenceOptions.o CoreferencePart.o CoreferencePipe.o CoreferenceReader.o CoreferenceWriter.o SemanticDecoder.o SemanticDictionary.o SemanticFeatures.o SemanticInstanceNumeric.o SemanticInstance.o SemanticOptions.o SemanticPart.o SemanticPipe.o SemanticReader.o SemanticWriter.o DependencyDecoder.o DependencyDictionary.o DependencyFeatures.o DependencyInstance.o DependencyInstanceNumeric.o DependencyOptions.o DependencyPart.o DependencyPipe.o DependencyReader.o DependencyWriter.o TaggerDictionary.o TaggerFeatures.o TaggerOptions.o TaggerPipe.o MorphologicalDictionary.o MorphologicalFeatures.o MorphologicalInstance.o MorphologicalInstanceNumeric.o MorphologicalOptions.o MorphologicalPipe.o MorphologicalReader.o MorphologicalWriter.o EntityDictionary.o EntityFeatures.o EntityInstance.o EntityInstanceNumeric.o EntityOptions.o EntityPipe.o EntityReader.o EntityWriter.o EntityDecoder.o SequenceDecoder.o SequenceDictionary.o SequenceInstance.o SequenceInstanceNumeric.o SequenceOptions.o SequencePart.o SequencePipe.o SequenceReader.o SequenceWriter.o TokenDictionary.o Alphabet.o Dictionary.o Options.o Parameters.o Pipe.o Reader.o Writer.o AlgUtils.o SerializationUtils.o StringUtils.o TimeUtils.o
 CC = g++
 DEBUG = -g
 INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(COREFERENCERESOLVER)  -I$(MORPHOLOGICALTAGGER) -I$(AUXINCLUDES)
@@ -200,7 +200,10 @@ EntityInstance.o: $(ENTITYRECOGNIZER)/EntityInstance.h $(ENTITYRECOGNIZER)/Entit
 
 EntityInstanceNumeric.o: $(ENTITYRECOGNIZER)/EntityInstanceNumeric.h $(ENTITYRECOGNIZER)/EntityInstanceNumeric.cpp $(ENTITYRECOGNIZER)/EntityInstance.h $(SEQUENCE)/SequenceInstanceNumeric.h $(ENTITYRECOGNIZER)/EntityDictionary.h
 	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityInstanceNumeric.cpp
-
+    
+EntityDecoder.o: $(ENTITYRECOGNIZER)/EntityDecoder.h $(ENTITYRECOGNIZER)/EntityDecoder.cpp $(SEQUENCE)/SequencePart.h $(ENTITYRECOGNIZER)/EntityPipe.h $(SEQUENCE)/SequenceDecoder.h
+	$(CC) $(CFLAGS) $(ENTITYRECOGNIZER)/EntityDecoder.cpp 
+    
 #####################
 
 SequenceDecoder.o: $(SEQUENCE)/SequenceDecoder.h $(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequencePart.h $(SEQUENCE)/SequencePipe.h $(CLASSIFIER)/Decoder.h

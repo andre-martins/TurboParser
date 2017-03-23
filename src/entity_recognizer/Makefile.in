@@ -93,7 +93,7 @@ PROGRAMS = $(TurboEntityRecognizerprg_PROGRAMS)
 am_TurboEntityRecognizer_OBJECTS = EntityFeatures.$(OBJEXT) \
 	EntityOptions.$(OBJEXT) EntityDictionary.$(OBJEXT) \
 	EntityInstance.$(OBJEXT) EntityInstanceNumeric.$(OBJEXT) \
-	EntityReader.$(OBJEXT) EntityWriter.$(OBJEXT) \
+	EntityReader.$(OBJEXT) EntityWriter.$(OBJEXT) EntityDecoder.$(OBJEXT) \
 	EntityPipe.$(OBJEXT) SequenceInstanceNumeric.$(OBJEXT) \
 	SequenceWriter.$(OBJEXT) SequenceDecoder.$(OBJEXT) \
 	SequencePipe.$(OBJEXT) SequenceOptions.$(OBJEXT) \
@@ -284,6 +284,7 @@ EntityInstance.cpp EntityInstance.h \
 EntityInstanceNumeric.cpp EntityInstanceNumeric.h \
 EntityReader.cpp EntityReader.h \
 EntityWriter.cpp EntityWriter.h \
+EntityDecoder.cpp EntityDecoder.h \
 EntitySpan.h \
 EntityPipe.cpp EntityPipe.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp \
@@ -412,6 +413,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EntityPipe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EntityReader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EntityWriter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EntityDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parameters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pipe.Po@am__quote@
