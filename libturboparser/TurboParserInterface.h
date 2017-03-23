@@ -222,4 +222,4 @@ private:
   std::vector<TurboCoreferenceResolverWorker*> coreference_resolvers_;
   std::vector<TurboMorphologicalTaggerWorker*> morphological_taggers_;
 };
-} // namespace TurboParserInterface.
+} // namespace TurboParserInterface

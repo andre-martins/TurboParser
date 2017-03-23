@@ -226,6 +226,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\entity_recognizer\EntityDecoder.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityDictionary.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityFeatures.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityInstance.cpp" />
@@ -236,6 +237,7 @@
     <ClCompile Include="..\..\src\entity_recognizer\EntityWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\entity_recognizer\EntityDecoder.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityDictionary.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatures.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatureTemplates.h" />
