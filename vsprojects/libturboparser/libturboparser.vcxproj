@@ -240,6 +240,7 @@
     <ClInclude Include="..\..\src\coreference_resolver\CoreferenceSentenceNumeric.h" />
     <ClInclude Include="..\..\src\coreference_resolver\CoreferenceWriter.h" />
     <ClInclude Include="..\..\src\coreference_resolver\Mention.h" />
+    <ClInclude Include="..\..\src\entity_recognizer\EntityDecoder.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityDictionary.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatures.h" />
     <ClInclude Include="..\..\src\entity_recognizer\EntityFeatureTemplates.h" />
@@ -335,6 +336,7 @@
     <ClCompile Include="..\..\src\coreference_resolver\CoreferenceSentenceNumeric.cpp" />
     <ClCompile Include="..\..\src\coreference_resolver\CoreferenceWriter.cpp" />
     <ClCompile Include="..\..\src\coreference_resolver\Mention.cpp" />
+    <ClCompile Include="..\..\src\entity_recognizer\EntityDecoder.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityDictionary.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityFeatures.cpp" />
     <ClCompile Include="..\..\src\entity_recognizer\EntityInstance.cpp" />
