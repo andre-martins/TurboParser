@@ -106,7 +106,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
     //CHECK_GE(id, 0);
     if (id < 0) {
       id = TOKEN_UNKNOWN;
-      LOG(INFO) << "Unknown tag: " << instance->GetTag(i);
+      VLOG(2) << "Unknown tag: " << instance->GetTag(i);
     }
     tag_ids_[i] = id;
   }
