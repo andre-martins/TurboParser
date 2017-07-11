@@ -61,6 +61,8 @@ void TurboTaggerWorker::Tag(const std::string &file_test,
 }
 
 void TurboTaggerWorker::TagSentence(SequenceInstance *sentence) {
+  if (sentence->size() == 0)
+    return;
   tagger_pipe_->ClassifyInstance(sentence);
 }
 
@@ -115,6 +117,8 @@ void TurboEntityRecognizerWorker::Tag(const std::string &file_test,
 }
 
 void TurboEntityRecognizerWorker::TagSentence(EntityInstance *sentence) {
+  if (sentence->size() == 0)
+    return;
   entity_pipe_->ClassifyInstance(sentence);
 }
 
@@ -168,6 +172,8 @@ void TurboParserWorker::Parse(const std::string &file_test,
 }
 
 void TurboParserWorker::ParseSentence(DependencyInstance *sentence) {
+  if (sentence->size() == 0)
+    return;
   parser_pipe_->ClassifyInstance(sentence);
 }
 
@@ -224,6 +230,8 @@ void TurboSemanticParserWorker::ParseSemanticDependencies(
 
 void TurboSemanticParserWorker::ParseSemanticDependenciesFromSentence(
   SemanticInstance *sentence) {
+  if (sentence->size() == 0)
+    return;
   semantic_pipe_->ClassifyInstance(sentence);
 }
 
@@ -280,6 +288,8 @@ void TurboCoreferenceResolverWorker::ResolveCoreferences(
 
 void TurboCoreferenceResolverWorker::ResolveCoreferencesFromDocument(
   CoreferenceDocument *document) {
+  if (document->GetNumSentences() == 0)
+    return;
   coreference_pipe_->ClassifyInstance(document);
 }
 
@@ -337,6 +347,8 @@ void TurboMorphologicalTaggerWorker::Tag(const std::string &file_test,
 
 void TurboMorphologicalTaggerWorker::TagSentence(
   MorphologicalInstance *sentence) {
+  if (sentence->size() == 0)
+    return;
   morphological_tagger_pipe_->ClassifyInstance(sentence);
 }
 

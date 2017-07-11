@@ -475,6 +475,15 @@ void Pipe::ClassifyInstance(Instance *instance) {
 
   // Create parts for this instance.
   MakeParts(formatted_instance, parts, &gold_outputs);
+
+  if (parts->empty()) {
+    if (formatted_instance != instance)
+      delete formatted_instance;
+    delete parts;
+    delete features;
+    return;
+  }
+
   // Create features for the parts of this instance.
   MakeFeatures(formatted_instance, parts, features);
   // Compute scores based on the features and parts of this instance.
@@ -492,8 +501,9 @@ void Pipe::ClassifyInstance(Instance *instance) {
                      predicted_outputs);
   }
 
-  if (formatted_instance != instance) delete formatted_instance;
-
+  if (formatted_instance != instance)
+    delete formatted_instance;
   delete parts;
   delete features;
+  return;
 }

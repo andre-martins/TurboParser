@@ -274,6 +274,8 @@ void SequencePipe::MakeParts(Instance *instance,
                              vector<double> *gold_outputs) {
   int sentence_length =
     static_cast<SequenceInstanceNumeric*>(instance)->size();
+  if (sentence_length == 0)
+    return;
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   sequence_parts->Initialize();
   bool make_gold = (gold_outputs != NULL);
