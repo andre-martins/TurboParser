@@ -30,6 +30,9 @@ DEFINE_int32(sequence_model_type, 2,
 //DEFINE_bool(sequence_prune_tags, true,
 //            "True for pruning the set of possible tags by using a dictionary.");
 
+DEFINE_bool(expose_node_edge_viterbi_scores, false,
+             "Output to another file the node and edge scores of the decode step.");
+
 // Save current option flags to the model file.
 void SequenceOptions::Save(FILE* fs) {
   Options::Save(fs);
@@ -77,4 +80,5 @@ void SequenceOptions::Initialize() {
   //large_feature_set_ = FLAGS_tagger_large_feature_set;
   //prune_tags_ = FLAGS_sequence_prune_tags;
   //file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
+  expose_node_edge_viterbi_scores_ = FLAGS_expose_node_edge_viterbi_scores;
 }
