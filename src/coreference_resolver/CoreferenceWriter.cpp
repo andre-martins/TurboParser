@@ -43,6 +43,8 @@ void CoreferenceWriter::Write(Instance *instance) {
   os_ << "#end document" << std::endl;
 }
 
+void CoreferenceWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}
+
 void CoreferenceSentenceWriter::Write(Instance *instance) {
   CoreferenceSentence *sentence = static_cast<CoreferenceSentence*>(instance);
   std::ofstream *os = (external_os_) ? external_os_ : &os_;
@@ -84,6 +86,8 @@ void CoreferenceSentenceWriter::Write(Instance *instance) {
   }
   *os << std::endl;
 }
+
+void CoreferenceSentenceWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}
 
 #if 0
 void CoreferenceSentenceReader::ConstructSpansFromText(

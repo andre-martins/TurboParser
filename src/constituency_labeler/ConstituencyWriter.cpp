@@ -28,3 +28,5 @@ void ConstituencyWriter::Write(Instance *instance) {
   constituency_instance->GetParseTree().SaveToString(&info);
   os_ << info << endl;
 }
+
+void ConstituencyWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}

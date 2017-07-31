@@ -442,6 +442,7 @@ void Pipe::Run() {
     }
 
     writer_->Write(output_instance);
+    writer_->WriteFormatted(this, formatted_instance);
 
     if (formatted_instance != instance) delete formatted_instance;
     delete output_instance;

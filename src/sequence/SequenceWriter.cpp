@@ -31,3 +31,6 @@ void SequenceWriter::Write(Instance *instance) {
   }
   os_ << endl;
 }
+
+void SequenceWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}
+

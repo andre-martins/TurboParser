@@ -49,6 +49,7 @@ public:
     }
   }
   void Write(Instance *instance);
+  void WriteFormatted(Pipe * pipe, Instance *instance);
 
 protected:
   Options *options_;

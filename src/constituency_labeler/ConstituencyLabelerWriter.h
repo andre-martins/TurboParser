@@ -28,6 +28,8 @@ public:
 
 public:
   void Write(Instance *instance);
+  void WriteFormatted(Pipe * pipe, Instance *instance);
+
 };
 
 #endif /* CONSTITUENCYLABELERWRITER_H_ */

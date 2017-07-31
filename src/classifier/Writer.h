@@ -23,6 +23,8 @@
 #include <fstream>
 using namespace std;
 
+class Pipe;
+
 // Abstract class for the writer. Task-specific parts should derive
 // from this class and implement the pure virtual methods.
 // The writer writes instances to a file.
@@ -35,9 +37,11 @@ public:
   virtual void Open(const string &filepath);
   virtual void Close();
   virtual void Write(Instance *instance) = 0;
+  virtual void WriteFormatted(Pipe * pipe, Instance *instance) = 0;
 
 protected:
   ofstream os_;
+  ofstream os_formatted_;
 };
 
 #endif /* SHWRITER_H_ */
