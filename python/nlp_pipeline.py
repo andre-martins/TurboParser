@@ -102,19 +102,31 @@ class NLPPipeline:
             self.workers[language] = worker
             return worker
 
-    def split_sentences(self, text, language):
+    def split_sentences(self, text, language, track_positions=False):
         worker = self.get_worker(language)
-        sentences = worker.sent_tokenizer.tokenize(text)
-        return sentences
+        if track_positions:
+            positions = worker.sent_tokenizer.span_tokenize(text)
+            sentences = [text[p[0]:p[1]] for p in positions]
+            return sentences, positions
+        else:
+            sentences = worker.sent_tokenizer.tokenize(text)
+            return sentences
 
-    def tokenize(self, sentence, language):
+    def tokenize(self, sentence, language, track_positions=False):
         worker = self.get_worker(language)
         # Note: need to convert the sentence to Unicode and back to uft8.
         sentence = sentence.decode('utf8')
-        tokenized_sentence = worker.word_tokenizer.tokenize(sentence)
-        tokenized_sentence = [word.encode('utf8') \
-                              for word in tokenized_sentence]
-        return tokenized_sentence
+        if track_positions:
+            tokenized_sentence, positions = worker.word_tokenizer.tokenize(
+                sentence, track_positions=True)
+            tokenized_sentence = [word.encode('utf8') \
+                                  for word in tokenized_sentence]
+            return tokenized_sentence, positions
+        else:
+            tokenized_sentence = worker.word_tokenizer.tokenize(sentence)
+            tokenized_sentence = [word.encode('utf8') \
+                                  for word in tokenized_sentence]
+            return tokenized_sentence
 
     def tag(self, tokenized_sentence, language):
         worker = self.get_worker(language)
