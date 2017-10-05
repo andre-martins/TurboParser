@@ -49,7 +49,7 @@ then
         model_type=1 # First-order model (bigrams).
     fi
 
-elif [ "$language" == "spanish" ] || [ "$language" == "dutch" ]
+elif [ "$language" == "spanish" ] || [ "$language" == "dutch" ] || [ "$language" == "german" ]
 then
     files_test[0]=${path_data}/${language}_test.conll.ner
     files_test[1]=${path_data}/${language}_dev.conll.ner

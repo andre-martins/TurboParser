@@ -20,6 +20,13 @@ import regex
 from nltk.tokenize.api import TokenizerI
 from universal_contractions import UniversalContractions
 
+def substitute_without_positions(pattern, replacement, string):
+    return regex.sub(pattern, replacement, string)
+
+def substitute_with_positions(pattern, replacement, aligned_string):
+    aligned_string.substitute(pattern, replacement)
+    return aligned_string
+
 class UniversalWordTokenizer(TokenizerI):
     """
     This is a version of the Treebank tokenizer
@@ -59,21 +66,28 @@ class UniversalWordTokenizer(TokenizerI):
         self.language = language
         self.contraction_splitter = UniversalContractions(language=language)
 
-    def tokenize(self, text):
+    def tokenize(self, text, track_positions=False):
         """
         Return a tokenized copy of *s*.
 
         :rtype: list of str
         """
+        if track_positions:
+            from aligned_string import AlignedString
+            text = AlignedString(text)
+            sub = substitute_with_positions
+        else:
+            sub = substitute_without_positions
+
         # Replace non-breaking spaces by spaces.
         # Note: the Portuguese sentence tokenizer should also do this!!
-        text = regex.sub(ur'\u00A0', ' ', text)
+        text = sub(ur'\u00A0', ' ', text)
 
         # Replace tabs by spaces [ATM 3/12/2014].
-        text = regex.sub(ur'\t', ' ', text)
+        text = sub(ur'\t', ' ', text)
 
         # Replace U+0096 by dashes.
-        text = regex.sub(ur'\u0096', ' -- ', text)
+        text = sub(ur'\u0096', ' -- ', text)
 
         if self.language == u'pt-cintil':
             # Replace all parenthesis by single quotes.
@@ -83,77 +97,138 @@ class UniversalWordTokenizer(TokenizerI):
             # a POS tagger or a parser) trained on that corpora would get
             # confused and so stupid things. Pretending everything is a
             # single quote seems to be the least of all evils.
-            text = regex.sub(r'\(|\)', '\'', text)
+            text = sub(r'\(|\)', '\'', text)
 
         if self.language == u'pt-cintil':
             # Replace all quotes by single quotes.
             # This looks a terrible idea, but necessary for consistency with
             # the CINTIL corpus.
-            text = regex.sub(ur'"|«|»|``|“|”|\'|`', '\' ', text)
+            text = sub(ur'"|«|»|``|“|”|\'|`', '\' ', text)
         else:
             # starting quotes.
-            text = regex.sub(ur'«', r'``', text) # Non-ASCII starting quotes.
-            text = regex.sub(ur'»', r'"', text) # Non-ASCII ending quotes.
-            text = regex.sub(ur'“', r'``', text) # Non-ASCII starting quotes.
-            text = regex.sub(ur'”', r'"', text) # Non-ASCII ending quotes.
-            text = regex.sub(r'^\"', r'``', text)
-            text = regex.sub(r'(``)', r' \1 ', text)
-            text = regex.sub(r'([ (\[{<])"', r'\1 `` ', text)
+            text = sub(ur'«', r'``', text) # Non-ASCII starting quotes.
+            text = sub(ur'»', r'"', text) # Non-ASCII ending quotes.
+            text = sub(ur'“', r'``', text) # Non-ASCII starting quotes.
+            text = sub(ur'”', r'"', text) # Non-ASCII ending quotes.
+            text = sub(r'^\"', r'``', text)
+            text = sub(r'(``)', r' \1 ', text)
+            text = sub(r'([ (\[{<])"', r'\1 `` ', text)
+
+            # Special apostrophe or single quote.
+            text = sub(ur'’', '\'', text)
 
             # I added these for single quotes -- to avoid things like
             # "o 'apartheid social ' ".
             # However, we excluded this for English for now to handle well
             # contractions such as "can't -> ca + n't".
             if self.language not in ['en', 'en-ptb', 'fr']:
-                text = regex.sub(ur'\'', '\' ', text)
+                text = sub(ur'\'', '\' ', text)
             else:
-                text = regex.sub(ur'([^\p{IsAlpha}])\'', ur"\1' ", text)
-                text = regex.sub(ur'^\'', ur"' ", text)
+                text = sub(ur'([^\p{IsAlpha}])\'', ur"\1' ", text)
+                text = sub(ur'^\'', ur"' ", text)
 
         if self.language != 'en-ptb':
             # No special coding of starting quotes.
-            text = regex.sub(ur' `` ', r' " ', text)
-            text = regex.sub(ur" '' ", r' " ', text)
+            text = sub(ur' `` ', r' " ', text)
+            text = sub(ur" '' ", r' " ', text)
 
         # Punctuation.
-        text = regex.sub(ur'([:,])([^\d])', ur' \1 \2', text)
-        text = regex.sub(ur'\.\.\.', ur' ... ', text)
-        text = regex.sub(ur'[;@#$%&]', ur' \g<0> ', text)
-        text = regex.sub(ur'([^\.])(\.)([\]\)}>"\']*)\s*$', ur'\1 \2\3 ', text)
-        text = regex.sub(ur'[?!]', ur' \g<0> ', text)
+        text = sub(ur'([:,])([^\d])', ur' \1 \2', text)
+        text = sub(ur'\.\.\.', ur' ... ', text)
+        #text = sub(ur'[;@#$%&]', ur' \g<0> ', text)
+        text = sub(ur'([;@#$%&])', ur' \1 ', text)
+        text = sub(ur'([^\.])(\.)([\]\)}>"\']*)\s*$', ur'\1 \2\3 ', text)
+        #text = sub(ur'[?!]', ur' \g<0> ', text)
+        text = sub(ur'([?!])', ur' \1 ', text)
 
         if self.language in ['en', 'en-ptb']:
-            text = regex.sub(ur"([^'])' ", ur"\1 ' ", text)
+            text = sub(ur"([^'])' ", ur"\1 ' ", text)
         else:
-            text = regex.sub(ur"([^'])'", ur"\1' ", text)
-            text = regex.sub(ur"([^\p{IsAlpha}])' ", ur"\1 ' ", text)
+            text = sub(ur"([^'])'", ur"\1' ", text)
+            text = sub(ur"([^\p{IsAlpha}])' ", ur"\1 ' ", text)
 
         # Parens, brackets, etc.
-        text = regex.sub(ur'[\]\[\(\)\{\}\<\>]', ur' \g<0> ', text)
-        text = regex.sub(ur'([^-])---([^-])', ur'\1 -- \2', text)
-        text = regex.sub(ur'([^-])--([^-])', ur' -- ', text)
+        #text = sub(ur'[\]\[\(\)\{\}\<\>]', ur' \g<0> ', text)
+        text = sub(ur'([\]\[\(\)\{\}\<\>])', ur' \1 ', text)
+        text = sub(ur'([^-])---([^-])', ur'\1 -- \2', text)
+        text = sub(ur'([^-])--([^-])', ur' -- ', text)
 
         # Add extra space to make things easier.
-        text = " " + text + " "
+        #text = " " + text + " "
 
         # Ending quotes.
         if self.language == 'en-ptb':
-            text = regex.sub(r'"', " '' ", text)
+            text = sub(r'"', " '' ", text)
         else:
-            text = regex.sub(r'"', ' " ', text)
-        text = regex.sub(r'(\S)(\'\')', r'\1 \2 ', text)
+            text = sub(r'"', ' " ', text)
+        text = sub(r'(\S)(\'\')', r'\1 \2 ', text)
 
-        # Split on contractions and clitics.
-        words = text.split(' ')
-        words = map(self.contraction_splitter.split_if_contraction, words)
-        text = ' '.join(words)
-
-        text = regex.sub(" +", " ", text)
-        text = text.strip()
+        # Clean up extraneous spaces.
+        #text = sub(" +", " ", text)
+        #text = text.strip()
+        text = sub(r' +', r' ', text)
+        text = sub(r'^ ', r'', text)
+        text = sub(r' $', r'', text)
 
         # Add space at end to match up with MacIntyre's output (for debugging).
-        if text != "":
-            text += " "
+        #if text != "":
+        #    text += " "
 
-        return text.split()
+        if track_positions:
+            initial_tokens = text.string.split(u' ')
+            offset = 0
+            positions = []
+            tokens = []
+            for token in initial_tokens:
+                length = len(token)
+                if length > 0:
+                    start = text.start_positions[offset]
+                    end = text.end_positions[offset + length - 1]
+                    subtokens = self.contraction_splitter.split_if_contraction(
+                        token).split()
+                    for subtoken in subtokens:
+                        positions.append((start, end))
+                        tokens.append(subtoken)
+                offset += length + 1
+            return tokens, positions
+        else:
+            # Split on contractions and clitics.
+            words = text.split(' ')
+            words = map(self.contraction_splitter.split_if_contraction, words)
+            text = ' '.join(words)
+            return text.split()
+
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser( \
+        prog='Universal Word Tokenizer', \
+        description='Tokenizes a document (one sentence per line).')
+    parser.add_argument('-language', type=str, required=True, help='Language.')
+    parser.add_argument('-output_positions', action='store_true')
+
+    args = vars(parser.parse_args())
+    language = args['language']
+    output_positions = args['output_positions']
+
+    tokenizer = UniversalWordTokenizer(language=language)
+
+    line = sys.stdin.readline()
+    while line:
+        string = line.rstrip('\n')
+        string = unicode(string.decode('utf8'))
+        if output_positions:
+            tokens, positions = tokenizer.tokenize(string, track_positions=True)
+            for token, position in zip(tokens, positions):
+                print '\t'.join([token.encode('utf8'), \
+                                 '(%d, %d)' % (position[0], position[1]), \
+                                 string[position[0]:position[1]]. \
+                                 encode('utf8')])
+            print
+        else:
+            tokens = tokenizer.tokenize(string)
+            print ' '.join(tokens).encode('utf8')
+        line = sys.stdin.readline()
 
