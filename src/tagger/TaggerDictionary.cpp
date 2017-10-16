@@ -65,9 +65,60 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
   }
   reader->Close();
 
-  // If there is a list of possible tags for the unknown words, load it.
+  // If there is a lexicon of words and tags, load it.
+  lexicon_word_alphabet_.clear();
+  lexicon_word_tags_.clear();
   TaggerOptions *options =
     static_cast<TaggerOptions*>(pipe_->GetOptions());
+  if (options->GetLexiconFilePath().size() > 0) {
+    LOG(INFO) << "Loading lexicon file...";
+    std::ifstream is;
+    is.open(options->GetLexiconFilePath().c_str(), ifstream::in);
+    CHECK(is.good()) << "Could not open "
+      << options->GetLexiconFilePath() << ".";
+    string line;
+    // One pass to get the words from the lexicon.
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line.size() == 0) continue;
+        vector<string> fields;
+        StringSplit(line, "\t", &fields, true);
+        CHECK_EQ(fields.size(), 2);
+        string word = fields[0];
+        int word_id = lexicon_word_alphabet_.Insert(word);
+      }
+    }
+    lexicon_word_alphabet_.StopGrowth();
+    lexicon_word_tags_.clear();
+    lexicon_word_tags_.resize(lexicon_word_alphabet_.size());
+    if (is.is_open()) {
+      while (!is.eof()) {
+        getline(is, line);
+        if (line.size() == 0) continue;
+        vector<string> fields;
+        StringSplit(line, "\t", &fields, true);
+        CHECK_EQ(fields.size(), 2);
+        string word = fields[0];
+        string tag = fields[1];
+        LOG(INFO) << word << " " << tag;
+        int word_id = lexicon_word_alphabet_.Lookup(word);
+        int tag_id = tag_alphabet_.Lookup(tag);
+        CHECK_GE(word_id, 0);
+        CHECK_GE(tag_id, 0) << "Tag " << tag << " does not exist.";
+        vector<int> &tags = lexicon_word_tags_[word_id];
+        int j;
+        for (j = 0; j < tags.size(); ++j) {
+          if (tags[j] == tag_id) break;
+        }
+        if (j == tags.size()) tags.push_back(tag_id);
+      }
+    }
+    LOG(INFO) << "Loaded lexicon with "
+              << lexicon_word_alphabet_.size() << " words.";
+  }
+
+  // If there is a list of possible tags for the unknown words, load it.
   if (options->GetUnknownWordTagsFilePath().size() == 0) {
     for (int i = 0; i < tag_alphabet_.size(); ++i) {
       unknown_word_tags_.push_back(i);
@@ -78,7 +129,6 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
     is.open(options->GetUnknownWordTagsFilePath().c_str(), ifstream::in);
     CHECK(is.good()) << "Could not open "
       << options->GetUnknownWordTagsFilePath() << ".";
-    vector<vector<string> > sentence_fields;
     string line;
     if (is.is_open()) {
       while (!is.eof()) {

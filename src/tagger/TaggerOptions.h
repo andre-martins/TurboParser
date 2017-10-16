@@ -39,11 +39,15 @@ public:
   const string &GetUnknownWordTagsFilePath() {
     return file_unknown_word_tags_;
   }
+  const string &GetLexiconFilePath() {
+    return file_lexicon_;
+  }
 
 protected:
   bool prune_tags_;
   string file_format_;
   bool large_feature_set_;
+  string file_lexicon_;
   string file_unknown_word_tags_;
 };
 

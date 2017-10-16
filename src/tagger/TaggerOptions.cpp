@@ -38,6 +38,8 @@ DEFINE_bool(tagger_prune_tags, true,
 DEFINE_string(file_unknown_word_tags, "",
               "Path to the file containing the possible tags to be assigned "
               "to out-of-vocabulary words.");
+DEFINE_string(tagger_file_lexicon, "",
+              "Path to the lexicon file.");
 
 // Save current option flags to the model file.
 void TaggerOptions::Save(FILE* fs) {
@@ -86,4 +88,5 @@ void TaggerOptions::Initialize() {
   large_feature_set_ = FLAGS_tagger_large_feature_set;
   prune_tags_ = FLAGS_tagger_prune_tags;
   file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
+  file_lexicon_ = FLAGS_tagger_file_lexicon;
 }

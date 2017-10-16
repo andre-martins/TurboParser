@@ -11,7 +11,7 @@ num_epochs=10 # Number of training epochs.
 regularization_parameter=1e12 # The C parameter in MIRA.
 train=true
 test=true
-jackknifing=true #false # True for performing jackknifing in the training data. Useful for downstream applications.
+jackknifing=false #true #false # True for performing jackknifing in the training data. Useful for downstream applications.
 model_type=2 # Second-order model (trigrams).
 form_cutoff=1 # Word cutoff. Only words which occur more than these times won't be considered unknown.
 suffix=tagger
@@ -31,6 +31,14 @@ mkdir -p ${path_results}
 # Set file paths. Allow multiple test files.
 file_model=${path_models}/${language}_${suffix}.model
 file_train=${path_data}/${language}_train.conll.tagging
+
+# Use lexicon file if there is one.
+if [ -e "${path_data}/${language}_lexicon.txt" ];
+then
+    file_lexicon=${path_data}/${language}_lexicon.txt
+else
+    file_lexicon=
+fi
 
 # Create tagging corpus from CoNLL data if it does not yet exist.
 if [ -e "${path_data}/${language}_train.conll" ] && [ ! -e "${path_data}/${language}_train.conll.tagging" ]; 
@@ -93,6 +101,7 @@ then
 		--train_epochs=${num_epochs} \
 		--file_model=${file_model_jackknifing} \
 		--file_train=${file_train_jackknifing} \
+                --tagger_file_lexicon=${file_lexicon} \
 		--train_algorithm=${train_algorithm} \
 		--train_regularization_constant=${regularization_parameter} \
 		--sequence_model_type=${model_type} \
@@ -128,6 +137,7 @@ then
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
         --file_train=${file_train} \
+        --tagger_file_lexicon=${file_lexicon} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --sequence_model_type=${model_type} \
