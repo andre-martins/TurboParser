@@ -24,11 +24,8 @@ using namespace std;
 
 DEFINE_int32(sequence_model_type, 2,
              "Model type. 1 is a bigram model, 2 is a trigram model.");
-//DEFINE_bool(tagger_large_feature_set, false,
-//            "True for using a large feature set. Taggers are usually more "
-//            "accurate but slower and have a larger memory footprint.");
-//DEFINE_bool(sequence_prune_tags, true,
-//            "True for pruning the set of possible tags by using a dictionary.");
+DEFINE_string(file_lexicon, "",
+              "Path to the lexicon file.");
 
 // Save current option flags to the model file.
 void SequenceOptions::Save(FILE* fs) {
@@ -37,13 +34,6 @@ void SequenceOptions::Save(FILE* fs) {
   bool success;
   success = WriteInteger(fs, model_type_);
   CHECK(success);
-  //success = WriteBool(fs, large_feature_set_);
-  //CHECK(success);
-  //success = WriteBool(fs, prune_tags_);
-  //CHECK(success);
-
-  // TODO: Maybe we should load/save also the list of tags for unknown
-  // words?
 }
 
 // Load current option flags to the model file.
@@ -55,16 +45,6 @@ void SequenceOptions::Load(FILE* fs) {
   success = ReadInteger(fs, &FLAGS_sequence_model_type);
   CHECK(success);
   LOG(INFO) << "Setting --sequence_model_type=" << FLAGS_sequence_model_type;
-  //success = ReadBool(fs, &FLAGS_tagger_large_feature_set);
-  //CHECK(success);
-  //LOG(INFO) << "Setting --tagger_large_feature_set="
-  //          << FLAGS_tagger_large_feature_set;
-  //success = ReadBool(fs, &FLAGS_sequence_prune_tags);
-  //CHECK(success);
-  //LOG(INFO) << "Setting --sequence_prune_tags=" << FLAGS_sequence_prune_tags;
-
-  // TODO: Maybe we should load/save also the list of tags for unknown
-  // words?
 
   Initialize();
 }
@@ -72,9 +52,6 @@ void SequenceOptions::Load(FILE* fs) {
 void SequenceOptions::Initialize() {
   Options::Initialize();
 
-  //file_format_ = FLAGS_tagger_file_format;
   model_type_ = FLAGS_sequence_model_type;
-  //large_feature_set_ = FLAGS_tagger_large_feature_set;
-  //prune_tags_ = FLAGS_sequence_prune_tags;
-  //file_unknown_word_tags_ = FLAGS_file_unknown_word_tags;
+  file_lexicon_ = FLAGS_file_lexicon;
 }

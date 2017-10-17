@@ -35,9 +35,13 @@ public:
 
   // Get option flags.
   int markov_order() { return model_type_; }
+  const std::string &GetLexiconFilePath() {
+    return file_lexicon_;
+  }
 
 protected:
   int model_type_;
+  std::string file_lexicon_;
 };
 
 #endif // SEQUENCE_OPTIONS_H_

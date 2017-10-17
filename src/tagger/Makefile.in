@@ -291,6 +291,7 @@ $(SEQUENCE)/SequenceInstance.cpp $(SEQUENCE)/SequenceOptions.h \
 $(SEQUENCE)/SequenceReader.cpp $(SEQUENCE)/SequenceDictionary.h \
 $(SEQUENCE)/SequenceInstance.h $(SEQUENCE)/SequencePart.cpp \
 $(SEQUENCE)/SequenceReader.h $(SEQUENCE)/TokenDictionary.h \
+$(SEQUENCE)/Lexicon.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \

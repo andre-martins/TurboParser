@@ -312,6 +312,7 @@ $(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(SEQUENCE)/SequenceInstance.cpp  $(SEQUENCE)/SequenceInstance.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp $(SEQUENCE)/SequenceInstanceNumeric.h \
 $(SEQUENCE)/SequenceDictionary.cpp $(SEQUENCE)/SequenceDictionary.h \
+$(SEQUENCE)/Lexicon.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \

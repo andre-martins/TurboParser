@@ -47,4 +47,11 @@ void SequenceDictionary::CreateTagDictionary(SequenceReader *reader) {
   tag_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of tags: " << tag_alphabet_.size();
+
+  // If there is a lexicon of words and tags, load it.
+  SequenceOptions *options =
+    static_cast<SequenceOptions*>(pipe_->GetOptions());
+  if (options->GetLexiconFilePath().size() > 0) {
+    lexicon_.ReadFromTextFile(options->GetLexiconFilePath());
+  }
 }

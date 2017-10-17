@@ -29,12 +29,13 @@ $(SEQUENCE)/SequencePipe.cpp  $(SEQUENCE)/SequencePipe.h \
 $(SEQUENCE)/SequenceReader.cpp $(SEQUENCE)/SequenceReader.h \
 $(SEQUENCE)/SequenceWriter.cpp $(SEQUENCE)/SequenceWriter.h \
 $(SEQUENCE)/SequencePart.cpp $(SEQUENCE)/SequencePart.h \
-$(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequenceDecoder.h \ 
+$(SEQUENCE)/SequenceDecoder.cpp $(SEQUENCE)/SequenceDecoder.h \
 $(SEQUENCE)/SequenceOptions.cpp  $(SEQUENCE)/SequenceOptions.h \
-$(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \  
+$(SEQUENCE)/TokenDictionary.cpp $(SEQUENCE)/TokenDictionary.h \
 $(SEQUENCE)/SequenceInstance.cpp  $(SEQUENCE)/SequenceInstance.h \
 $(SEQUENCE)/SequenceInstanceNumeric.cpp $(SEQUENCE)/SequenceInstanceNumeric.h \
 $(SEQUENCE)/SequenceDictionary.cpp $(SEQUENCE)/SequenceDictionary.h \
+$(SEQUENCE)/Lexicon.h \
 $(CLASSIFIER)/Alphabet.cpp $(CLASSIFIER)/Dictionary.cpp \
 $(CLASSIFIER)/Features.h $(CLASSIFIER)/Options.h $(CLASSIFIER)/Part.h \
 $(CLASSIFIER)/Reader.cpp $(CLASSIFIER)/SparseParameterVector.h \

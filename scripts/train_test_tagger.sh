@@ -101,7 +101,7 @@ then
 		--train_epochs=${num_epochs} \
 		--file_model=${file_model_jackknifing} \
 		--file_train=${file_train_jackknifing} \
-                --tagger_file_lexicon=${file_lexicon} \
+                --file_lexicon=${file_lexicon} \
 		--train_algorithm=${train_algorithm} \
 		--train_regularization_constant=${regularization_parameter} \
 		--sequence_model_type=${model_type} \
@@ -137,7 +137,7 @@ then
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
         --file_train=${file_train} \
-        --tagger_file_lexicon=${file_lexicon} \
+        --file_lexicon=${file_lexicon} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --sequence_model_type=${model_type} \

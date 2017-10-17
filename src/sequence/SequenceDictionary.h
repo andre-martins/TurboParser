@@ -40,11 +40,17 @@ public:
 
   virtual void Save(FILE *fs) {
     if (0 > tag_alphabet_.Save(fs)) CHECK(false);
+
+    // Save the lexicon (optional).
+    lexicon_.Save(fs);
   }
 
   virtual void Load(FILE *fs) {
     if (0 > tag_alphabet_.Load(fs)) CHECK(false);
     tag_alphabet_.BuildNames();
+
+    // Load the lexicon (optional).
+    lexicon_.Load(fs);
   }
 
   void AllowGrowth() { token_dictionary_->AllowGrowth(); }
@@ -101,10 +107,16 @@ public:
     token_dictionary_ = token_dictionary;
   }
 
+  const Lexicon &GetLexicon() const { return lexicon_; }
   const Alphabet &GetTagAlphabet() const { return tag_alphabet_; };
 
 protected:
   Pipe *pipe_;
+
+  // Can optionally have a lexicon which goes beyond the corpora data.
+  Lexicon lexicon_;
+
+  // The information below is loaded with corpora data only.
   TokenDictionary *token_dictionary_;
   Alphabet tag_alphabet_;
 };

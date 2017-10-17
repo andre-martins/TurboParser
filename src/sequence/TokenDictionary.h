@@ -22,6 +22,7 @@
 #include "Dictionary.h"
 #include "Alphabet.h"
 #include "SequenceReader.h"
+#include "Lexicon.h"
 
 DECLARE_int32(prefix_length);
 DECLARE_int32(suffix_length);

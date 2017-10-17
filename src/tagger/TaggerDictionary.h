@@ -105,8 +105,6 @@ public:
 protected:
   vector<vector<int> > word_tags_;
   vector<int> unknown_word_tags_;
-  Alphabet lexicon_word_alphabet_;
-  vector<vector<int> > lexicon_word_tags_;
 };
 
 #endif /* TAGGERDICTIONARY_H_ */
