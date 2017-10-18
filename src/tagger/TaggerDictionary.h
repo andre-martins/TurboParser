@@ -30,6 +30,7 @@ public:
   void Clear() {
     SequenceDictionary::Clear();
     word_tags_.clear();
+    tags_from_lexicon_.clear();
   }
 
   void Save(FILE *fs) {
@@ -56,6 +57,15 @@ public:
         success = WriteInteger(fs, tag);
         CHECK(success);
       }
+    }
+
+    length = tags_from_lexicon_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < tags_from_lexicon_.size(); ++i) {
+      int tag = tags_from_lexicon_[i];
+      success = WriteInteger(fs, tag);
+      CHECK(success);
     }
   }
 
@@ -86,25 +96,46 @@ public:
         word_tags_[i][j] = tag;
       }
     }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    tags_from_lexicon_.clear();
+    tags_from_lexicon_.resize(length);
+    for (int i = 0; i < tags_from_lexicon_.size(); ++i) {
+      int tag;
+      success = ReadInteger(fs, &tag);
+      CHECK(success);
+      tags_from_lexicon_[i] = tag;
+    }
   }
 
   void CreateTagDictionary(SequenceReader *reader);
 
-  const vector<int> &GetWordTags(int word) {
-    // return word_tags_[word];
-    // TODO: Not sure is this should be done here...
-    // It may be cleaner to return an empty vector here and
-    // fill it with the unknown tags elsewhere.
-    if (!word_tags_[word].empty()) {
-      return word_tags_[word];
-    } else {
-      return unknown_word_tags_;
+  void GetWordTags(int word, int lexicon_word, std::vector<int> *tags) {
+    // The second argument allows returning allowed tags for words that
+    // exist in the lexicon but do not occur in the corpus.
+    *tags = word_tags_[word];
+    std::set<int> tag_set(tags->begin(), tags->end());
+    if (lexicon_word >= 0) {
+      std::vector<int> lexicon_tags;
+      GetLexicon().GetWordTags(lexicon_word, &lexicon_tags);
+      for (auto lexicon_tag: lexicon_tags) {
+        int tag = tags_from_lexicon_[lexicon_tag];
+        if (tag_set.find(tag) == tag_set.end()) {
+          tag_set.insert(tag);
+          tags->push_back(tag);
+        }
+      }
+    }
+    if (tags->empty()) {
+      *tags = unknown_word_tags_;
     }
   }
 
 protected:
-  vector<vector<int> > word_tags_;
-  vector<int> unknown_word_tags_;
+  std::vector<std::vector<int> > word_tags_;
+  std::vector<int> unknown_word_tags_;
+  std::vector<int> tags_from_lexicon_;
 };
 
 #endif /* TAGGERDICTIONARY_H_ */

@@ -56,8 +56,8 @@ protected:
     TaggerDictionary *tagger_dictionary = GetTaggerDictionary();
 
     int word_id = sentence->GetFormId(i);
-    *allowed_tags = tagger_dictionary->GetWordTags(word_id);
-    tagger_dictionary->GetLexicon().GetWord(...);
+    int lexicon_word_id = sentence->GetLexiconWordId(i);
+    tagger_dictionary->GetWordTags(word_id, lexicon_word_id, allowed_tags);
   }
 };
 

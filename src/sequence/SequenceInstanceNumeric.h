@@ -49,6 +49,7 @@ public:
     all_upper_.clear();
     first_upper_.clear();
     tag_ids_.clear();
+    lexicon_word_ids_.clear();
   }
 
   void Initialize(const SequenceDictionary &dictionary,
@@ -56,6 +57,7 @@ public:
 
   const std::vector<int> &GetFormIds() const { return form_ids_; }
   const std::vector<int> &GetTagIds() const { return tag_ids_; }
+  const std::vector<int> &GetLexiconWordIds() const { return lexicon_word_ids_; }
 
   int GetFormId(int i) { return form_ids_[i]; }
   int GetMaxPrefixLength(int i) { return prefix_ids_[i].size(); }
@@ -73,6 +75,7 @@ public:
   bool AllUpper(int i) { return all_upper_[i]; }
   bool FirstUpper(int i) { return first_upper_[i]; }
   int GetTagId(int i) { return tag_ids_[i]; }
+  int GetLexiconWordId(int i) { return lexicon_word_ids_[i]; }
 
 protected:
   bool IsUpperCase(char c) { return (c >= 'A' && c <= 'Z'); }
@@ -187,6 +190,11 @@ private:
   std::vector<bool> all_upper_;
   std::vector<bool> first_upper_;
   std::vector<int> tag_ids_;
+
+  // IDs according to the external lexicon.
+  // Must be separated from from_ids_ since it's a different
+  // dictionary which is not capped by 0xffff.
+  std::vector<int> lexicon_word_ids_;
 };
 
 #endif /* SEQUENCEINSTANCENUMERIC_H_ */

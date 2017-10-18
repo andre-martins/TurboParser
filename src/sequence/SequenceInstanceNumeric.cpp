@@ -48,6 +48,7 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
   all_upper_.resize(length);
   first_upper_.resize(length);
   tag_ids_.resize(length);
+  lexicon_word_ids_.resize(length);
 
   for (i = 0; i < length; i++) {
     std::string form = instance->GetForm(i);
@@ -109,6 +110,11 @@ void SequenceInstanceNumeric::Initialize(const SequenceDictionary &dictionary,
       VLOG(2) << "Unknown tag: " << instance->GetTag(i);
     }
     tag_ids_[i] = id;
+
+    // Get the lexicon word ID. Note: it can be -1 if the word is
+    // not in the lexicon.
+    id = dictionary.GetLexicon().GetWordId(instance->GetForm(i)); //form);
+    lexicon_word_ids_[i] = id;
   }
 }
 

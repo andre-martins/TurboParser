@@ -155,6 +155,13 @@ public:
   }
 
   const Alphabet &GetWordAlphabet() const { return word_alphabet_; }
+  const Alphabet &GetLemmaAlphabet() const { return lemma_alphabet_; }
+  const Alphabet &GetTagAlphabet() const { return tag_alphabet_; }
+  const Alphabet &GetMorphAlphabet() const { return morph_alphabet_; }
+
+  int GetWordId(const std::string &word) const {
+    return word_alphabet_.Lookup(word);
+  }
 
   void GetWordTags(std::string &word, std::vector<std::string> *tags) const {
     tags->clear();
@@ -174,7 +181,21 @@ public:
     }
   }
 
-protected:
+  void GetWordTags(int word, std::vector<int> *tags) const {
+    tags->clear();
+    std::set<int> tag_ids;
+    for (auto entry: lexicon_[word]) {
+      int tag_id = std::get<1>(entry);
+      CHECK_GE(tag_id, 0);
+      CHECK_LT(tag_id, tag_alphabet_.size());
+      if (tag_ids.find(tag_id) == tag_ids.end()) {
+        tag_ids.insert(tag_id);
+        tags->push_back(tag_id);
+      }
+    }
+  }
+
+ protected:
   Alphabet word_alphabet_;
   Alphabet lemma_alphabet_;
   Alphabet tag_alphabet_;

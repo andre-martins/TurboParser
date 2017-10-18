@@ -66,7 +66,18 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
   reader->Close();
 
   // If there is a lexicon of words and tags, make sure all tags are in the
-  // dictionary.
+  // dictionary, and load a converter for tag ids.
+  const Alphabet &tag_alphabet = lexicon_.GetTagAlphabet();
+  tags_from_lexicon_.clear();
+  tags_from_lexicon_.resize(tag_alphabet.size());
+  for (auto elem: tag_alphabet) {
+    std::string tag = elem.first;
+    int tag_id = tag_alphabet_.Lookup(tag);
+    CHECK_GE(tag_id, 0) << "Tag " << tag << " does not exist.";
+    tags_from_lexicon_[elem.second] = tag_id;
+  }
+
+#if 0
   const Alphabet &word_alphabet = lexicon_.GetWordAlphabet();
   for (auto elem: word_alphabet) {
     std::string word = elem.first;
@@ -77,6 +88,7 @@ void TaggerDictionary::CreateTagDictionary(SequenceReader *reader) {
       CHECK_GE(tag_id, 0) << "Tag " << tag << " does not exist.";
     }
   }
+#endif
 
   // If there is a list of possible tags for the unknown words, load it.
   TaggerOptions *options =
