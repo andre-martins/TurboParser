@@ -35,6 +35,9 @@ public:
 
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
+    // Save the lexicon (optional).
+    lexicon_.Save(fs);
+
     bool success;
     int length = unknown_word_tags_.size();
     success = WriteInteger(fs, length);
@@ -71,6 +74,10 @@ public:
 
   void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
+
+    // Load the lexicon (optional).
+    lexicon_.Load(fs);
+
     bool success;
     int length;
     success = ReadInteger(fs, &length);

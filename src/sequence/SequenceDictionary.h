@@ -42,7 +42,7 @@ public:
     if (0 > tag_alphabet_.Save(fs)) CHECK(false);
 
     // Save the lexicon (optional).
-    lexicon_.Save(fs);
+    //lexicon_.Save(fs);
   }
 
   virtual void Load(FILE *fs) {
@@ -50,7 +50,7 @@ public:
     tag_alphabet_.BuildNames();
 
     // Load the lexicon (optional).
-    lexicon_.Load(fs);
+    //lexicon_.Load(fs);
   }
 
   void AllowGrowth() { token_dictionary_->AllowGrowth(); }

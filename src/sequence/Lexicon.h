@@ -23,6 +23,7 @@
 #include "SerializationUtils.h"
 #include <set>
 #include <tuple>
+#include <iostream>
 
 class Lexicon {
 public:
@@ -135,7 +136,9 @@ public:
         int lemma_id = lemma_alphabet_.Insert(lemma);
         int tag_id = tag_alphabet_.Insert(tag);
         int morph_id = morph_alphabet_.Insert(morph);
-        lexicon_.resize(word_id+1);
+        if (lexicon_.size() <= word_id) {
+          lexicon_.resize(word_id+1);
+        }
         lexicon_[word_id].
           push_back(std::make_tuple(lemma_id, tag_id, morph_id));
       }
