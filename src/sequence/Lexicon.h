@@ -27,7 +27,16 @@
 
 class Lexicon {
 public:
-  Lexicon() {}
+  Lexicon() {
+    word_alphabet_.clear();
+    lemma_alphabet_.clear();
+    tag_alphabet_.clear();
+    morph_alphabet_.clear();
+    word_alphabet_.StopGrowth();
+    lemma_alphabet_.StopGrowth();
+    tag_alphabet_.StopGrowth();
+    morph_alphabet_.StopGrowth();
+  }
   virtual ~Lexicon() {}
 
   void Save(FILE *fs) {
