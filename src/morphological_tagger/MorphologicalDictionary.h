@@ -32,10 +32,15 @@ public:
   void Clear() {
     SequenceDictionary::Clear();
     cpostag_morphologicaltags_.clear();
+    tags_from_lexicon_.clear();
+    morphologicaltags_from_lexicon_.clear();
   }
 
   void Save(FILE *fs) {
     SequenceDictionary::Save(fs);
+    // Save the lexicon (optional).
+    lexicon_.Save(fs);
+
     bool success;
     int length = unknown_cpostag_morphologicaltags_.size();
     success = WriteInteger(fs, length);
@@ -59,10 +64,32 @@ public:
         CHECK(success);
       }
     }
+
+    length = tags_from_lexicon_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < tags_from_lexicon_.size(); ++i) {
+      int tag = tags_from_lexicon_[i];
+      success = WriteInteger(fs, tag);
+      CHECK(success);
+    }
+
+    length = morphologicaltags_from_lexicon_.size();
+    success = WriteInteger(fs, length);
+    CHECK(success);
+    for (int i = 0; i < morphologicaltags_from_lexicon_.size(); ++i) {
+      int tag = morphologicaltags_from_lexicon_[i];
+      success = WriteInteger(fs, tag);
+      CHECK(success);
+    }
   }
 
   void Load(FILE *fs) {
     SequenceDictionary::Load(fs);
+
+    // Load the lexicon (optional).
+    lexicon_.Load(fs);
+
     bool success;
     int length;
     success = ReadInteger(fs, &length);
@@ -88,10 +115,33 @@ public:
         cpostag_morphologicaltags_[i][j] = tag;
       }
     }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    tags_from_lexicon_.clear();
+    tags_from_lexicon_.resize(length);
+    for (int i = 0; i < tags_from_lexicon_.size(); ++i) {
+      int tag;
+      success = ReadInteger(fs, &tag);
+      CHECK(success);
+      tags_from_lexicon_[i] = tag;
+    }
+
+    success = ReadInteger(fs, &length);
+    CHECK(success);
+    morphologicaltags_from_lexicon_.clear();
+    morphologicaltags_from_lexicon_.resize(length);
+    for (int i = 0; i < morphologicaltags_from_lexicon_.size(); ++i) {
+      int tag;
+      success = ReadInteger(fs, &tag);
+      CHECK(success);
+      morphologicaltags_from_lexicon_[i] = tag;
+    }
   }
 
   void CreateTagDictionary(MorphologicalReader *reader);
 
+#if 0
   const std::vector<int> &GetAllowedMorphologicalTags(int cpostag) {
     // return cpostag_morphologicaltags_[cpostag];
     // TODO: Not sure is this should be done here...
@@ -103,10 +153,47 @@ public:
       return unknown_cpostag_morphologicaltags_;
     }
   }
+#endif
+
+  void GetAllowedMorphologicalTags(int cpostag, int lexicon_word,
+                                   std::vector<int> *morphological_tags) {
+    // The second argument allows returning allowed tags for words that
+    // exist in the lexicon but do not occur in the corpus.
+    std::set<int> morphological_tag_set(morphological_tags->begin(),
+                                        morphological_tags->end());
+    if (lexicon_word >= 0) {
+      std::vector<int> lexicon_tags;
+      std::vector<int> lexicon_morphological_tags;
+      GetLexicon().GetWordMorphologicalTags(lexicon_word, &lexicon_tags,
+                                            &lexicon_morphological_tags);
+      int k = 0;
+      for (auto lexicon_tag: lexicon_tags) {
+        int tag = tags_from_lexicon_[lexicon_tag];
+        if (tag == cpostag) {
+          int lexicon_morphological_tag = lexicon_morphological_tags[k];
+          int morphological_tag =
+            morphologicaltags_from_lexicon_[lexicon_morphological_tag];
+          if (morphological_tag_set.
+              find(morphological_tag) == morphological_tag_set.end()) {
+            morphological_tag_set.insert(morphological_tag);
+            morphological_tags->push_back(morphological_tag);
+          }
+        }
+        ++k;
+      }
+    } else {
+      *morphological_tags = cpostag_morphologicaltags_[cpostag];
+    }
+    if (morphological_tags->empty()) {
+      *morphological_tags = unknown_cpostag_morphologicaltags_;
+    }
+  }
 
 protected:
   std::vector<std::vector<int> > cpostag_morphologicaltags_;
   std::vector<int> unknown_cpostag_morphologicaltags_;
+  std::vector<int> tags_from_lexicon_;
+  std::vector<int> morphologicaltags_from_lexicon_;
 };
 
 class MorphologicalTokenDictionary : public TokenDictionary {

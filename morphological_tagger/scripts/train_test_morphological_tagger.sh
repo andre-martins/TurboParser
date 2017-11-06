@@ -62,6 +62,14 @@ else
     files_test[1]=${path_data}/${language_prefix}-dev.conllu
 fi
 
+# Use lexicon file if there is one.
+if [ -e "${path_data}/${language_prefix}_lexicon.txt" ];
+then
+    file_lexicon=${path_data}/${language_prefix}_lexicon.txt
+else
+    file_lexicon=
+fi
+
 # Obtain a prediction file path for each test file.
 for (( i=0; i<${#files_test[*]}; i++ ))
 do
@@ -82,6 +90,7 @@ then
         --train_epochs=${num_epochs} \
         --file_model=${file_model} \
         --file_train=${file_train} \
+        --file_lexicon=${file_lexicon} \
         --train_algorithm=${train_algorithm} \
         --train_regularization_constant=${regularization_parameter} \
         --sequence_model_type=${model_type} \

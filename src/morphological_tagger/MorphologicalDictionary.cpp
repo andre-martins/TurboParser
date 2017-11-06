@@ -63,6 +63,30 @@ void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   }
   reader->Close();
 
+  // If there is a lexicon of words and tags, make sure all tags are in the
+  // dictionary, and load a converter for tag ids.
+  const Alphabet &tag_alphabet = lexicon_.GetTagAlphabet();
+  tags_from_lexicon_.clear();
+  tags_from_lexicon_.resize(tag_alphabet.size());
+  for (auto elem: tag_alphabet) {
+    std::string tag = elem.first;
+    int tag_id = token_dictionary_->GetCoarsePosTagId(tag);
+    CHECK_GE(tag_id, 0) << "Tag " << tag << " does not exist.";
+    tags_from_lexicon_[elem.second] = tag_id;
+  }
+
+  // If there is a lexicon of words and tags, make sure all morph tags are in
+  // the dictionary, and load a converter for morph tag ids.
+  const Alphabet &morph_tag_alphabet = lexicon_.GetMorphAlphabet();
+  morphologicaltags_from_lexicon_.clear();
+  morphologicaltags_from_lexicon_.resize(morph_tag_alphabet.size());
+  for (auto elem: morph_tag_alphabet) {
+    std::string tag = elem.first;
+    int tag_id = tag_alphabet_.Lookup(tag);
+    CHECK_GE(tag_id, 0) << "Morphological tag " << tag << " does not exist.";
+    morphologicaltags_from_lexicon_[elem.second] = tag_id;
+  }
+
   LOG(INFO) << "Number of morphological tags: "
             << tag_alphabet_.size();
   for (Alphabet::iterator it = tag_alphabet_.begin();

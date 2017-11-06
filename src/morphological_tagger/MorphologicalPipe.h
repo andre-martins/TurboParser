@@ -73,7 +73,22 @@ protected:
     MorphologicalDictionary *morph_dictionary = GetMorphologicalDictionary();
 
     int cpostag_id = sentence->GetCPosTagId(i);
-    *allowed_tags = morph_dictionary->GetAllowedMorphologicalTags(cpostag_id);
+    int lexicon_word_id = sentence->GetLexiconWordId(i);
+    morph_dictionary->GetAllowedMorphologicalTags(cpostag_id,
+                                                  lexicon_word_id,
+                                                  allowed_tags);
+    // If training, make sure the gold tag is allowed.
+    if (options_->train()) {
+      int tag_id = sentence->GetTagId(i);
+      bool found = false;
+      for (int tag: *allowed_tags) {
+        if (tag == tag_id) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) allowed_tags->push_back(tag_id);
+    }
   }
 };
 

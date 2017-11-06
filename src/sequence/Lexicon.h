@@ -207,6 +207,27 @@ public:
     }
   }
 
+  void GetWordMorphologicalTags(int word, std::vector<int> *tags,
+                                std::vector<int> *morphological_tags) const {
+    tags->clear();
+    morphological_tags->clear();
+    std::set<std::tuple<int, int> > tag_ids;
+    for (auto entry: lexicon_[word]) {
+      int tag_id = std::get<1>(entry);
+      int morph_id = std::get<2>(entry);
+      CHECK_GE(tag_id, 0);
+      CHECK_LT(tag_id, tag_alphabet_.size());
+      CHECK_GE(morph_id, 0);
+      CHECK_LT(morph_id, morph_alphabet_.size());
+      if (tag_ids.find(std::tuple<int, int>(tag_id, morph_id)) ==
+          tag_ids.end()) {
+        tag_ids.insert(std::tuple<int, int>(tag_id, morph_id));
+        tags->push_back(tag_id);
+        morphological_tags->push_back(morph_id);
+      }
+    }
+  }
+
  protected:
   Alphabet word_alphabet_;
   Alphabet lemma_alphabet_;
