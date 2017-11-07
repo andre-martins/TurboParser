@@ -80,12 +80,18 @@ void MorphologicalDictionary::CreateTagDictionary(MorphologicalReader *reader) {
   const Alphabet &morph_tag_alphabet = lexicon_.GetMorphAlphabet();
   morphologicaltags_from_lexicon_.clear();
   morphologicaltags_from_lexicon_.resize(morph_tag_alphabet.size());
+  tag_alphabet_.AllowGrowth(); // The lexicon may have new morph tags.
   for (auto elem: morph_tag_alphabet) {
     std::string tag = elem.first;
     int tag_id = tag_alphabet_.Lookup(tag);
-    CHECK_GE(tag_id, 0) << "Morphological tag " << tag << " does not exist.";
+    if (tag_id < 0) {
+      LOG(INFO) << "Morphological tag " << tag
+                << " did not exist; created from lexicon.";
+      tag_id = tag_alphabet_.Insert(tag);
+    }
     morphologicaltags_from_lexicon_[elem.second] = tag_id;
   }
+  tag_alphabet_.StopGrowth();
 
   LOG(INFO) << "Number of morphological tags: "
             << tag_alphabet_.size();
