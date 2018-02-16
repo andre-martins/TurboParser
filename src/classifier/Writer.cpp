@@ -28,10 +28,17 @@ using namespace std;
 void Writer::Open(const string &filepath) {
   os_.open(filepath.c_str(), ifstream::out);
   CHECK(os_.good()) << "Could not open " << filepath << ".";
+  
+  os_formatted_.open(std::string(filepath+".formatted").c_str(), ifstream::out);
+  CHECK(os_formatted_.good()) << "Could not open " << std::string(filepath + ".formatted") << ".";
 }
 
 void Writer::Close() {
   os_.flush();
   os_.clear();
   os_.close();
+
+  os_formatted_.flush();
+  os_formatted_.clear();
+  os_formatted_.close();
 }

@@ -40,3 +40,5 @@ void MorphologicalWriter::Write(Instance *instance) {
   }
   os_ << endl;
 }
+
+void MorphologicalWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}

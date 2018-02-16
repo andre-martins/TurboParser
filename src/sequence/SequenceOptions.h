@@ -35,9 +35,11 @@ public:
 
   // Get option flags.
   int markov_order() { return model_type_; }
+  bool expose_node_edge_viterbi_scores() { return expose_node_edge_viterbi_scores_; }
 
 protected:
   int model_type_;
+  bool expose_node_edge_viterbi_scores_;
 };
 
 #endif // SEQUENCE_OPTIONS_H_

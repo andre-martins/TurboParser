@@ -38,3 +38,5 @@ void ConstituencyLabelerWriter::Write(Instance *instance) {
   parse_tree->SaveToString(&info);
   os_ << info << endl;
 }
+
+void ConstituencyLabelerWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}

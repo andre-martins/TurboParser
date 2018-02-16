@@ -20,6 +20,7 @@
 #define SEQUENCEINSTANCENUMERIC_H_
 
 #include "SequenceInstance.h"
+#include "SequenceDecoder.h"
 #include "SequenceDictionary.h"
 #include <vector>
 #include <string>
@@ -187,6 +188,12 @@ private:
   std::vector<bool> all_upper_;
   std::vector<bool> first_upper_;
   std::vector<int> tag_ids_;
+
+  public:
+  //expose Viterbi matrixes (node & edge scores)
+  vector<SequenceDecoderNodeScores> node_scores_;
+  vector<SequenceDecoderEdgeScores> edge_scores_;
+
 };
 
 #endif /* SEQUENCEINSTANCENUMERIC_H_ */

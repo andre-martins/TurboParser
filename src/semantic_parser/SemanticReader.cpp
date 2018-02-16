@@ -135,17 +135,20 @@ Instance *SemanticReader::GetNext() {
         string top_name = info[offset];
         ++offset;
         CHECK(0 == top_name.compare("-") || 0 == top_name.compare("+"));
-        if (0 == top_name.compare("+")) is_top = true;
+        if (0 == top_name.compare("+"))
+          is_top = true;
         string predicate_flag = info[offset];
         ++offset;
         CHECK(0 == predicate_flag.compare("-") ||
               0 == predicate_flag.compare("+"));
-        if (0 == predicate_flag.compare("+")) is_predicate = true;
+        if (0 == predicate_flag.compare("+"))
+          is_predicate = true;
       }
       string predicate_name = info[offset];
       ++offset;
       if (!use_sdp_format_) {
-        if (0 != predicate_name.compare("_")) is_predicate = true;
+        if (0 != predicate_name.compare("_"))
+          is_predicate = true;
       }
       if (!use_sdp_format_) CHECK_EQ(offset, 11);
       if (i == 0) {

@@ -127,3 +127,5 @@ void SemanticWriter::Write(Instance *instance) {
   }
   os_ << endl;
 }
+
+void SemanticWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}

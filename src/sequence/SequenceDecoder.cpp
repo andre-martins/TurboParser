@@ -87,8 +87,11 @@ void SequenceDecoder::Decode(Instance *instance, Parts *parts,
   SequenceParts *sequence_parts = static_cast<SequenceParts*>(parts);
   int offset, size;
 
-  vector<SequenceDecoderNodeScores> node_scores(sentence->size());
-  vector<SequenceDecoderEdgeScores> edge_scores(sentence->size() - 1);
+  vector<SequenceDecoderNodeScores> & node_scores = sentence->node_scores_;
+  vector<SequenceDecoderEdgeScores> & edge_scores = sentence->edge_scores_;
+  node_scores.resize(sentence->size());
+  edge_scores.resize(sentence->size() - 1);
+
   // The triplets are represented as if they were edges connecting
   // nodes with bigram states.
   vector<SequenceDecoderEdgeScores> triplet_scores;

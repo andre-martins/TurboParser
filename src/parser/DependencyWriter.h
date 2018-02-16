@@ -31,6 +31,7 @@ public:
 
 public:
   void Write(Instance *instance);
+  void WriteFormatted(Pipe * pipe, Instance *instance);
 };
 
 #endif /* DEPENDENCYWRITER_H_ */

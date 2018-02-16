@@ -37,3 +37,5 @@ void DependencyWriter::Write(Instance *instance) {
   }
   os_ << endl;
 }
+
+void DependencyWriter::WriteFormatted(Pipe * pipe, Instance *instance) {}

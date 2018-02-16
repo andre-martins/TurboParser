@@ -41,6 +41,7 @@ public:
 public:
   void SetOutputStream(std::ofstream *os) { external_os_ = os; }
   void Write(Instance *instance);
+  void WriteFormatted(Pipe * pipe, Instance *instance);
   void set_options(Options *options) { options_ = options; }
 
 protected:
@@ -71,6 +72,7 @@ public:
     Writer::Close();
   }
   void Write(Instance *instance);
+  void WriteFormatted(Pipe * pipe, Instance *instance);
 
   CoreferenceSentenceWriter *GetSentenceWriter() { return &sentence_writer_; }
 
