@@ -274,8 +274,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   EntityOptions *options = static_cast<class EntityPipe*>(pipe_)->
     GetEntityOptions();
-  std::bitset<32> *feature_set_bitmap;
-  feature_set_bitmap = new bitset<32>(options->large_feature_set());
+  std::bitset<32> feature_set_bitmap(options->large_feature_set());
 
   // Array of form IDs.
   const vector<int>* word_ids = &entity_sentence->GetFormIds();
@@ -285,7 +284,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // Words.
   uint16_t WID, pWID, nWID, ppWID, nnWID;
-  if (feature_set_bitmap->test(0)) {
+  if (feature_set_bitmap.test(0)) {
     WID = (position < sentence_length) ?
       (*word_ids)[position] : TOKEN_STOP; // Current word.
     // Word on the left.
@@ -304,7 +303,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // POS tags.
   uint8_t PID, pPID, nPID, ppPID, nnPID;
-  if (feature_set_bitmap->test(1)) {
+  if (feature_set_bitmap.test(1)) {
     PID = (position < sentence_length) ?
       (*pos_ids)[position] : TOKEN_STOP; // Current POS.
     // POS on the left.
@@ -323,7 +322,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
 
   // Word shapes.
   uint16_t SID, pSID, nSID, ppSID, nnSID;
-  if (feature_set_bitmap->test(2)) {
+  if (feature_set_bitmap.test(2)) {
     SID = (position < sentence_length) ?
       sentence->GetShapeId(position) : TOKEN_STOP; // Current shape.
      // Shape on the left.
@@ -348,7 +347,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   AddFeature(fkey, features);
 
   // Lexical features.
-  if (feature_set_bitmap->test(0)) {
+  if (feature_set_bitmap.test(0)) {
     fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::W,
                                  flags, WID);
     AddFeature(fkey, features);
@@ -367,7 +366,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   }
 
   // POS features.
-  if (feature_set_bitmap->test(1)) {
+  if (feature_set_bitmap.test(1)) {
     fkey = encoder_.CreateFKey_P(EntityFeatureTemplateBigram::P,
                                  flags, PID);
     AddFeature(fkey, features);
@@ -386,7 +385,7 @@ void EntityFeatures::AddBigramFeatures(SequenceInstanceNumeric *sentence,
   }
 
   // Shape features.
-  if (feature_set_bitmap->test(2)) {
+  if (feature_set_bitmap.test(2)) {
     fkey = encoder_.CreateFKey_W(EntityFeatureTemplateBigram::S,
                                  flags, SID);
     AddFeature(fkey, features);
