@@ -18,7 +18,7 @@
 
 #ifndef ENTITYINSTANCE_H_
 #define ENTITYINSTANCE_H_
-
+#include <memory>
 #include "SequenceInstance.h"
 #include "EntitySpan.h"
 
@@ -48,15 +48,13 @@ public:
 
   // Convert a sequence of IO/BIO/BILOU tags into spans.
   void CreateSpansFromTags(const std::vector<std::string> &tags,
-                           std::vector<EntitySpan*> *spans) const;
+                           std::vector<std::unique_ptr<EntitySpan>> *spans) const;
 
   // Convert spans into a sequence of IO/BIO/BILOU tags.
   void CreateTagsFromSpans(int length,
-                           const std::vector<EntitySpan*> &spans,
+                           const std::vector<std::unique_ptr<EntitySpan>> &spans,
                            int tagging_scheme,
                            std::vector<std::string> *tags) const;
-  // Destroy the spans.
-  void DeleteSpans(std::vector<EntitySpan*> *spans) const;
 
 protected:
   std::vector<std::string> pos_;

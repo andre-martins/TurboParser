@@ -29,14 +29,13 @@ void EntityWriter::Write(Instance *instance) {
     static_cast<EntityInstance*>(instance);
 
   // Always write in BIO format.
-  std::vector<EntitySpan*> spans;
+  std::vector<std::unique_ptr<EntitySpan>> spans;
   std::vector<std::string> tags;
   entity_instance->CreateSpansFromTags(entity_instance->tags(), &spans);
   entity_instance->CreateTagsFromSpans(entity_instance->tags().size(),
                                        spans,
                                        EntityTaggingSchemes::BIO,
                                        &tags);
-  entity_instance->DeleteSpans(&spans);
 
   for (int i = 0; i < entity_instance->size(); ++i) {
     os_ << entity_instance->GetForm(i) << "\t";

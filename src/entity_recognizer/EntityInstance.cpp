@@ -29,10 +29,9 @@ void EntityInstance::Initialize(const std::vector<std::string> &forms,
 }
 
 void EntityInstance::ConvertToTaggingScheme(int tagging_scheme) {
-  std::vector<EntitySpan*> spans;
+  std::vector<std::unique_ptr<EntitySpan>> spans;
   CreateSpansFromTags(tags_, &spans);
   CreateTagsFromSpans(tags_.size(), spans, tagging_scheme, &tags_);
-  DeleteSpans(&spans);
 }
 
 void EntityInstance::SplitEntityTag(const std::string &tag,
@@ -50,46 +49,39 @@ void EntityInstance::SplitEntityTag(const std::string &tag,
 
 void EntityInstance::CreateSpansFromTags(
   const std::vector<std::string> &tags,
-  std::vector<EntitySpan*> *spans) const {
+  std::vector<std::unique_ptr<EntitySpan>> *spans) const {
   spans->clear();
-  EntitySpan *span = NULL;
+  std::unique_ptr<EntitySpan> span;
   for (int i = 0; i < tags.size(); ++i) {
     std::string prefix, entity;
     SplitEntityTag(tags[i], &prefix, &entity);
     if (prefix == "B" || prefix == "U") {
-      if (span) spans->push_back(span);
-      span = new EntitySpan(i, i, entity);
+      if (span) spans->push_back(std::move(span));
+      span = std::make_unique<EntitySpan>(i, i, entity);
     } else if (prefix == "I" || prefix == "L") {
       if (span && span->name() == entity) {
         span->set_end(i);
       } else {
         // This I is actually a B (maybe the file has IO encoding).
-        if (span) spans->push_back(span);
-        span = new EntitySpan(i, i, entity);
+        if (span) spans->push_back(std::move(span));
+        span = std::make_unique<EntitySpan>(i, i, entity);
       }
     } else if (prefix == "O") {
-      if (span) spans->push_back(span);
-      span = NULL;
+      if (span) spans->push_back(std::move(span));
+      span.reset();
     }
   }
-  if (span) spans->push_back(span);
-}
-
-void EntityInstance::DeleteSpans(std::vector<EntitySpan*> *spans) const {
-  for (int k = 0; k < spans->size(); ++k) {
-    delete (*spans)[k];
-  }
-  spans->clear();
+  if (span) spans->push_back(std::move(span));
 }
 
 void EntityInstance::CreateTagsFromSpans(
   int length,
-  const std::vector<EntitySpan*> &spans,
+  const std::vector<std::unique_ptr<EntitySpan>> &spans,
   int tagging_scheme,
   std::vector<std::string> *tags) const {
   tags->assign(length, "O");
   for (int k = 0; k < spans.size(); ++k) {
-    EntitySpan *span = spans[k];
+    EntitySpan *span = spans[k].get();
     if (tagging_scheme == EntityTaggingSchemes::BILOU) {
       if (span->start() == span->end()) {
         (*tags)[span->start()] = "U-" + span->name();
