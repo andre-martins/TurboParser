@@ -18,15 +18,12 @@ while($line = <CONLL>) {
     @fields = split(/\t/, $line);
     @fields_tagging = split(/\t/, $line_tagging);
     $pos = $fields_tagging[1];
+    $cpos = $pos;
     if ($define_coarse_tags) {
         # Define coarse POS tags which are the first two characters of the POS tag.
         if (($pos ne "PRP") && ($pos ne "PRP\$")) {
             $cpos = substr($pos, 0, 2);
-        } else {
-            $cpos = $pos;
         }
-    } else {
-        $cpos = $pos;
     }
     # Replace gold tags by predicted tags, and eliminate lemmas and
     # morpho-syntactic features.
