@@ -51,7 +51,7 @@ class UniversalWordTokenizer(TokenizerI):
     >>> from universal_word_tokenizer import UniversalWordTokenizer
     >>> sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
     >>> word_tokenizer = UniversalWordTokenizer(language='pt')
-    >>> s = u'''Um pastel de Belém custa 1,05 EUR em Lisboa. Queria dois pastéis desses, com açúcar e canela. Obrigado!''' 
+    >>> s = u'''Um pastel de Belém custa 1,05 EUR em Lisboa. Queria dois pastéis desses, com açúcar e canela. Obrigado!'''
     >>> sentences = sent_tokenizer.tokenize(s)
     >>> for sentence in sentences: print word_tokenizer.tokenize(sentence)
     [u'Um', u'pastel', u'de', u'Bel\xe9m', u'custa', u'1,05', u'EUR', u'em', u'Lisboa', u'.']
@@ -106,10 +106,12 @@ class UniversalWordTokenizer(TokenizerI):
             text = sub(ur'"|«|»|``|“|”|\'|`', '\' ', text)
         else:
             # starting quotes.
-            text = sub(ur'«', r'``', text) # Non-ASCII starting quotes.
-            text = sub(ur'»', r'"', text) # Non-ASCII ending quotes.
-            text = sub(ur'“', r'``', text) # Non-ASCII starting quotes.
-            text = sub(ur'”', r'"', text) # Non-ASCII ending quotes.
+            text = sub(ur'„', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'«', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'»', r'"', text)  # Non-ASCII ending quotes.
+            # In German this is actually the ending quote.
+            text = sub(ur'“', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'”', r'"', text)  # Non-ASCII ending quotes.
             text = sub(r'^\"', r'``', text)
             text = sub(r'(``)', r' \1 ', text)
             text = sub(r'([ (\[{<])"', r'\1 `` ', text)

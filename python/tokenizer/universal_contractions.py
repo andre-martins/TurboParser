@@ -6,6 +6,7 @@ from spanish_contractions import SpanishContractions, SpanishAncoraContractions
 from italian_contractions import ItalianContractions
 from french_contractions import FrenchContractions
 from portuguese_contractions import PortugueseContractions
+from german_contractions import GermanContractions
 from english_contractions import EnglishContractions
 
 class UniversalContractions(object):
@@ -20,6 +21,8 @@ class UniversalContractions(object):
             contraction_splitter = FrenchContractions()
         elif language == 'pt':
             contraction_splitter = PortugueseContractions()
+        elif language == 'de':
+            contraction_splitter = GermanContractions()
         elif language == 'en':
             contraction_splitter = EnglishContractions()
         else:
