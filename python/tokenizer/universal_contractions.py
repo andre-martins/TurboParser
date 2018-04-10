@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import sys
 from contractions import Contractions
@@ -26,8 +27,8 @@ class UniversalContractions(object):
         elif language == 'en':
             contraction_splitter = EnglishContractions()
         else:
-            print >> sys.stderr, \
-                'No contraction splitter for language %s.' % language
+            print('No contraction splitter for language %s.' % language,
+                  file=sys.stderr)
             contraction_splitter = None
         self.language = language
         self.contraction_splitter = contraction_splitter

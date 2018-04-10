@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import regex
 
 class Contractions(object):
     def __init__(self):
@@ -17,4 +15,3 @@ class Contractions(object):
             split_words = self.split_if_contraction(word).split(' ')
             output_words += split_words
         return ' '.join(output_words)
-

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import regex
 from contractions import Contractions
+
 
 class PortugueseContractions(Contractions):
     def __init__(self):
@@ -15,7 +15,7 @@ class PortugueseContractions(Contractions):
         self.clitics, self.clitic_suffixes = self._generate_clitics()
 
     def _generate_contractions(self):
-        '''
+        """
         Generate contractions for Portuguese, along with the words
         and lemmas that are contracted (e.g. contraction "das" is composed by
         words "de" + "as", with corresponding lemmas "de" + "o".
@@ -23,7 +23,7 @@ class PortugueseContractions(Contractions):
         words and a list of lemmas (typically lists of length two).
 
         :rtype: dictionary of lists.
-        '''
+        """
         contractions = {}
 
         contractions[u'ao'] = [u'a', u'o'], [u'a', u'o']
@@ -64,7 +64,7 @@ class PortugueseContractions(Contractions):
         contractions[u'daqueles'] = [u'de', u'aqueles'], [u'de', u'aquele']
         contractions[u'daquelas'] = [u'de', u'aquelas'], [u'de', u'aquele']
         contractions[u'daquilo'] = [u'de', u'aquilo'], [u'de', u'aquilo']
-        contractions[u'dele'] = [u'de', u'ele'],[u'de', u'ele']
+        contractions[u'dele'] = [u'de', u'ele'], [u'de', u'ele']
         contractions[u'dela'] = [u'de', u'ela'], [u'de', u'ele']
         contractions[u'deles'] = [u'de', u'eles'], [u'de', u'ele']
         contractions[u'delas'] = [u'de', u'elas'], [u'de', u'ele']
@@ -77,13 +77,13 @@ class PortugueseContractions(Contractions):
         contractions[u'doutros'] = [u'de', u'outros'], [u'de', u'outro']
         contractions[u'doutras'] = [u'de', u'outras'], [u'de', u'outro']
         contractions[u'daqueloutro'] = [u'de', u'aqueloutro'], \
-                                      [u'de', u'aqueloutro']
+                                       [u'de', u'aqueloutro']
         contractions[u'daqueloutra'] = [u'de', u'aqueloutra'], \
                                        [u'de', u'aqueloutro']
         contractions[u'daqueloutros'] = [u'de', u'aqueloutros'], \
-                                       [u'de', u'aqueloutro']
+                                        [u'de', u'aqueloutro']
         contractions[u'daqueloutras'] = [u'de', u'aqueloutras'], \
-                                       [u'de', u'aqueloutro']
+                                        [u'de', u'aqueloutro']
         contractions[u'dessoutro'] = [u'de', u'essoutro'], [u'de', u'essoutro']
         contractions[u'dessoutra'] = [u'de', u'essoutra'], [u'de', u'essoutro']
         contractions[u'dessoutros'] = [u'de', u'essoutros'], \
@@ -149,9 +149,9 @@ class PortugueseContractions(Contractions):
         contractions[u'naqueloutra'] = [u'em', u'aqueloutra'], \
                                        [u'em', u'aqueloutro']
         contractions[u'naqueloutros'] = [u'em', u'aqueloutros'], \
-                                       [u'em', u'aqueloutro']
+                                        [u'em', u'aqueloutro']
         contractions[u'naqueloutras'] = [u'em', u'aqueloutras'], \
-                                       [u'em', u'aqueloutro']
+                                        [u'em', u'aqueloutro']
         contractions[u'nessoutro'] = [u'em', u'essoutro'], [u'em', u'essoutro']
         contractions[u'nessoutra'] = [u'em', u'essoutra'], [u'em', u'essoutro']
         contractions[u'nessoutros'] = [u'em', u'essoutros'], \
@@ -205,12 +205,12 @@ class PortugueseContractions(Contractions):
         return contractions
 
     def _generate_clitics(self):
-        '''
+        """
         Generate clitics (e.g. '-se') and verb suffixes (e.g. '-ei') for
         Portuguese.
 
         :rtype: a list of suffixes and a list of clitics.
-        '''
+        """
         import numpy as np
 
         suffixes = set()

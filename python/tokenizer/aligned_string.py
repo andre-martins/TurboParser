@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
-'''This implements an aligned unicode string to which substitution operations
+"""This implements an aligned unicode string to which substitution operations
 (with regular expressions) can be made while always keeping it aligned with
 the original string. It's particularly useful for word tokenization when one
-needs to retrieve the positions on each token in the buffer.'''
-
-__author__ = 'andre-martins'
+needs to retrieve the positions on each token in the buffer."""
 
 # We need "regex" instead of "re" since it allows more powerful patterns using
 # Unicode codepoint properties (such as \p{IsLower} etc.)
 import regex
 
+__author__ = 'andre-martins'
+
+
 class AlignedString(object):
-    '''This class implements an aligned string to which substitution operations
+    """This class implements an aligned string to which substitution operations
     (with regular expressions) can be made while always keeping it aligned with
-    the original string.'''
+    the original string."""
+
     def __init__(self, string=''):
         self.original_string = string
         self.string = string
@@ -27,14 +29,14 @@ class AlignedString(object):
             elems.append(self.original_string[start:end])
         return self.string + ' || ' + '|'.join(elems)
 
-    def substitute(self, pattern, replacement, offset=0, all_matches=True, \
+    def substitute(self, pattern, replacement, offset=0, all_matches=True,
                    align_groups=True):
-        '''Substitute a regex pattern by a replacement string. May start
+        """Substitute a regex pattern by a replacement string. May start
         searching at a given offset; may return after the first match or
         perform all matches (in left to right order). If the pattern selects
         groups, it tries by default to align each group with the original
         string. Return a (boolean, int) pair indicating if there was any match
-        and the offset position after the last match.'''
+        and the offset position after the last match."""
         matched = False
         while all_matches or not matched:
             m = regex.search(pattern, self.string[offset:])
@@ -61,7 +63,7 @@ class AlignedString(object):
                             self.end_positions[start:end]
                         group_offset = 0
                         while True:
-                            gm = regex.search(r'\\%d' % (i+1), \
+                            gm = regex.search(r'\\%d' % (i+1),
                                               actual_replacement[group_offset:])
                             if gm is None:
                                 break
@@ -82,13 +84,13 @@ class AlignedString(object):
                                 enumerate(group_replacement_positions):
                                 if group < i and other_group_start >= group_end:
                                     group_replacement_positions[k] = \
-                                        (group, \
+                                        (group,
                                          other_group_start + shift_amount)
                             # Now append a new replacement position.
                             group_replacement_positions.append((i, group_start))
                     else:
-                        actual_replacement = regex.sub(r'\\%d' % (i+1), \
-                                                       m.group(i+1), \
+                        actual_replacement = regex.sub(r'\\%d' % (i+1),
+                                                       m.group(i+1),
                                                        actual_replacement)
             else:
                 actual_replacement = replacement
@@ -103,8 +105,7 @@ class AlignedString(object):
             self.end_positions[start:end] = \
                 [self.end_positions[end-1]] * length
             if align_groups and num_groups:
-                for group, group_start in \
-                    group_replacement_positions:
+                for group, group_start in group_replacement_positions:
                     group_start += start
                     group_end = group_start + len(group_start_positions[group])
                     self.start_positions[group_start:group_end] = \
@@ -115,9 +116,9 @@ class AlignedString(object):
         return matched, offset
 
     def split(self, pattern):
-        '''Split the string on a separator matching the provided regex pattern.
+        """Split the string on a separator matching the provided regex pattern.
         Return the list of tokens (strings) and the list of (start, end)
-        positions of each token.'''
+        positions of each token."""
         offset = 0
         tokens = []
         positions = []
@@ -136,4 +137,3 @@ class AlignedString(object):
         tokens.append(self.string[offset:start])
         positions.append((offset, start))
         return tokens, positions
-

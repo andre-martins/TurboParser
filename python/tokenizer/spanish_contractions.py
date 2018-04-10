@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from contractions import Contractions
+import codecs
 import os
-import sys
+
 import regex
+
+from contractions import Contractions
+
 
 class SpanishContractions(Contractions):
     def __init__(self):
         # A blacklist of words that should not be confused with contractions.
-        self.non_contractions = {} #{u'perla', u'perlas', u'arte', u'parte', \
-                                 #u'aparte'}
+        self.non_contractions = {}  # {u'perla', u'perlas', u'arte', u'parte', \
+                                    # u'aparte'}
         # A whitelist of frequent words that regexes are not getting but are
         # contractions.
         self.contractions = {}
-        verbs = [] #[u'convencer', u'haber', u'hacer', u'meter', u'vender', \
-                 #u'poner', u'tener', u'comer', u'mover', u'atender', \
-                 #u'responder', u'devolver', u'dar']
+        verbs = []  # [u'convencer', u'haber', u'hacer', u'meter', u'vender', \
+                    # u'poner', u'tener', u'comer', u'mover', u'atender', \
+                    # u'responder', u'devolver', u'dar']
         for verb in verbs:
             for suffix in [u'me', u'te', u'nos', u'os']:
                 self.contractions[verb + suffix] = [verb, suffix]
@@ -23,13 +26,12 @@ class SpanishContractions(Contractions):
         # Load Spanish verbs and their inflections from a lexicon.
         filepath = os.sep.join([os.path.dirname(os.path.realpath(__file__)),
                                 'spanish_verbs.txt'])
-        f = open(filepath)
-        self.verbs = set()
-        for line in f:
-            fields = line.rstrip('\n').split()
-            assert len(fields) == 3
-            self.verbs.add(unicode(fields[0].decode('utf8')))
-        f.close()
+        with codecs.open(filepath, encoding='utf8') as f:
+            self.verbs = set()
+            for line in f:
+                fields = line.rstrip('\n').split()
+                assert len(fields) == 3
+                self.verbs.add(fields[0])
 
     def split_if_contraction(self, word):
         original_word = word
@@ -52,7 +54,7 @@ class SpanishContractions(Contractions):
         # Right now excludes capitalized words. Might fail if the word is in the
         # beginning of the sentences, but avoids catching a lot of proper nouns,
         # such as "Charles", "Bonaparte", etc.
-        #if regex.search(ur'^[^\p{IsLower}]', word) is not None:
+        # if regex.search(ur'^[^\p{IsLower}]', word) is not None:
         #    return word
 
         # Handle clitics.
@@ -61,8 +63,8 @@ class SpanishContractions(Contractions):
         # "firme", "muerte").
         #
         # Before this was:
-        word = regex.sub( \
-            ur'(ar|er|ir|ír|ndo)(me|te|se|nos|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'(ar|er|ir|ír|ndo)(me|te|se|nos|le|lo|la|les|los|las)$',
             ur'\1 \2', word)
         #
         # Now we split this into 2 regexes, one more permissive and another
@@ -75,10 +77,10 @@ class SpanishContractions(Contractions):
         #word = regex.sub( \
         #    ur'(er)(se|le|lo|la|les|los|las)$', \
         #    ur'\1 \2', word)
-        word = regex.sub( \
-            ur'(ár|ér|ír|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'(ár|ér|ír|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$',
             ur'\1 \2 \3', word)
-        word = regex.sub(ur'(ár|ér|ír)(os)(le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'(ár|ér|ír)(os)(le|lo|la|les|los|las)$',
                          ur'\1 \2 \3', word)
 
         # If the first token is not a verb in the lexicon, put back the
@@ -95,6 +97,7 @@ class SpanishContractions(Contractions):
                 word = original_word
 
         return word
+
 
 class SpanishAncoraContractions(SpanishContractions):
     def __init__(self):
@@ -120,31 +123,31 @@ class SpanishAncoraContractions(SpanishContractions):
             return word
 
         # Handle clitics.
-        word = regex.sub( \
-            ur'(ar|ir|ír)(me|te|se|nos|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'(ar|ir|ír)(me|te|se|nos|le|lo|la|les|los|las)$',
             ur'\1 \2', word)
-        word = regex.sub( \
-            ur'(er)(se|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'(er)(se|le|lo|la|les|los|las)$',
             ur'\1 \2', word)
-        word = regex.sub( \
-            ur'á(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'á(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$',
             ur'a\1 \2', word)
-        word = regex.sub( \
-            ur'é(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$', \
-                          ur'e\1 \2', word)
-        word = regex.sub(ur'í(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(
+            ur'é(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$',
+            ur'e\1 \2', word)
+        word = regex.sub(ur'í(ndo)(me|te|se|nos|os|le|lo|la|les|los|las)$',
                          ur'i\1 \2', word)
-        word = regex.sub(ur'á(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'á(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$',
                          ur'a\1 \2 \3', word)
-        word = regex.sub(ur'é(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'é(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$',
                          ur'e\1 \2 \3', word)
-        word = regex.sub(ur'í(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'í(r|ndo)(se)(me|te|nos|os|le|lo|la|les|los|las)$',
                          ur'i\1 \2 \3', word)
-        word = regex.sub(ur'á(r)(os)(le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'á(r)(os)(le|lo|la|les|los|las)$',
                          ur'a\1 \2 \3', word)
-        word = regex.sub(ur'é(r)(os)(le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'é(r)(os)(le|lo|la|les|los|las)$',
                          ur'e\1 \2 \3', word)
-        word = regex.sub(ur'í(r)(os)(le|lo|la|les|los|las)$', \
+        word = regex.sub(ur'í(r)(os)(le|lo|la|les|los|las)$',
                          ur'i\1 \2 \3', word)
 
         # In AnCora, all contractions have two words only.
