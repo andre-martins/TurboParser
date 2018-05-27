@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import regex
 from contractions import Contractions
+
 
 class FrenchContractions(Contractions):
     def __init__(self):

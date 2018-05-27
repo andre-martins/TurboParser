@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import regex
 from contractions import Contractions
+
 
 class EnglishContractions(Contractions):
     def __init__(self):
         # List of contractions adapted from Robert MacIntyre's tokenizer.
         # These were in turn collected from the TreebankWordTokenizer in NLTK.
         self.CONTRACTIONS = [regex.compile(r"([^' ])('[sS]|'[mM]|'[dD]|')\b"),
-                             regex.compile( \
-                                r"([^' ])('ll|'LL|'re|'RE|'ve|'VE|n't|N'T)\b")]
+                             regex.compile(
+                                 r"([^' ])('ll|'LL|'re|'RE|'ve|'VE|n't|N'T)\b")]
         self.CONTRACTIONS2 = [regex.compile(r"(?i)\b(can)(not)\b"),
                               regex.compile(r"(?i)\b(d)('ye)\b"),
                               regex.compile(r"(?i)\b(gim)(me)\b"),

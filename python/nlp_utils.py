@@ -1,12 +1,12 @@
-from span import *
+from span import Span
 
 def construct_coreference_spans_from_text(span_lines):
     left_bracket = '('
     right_bracket = ')'
-    characters_to_ignore = '*-'
-    name = ''
-    span_names_stack = []
-    span_start_stack = []
+    # characters_to_ignore = '*-'
+    # name = ''
+    # span_names_stack = []
+    # span_start_stack = []
     spans = []
 
     for i in xrange(len(span_lines)):
@@ -30,10 +30,10 @@ def construct_coreference_spans_from_text(span_lines):
                 selected_span = None
                 for span in reversed(spans):
                     if span.name == name and span.end == -1:
-                        assert selected_span == None, pdb.set_trace()
+                        assert selected_span is None  # , pdb.set_trace()
                         selected_span = span
                         break
-                assert selected_span != None, pdb.set_trace()
+                assert selected_span is not None  # , pdb.set_trace()
                 selected_span.end = i
 
     for span in spans:
@@ -41,10 +41,11 @@ def construct_coreference_spans_from_text(span_lines):
 
     return spans
 
+
 def construct_coreference_info_from_spans(spans, num_words):
     coreference_span_descriptions = [''] * num_words
     for span in spans:
-        if span.start == span.end: # Single-word mention.
+        if span.start == span.end:  # Single-word mention.
             if coreference_span_descriptions[span.start] != '':
                 coreference_span_descriptions[span.start] += '|'
             coreference_span_descriptions[span.start] += '(' + span.name + ')'

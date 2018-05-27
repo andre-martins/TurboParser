@@ -1,13 +1,18 @@
-import nltk
-from tokenizer.universal_word_tokenizer import UniversalWordTokenizer
-import lemmatizer
-import turboparser as tp
-from nlp_sentence import NLPSentence
-from nlp_document import NLPDocument
-import nlp_utils
-from span import Span
+from __future__ import print_function
+
 import os
 import pdb
+import turboparser as tp
+
+import nltk
+
+import lemmatizer
+import nlp_utils
+from nlp_document import NLPDocument
+from nlp_sentence import NLPSentence
+from span import Span
+from tokenizer.universal_word_tokenizer import UniversalWordTokenizer
+
 
 class NLPPipelineWorker:
     def __init__(self, pipeline, language):
@@ -20,7 +25,7 @@ class NLPPipelineWorker:
         self.coreference_resolver = None
 
         if language not in pipeline.models:
-            print 'Error: no model for language %s.' % language
+            print('Error: no model for language %s.' % language)
             raise NotImplementedError
 
         if 'splitter' in pipeline.models[language]:
@@ -61,38 +66,34 @@ class NLPPipeline:
     def __init__(self):
         # Load the initialization file.
         configuration_filepath = os.path.dirname(os.path.realpath(__file__)) + \
-            os.sep + 'nlp_pipeline.config'
+                                 os.sep + 'nlp_pipeline.config'
         self.models = {}
         self.load_configuration_file(configuration_filepath)
         self.turbo_interface = tp.PTurboParser()
         self.workers = {}
 
     def load_configuration_file(self, filepath):
-        f = open(filepath)
-        language = ''
-        for line in f:
-            line = line.rstrip('\r\n')
-            if line == '':
-                language = ''
-                continue
-            # Ignore comments.
-            index = line.find('#')
-            if index >= 0:
-                line = line[:index]
-            line = line.strip()
-            if line == '':
-                continue
-            if language == '':
-                language = line
-                print 'Loading information for %s' % language
-                self.models[language] = {}
-            else:
-                pair = line.split('=')
-                assert len(pair) == 2, pdb.set_trace()
-                name = pair[0]
-                value = pair[1].strip('"')
-                self.models[language][name] = value
-        f.close()
+        with open(filepath) as f:
+            language = ''
+            for line in f:
+                line = line.rstrip('\r\n')
+                if line == '':
+                    language = ''
+                    continue
+                # Ignore comments.
+                line = line.split('#')[0].strip()
+                if line == '':
+                    continue
+                if language == '':
+                    language = line
+                    print('Loading information for %s' % language)
+                    self.models[language] = {}
+                else:
+                    pair = line.split('=')
+                    assert len(pair) == 2, pdb.set_trace()
+                    name = pair[0]
+                    value = pair[1].strip('"')
+                    self.models[language][name] = value
 
     def get_worker(self, language):
         if language in self.workers:
@@ -119,12 +120,12 @@ class NLPPipeline:
         if track_positions:
             tokenized_sentence, positions = worker.word_tokenizer.tokenize(
                 sentence, track_positions=True)
-            tokenized_sentence = [word.encode('utf8') \
+            tokenized_sentence = [word.encode('utf8')
                                   for word in tokenized_sentence]
             return tokenized_sentence, positions
         else:
             tokenized_sentence = worker.word_tokenizer.tokenize(sentence)
-            tokenized_sentence = [word.encode('utf8') \
+            tokenized_sentence = [word.encode('utf8')
                                   for word in tokenized_sentence]
             return tokenized_sentence
 
@@ -134,11 +135,11 @@ class NLPPipeline:
         sent['words'] = tokenized_sentence
         sent.compute_morphology(worker)
         tags = sent['tags']
-        if sent['lemmas'] != None:
+        if sent['lemmas'] is not None:
             lemmas = sent['lemmas']
         else:
             lemmas = ['_' for token in tokenized_sentence]
-        if sent['morphological_tags'] != None:
+        if sent['morphological_tags'] is not None:
             feats = ['|'.join(morph) if len(morph) > 0 else '_' \
                      for morph in sent['morphological_tags']]
         else:
@@ -162,26 +163,26 @@ class NLPPipeline:
         sent['lemmas'] = lemmas
         sent.compute_syntactic_dependencies(worker)
         # Convert to 1-based indexing for back-compatibility.
-        #heads = [h+1 for h in sent['heads']]
+        # heads = [h+1 for h in sent['heads']]
         heads = sent['heads']
         deprels = sent['dependency_relations']
         return heads, deprels
 
     def has_morphological_tagger(self, language):
         worker = self.get_worker(language)
-        return (worker.morphological_tagger != None)
+        return worker.morphological_tagger is not None
 
     def has_entity_recognizer(self, language):
         worker = self.get_worker(language)
-        return (worker.entity_recognizer != None)
+        return worker.entity_recognizer is not None
 
     def has_semantic_parser(self, language):
         worker = self.get_worker(language)
-        return (worker.semantic_parser != None)
+        return worker.semantic_parser is not None
 
     def has_coreference_resolver(self, language):
         worker = self.get_worker(language)
-        return (worker.coreference_resolver != None)
+        return worker.coreference_resolver is not None
 
     def parse_semantic_dependencies(self, tokenized_sentence, tags, lemmas,
                                     heads, deprels, language):
@@ -192,7 +193,7 @@ class NLPPipeline:
         sent['lemmas'] = lemmas
         sent['heads'] = heads
         # Convert from 1-based indexing for back-compatibility.
-        #sent['heads'] = [h-1 for h in heads]
+        # sent['heads'] = [h-1 for h in heads]
         sent['dependency_relations'] = deprels
         sent.compute_semantic_dependencies(worker)
         num_predicates = len(sent['predicate_names'])
@@ -221,7 +222,7 @@ class NLPPipeline:
             sent['lemmas'] = all_lemmas[j]
             sent['heads'] = all_heads[j]
             # Convert from 1-based indexing for back-compatibility.
-            #sent['heads'] = [h-1 for h in all_heads[j]]
+            # sent['heads'] = [h-1 for h in all_heads[j]]
             sent['dependency_relations'] = all_deprels[j]
             # For now, don't use this (must be coded as spans).
             sent['entity_tags'] = all_entity_tags[j]
@@ -236,7 +237,7 @@ class NLPPipeline:
             for (start, end, name) in sent['coreference_spans']:
                 span = Span(start, end, name)
                 spans.append(span)
-            coref_info = nlp_utils.construct_coreference_info_from_spans( \
+            coref_info = nlp_utils.construct_coreference_info_from_spans(
                 spans, len(sent['words']))
             all_coref_info.append(coref_info)
 
