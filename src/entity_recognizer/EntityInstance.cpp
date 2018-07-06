@@ -19,6 +19,7 @@
 #include "EntityInstance.h"
 #include <glog/logging.h>
 #include "EntityOptions.h"
+#include <memory>
 
 void EntityInstance::Initialize(const std::vector<std::string> &forms,
                                 const std::vector<std::string> &pos,
