@@ -21,14 +21,10 @@
 
 #include "SemanticPart.h"
 #include "ad3/GenericFactor.h"
-#ifdef _WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 
 namespace AD3 {
-typedef std::tr1::unordered_map<int, int> HashMapIntInt;
+typedef std::unordered_map<int, int> HashMapIntInt;
 
 class FactorArgumentAutomaton : public GenericFactor {
 public:

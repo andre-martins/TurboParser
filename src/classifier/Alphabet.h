@@ -20,11 +20,7 @@
 #define ALPHABET_H_
 
 #include "Utils.h"
-#ifdef _WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 #include <stdio.h>
 #ifdef _WIN32
 #include <glog\logging.h>
@@ -35,7 +31,7 @@ using namespace std;
 // This class implements a dictionary of strings, stored as an hash table
 // for fast lookup. It allows looking up a string for its ID, and also obtain
 // the string with a given ID.
-class Alphabet : public std::tr1::unordered_map <std::string, int> {
+class Alphabet : public std::unordered_map <std::string, int> {
 public:
   Alphabet();
   virtual ~Alphabet();
@@ -48,7 +44,7 @@ public:
   void clear() {
     num_entries_ = 0;
     names_.clear();
-    std::tr1::unordered_map <std::string, int>::clear();
+    std::unordered_map <std::string, int>::clear();
   }
 
   // Return the dictionary size.

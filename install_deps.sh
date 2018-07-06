@@ -33,8 +33,8 @@ echo "Done."
 # Install glog.
 echo ""
 echo "Installing glog..."
-tar -zxf glog-0.3.2.tar.gz
-cd glog-0.3.2
+tar -zxf glog-0.3.4.tar.gz
+cd glog-0.3.4
 if ${RUN_AUTOTOOLS}
 then
     rm missing
