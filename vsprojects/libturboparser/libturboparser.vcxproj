@@ -392,6 +392,9 @@
     <ClCompile Include="..\..\src\util\StringUtils.cpp" />
     <ClCompile Include="..\..\src\util\TimeUtils.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\libturboparser\Makefile" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
