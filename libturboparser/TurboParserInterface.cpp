@@ -357,7 +357,12 @@ TurboParserInterface::TurboParserInterface() {
   argv_ = NULL;
   BuildArgumentList();
 
+#ifndef BYPASS_INIT_GLOG
+  std::cout << "Init glog from libturboparser..." << std::endl;
   InitGlog(argv_[0]);
+#else
+  std::cout << "Bypassing glog in libturboparser..." << std::endl;
+#endif
 
   // Initialize Google's logging library.
   //google::InitGoogleLogging(argv_[0]);
