@@ -1,9 +1,8 @@
-import sys
 import operator
-import pdb
+import sys
 
-filepath = sys.argv[1] # Input file (CONLL format).
-filepath_out = sys.argv[2] # Output file (most frequent lemma for each word).
+filepath = sys.argv[1]  # Input file (CONLL format).
+filepath_out = sys.argv[2]  # Output file (most frequent lemma for each word).
 f = open(filepath)
 f_out = open(filepath_out, 'w')
 
@@ -38,12 +37,11 @@ for line in f:
     else:
         lemmas[(word, tag)][lemma] += 1
 
-
-sorted_words = sorted(frequency.iteritems(), key=operator.itemgetter(1))
+sorted_words = sorted(frequency.items(), key=operator.itemgetter(1))
 for (word, tag), word_frequency in reversed(sorted_words):
-    #print word, word_frequency
-    sorted_lemmas = sorted(lemmas[(word, tag)].iteritems(), key=operator.itemgetter(1))
-    #for lemma, lemma_frequency in reversed(sorted_lemmas):
+    # print word, word_frequency
+    sorted_lemmas = sorted(lemmas[(word, tag)].items(), key=operator.itemgetter(1))
+    # for lemma, lemma_frequency in reversed(sorted_lemmas):
     #    print word, tag, word_frequency, lemma, lemma_frequency
     most_frequent_lemma = sorted_lemmas[-1][0]
     f_out.write('%s\t%s\t%s\n' % (word, tag, most_frequent_lemma))

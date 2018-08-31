@@ -24,11 +24,7 @@
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 #include "HashTable.h"
 #else
-#ifdef _WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 #endif
 #include "SerializationUtils.h"
 #include "Options.h"
@@ -39,7 +35,7 @@ template<typename Real>
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 class MapUINT64 : public HashTable<uint64_t, Real> {
 #else
-class MapUINT64 : public std::tr1::unordered_map<uint64_t, Real> {
+class MapUINT64 : public std::unordered_map<uint64_t, Real> {
 #endif
 public:
   MapUINT64() {
@@ -68,7 +64,7 @@ protected:
 // to weights (double-precision floats).
 template<typename Real>
 struct ParameterMap {
-  //  typedef std::tr1::unordered_map<uint64_t, Real> type;
+  //  typedef std::unordered_map<uint64_t, Real> type;
   typedef MapUINT64<Real> type;
 };
 

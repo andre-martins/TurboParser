@@ -24,11 +24,7 @@
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 #include "HashTable.h"
 #else
-#ifdef _WIN32
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
 #endif
 #include "SerializationUtils.h"
 
@@ -234,7 +230,7 @@ protected:
 #ifdef USE_CUSTOMIZED_HASH_TABLE
 typedef HashTable<uint64_t, LabelWeights*> LabeledParameterMap;
 #else
-typedef std::tr1::unordered_map <uint64_t, LabelWeights*> LabeledParameterMap;
+typedef std::unordered_map <uint64_t, LabelWeights*> LabeledParameterMap;
 #endif
 
 // This class implements a sparse parameter vector, which contains weights for

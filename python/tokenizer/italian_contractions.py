@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import regex
 import os
+import codecs
 from contractions import Contractions
+
 
 class ItalianContractions(Contractions):
     def __init__(self):
         # Load Italian verbs and their inflections from a lexicon.
         filepath = os.sep.join([os.path.dirname(os.path.realpath(__file__)),
                                 'italian_verbs.txt'])
-        f = open(filepath)
         self.verbs = set()
-        for line in f:
-            fields = line.rstrip('\n').split()
-            assert len(fields) == 3
-            self.verbs.add(unicode(fields[0].decode('utf8')))
-        f.close()
+        with codecs.open(filepath, encoding='utf8') as f:
+            for line in f:
+                fields = line.rstrip('\n').split()
+                assert len(fields) == 3
+                self.verbs.add(fields[0])
 
     def split_if_contraction(self, word):
         original_word = word

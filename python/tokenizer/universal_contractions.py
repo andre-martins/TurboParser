@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import sys
 from contractions import Contractions
@@ -6,6 +7,7 @@ from spanish_contractions import SpanishContractions, SpanishAncoraContractions
 from italian_contractions import ItalianContractions
 from french_contractions import FrenchContractions
 from portuguese_contractions import PortugueseContractions
+from german_contractions import GermanContractions
 from english_contractions import EnglishContractions
 
 class UniversalContractions(object):
@@ -20,11 +22,13 @@ class UniversalContractions(object):
             contraction_splitter = FrenchContractions()
         elif language == 'pt':
             contraction_splitter = PortugueseContractions()
+        elif language == 'de':
+            contraction_splitter = GermanContractions()
         elif language == 'en':
             contraction_splitter = EnglishContractions()
         else:
-            print >> sys.stderr, \
-                'No contraction splitter for language %s.' % language
+            print('No contraction splitter for language %s.' % language,
+                  file=sys.stderr)
             contraction_splitter = None
         self.language = language
         self.contraction_splitter = contraction_splitter

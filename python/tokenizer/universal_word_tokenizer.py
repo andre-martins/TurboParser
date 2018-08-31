@@ -7,7 +7,9 @@
 # URL: <http://nltk.sourceforge.net>
 # For license information, see LICENSE.TXT
 
-r"""
+from __future__ import print_function
+
+"""
 
 Universal Word Tokenizer
 
@@ -20,12 +22,15 @@ import regex
 from nltk.tokenize.api import TokenizerI
 from universal_contractions import UniversalContractions
 
+
 def substitute_without_positions(pattern, replacement, string):
     return regex.sub(pattern, replacement, string)
+
 
 def substitute_with_positions(pattern, replacement, aligned_string):
     aligned_string.substitute(pattern, replacement)
     return aligned_string
+
 
 class UniversalWordTokenizer(TokenizerI):
     """
@@ -51,7 +56,7 @@ class UniversalWordTokenizer(TokenizerI):
     >>> from universal_word_tokenizer import UniversalWordTokenizer
     >>> sent_tokenizer = nltk.data.load('tokenizers/punkt/portuguese.pickle')
     >>> word_tokenizer = UniversalWordTokenizer(language='pt')
-    >>> s = u'''Um pastel de Belém custa 1,05 EUR em Lisboa. Queria dois pastéis desses, com açúcar e canela. Obrigado!''' 
+    >>> s = u'''Um pastel de Belém custa 1,05 EUR em Lisboa. Queria dois pastéis desses, com açúcar e canela. Obrigado!'''
     >>> sentences = sent_tokenizer.tokenize(s)
     >>> for sentence in sentences: print word_tokenizer.tokenize(sentence)
     [u'Um', u'pastel', u'de', u'Bel\xe9m', u'custa', u'1,05', u'EUR', u'em', u'Lisboa', u'.']
@@ -62,6 +67,7 @@ class UniversalWordTokenizer(TokenizerI):
     The only periods to be treated as separate tokens are those appearing
     at the end of a line.
     """
+
     def __init__(self, language):
         self.language = language
         self.contraction_splitter = UniversalContractions(language=language)
@@ -106,10 +112,12 @@ class UniversalWordTokenizer(TokenizerI):
             text = sub(ur'"|«|»|``|“|”|\'|`', '\' ', text)
         else:
             # starting quotes.
-            text = sub(ur'«', r'``', text) # Non-ASCII starting quotes.
-            text = sub(ur'»', r'"', text) # Non-ASCII ending quotes.
-            text = sub(ur'“', r'``', text) # Non-ASCII starting quotes.
-            text = sub(ur'”', r'"', text) # Non-ASCII ending quotes.
+            text = sub(ur'„', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'«', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'»', r'"', text)  # Non-ASCII ending quotes.
+            # In German this is actually the ending quote.
+            text = sub(ur'“', r'``', text)  # Non-ASCII starting quotes.
+            text = sub(ur'”', r'"', text)  # Non-ASCII ending quotes.
             text = sub(r'^\"', r'``', text)
             text = sub(r'(``)', r' \1 ', text)
             text = sub(r'([ (\[{<])"', r'\1 `` ', text)
@@ -135,10 +143,10 @@ class UniversalWordTokenizer(TokenizerI):
         # Punctuation.
         text = sub(ur'([:,])([^\d])', ur' \1 \2', text)
         text = sub(ur'\.\.\.', ur' ... ', text)
-        #text = sub(ur'[;@#$%&]', ur' \g<0> ', text)
+        # text = sub(ur'[;@#$%&]', ur' \g<0> ', text)
         text = sub(ur'([;@#$%&])', ur' \1 ', text)
         text = sub(ur'([^\.])(\.)([\]\)}>"\']*)\s*$', ur'\1 \2\3 ', text)
-        #text = sub(ur'[?!]', ur' \g<0> ', text)
+        # text = sub(ur'[?!]', ur' \g<0> ', text)
         text = sub(ur'([?!])', ur' \1 ', text)
 
         if self.language in ['en', 'en-ptb']:
@@ -148,13 +156,13 @@ class UniversalWordTokenizer(TokenizerI):
             text = sub(ur"([^\p{IsAlpha}])' ", ur"\1 ' ", text)
 
         # Parens, brackets, etc.
-        #text = sub(ur'[\]\[\(\)\{\}\<\>]', ur' \g<0> ', text)
+        # text = sub(ur'[\]\[\(\)\{\}\<\>]', ur' \g<0> ', text)
         text = sub(ur'([\]\[\(\)\{\}\<\>])', ur' \1 ', text)
         text = sub(ur'([^-])---([^-])', ur'\1 -- \2', text)
         text = sub(ur'([^-])--([^-])', ur' -- ', text)
 
         # Add extra space to make things easier.
-        #text = " " + text + " "
+        # text = " " + text + " "
 
         # Ending quotes.
         if self.language == 'en-ptb':
@@ -164,15 +172,15 @@ class UniversalWordTokenizer(TokenizerI):
         text = sub(r'(\S)(\'\')', r'\1 \2 ', text)
 
         # Clean up extraneous spaces.
-        #text = sub(" +", " ", text)
-        #text = text.strip()
+        # text = sub(" +", " ", text)
+        # text = text.strip()
         text = sub(r' +', r' ', text)
         text = sub(r'^ ', r'', text)
         text = sub(r' $', r'', text)
 
         # Add space at end to match up with MacIntyre's output (for debugging).
-        #if text != "":
-        #    text += " "
+        # if text != "":
+        #     text += " "
 
         if track_positions:
             initial_tokens = text.string.split(u' ')
@@ -203,8 +211,8 @@ if __name__ == "__main__":
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser( \
-        prog='Universal Word Tokenizer', \
+    parser = argparse.ArgumentParser(
+        prog='Universal Word Tokenizer',
         description='Tokenizes a document (one sentence per line).')
     parser.add_argument('-language', type=str, required=True, help='Language.')
     parser.add_argument('-output_positions', action='store_true')
@@ -222,13 +230,12 @@ if __name__ == "__main__":
         if output_positions:
             tokens, positions = tokenizer.tokenize(string, track_positions=True)
             for token, position in zip(tokens, positions):
-                print '\t'.join([token.encode('utf8'), \
-                                 '(%d, %d)' % (position[0], position[1]), \
-                                 string[position[0]:position[1]]. \
-                                 encode('utf8')])
-            print
+                print('\t'.join([token.encode('utf8'),
+                                 '(%d, %d)' % (position[0], position[1]),
+                                 string[position[0]:position[1]].
+                                encode('utf8')]))
+            print()
         else:
             tokens = tokenizer.tokenize(string)
-            print ' '.join(tokens).encode('utf8')
+            print(' '.join(tokens).encode('utf8'))
         line = sys.stdin.readline()
-

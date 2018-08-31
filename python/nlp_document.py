@@ -1,5 +1,5 @@
 import turboparser as tp
-from nlp_sentence import NLPSentence
+
 
 class NLPDocument(dict):
     def __init__(self, sentences):
@@ -36,27 +36,27 @@ class NLPDocument(dict):
             p_constituent_spans = []
             p_coreference_spans = []
             coreference_sentence = tp.PCoreferenceSentence()
-            coreference_sentence.initialize('', \
-                                            words_with_root, \
-                                            lemmas_with_root, \
-                                            tags_with_root, \
-                                            tags_with_root, \
-                                            feats_with_root, \
-                                            deprels_with_root, \
-                                            heads_with_root, \
-                                            predicate_names, \
-                                            predicate_indices, \
-                                            argument_roles, \
-                                            argument_indices, \
-                                            speakers_with_root, \
-                                            p_entity_spans, \
-                                            p_constituent_spans, \
+            coreference_sentence.initialize('',
+                                            words_with_root,
+                                            lemmas_with_root,
+                                            tags_with_root,
+                                            tags_with_root,
+                                            feats_with_root,
+                                            deprels_with_root,
+                                            heads_with_root,
+                                            predicate_names,
+                                            predicate_indices,
+                                            argument_roles,
+                                            argument_indices,
+                                            speakers_with_root,
+                                            p_entity_spans,
+                                            p_constituent_spans,
                                             p_coreference_spans)
             coreference_sentences.append(coreference_sentence)
 
         coreference_document = tp.PCoreferenceDocument()
         coreference_document.initialize('', 0, coreference_sentences)
-        worker.coreference_resolver.resolve_coreferences_from_document( \
+        worker.coreference_resolver.resolve_coreferences_from_document(
             coreference_document)
 
         for i, sentence in enumerate(sentences):
@@ -64,5 +64,5 @@ class NLPDocument(dict):
             coreference_spans = coreference_sentence.get_coreference_spans()
             # Convert back to 0-based indexing.
             sentence['coreference_spans'] = \
-                [(span.start()-1, span.end()-1, span.name()) \
+                [(span.start()-1, span.end()-1, span.name())
                  for span in coreference_spans]
