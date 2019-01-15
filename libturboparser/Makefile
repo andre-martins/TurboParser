@@ -15,7 +15,10 @@ CC = g++
 DEBUG = -g
 INCLUDES = -I$(UTIL)/ -I$(CLASSIFIER) -I$(SEQUENCE) -I$(TAGGER) -I$(ENTITYRECOGNIZER) -I$(PARSER) -I$(SEMANTICPARSER) -I$(COREFERENCERESOLVER)  -I$(MORPHOLOGICALTAGGER) -I$(AUXINCLUDES)
 LIBS = -L/usr/local/lib/ -L$(AUXLIBS)
-CFLAGS = -std=gnu++14 -std=c++14 -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC $(INCLUDES)
+
+BYPASSINIT_GLOG_D =
+
+CFLAGS = -std=gnu++14 -std=c++14 -O3 -Wall -Wno-sign-compare -c -fmessage-length=0 -fPIC  $(BYPASSINIT_GLOG_D) $(INCLUDES)
 LDFLAGS = -shared
 LFLAGS = $(LIBS) -Wl,-whole-archive -lad3 -Wl,-no-whole-archive -lgflags -lglog
 

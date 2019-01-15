@@ -357,7 +357,7 @@ TurboParserInterface::TurboParserInterface() {
   argv_ = NULL;
   BuildArgumentList();
 
-#ifndef BYPASS_INIT_GLOG
+#ifndef BYPASSINIT_GLOG
   std::cout << "Init glog from libturboparser..." << std::endl;
   InitGlog(argv_[0]);
 #else
