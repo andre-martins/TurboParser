@@ -159,6 +159,7 @@ public:
                                    std::vector<int> *morphological_tags) {
     // The second argument allows returning allowed tags for words that
     // exist in the lexicon but do not occur in the corpus.
+    //*morphological_tags = cpostag_morphologicaltags_[cpostag];
     std::set<int> morphological_tag_set(morphological_tags->begin(),
                                         morphological_tags->end());
     if (lexicon_word >= 0) {
